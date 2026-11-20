@@ -40,7 +40,7 @@ function session() {
 /** The address as a readable page path: landing "/", app "/app", editor "/d/:id" … */
 export function currentPath() {
   const h = location.hash
-  if (!h || h === '#' || h === '#/welcome') return '/'
+  if (!h || h === '#' || h === '#/welcome') return location.pathname.replace(/(.)\/+$/, '$1') // "/" or a public page ("/narxlar")
   if (/^#\/d\//.test(h)) return '/editor'
   if (h === '#/') return '/app'
   return h.slice(1).split('?')[0]
@@ -94,4 +94,5 @@ function loadGa(id, path) {
 export function startTracking() {
   trackView()
   window.addEventListener('hashchange', () => trackView())
+  window.addEventListener('popstate', () => trackView())
 }

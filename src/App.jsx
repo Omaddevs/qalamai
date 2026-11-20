@@ -8,6 +8,8 @@ import { deleteDesign, duplicateDesign, getDesign, loadDesigns, newDeck, saveDes
 import { isKit } from './creators/kitTypes.js'
 import { t } from './i18n/index.js'
 import { kindLabel } from './i18n/kinds.js'
+import { pageByPath, pathOf } from './landing/pages.js'
+import { go } from './nav.js'
 
 // Each page is its own chunk: a visitor downloads only the page in front of them.
 const PAGES = {
@@ -25,11 +27,11 @@ const CreatorStudio = lazy(PAGES.creator)
 // QalamChat (bottom-right chat to the team) is its own small chunk, shown on the landing and home pages.
 const QalamChat = lazy(() => import('./components/QalamChat.jsx'))
 
-const toAuth = (hash) => () => {
-  window.location.hash = hash
-  window.scrollTo(0, 0)
-}
-const chat = <Suspense fallback={null}><QalamChat onSignup={toAuth('#/auth')} onLogin={toAuth('#/auth/login')} /></Suspense>
+// Sign-up / sign-in have their own public addresses (/royxatdan-otish, /kirish).
+const toAuth = (id) => () => go(pathOf(id))
+const toSignup = toAuth('signup')
+const toLogin = toAuth('login')
+const chat = <Suspense fallback={null}><QalamChat onSignup={toSignup} onLogin={toLogin} /></Suspense>
 
 // Once the first page is up and the browser is idle, fetch the pages a click away,
 // so moving between them never waits on the network.
@@ -43,11 +45,21 @@ function prefetchAfter(page) {
 
 const PageLoading = () => <div className="page-loading" role="status" aria-busy="true" />
 
-// Routes: "" or "#/welcome" → landing, "#/" → home, "#/d/<id>" → editor for that design.
+// Routes. The app lives behind "#/": "#/" → home, "#/d/<id>" → editor for that design,
+// "#/auth" / "#/auth/login" → sign-up / sign-in (still used by in-app links).
+// With no hash the path decides: "/" → landing, a public page (src/landing/pages.js) → that page.
+const noHash = () => ['', '#', '#/welcome'].includes(window.location.hash)
 const parseRoute = () => window.location.hash.match(/^#\/d\/(.+)$/)?.[1] ?? null
-const isLanding = () => ['', '#', '#/welcome'].includes(window.location.hash)
-// "#/auth" → sign-up, "#/auth/login" → sign-in
+const publicPage = () => (noHash() ? pageByPath(window.location.pathname) : null)
+// Landing variant to show: 'home' or a section page id; null when another screen is up.
+const parseLanding = () => {
+  if (!noHash()) return null
+  const p = publicPage()
+  return p ? (p.auth ? null : p.id) : 'home'
+}
 const parseAuth = () => {
+  const p = publicPage()
+  if (p?.auth) return p.auth
   const m = window.location.hash.match(/^#\/auth(?:\/(login))?$/)
   return m ? (m[1] ? 'login' : 'register') : null
 }
@@ -62,7 +74,7 @@ export default function App() {
 
 function Pages() {
   const [designId, setDesignId] = useState(parseRoute)
-  const [landing, setLanding] = useState(isLanding)
+  const [landing, setLanding] = useState(parseLanding)
   const [authMode, setAuthMode] = useState(parseAuth)
   const [designs, setDesigns] = useState(loadDesigns)
   const [nextPanel, setNextPanel] = useState('templates')
@@ -75,12 +87,16 @@ function Pages() {
   useEffect(() => {
     const onHash = () => {
       setDesignId(parseRoute())
-      setLanding(isLanding())
+      setLanding(parseLanding())
       setAuthMode(parseAuth())
       setDesigns(loadDesigns())
     }
     window.addEventListener('hashchange', onHash)
-    return () => window.removeEventListener('hashchange', onHash)
+    window.addEventListener('popstate', onHash)
+    return () => {
+      window.removeEventListener('hashchange', onHash)
+      window.removeEventListener('popstate', onHash)
+    }
   }, [])
 
   useEffect(() => {
@@ -93,8 +109,10 @@ function Pages() {
   const openDesign = useCallback((id) => {
     window.location.hash = `#/d/${id}`
   }, [])
+  // Into the app from a public page: drop the path so the address is "/#/".
   const goHome = useCallback(() => {
-    window.location.hash = '#/'
+    if (window.location.pathname !== '/') go('/#/')
+    else window.location.hash = '#/'
   }, [])
   const onSave = useCallback((deck) => saveDesign(deck), [])
 
@@ -139,26 +157,21 @@ function Pages() {
   if (landing) {
     return (
       <>
-        <Landing onStart={toAuth('#/auth')} onLogin={toAuth('#/auth/login')} />
+        <Landing key={landing} page={landing} onStart={toSignup} onLogin={toLogin} />
         {chat}
       </>
     )
   }
 
   if (authMode) {
-    const toApp = () => {
-      window.location.hash = '#/'
-      window.scrollTo(0, 0)
-    }
+    const toApp = () => go('/#/')
     return (
       <AuthPage
         mode={authMode}
-        onMode={(m) => window.location.replace(m === 'login' ? '#/auth/login' : '#/auth')}
+        onMode={(m) => go(pathOf(m === 'login' ? 'login' : 'signup'), { replace: true })}
         onDone={toApp}
         onGuest={toApp}
-        onBack={() => {
-          window.location.hash = '#/welcome'
-        }}
+        onBack={() => go('/')}
       />
     )
   }

@@ -7,6 +7,8 @@ import { SIGNUP_BONUS } from '../../shared/coins.js'
 import { COLORS } from '../data.js'
 import { t } from '../i18n/index.js'
 import { openQalamChat } from '../components/qalamChatBus.js'
+import { go, linkClick } from '../nav.js'
+import { PUBLIC_PAGES, pathOf } from './pages.js'
 import '../editor/editor.css'
 import ProductMock from './ProductMock.jsx'
 import HeroCursors from './HeroCursors.jsx'
@@ -22,16 +24,34 @@ import './landing.css'
 
 const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
+// Each section also has its own public page (src/landing/pages.js); "how it works" lives on the features page.
 const NAV = [
-  { id: 'imkoniyatlar', key: 'features' },
-  { id: 'qanday', key: 'how' },
-  { id: 'shablonlar', key: 'templates' },
-  { id: 'narxlar', key: 'pricing' },
-  { id: 'savollar', key: 'faq' },
-].map((n) => ({ ...n, get label() { return t(`lp.nav.${n.key}`) } }))
+  { id: 'imkoniyatlar', key: 'features', page: 'features' },
+  { id: 'qanday', key: 'how', page: 'features' },
+  { id: 'shablonlar', key: 'templates', page: 'templates' },
+  { id: 'narxlar', key: 'pricing', page: 'pricing' },
+  { id: 'savollar', key: 'faq', page: 'faq' },
+].map((n) => ({ ...n, path: pathOf(n.page), get label() { return t(`lp.nav.${n.key}`) } }))
 
 // Hash routing belongs to the app — in-page links scroll instead of touching location.hash.
 const scrollToId = (id) => document.getElementById(id)?.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'start' })
+
+// The first section of each section page: arriving there needs no scroll, the page starts at it.
+const LEAD = { features: 'imkoniyatlar', templates: 'shablonlar', pricing: 'narxlar', faq: 'savollar' }
+let pendingScroll = null
+
+/**
+ * A nav link is a real <a href="/narxlar"> (crawlable, opens in a new tab). A click scrolls when
+ * the section is on screen already, otherwise moves to its page.
+ */
+function navTo(n) {
+  if (document.getElementById(n.id)) return scrollToId(n.id)
+  pendingScroll = LEAD[n.page] === n.id ? null : n.id
+  go(n.path)
+}
+const NavLink = ({ n, ...rest }) => (
+  <a href={n.path} onClick={linkClick(() => navTo(n))} {...rest}>{n.label}</a>
+)
 
 /** Adds `.in` to every `.lp-reveal` once it scrolls into view. */
 function useReveal(root) {
@@ -190,29 +210,40 @@ function Header({ onStart, onLogin }) {
     return () => window.removeEventListener('keydown', k)
   }, [open])
 
-  const go = (id) => {
+  const follow = (n) => {
     setOpen(false)
-    scrollToId(id)
+    navTo(n)
   }
   return (
     <header className={`lp-nav ${scrolled ? 'scrolled' : ''} ${open ? 'open' : ''}`}>
       <div className="lp-bar">
         <div className="lp-bar-row">
-          <button className="lp-logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label={t('lp.nav.home')}>
+          <a
+            className="lp-logo"
+            href="/"
+            onClick={linkClick(() => (window.location.pathname === '/' ? window.scrollTo({ top: 0, behavior: 'smooth' }) : go('/')))}
+            aria-label={t('lp.nav.home')}
+          >
             <Wordmark size={19} />
-          </button>
+          </a>
           <nav className="lp-links" aria-label={t('lp.nav.main')}>
             {NAV.map((n) => (
-              <button key={n.id} className={active === n.id ? 'on' : ''} aria-current={active === n.id ? 'true' : undefined} onClick={() => go(n.id)}>
+              <a
+                key={n.id}
+                href={n.path}
+                className={active === n.id ? 'on' : ''}
+                aria-current={active === n.id ? 'true' : undefined}
+                onClick={linkClick(() => follow(n))}
+              >
                 {n.label}
-              </button>
+              </a>
             ))}
           </nav>
           <div className="lp-nav-right">
             <LangSwitch />
-            <button className="lp-btn lp-btn-primary lp-nav-cta" onClick={onStart}>
+            <a className="lp-btn lp-btn-primary lp-nav-cta" href={pathOf('signup')} onClick={linkClick(onStart)}>
               {t('lp.startFree')}
-            </button>
+            </a>
             <button className="lp-burger" onClick={() => setOpen((o) => !o)} aria-label={t('lp.nav.menu')} aria-expanded={open}>
               {open ? <X size={18} weight="bold" /> : <List size={18} weight="bold" />}
             </button>
@@ -221,11 +252,11 @@ function Header({ onStart, onLogin }) {
         {open && (
           <div className="lp-mobile-menu">
             {NAV.map((n) => (
-              <button key={n.id} onClick={() => go(n.id)}>{n.label}</button>
+              <a key={n.id} href={n.path} onClick={linkClick(() => follow(n))}>{n.label}</a>
             ))}
             <div className="lp-mobile-cta">
-              <button className="lp-btn lp-btn-soft" onClick={onLogin}>{t('lp.login')}</button>
-              <button className="lp-btn lp-btn-primary" onClick={onStart}>{t('lp.startFree')} <ArrowRight size={15} weight="bold" /></button>
+              <a className="lp-btn lp-btn-soft" href={pathOf('login')} onClick={linkClick(onLogin)}>{t('lp.login')}</a>
+              <a className="lp-btn lp-btn-primary" href={pathOf('signup')} onClick={linkClick(onStart)}>{t('lp.startFree')} <ArrowRight size={15} weight="bold" /></a>
             </div>
           </div>
         )}
@@ -396,7 +427,7 @@ function FinalCta({ onStart }) {
   )
 }
 
-function Footer({ onStart }) {
+function Footer({ onStart, onLogin }) {
   return (
     <footer className="lp-footer">
       <div className="lp-footer-top">
@@ -430,11 +461,12 @@ function Footer({ onStart }) {
           </div>
           <div>
             <b>{t('lp.ft.pages')}</b>
-            {NAV.slice(0, 4).map((n) => <button key={n.id} onClick={() => scrollToId(n.id)}>{n.label}</button>)}
+            {NAV.slice(0, 4).map((n) => <NavLink key={n.id} n={n} />)}
           </div>
           <div>
             <b>{t('lp.ft.help')}</b>
-            <button onClick={() => scrollToId('savollar')}>{t('lp.nav.faq')}</button>
+            <NavLink n={NAV.find((n) => n.id === 'savollar')} />
+            <a href={pathOf('login')} onClick={linkClick(onLogin)}>{t('lp.login')}</a>
             <button onClick={onStart}>{t('lp.ft.alifbo')}</button>
             <button onClick={onStart}>{t('lp.ft.edu')}</button>
           </div>
@@ -457,40 +489,69 @@ function Footer({ onStart }) {
 
 /* ───────────────────────── page ───────────────────────── */
 
-export default function Landing({ onStart, onLogin }) {
+/** Sections each public page shows (the home page shows them all). */
+const PAGE_SECTIONS = {
+  features: ({ onStart }) => <><Features onStart={onStart} /><HowItWorks /></>,
+  templates: ({ onStart }) => <><Templates onStart={onStart} /><AudienceCards onStart={onStart} /></>,
+  pricing: ({ onStart }) => <Pricing onStart={onStart} />,
+  faq: () => null,
+}
+const WITH_FAQ = new Set(['home', 'pricing', 'faq'])
+
+export default function Landing({ page = 'home', onStart, onLogin }) {
   const root = useRef(null)
   useReveal(root)
+  const meta = page === 'home' ? null : PUBLIC_PAGES.find((p) => p.id === page)
   useEffect(() => {
     const prev = document.title
-    document.title = t('lp.title')
+    document.title = meta ? t(meta.title) : t('lp.title')
     const desc = document.querySelector('meta[name="description"]')
     const prevDesc = desc?.getAttribute('content')
-    desc?.setAttribute('content', t('lp.sub'))
+    desc?.setAttribute('content', meta ? t(meta.desc) : t('lp.sub'))
     return () => {
       document.title = prev
       if (desc && prevDesc != null) desc.setAttribute('content', prevDesc)
     }
+  }, [meta])
+  // arrived from a nav link aimed at a section further down this page
+  useEffect(() => {
+    if (!pendingScroll) return
+    const id = pendingScroll
+    pendingScroll = null
+    requestAnimationFrame(() => scrollToId(id))
   }, [])
+  const Sections = PAGE_SECTIONS[page]
   return (
-    <div className="lp" ref={root}>
+    <div className={`lp${meta ? ' lp-subpage' : ''}`} ref={root}>
       <Header onStart={onStart} onLogin={onLogin} />
-      <div className="lp-canvas">
-        <Hero onStart={onStart} />
-      </div>
-      <main className="lp-main">
-        <Facts />
-        <Features onStart={onStart} />
-        <HowItWorks />
-        <Templates onStart={onStart} />
-        <AudienceCards onStart={onStart} />
-        <Pricing onStart={onStart} />
-      </main>
+      {meta ? (
+        <main className="lp-main">
+          <h1 className="lp-page-h1">{t(`lp.page.${page}.h1`)}</h1>
+          <Sections onStart={onStart} />
+        </main>
+      ) : (
+        <>
+          <div className="lp-canvas">
+            <Hero onStart={onStart} />
+          </div>
+          <main className="lp-main">
+            <Facts />
+            <Features onStart={onStart} />
+            <HowItWorks />
+            <Templates onStart={onStart} />
+            <AudienceCards onStart={onStart} />
+            <Pricing onStart={onStart} />
+          </main>
+        </>
+      )}
       <div className="lp-end">
-        <div className="lp-faq-panel">
-          <Faq onContact={openQalamChat} />
-        </div>
+        {WITH_FAQ.has(page) && (
+          <div className="lp-faq-panel">
+            <Faq onContact={openQalamChat} />
+          </div>
+        )}
         <FinalCta onStart={onStart} />
-        <Footer onStart={onStart} />
+        <Footer onStart={onStart} onLogin={onLogin} />
       </div>
     </div>
   )

@@ -10,10 +10,11 @@
     <link rel="canonical" href="%SITE_URL%/" />
     <!-- %HREFLANG% -->
     <script>
-      // Each language version (/?lang=ru …) is its own canonical page; any other query is not.
+      // Each language version (/?lang=ru, /narxlar?lang=ru …) is its own canonical page; any other query is not.
       ;(function () {
         var l = new URLSearchParams(location.search).get('lang')
-        if (l && /^(uz|uz-cyrl|ru|en|kk|ky|tg)$/.test(l)) document.querySelector('link[rel=canonical]').href = '%SITE_URL%/?lang=' + l
+        var c = document.querySelector('link[rel=canonical]')
+        if (l && /^(uz|uz-cyrl|ru|en|kk|ky|tg)$/.test(l)) c.href = c.href.split('?')[0] + '?lang=' + l
       })()
     </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

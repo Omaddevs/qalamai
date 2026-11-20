@@ -1,0 +1,31 @@
+.sync-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: color 0.2s, background 0.2s, border-color 0.2s;
+}
+.sync-badge:disabled { cursor: default; }
+.sync-badge.ok svg { color: var(--teal-dark); }
+.sync-badge.busy svg { animation: sync-spin 0.9s linear infinite; }
+.sync-badge.off { border-color: #f3dfb5; background: #fffaf0; color: #92610e; cursor: pointer; }
+.sync-badge.bad { border-color: #f3d4d4; background: #fef2f2; color: #b91c1c; cursor: pointer; }
+.sync-badge.off:hover,
+.sync-badge.bad:hover { filter: brightness(0.97); }
+@keyframes sync-spin { to { transform: rotate(360deg); } }
+@media (max-width: 640px) {
+  .sync-badge span { display: none; }
+  .sync-badge { width: 34px; padding: 0; justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sync-badge.busy svg { animation: none; }
+}

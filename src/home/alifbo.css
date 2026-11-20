@@ -1,0 +1,118 @@
+/* ═════════════ Alifbo converter page ═════════════ */
+.av {
+  padding-bottom: 24px;
+}
+
+.av-head {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  overflow: hidden;
+  border: 1px solid #ebe8e1;
+  border-radius: 24px;
+  background: #fcfbf8;
+  animation: hx-rise 0.5s both;
+}
+
+.av-head-text {
+  position: relative;
+  z-index: 1;
+  padding: 30px 0 26px 32px;
+}
+
+.av-ic {
+  color: #0f9e8e;
+}
+
+.av-sub {
+  max-width: 520px;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.av-tabs {
+  display: inline-flex;
+  margin-top: 22px;
+}
+
+/* decorative letter pairs */
+.av-letters {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  align-content: center;
+  gap: 12px;
+  padding: 28px 40px 28px 0;
+}
+
+.av-pair {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border: 1px solid #e6e3dc;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 12px 28px -20px rgba(15, 17, 21, 0.35);
+  animation: hx-rise 0.5s both;
+  animation-delay: calc(var(--i) * 70ms + 120ms);
+}
+
+.av-pair span {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 600;
+  color: #16181d;
+}
+
+.av-pair span:last-child {
+  color: var(--teal-dark);
+}
+
+.av-pair i {
+  color: #a3a8b0;
+  font-style: normal;
+  font-size: 15px;
+}
+
+/* converter card */
+.av-card {
+  margin-top: 22px;
+  padding: 20px;
+  border: 1px solid #ebe8e1;
+  border-radius: 20px;
+  background: #fff;
+}
+
+.av-card .pane textarea {
+  min-height: 300px;
+  font-size: 15px;
+}
+
+.av-compare {
+  margin-top: 14px;
+}
+
+.av-foot {
+  margin-top: 14px;
+}
+
+@media (max-width: 900px) {
+  .av-letters {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .av-head-text {
+    padding: 22px 18px;
+  }
+  .av-tabs {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  .av-card {
+    padding: 12px;
+  }
+}

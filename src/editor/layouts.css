@@ -1,0 +1,568 @@
+/* ═════════════ Structured page layouts (layouts.jsx) ═════════════
+ * Colours and fonts come from the template as CSS variables (themeVars):
+ * --tx text · --mu muted · --acc / --acc2 accents · --card / --card-tx / --card-bd cards ·
+ * --rad radius · --tf / --bf fonts · --tw title weight · --tcase · --ts title scale · --ph image placeholder.
+ * Template-specific touches hang off .slide[data-skin=…] at the end of the file. */
+
+.ly-area { position: absolute; z-index: 1; display: flex; }
+.ly { position: relative; display: flex; flex: 1; flex-direction: column; min-width: 0; min-height: 0; gap: 1.6cqw; color: var(--tx); font-family: var(--bf); }
+
+/* shared text */
+.ly-h {
+  font-family: var(--tf);
+  font-weight: var(--tw);
+  font-size: calc(3.9cqw * var(--ts));
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  text-transform: var(--tcase);
+  overflow-wrap: break-word;
+}
+.ly-p { font-size: calc(1.85cqw * var(--bs)); line-height: 1.5; color: var(--mu); }
+.ly-p.sm { font-size: calc(1.5cqw * var(--bs)); line-height: 1.45; }
+.ly-sub { font-size: calc(2cqw * var(--bs)); line-height: 1.4; color: var(--mu); }
+.ly-kicker { font-size: 1.15cqw; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--acc); }
+.ly-rule { display: block; width: 6cqw; height: 0.3cqw; border-radius: 9px; background: var(--acc); }
+.ly-card-title { font-family: var(--tf); font-weight: var(--tw); font-size: calc(2.1cqw * var(--bs)); line-height: 1.2; color: var(--card-tx); text-transform: var(--tcase); }
+
+/* bullets */
+.ly-bullets { display: flex; flex-direction: column; gap: 1cqw; margin: 0; padding: 0; list-style: none; }
+.ly-bullets li { display: flex; align-items: baseline; gap: 1.1cqw; font-size: calc(1.85cqw * var(--bs)); line-height: 1.4; }
+.ly-dot { flex-shrink: 0; width: 0.9cqw; height: 0.9cqw; border-radius: 50%; background: var(--acc); transform: translateY(-0.15cqw); }
+
+/* images */
+.ly-img { position: relative; min-width: 0; min-height: 0; }
+.ly-img-in { position: absolute; inset: 0; overflow: hidden; border-radius: var(--rad); background: var(--ph); }
+.ly-img img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.ly-img-ph { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.6cqw; color: var(--mu); }
+.ly-img-ph svg { width: 4cqw; height: 4cqw; opacity: 0.55; }
+.ly-img-ph small { font-size: 1.1cqw; font-weight: 600; }
+.ly-img[role='button'] { cursor: pointer; pointer-events: auto; }
+.ly-img[role='button']:hover .ly-img-in { outline: 0.25cqw dashed var(--acc); outline-offset: -0.25cqw; }
+/* frames */
+.f-arch .ly-img-in { border-radius: 50% 50% var(--rad) var(--rad) / 34% 34% var(--rad) var(--rad); }
+.f-oval .ly-img-in { border-radius: 50%; }
+.f-gold .ly-img-in {
+  border-radius: 0.4cqw;
+  box-shadow: 0 0 0 0.45cqw #8a6a2c, 0 0 0 0.7cqw #e8c873, 0 0 0 1.2cqw #a07a30, 0 0 0 1.35cqw #f3dc9a, 0 1.6cqw 2.4cqw rgba(0, 0, 0, 0.55);
+}
+.f-polaroid .ly-img-in { border: 0.9cqw solid #fff; border-bottom-width: 2.6cqw; border-radius: 0.3cqw; box-shadow: 0 1cqw 2cqw rgba(0, 0, 0, 0.25); transform: rotate(-2deg); }
+.f-glow .ly-img-in { box-shadow: 0 0 0 0.12cqw rgba(255, 255, 255, 0.15), 0 1.6cqw 3cqw rgba(0, 0, 0, 0.35); }
+
+/* ── cover ── */
+.ly-cover { justify-content: center; gap: 1.4cqw; }
+.ly-cover-text { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 1.4cqw; text-align: var(--talign); }
+.ly-cover-title {
+  font-family: var(--tf);
+  font-weight: var(--tw);
+  font-size: calc(6.2cqw * var(--ts));
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  text-transform: var(--tcase);
+  overflow-wrap: break-word;
+}
+.c-center { align-items: center; text-align: center; }
+.c-center .ly-cover-text { align-items: center; text-align: center; max-width: 80%; }
+.c-center .ly-rule { margin: 0 auto; }
+.c-left .ly-cover-text { max-width: 66%; }
+.c-split { flex-direction: row; align-items: center; gap: 4cqw; }
+.c-split .ly-cover-text { flex: 1.15; }
+.c-split .ly-cover-img { flex: 1; align-self: stretch; order: 2; }
+.c-bg { align-items: center; text-align: center; }
+.c-bg .ly-cover-img { position: absolute; inset: -6% -10%; z-index: 0; opacity: 0.35; }
+.c-bg .ly-cover-img .ly-img-in { border-radius: 0; }
+.c-bg .ly-cover-text { align-items: center; max-width: 80%; }
+.c-bg .ly-rule { margin: 0 auto; }
+
+/* ── content (classic bullets) ── */
+.ly-content { justify-content: center; max-width: 72%; }
+.ly-content .ly-bullets { gap: 1.4cqw; }
+.ly-content .ly-bullets li { font-size: calc(2.3cqw * var(--bs)); }
+
+/* ── agenda ── */
+.ly-agenda { justify-content: center; }
+.ly-agenda-list { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4cqw 3.4cqw; margin: 1cqw 0 0; padding: 0; list-style: none; }
+.ly-agenda-list li { display: flex; align-items: center; gap: 1.4cqw; padding-bottom: 1.2cqw; border-bottom: 0.1cqw solid color-mix(in srgb, var(--tx) 18%, transparent); font-size: calc(2.1cqw * var(--bs)); }
+.ly-num { font-family: var(--tf); font-weight: var(--tw); font-size: 2.2cqw; color: var(--acc); font-variant-numeric: tabular-nums; }
+
+/* ── section ── */
+.ly-section { justify-content: center; gap: 1.4cqw; }
+.ly-big-num { font-family: var(--tf); font-weight: var(--tw); font-size: 11cqw; line-height: 0.9; color: var(--acc); opacity: 0.9; }
+
+/* ── media (text + picture) ── */
+.ly-media { flex-direction: row; align-items: stretch; gap: 4cqw; }
+.ly-media.flip { flex-direction: row-reverse; }
+.ly-media-text { display: flex; flex: 1.1; flex-direction: column; justify-content: center; gap: 1.6cqw; min-width: 0; }
+.ly-media-img { flex: 1; }
+
+/* ── cards ── */
+.ly-cards { justify-content: center; gap: 2.4cqw; }
+.ly-card-row { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 1.6cqw; }
+.ly-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9cqw;
+  min-height: 15cqw;
+  padding: 2.2cqw;
+  border: 0.12cqw solid var(--card-bd);
+  border-radius: var(--rad);
+  background: var(--card);
+  color: var(--card-tx);
+}
+.ly-card .ly-p { color: color-mix(in srgb, var(--card-tx) 72%, transparent); }
+.ly-card-num { font-family: var(--tf); font-weight: var(--tw); font-size: 1.5cqw; color: var(--acc); }
+
+/* ── stats ── */
+.ly-stats { justify-content: center; gap: 2.6cqw; }
+.ly-stat-row { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 1.6cqw; }
+.ly-stat { display: flex; flex-direction: column; gap: 0.6cqw; padding: 2.4cqw; border: 0.12cqw solid var(--card-bd); border-radius: var(--rad); background: var(--card); }
+.ly-stat-v { font-family: var(--tf); font-weight: var(--tw); font-size: 6cqw; line-height: 1; letter-spacing: -0.03em; color: var(--acc); }
+.ly-stat .ly-p { color: color-mix(in srgb, var(--card-tx) 75%, transparent); }
+.ly-foot { max-width: 70%; }
+
+/* ── process / timeline ── */
+.ly-process { justify-content: center; gap: 3cqw; }
+.ly-steps { position: relative; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 1.6cqw; }
+.ly-steps-line { position: absolute; left: 2cqw; right: 2cqw; top: 2cqw; height: 0.2cqw; background: color-mix(in srgb, var(--acc) 55%, transparent); }
+.ly-step { position: relative; display: flex; flex-direction: column; gap: 0.8cqw; }
+.ly-step-dot {
+  display: grid;
+  place-items: center;
+  width: 4cqw;
+  height: 4cqw;
+  margin-bottom: 0.6cqw;
+  border-radius: 50%;
+  background: var(--acc);
+  color: var(--btn-tx, #fff);
+  font-family: var(--tf);
+  font-weight: 700;
+  font-size: 1.9cqw;
+  box-shadow: 0 0 0 0.6cqw color-mix(in srgb, var(--acc) 18%, transparent);
+}
+.ly-step .ly-card-title { color: var(--tx); }
+
+/* ── team ── */
+.ly-team { justify-content: center; gap: 2.6cqw; }
+.ly-people { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 3cqw; padding: 0 2cqw; }
+.ly-person { display: flex; flex-direction: column; align-items: center; gap: 0.6cqw; text-align: center; }
+.ly-face { width: 100%; max-width: 15cqw; aspect-ratio: 1; margin-bottom: 1.2cqw; }
+.ly-face.f-gold, .ly-media-img.f-gold { margin: 1.4cqw; }
+.ly-person .ly-card-title { color: var(--tx); }
+
+/* ── quote ── */
+.ly-quote { align-items: center; justify-content: center; gap: 1.8cqw; text-align: center; }
+.ly-quote-mark { width: 6cqw; height: 6cqw; color: var(--acc); }
+.ly-quote-text { max-width: 78%; font-family: var(--tf); font-weight: var(--tw); font-size: calc(4.2cqw * var(--ts)); line-height: 1.2; }
+
+/* ── chart ── */
+.ly-chart { flex-direction: row; align-items: stretch; gap: 4cqw; }
+.ly-chart-text { display: flex; flex: 0.9; flex-direction: column; justify-content: center; gap: 1.6cqw; }
+.ly-bars {
+  display: grid;
+  flex: 1.2;
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  align-items: end;
+  gap: 1.8cqw;
+  padding: 2cqw 2cqw 0;
+  border-bottom: 0.15cqw solid color-mix(in srgb, var(--tx) 30%, transparent);
+}
+.ly-bar { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 0.6cqw; height: 100%; }
+.ly-bar-fill { width: 100%; min-height: 0.4cqw; border-radius: calc(var(--rad) * 0.6) calc(var(--rad) * 0.6) 0 0; background: linear-gradient(180deg, var(--acc), var(--acc2)); }
+.ly-bar-v { font-family: var(--tf); font-weight: var(--tw); font-size: 1.7cqw; }
+.ly-bar-l { padding: 0.6cqw 0; font-size: 1.5cqw; color: var(--mu); transform: translateY(100%); margin-top: -2.4cqw; }
+
+/* ── quiz ── */
+.ly-quiz { justify-content: center; gap: 1.6cqw; }
+.ly-quiz-badge {
+  position: absolute;
+  left: 0;
+  top: -0.8cqw;
+  display: grid;
+  place-items: center;
+  width: 4.4cqw;
+  height: 5.4cqw;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+  background: var(--acc);
+  color: var(--btn-tx);
+  font-family: var(--tf);
+  font-weight: 700;
+  font-size: 2.2cqw;
+  padding-bottom: 0.8cqw;
+}
+.ly-quiz-label { padding-left: 6cqw; font-family: var(--tf); font-weight: var(--tw); font-size: calc(4.6cqw * var(--ts)); line-height: 1; text-transform: uppercase; color: var(--acc); }
+.ly-quiz-q { padding-left: 6cqw; font-size: 2.9cqw; font-weight: 600; line-height: 1.35; }
+.ly-options { display: grid; grid-template-columns: 1fr 1fr; gap: 2.2cqw 3cqw; margin-top: 1cqw; padding-left: 6cqw; }
+.ly-opt { display: flex; align-items: center; gap: 1.4cqw; font-size: 2.5cqw; font-weight: 600; transition: opacity 0.2s; }
+.ly-opt-l {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 4.4cqw;
+  height: 4.4cqw;
+  border-radius: 50%;
+  background: var(--acc2);
+  color: #fff;
+  font-family: var(--tf);
+  font-size: 2.1cqw;
+  font-weight: 700;
+}
+.ly-opt-l svg { width: 2.4cqw; height: 2.4cqw; }
+.ly-opt-l.pick { cursor: pointer; pointer-events: auto; }
+.ly-opt-l.pick:hover { filter: brightness(1.1); box-shadow: 0 0 0 0.4cqw color-mix(in srgb, var(--acc2) 30%, transparent); }
+.ly-opt.right .ly-opt-l { background: #16a34a; box-shadow: 0 0 0 0.6cqw rgba(22, 163, 74, 0.2); }
+.ly-opt.right { font-size: 3cqw; }
+.ly-opt.dim { opacity: 0.35; }
+
+/* ── compare ── */
+.ly-compare { justify-content: center; gap: 2.4cqw; }
+.ly-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 2cqw; }
+.ly-col { display: flex; flex-direction: column; gap: 1.4cqw; padding: 2.2cqw; border: 0.12cqw solid var(--card-bd); border-radius: var(--rad); background: var(--card); color: var(--card-tx); }
+.ly-col.right .ly-dot { background: var(--acc2); }
+
+/* ── end ── */
+.ly-end { align-items: center; justify-content: center; gap: 1.4cqw; text-align: center; }
+.ly-end .ly-rule { margin: 0 auto; }
+.ly-end-title { font-family: var(--tf); font-weight: var(--tw); font-size: calc(8cqw * var(--ts)); line-height: 1; letter-spacing: -0.02em; text-transform: var(--tcase); }
+.ly-contact { margin-top: 1cqw; padding: 0.8cqw 2cqw; border: 0.12cqw solid color-mix(in srgb, var(--tx) 30%, transparent); border-radius: 9cqw; font-size: 1.3cqw; color: var(--mu); }
+
+/* ═════════════ Skins: what makes each template itself ═════════════ */
+
+/* Gallery — gilded serif, italic accents, gold rules */
+.slide[data-skin='gallery'] .ly-h,
+.slide[data-skin='gallery'] .ly-cover-title,
+.slide[data-skin='gallery'] .ly-end-title { font-style: italic; letter-spacing: 0; }
+.slide[data-skin='gallery'] .ly-rule { width: 12cqw; height: 0.12cqw; background: linear-gradient(90deg, transparent, var(--acc), transparent); }
+.slide[data-skin='gallery'] .ly-card,
+.slide[data-skin='gallery'] .ly-stat,
+.slide[data-skin='gallery'] .ly-col { backdrop-filter: blur(0.4cqw); }
+.slide[data-skin='gallery'] .ly-step-dot { background: transparent; border: 0.15cqw solid var(--acc); color: var(--acc); box-shadow: none; }
+
+/* Book — ink on old paper, script headings, sepia photos */
+.slide[data-skin='book'] .ly-h,
+.slide[data-skin='book'] .ly-cover-title,
+.slide[data-skin='book'] .ly-end-title { font-style: italic; letter-spacing: 0; }
+.slide[data-skin='book'] .ly-img img { filter: sepia(0.45) contrast(1.05); }
+.slide[data-skin='book'] .ly-rule { width: 10cqw; height: 0.5cqw; background: none; border-top: 0.12cqw solid var(--acc); border-bottom: 0.12cqw solid var(--acc); }
+.slide[data-skin='book'] .ly-media,
+.slide[data-skin='book'] .ly-chart { gap: 9cqw; } /* keeps the two halves off the gutter */
+/* single-column text stays on the left page, clear of the fold */
+.slide[data-skin='book'] .ly-content,
+.slide[data-skin='book'] .ly-section { max-width: 40%; }
+
+/* Quiz — chunky rounded headings, sticker cards */
+.slide[data-skin='quiz'] .ly-h,
+.slide[data-skin='quiz'] .ly-cover-title,
+.slide[data-skin='quiz'] .ly-end-title { color: var(--acc); -webkit-text-stroke: 0.08cqw rgba(0, 0, 0, 0.15); }
+.slide[data-skin='quiz'] .ly-card,
+.slide[data-skin='quiz'] .ly-stat,
+.slide[data-skin='quiz'] .ly-col { box-shadow: 0.4cqw 0.4cqw 0 rgba(31, 41, 55, 0.85); border: 0.18cqw solid #1f2937; }
+.slide[data-skin='quiz'] .ly-dot { border-radius: 0.3cqw; transform: rotate(45deg); }
+
+/* Law — tall condensed headings, glass panels */
+.slide[data-skin='law'] .ly-cover-title,
+.slide[data-skin='law'] .ly-end-title { font-size: calc(9cqw * var(--ts)); line-height: 0.92; letter-spacing: 0.01em; }
+.slide[data-skin='law'] .ly-card,
+.slide[data-skin='law'] .ly-stat,
+.slide[data-skin='law'] .ly-col { backdrop-filter: blur(0.6cqw); }
+.slide[data-skin='law'] .ly-rule { width: 9cqw; height: 0.2cqw; }
+
+/* Pitch — product-launch type, pill kicker */
+.slide[data-skin='pitch'] .ly-kicker { align-self: flex-start; padding: 0.5cqw 1.2cqw; border-radius: 9cqw; background: color-mix(in srgb, var(--acc) 16%, transparent); letter-spacing: 0.08em; }
+.slide[data-skin='pitch'] .c-center .ly-kicker { align-self: center; }
+.slide[data-skin='pitch'] .ly-rule { display: none; }
+.slide[data-skin='pitch'] .ly-h { letter-spacing: -0.03em; }
+.slide[data-skin='pitch'] .ly-cover-title,
+.slide[data-skin='pitch'] .ly-end-title { letter-spacing: -0.045em; }
+
+/* Brand — heavy tight sans, crimson pills */
+.slide[data-skin='brand'] .ly-h,
+.slide[data-skin='brand'] .ly-cover-title,
+.slide[data-skin='brand'] .ly-end-title { color: var(--acc); letter-spacing: -0.04em; }
+.slide[data-skin='brand'] .ly-rule { display: none; }
+.slide[data-skin='brand'] .ly-card-num,
+.slide[data-skin='brand'] .ly-kicker { align-self: flex-start; padding: 0.4cqw 1.1cqw; border-radius: 9cqw; background: var(--acc); color: #fff; letter-spacing: 0.06em; }
+.slide[data-skin='brand'] .ly-step-dot { align-self: flex-start; border-radius: 9cqw; width: auto; min-width: 5cqw; padding: 0 1.4cqw; height: 3.2cqw; }
+
+/* extra frames */
+.f-pill .ly-img-in { border-radius: 9cqw; }
+.f-tall .ly-img-in { border-radius: 9cqw 9cqw var(--rad) var(--rad); }
+
+/* Law teal — League Gothic, very tall titles, glass panels (reuses law skin) */
+
+/* Law serif — italic display serif on wine, pill photos */
+.slide[data-skin='lawserif'] .ly-h,
+.slide[data-skin='lawserif'] .ly-cover-title,
+.slide[data-skin='lawserif'] .ly-end-title { font-style: italic; letter-spacing: -0.01em; }
+.slide[data-skin='lawserif'] .ly-cover-title { font-size: calc(7.4cqw * var(--ts)); }
+.slide[data-skin='lawserif'] .ly-rule { width: 14cqw; height: 0.12cqw; }
+.slide[data-skin='lawserif'] .ly-card,
+.slide[data-skin='lawserif'] .ly-stat,
+.slide[data-skin='lawserif'] .ly-col { border-left: 0.35cqw solid var(--acc); }
+.slide[data-skin='lawserif'] .ly-kicker { letter-spacing: 0.3em; }
+
+/* Agency — editorial red serif, black & white photos, red cards */
+.slide[data-skin='agency'] .ly-h,
+.slide[data-skin='agency'] .ly-cover-title,
+.slide[data-skin='agency'] .ly-end-title { letter-spacing: -0.03em; line-height: 0.95; }
+.slide[data-skin='agency'] .ly-cover-title { font-size: calc(8.6cqw * var(--ts)); }
+.slide[data-skin='agency'] .ly-h { font-size: calc(5cqw * var(--ts)); }
+.slide[data-skin='agency'] .ly-img img { filter: grayscale(1) contrast(1.1); }
+.slide[data-skin='agency'] .ly-rule { display: none; }
+.slide[data-skin='agency'] .ly-card-num,
+.slide[data-skin='agency'] .ly-kicker { align-self: flex-start; padding: 0.4cqw 1.1cqw; background: var(--acc); color: var(--btn-tx); letter-spacing: 0.12em; }
+
+/* Rights — tall condensed navy caps, yellow highlight bars */
+.slide[data-skin='rights'] .ly-h,
+.slide[data-skin='rights'] .ly-cover-title,
+.slide[data-skin='rights'] .ly-end-title { line-height: 0.92; letter-spacing: -0.005em; }
+.slide[data-skin='rights'] .ly-cover-title,
+.slide[data-skin='rights'] .ly-end-title { font-size: calc(9.5cqw * var(--ts)); }
+.slide[data-skin='rights'] .ly-h { font-size: calc(5.4cqw * var(--ts)); }
+.slide[data-skin='rights'] .ly-rule { width: 18cqw; height: 1.4cqw; border-radius: 0; background: var(--acc); }
+.slide[data-skin='rights'] .ly-card-title { display: inline-block; align-self: flex-start; padding: 0.2cqw 0.8cqw; background: var(--acc); }
+.slide[data-skin='rights'] .ly-card { border: 0; border-top: 0.3cqw solid var(--tx); border-radius: 0; background: transparent; padding-left: 0; }
+.slide[data-skin='rights'] .ly-step-dot { border-radius: 0; background: var(--tx); color: var(--acc); box-shadow: none; }
+
+/* Legal folio — bold caps on night green, cream cards */
+.slide[data-skin='folio'] .ly-h,
+.slide[data-skin='folio'] .ly-cover-title,
+.slide[data-skin='folio'] .ly-end-title { letter-spacing: 0.005em; line-height: 0.98; }
+.slide[data-skin='folio'] .ly-cover-title { font-size: calc(7.4cqw * var(--ts)); }
+.slide[data-skin='folio'] .ly-card,
+.slide[data-skin='folio'] .ly-stat,
+.slide[data-skin='folio'] .ly-col { box-shadow: 0 1.4cqw 2.4cqw rgba(0, 0, 0, 0.35); }
+.slide[data-skin='folio'] .ly-rule { width: 8cqw; }
+.slide[data-skin='folio'] .ly-img img { filter: saturate(0.85); }
+
+/* contrast fixes: accents that sit on light cards / paper */
+.slide[data-skin='rights'] .ly-kicker,
+.slide[data-skin='rights'] .ly-card-num,
+.slide[data-skin='rights'] .ly-num { color: var(--acc2); }
+.slide[data-skin='rights'] .ly-stat-v { color: var(--tx); }
+.slide[data-skin='rights'] .ly-dot { background: var(--acc2); }
+.slide[data-skin='rights'] .ly-cover-text .ly-rule,
+.slide[data-skin='rights'] .ly-end .ly-rule { margin-top: 1.2cqw; }
+.slide[data-skin='folio'] .ly-stat-v,
+.slide[data-skin='folio'] .ly-card-num { color: #c0712e; }
+.slide[data-skin='law'] .ly-card-title { font-size: calc(2.6cqw * var(--bs)); letter-spacing: 0.01em; }
+
+/* ═════════════ Stage 2: education & kids ═════════════ */
+
+/* Kids — handwritten caps, every heading in its own pen colour, round number stickers */
+.slide[data-skin='kids'] .ly-h,
+.slide[data-skin='kids'] .ly-cover-title,
+.slide[data-skin='kids'] .ly-end-title { color: var(--acc); letter-spacing: 0.01em; }
+.slide[data-skin='kids'] .ly-rule { height: 0.5cqw; width: 10cqw; border-radius: 9cqw; background: var(--acc2); transform: rotate(-2deg); }
+.slide[data-skin='kids'] .ly-card-num,
+.slide[data-skin='kids'] .ly-num {
+  display: grid; place-items: center; align-self: flex-start;
+  width: 3.4cqw; height: 3.4cqw; border-radius: 50%; background: var(--acc2); color: #fff; font-size: 1.6cqw;
+}
+.slide[data-skin='kids'] .ly-card,
+.slide[data-skin='kids'] .ly-stat,
+.slide[data-skin='kids'] .ly-col { border: 0.2cqw dashed var(--acc2); }
+.slide[data-skin='kids'] .ly-img-in { border: 0.4cqw solid #fff; box-shadow: 0 0 0 0.25cqw var(--acc2), 0.8cqw 0.8cqw 0 color-mix(in srgb, var(--acc2) 35%, transparent); }
+
+/* Crayon — chunky bubbly orange titles with a dark outline */
+.slide[data-skin='crayon'] .ly-h,
+.slide[data-skin='crayon'] .ly-cover-title,
+.slide[data-skin='crayon'] .ly-end-title {
+  color: var(--acc);
+  -webkit-text-stroke: 0.14cqw #7c2d12;
+  text-shadow: 0.25cqw 0.3cqw 0 #fde68a;
+  letter-spacing: 0.02em;
+}
+.slide[data-skin='crayon'] .ly-rule { height: 0.5cqw; width: 12cqw; background: repeating-linear-gradient(90deg, var(--acc2) 0 1.4cqw, transparent 1.4cqw 2cqw); }
+.slide[data-skin='crayon'] .ly-card,
+.slide[data-skin='crayon'] .ly-stat,
+.slide[data-skin='crayon'] .ly-col { border: 0.2cqw solid #fdba74; box-shadow: 0.5cqw 0.5cqw 0 #fed7aa; }
+.slide[data-skin='crayon'] .ly-card-num { font-size: 3cqw; color: var(--acc2); }
+
+/* Sketch — script headings over a yellow marker stroke */
+.slide[data-skin='sketch'] .ly-h,
+.slide[data-skin='sketch'] .ly-cover-title,
+.slide[data-skin='sketch'] .ly-end-title {
+  align-self: flex-start;
+  padding: 0 1.2cqw;
+  background: linear-gradient(176deg, transparent 52%, var(--acc) 52%, var(--acc) 86%, transparent 86%);
+  letter-spacing: 0;
+}
+.slide[data-skin='sketch'] .c-center .ly-cover-title,
+.slide[data-skin='sketch'] .ly-end-title { align-self: center; }
+.slide[data-skin='sketch'] .ly-rule { display: none; }
+.slide[data-skin='sketch'] .ly-img img { filter: grayscale(1) contrast(1.05); }
+.slide[data-skin='sketch'] .ly-card,
+.slide[data-skin='sketch'] .ly-stat,
+.slide[data-skin='sketch'] .ly-col { border: 0.15cqw solid #4b5563; border-radius: 0.4cqw 1.6cqw 0.6cqw 1.2cqw; }
+
+/* Chalkboard — chalk-white caps, pastel paper cards */
+.slide[data-skin='chalkboard'] .ly-h,
+.slide[data-skin='chalkboard'] .ly-cover-title,
+.slide[data-skin='chalkboard'] .ly-end-title { letter-spacing: 0.04em; text-shadow: 0 0 0.3cqw rgba(255, 255, 255, 0.25); }
+.slide[data-skin='chalkboard'] .ly-cover-title,
+.slide[data-skin='chalkboard'] .ly-end-title {
+  background: linear-gradient(90deg, #f9a8d4, #fde68a, #a5f3fc, #c4b5fd, #bbf7d0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.slide[data-skin='chalkboard'] .ly-card:nth-child(4n + 1),
+.slide[data-skin='chalkboard'] .ly-stat:nth-child(4n + 1) { background: #fde68a; }
+.slide[data-skin='chalkboard'] .ly-card:nth-child(4n + 2),
+.slide[data-skin='chalkboard'] .ly-stat:nth-child(4n + 2) { background: #bae6fd; }
+.slide[data-skin='chalkboard'] .ly-card:nth-child(4n + 3),
+.slide[data-skin='chalkboard'] .ly-stat:nth-child(4n + 3) { background: #bbf7d0; }
+.slide[data-skin='chalkboard'] .ly-card:nth-child(4n + 4),
+.slide[data-skin='chalkboard'] .ly-stat:nth-child(4n + 4) { background: #f9c6d3; }
+.slide[data-skin='chalkboard'] .ly-stat-v,
+.slide[data-skin='chalkboard'] .ly-card-num { color: #1f2937; }
+.slide[data-skin='chalkboard'] .ly-rule { height: 0.25cqw; width: 12cqw; background: repeating-linear-gradient(90deg, #fff 0 1cqw, transparent 1cqw 1.6cqw); opacity: 0.8; }
+
+/* Doodle — headings in pink "tabs" with an ink outline and a mint offset */
+.slide[data-skin='doodle'] .ly-h,
+.slide[data-skin='doodle'] .ly-cover-title,
+.slide[data-skin='doodle'] .ly-end-title {
+  align-self: flex-start;
+  padding: 0.4cqw 2cqw 0.6cqw;
+  border: 0.25cqw solid #111827;
+  border-radius: 0.6cqw;
+  background: var(--acc);
+  box-shadow: 0.7cqw 0.7cqw 0 var(--acc2), 0.7cqw 0.7cqw 0 0.25cqw #111827;
+  transform: rotate(-1.5deg);
+}
+.slide[data-skin='doodle'] .c-center .ly-cover-title,
+.slide[data-skin='doodle'] .ly-end-title { align-self: center; }
+.slide[data-skin='doodle'] .ly-rule { display: none; }
+.slide[data-skin='doodle'] .ly-card,
+.slide[data-skin='doodle'] .ly-stat,
+.slide[data-skin='doodle'] .ly-col { border: 0.22cqw solid #111827; box-shadow: 0.5cqw 0.5cqw 0 #111827; }
+.slide[data-skin='doodle'] .ly-card:nth-child(even),
+.slide[data-skin='doodle'] .ly-stat:nth-child(even) { background: var(--acc2); }
+.slide[data-skin='doodle'] .ly-card-num { align-self: flex-start; padding: 0.2cqw 0.9cqw; border: 0.18cqw solid #111827; border-radius: 9cqw; background: #fff; color: #111827; }
+.slide[data-skin='doodle'] .ly-img-in { border: 0.25cqw solid #111827; box-shadow: 0.6cqw 0.6cqw 0 var(--acc2); }
+.slide[data-skin='doodle'] .ly-step-dot { border: 0.2cqw solid #111827; color: #111827; background: var(--acc); }
+.slide[data-skin='sketch'] .ly-kicker,
+.slide[data-skin='sketch'] .ly-card-num,
+.slide[data-skin='sketch'] .ly-num { color: #b7791f; }
+.slide[data-skin='sketch'] .ly-stat-v { color: var(--tx); }
+.slide[data-skin='sketch'] .ly-step-dot { color: var(--tx); }
+.slide[data-skin='doodle'] .ly-kicker,
+.slide[data-skin='doodle'] .ly-num { color: #db2777; }
+.slide[data-skin='kids'] .ly-num { font-size: 1.3cqw; }
+
+/* ═════════════ Stage 3: debate, training, workshop ═════════════ */
+
+/* Debate stage — heavy wide caps, white sticker cards on red */
+.slide[data-skin='stage'] .ly-h,
+.slide[data-skin='stage'] .ly-cover-title,
+.slide[data-skin='stage'] .ly-end-title { letter-spacing: 0.01em; text-shadow: 0 0.5cqw 1.2cqw rgba(0, 0, 0, 0.45); }
+.slide[data-skin='stage'] .ly-cover-title,
+.slide[data-skin='stage'] .ly-end-title { font-size: calc(9cqw * var(--ts)); }
+.slide[data-skin='stage'] .ly-rule { width: 10cqw; height: 0.6cqw; }
+.slide[data-skin='stage'] .ly-card,
+.slide[data-skin='stage'] .ly-stat,
+.slide[data-skin='stage'] .ly-col { box-shadow: 0 1.2cqw 2cqw rgba(0, 0, 0, 0.4); }
+.slide[data-skin='stage'] .ly-card-num,
+.slide[data-skin='stage'] .ly-stat-v { color: var(--acc); }
+.slide[data-skin='stage'] .ly-col .ly-dot { background: var(--acc); }
+
+/* Splash debate — lime marker behind headings */
+.slide[data-skin='splash'] .ly-h,
+.slide[data-skin='splash'] .ly-cover-title,
+.slide[data-skin='splash'] .ly-end-title {
+  align-self: flex-start;
+  padding: 0 1cqw;
+  background: linear-gradient(transparent 45%, var(--acc) 45%, var(--acc) 92%, transparent 92%);
+}
+.slide[data-skin='splash'] .ly-rule { display: none; }
+.slide[data-skin='splash'] .ly-card-num,
+.slide[data-skin='splash'] .ly-kicker { align-self: flex-start; padding: 0.3cqw 1cqw; border-radius: 9cqw; background: #111; color: var(--acc); }
+.slide[data-skin='splash'] .ly-card,
+.slide[data-skin='splash'] .ly-stat,
+.slide[data-skin='splash'] .ly-col { border: 0.18cqw solid #111; }
+.slide[data-skin='splash'] .ly-stat-v { color: #111; }
+.slide[data-skin='splash'] .ly-step-dot { color: #111; }
+
+/* Club — cream & maroon, coral pills */
+.slide[data-skin='club'] .ly-h,
+.slide[data-skin='club'] .ly-cover-title,
+.slide[data-skin='club'] .ly-end-title { color: var(--acc2); letter-spacing: -0.02em; }
+.slide[data-skin='club'] .ly-cover-title { font-size: calc(7.6cqw * var(--ts)); }
+.slide[data-skin='club'] .ly-rule { width: 16cqw; height: 2.2cqw; border-radius: 9cqw; background: var(--acc); }
+.slide[data-skin='club'] .ly-card-num,
+.slide[data-skin='club'] .ly-kicker { align-self: flex-start; padding: 0.3cqw 1.1cqw; border-radius: 9cqw; background: var(--acc); color: #fff; }
+.slide[data-skin='club'] .ly-card,
+.slide[data-skin='club'] .ly-stat,
+.slide[data-skin='club'] .ly-col { border-left: 0.35cqw solid var(--acc); }
+
+/* Training — bold caps, orange underline, dark cards */
+.slide[data-skin='training'] .ly-h,
+.slide[data-skin='training'] .ly-cover-title,
+.slide[data-skin='training'] .ly-end-title { letter-spacing: -0.02em; line-height: 0.98; }
+.slide[data-skin='training'] .ly-cover-title { font-size: calc(7.4cqw * var(--ts)); }
+.slide[data-skin='training'] .ly-rule { width: 14cqw; height: 0.6cqw; border-radius: 0; }
+.slide[data-skin='training'] .ly-card-num,
+.slide[data-skin='training'] .ly-stat-v { color: var(--acc); }
+.slide[data-skin='training'] .ly-card-num { font-size: 2.6cqw; }
+.slide[data-skin='training'] .ly-step-dot { border-radius: 0.4cqw; }
+
+/* Roadmap — big light blue headings, orange tags */
+.slide[data-skin='roadmap'] .ly-h,
+.slide[data-skin='roadmap'] .ly-cover-title,
+.slide[data-skin='roadmap'] .ly-end-title { letter-spacing: -0.035em; }
+.slide[data-skin='roadmap'] .ly-card-num,
+.slide[data-skin='roadmap'] .ly-kicker { align-self: flex-start; padding: 0.35cqw 1.1cqw; border-radius: 0.4cqw; background: var(--acc2); color: #fff; letter-spacing: 0.02em; }
+.slide[data-skin='roadmap'] .ly-rule { display: none; }
+.slide[data-skin='roadmap'] .ly-img-in { border-radius: 1.6cqw 5cqw 1.6cqw 1.6cqw; }
+
+/* Workshop — monochrome, black boxes */
+.slide[data-skin='workshop'] .ly-h,
+.slide[data-skin='workshop'] .ly-cover-title,
+.slide[data-skin='workshop'] .ly-end-title { letter-spacing: -0.03em; line-height: 0.96; }
+.slide[data-skin='workshop'] .ly-cover-title { font-size: calc(7cqw * var(--ts)); }
+.slide[data-skin='workshop'] .ly-card,
+.slide[data-skin='workshop'] .ly-stat,
+.slide[data-skin='workshop'] .ly-col { border: 0.15cqw solid #111; }
+.slide[data-skin='workshop'] .ly-card-num { align-self: flex-start; padding: 0.3cqw 0.8cqw; background: #111; color: #fff; }
+.slide[data-skin='workshop'] .ly-rule { height: 0.4cqw; border-radius: 0; }
+.slide[data-skin='workshop'] .ly-img img { filter: grayscale(1); }
+
+/* Strategy — minimal grey, very bold tight headings */
+.slide[data-skin='strategy'] .ly-h,
+.slide[data-skin='strategy'] .ly-cover-title,
+.slide[data-skin='strategy'] .ly-end-title { letter-spacing: -0.045em; }
+.slide[data-skin='strategy'] .ly-cover-title { font-size: calc(8cqw * var(--ts)); }
+.slide[data-skin='strategy'] .ly-rule { display: none; }
+.slide[data-skin='strategy'] .ly-card-num { color: var(--mu); }
+.slide[data-skin='splash'] .ly-num { color: #4d7c0f; }
+.slide[data-skin='splash'] .ly-dot { background: #111; }
+.slide[data-skin='stage'] .ly-kicker { color: var(--acc2); }
+
+/* ═════════════ Stage 4: pitch decks ═════════════ */
+.slide[data-skin='sunrise'] .ly-h,
+.slide[data-skin='sunrise'] .ly-cover-title,
+.slide[data-skin='sunrise'] .ly-end-title { letter-spacing: -0.02em; }
+.slide[data-skin='sunrise'] .ly-card,
+.slide[data-skin='sunrise'] .ly-stat,
+.slide[data-skin='sunrise'] .ly-col { backdrop-filter: blur(0.8cqw); box-shadow: 0 1cqw 2.4cqw rgba(234, 88, 12, 0.08); }
+.slide[data-skin='sunrise'] .ly-rule { display: none; }
+.slide[data-skin='sunrise'] .ly-stat-v { color: var(--tx); }
+
+.slide[data-skin='flame'] .ly-h,
+.slide[data-skin='flame'] .ly-cover-title,
+.slide[data-skin='flame'] .ly-end-title { letter-spacing: -0.035em; }
+.slide[data-skin='flame'] .ly-rule { display: none; }
+.slide[data-skin='flame'] .ly-card-num { display: grid; place-items: center; align-self: flex-start; width: 3cqw; height: 3cqw; border-radius: 50%; background: color-mix(in srgb, var(--acc) 15%, transparent); }
+.slide[data-skin='flame'] .ly-stat-v { color: var(--tx); }
+
+.slide[data-skin='saas'] .ly-h,
+.slide[data-skin='saas'] .ly-cover-title,
+.slide[data-skin='saas'] .ly-end-title { letter-spacing: -0.035em; }
+.slide[data-skin='saas'] .ly-rule { display: none; }
+.slide[data-skin='saas'] .ly-card,
+.slide[data-skin='saas'] .ly-stat,
+.slide[data-skin='saas'] .ly-col { box-shadow: 0 0.8cqw 2cqw rgba(30, 64, 175, 0.08); }
+.slide[data-skin='saas'] .ly-stat-v { color: var(--tx); }
+.slide[data-skin='saas'] .ly-kicker { align-self: flex-start; padding: 0.4cqw 1.1cqw; border-radius: 9cqw; background: #fff; color: var(--acc); letter-spacing: 0.04em; }
+.slide[data-skin='saas'] .c-center .ly-kicker { align-self: center; }
+.slide[data-skin='saas'] .ly-img-in,
+.slide[data-skin='sunrise'] .ly-img-in { box-shadow: 0 1cqw 2.4cqw rgba(15, 23, 42, 0.1); }

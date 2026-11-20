@@ -1,0 +1,75 @@
+// Shared words: language picker, document kinds, generic buttons, client-side errors, units.
+export default {
+  'lang.menu': { uz: 'Interfeys tili', ru: 'Язык интерфейса', en: 'Interface language', kk: 'Интерфейс тілі', ky: 'Интерфейс тили', tg: 'Забони интерфейс' },
+  'lang.current': { uz: 'Til: {name}', ru: 'Язык: {name}', en: 'Language: {name}', kk: 'Тіл: {name}', ky: 'Тил: {name}', tg: 'Забон: {name}' },
+  'lang.label': { uz: 'Til', ru: 'Язык', en: 'Language', kk: 'Тіл', ky: 'Тил', tg: 'Забон' },
+
+  // document kinds (also coin action names)
+  'kind.proTemplate': { uz: 'Pro şablon', ru: 'Pro-шаблон', en: 'Pro template', kk: 'Pro үлгі', ky: 'Pro шаблон', tg: 'Қолаби Pro' },
+  'kind.presentation': { uz: 'Prezentatsiya', ru: 'Презентация', en: 'Presentation', kk: 'Презентация', ky: 'Презентация', tg: 'Презентатсия' },
+  'kind.slideshow': { uz: 'Taqdimot', ru: 'Презентация', en: 'Presentation', kk: 'Презентация', ky: 'Презентация', tg: 'Презентатсия' },
+  'kind.essay': { uz: 'Referat', ru: 'Реферат', en: 'Essay', kk: 'Реферат', ky: 'Реферат', tg: 'Реферат' },
+  'kind.coursework': { uz: 'Kurs işi', ru: 'Курсовая работа', en: 'Coursework', kk: 'Курстық жұмыс', ky: 'Курстук иш', tg: 'Кори курсӣ' },
+  'kind.thesis': { uz: 'Diplom işi', ru: 'Дипломная работа', en: 'Thesis', kk: 'Дипломдық жұмыс', ky: 'Дипломдук иш', tg: 'Кори дипломӣ' },
+  'kind.lessonPlan': { uz: 'Dars işlanma', ru: 'План урока', en: 'Lesson plan', kk: 'Сабақ жоспары', ky: 'Сабактын планы', tg: 'Нақшаи дарс' },
+  'kind.businessPlan': { uz: 'Biznes reja', ru: 'Бизнес-план', en: 'Business plan', kk: 'Бизнес-жоспар', ky: 'Бизнес-план', tg: 'Нақшаи тиҷоратӣ' },
+  'kind.report': { uz: 'Hisobot', ru: 'Отчёт', en: 'Report', kk: 'Есеп', ky: 'Отчёт', tg: 'Ҳисобот' },
+  'kind.invitation': { uz: 'Taklifnoma', ru: 'Приглашение', en: 'Invitation', kk: 'Шақыру хат', ky: 'Чакыруу', tg: 'Даъватнома' },
+  'kind.portfolio': { uz: 'Portfolio', ru: 'Портфолио', en: 'Portfolio', kk: 'Портфолио', ky: 'Портфолио', tg: 'Портфолио' },
+  'kind.rewrite': { uz: 'Qayta yoziş', ru: 'Рерайт', en: 'Rewrite', kk: 'Қайта жазу', ky: 'Кайра жазуу', tg: 'Аз нав навиштан' },
+  'kind.plagiarism': { uz: 'Plagiat tekşiruvi', ru: 'Проверка на плагиат', en: 'Plagiarism check', kk: 'Плагиатты тексеру', ky: 'Плагиатты текшерүү', tg: 'Санҷиши плагиат' },
+  'kind.translation': { uz: 'Tarjima', ru: 'Перевод', en: 'Translation', kk: 'Аударма', ky: 'Котормо', tg: 'Тарҷума' },
+  'kind.design': { uz: 'Dizayn', ru: 'Дизайн', en: 'Design', kk: 'Дизайн', ky: 'Дизайн', tg: 'Дизайн' },
+  'kind.document': { uz: 'Hujjat', ru: 'Документ', en: 'Document', kk: 'Құжат', ky: 'Документ', tg: 'Ҳуҷҷат' },
+
+  'kind.lesson': { uz: 'Dars', ru: 'Урок', en: 'Lesson', kk: 'Сабақ', ky: 'Сабак', tg: 'Дарс' },
+  'kind.businessDeck': { uz: 'Biznes taqdimot', ru: 'Бизнес-презентация', en: 'Business deck', kk: 'Бизнес презентация', ky: 'Бизнес презентация', tg: 'Презентатсияи тиҷоратӣ' },
+  'kind.logo': { uz: 'Logo', ru: 'Логотип', en: 'Logo', kk: 'Логотип', ky: 'Логотип', tg: 'Логотип' },
+  'kind.bio': { uz: 'Link in Bio', ru: 'Link in Bio', en: 'Link in Bio', kk: 'Link in Bio', ky: 'Link in Bio', tg: 'Link in Bio' },
+  'kind.resume': { uz: 'Rezyume', ru: 'Резюме', en: 'Résumé', kk: 'Түйіндеме', ky: 'Резюме', tg: 'Резюме' },
+
+  // relative time
+  'ago.now': { uz: 'hozirgina', ru: 'только что', en: 'just now', kk: 'жаңа ғана', ky: 'жаңы эле', tg: 'ҳозир' },
+  'ago.min': { uz: '{n} daqiqa oldin', ru: { one: '{n} минуту назад', few: '{n} минуты назад', many: '{n} минут назад', other: '{n} минуты назад' }, en: { one: '{n} minute ago', other: '{n} minutes ago' }, kk: '{n} минут бұрын', ky: '{n} мүнөт мурун', tg: '{n} дақиқа пеш' },
+  'ago.hour': { uz: '{n} soat oldin', ru: { one: '{n} час назад', few: '{n} часа назад', many: '{n} часов назад', other: '{n} часа назад' }, en: { one: '{n} hour ago', other: '{n} hours ago' }, kk: '{n} сағат бұрын', ky: '{n} саат мурун', tg: '{n} соат пеш' },
+  'ago.day': { uz: '{n} kun oldin', ru: { one: '{n} день назад', few: '{n} дня назад', many: '{n} дней назад', other: '{n} дня назад' }, en: { one: '{n} day ago', other: '{n} days ago' }, kk: '{n} күн бұрын', ky: '{n} күн мурун', tg: '{n} рӯз пеш' },
+
+  // designs
+  'doc.untitled': { uz: 'Nomsiz hujjat', ru: 'Документ без названия', en: 'Untitled document', kk: 'Атаусыз құжат', ky: 'Аталышсыз документ', tg: 'Ҳуҷҷати беном' },
+  'design.untitled': { uz: 'Nomsiz dizayn', ru: 'Дизайн без названия', en: 'Untitled design', kk: 'Атаусыз дизайн', ky: 'Аталышсыз дизайн', tg: 'Дизайни беном' },
+  'design.copyName': { uz: '{name} (nusxa)', ru: '{name} (копия)', en: '{name} (copy)', kk: '{name} (көшірме)', ky: '{name} (көчүрмө)', tg: '{name} (нусха)' },
+  'design.copied': { uz: 'Dizayn nusxalandi', ru: 'Дизайн скопирован', en: 'Design duplicated', kk: 'Дизайн көшірілді', ky: 'Дизайн көчүрүлдү', tg: 'Дизайн нусхабардорӣ шуд' },
+  'design.deleted': { uz: 'Dizayn öçirildi', ru: 'Дизайн удалён', en: 'Design deleted', kk: 'Дизайн жойылды', ky: 'Дизайн өчүрүлдү', tg: 'Дизайн нест карда шуд' },
+  'design.renamed': { uz: 'Nomi özgartirildi', ru: 'Название изменено', en: 'Renamed', kk: 'Атауы өзгертілді', ky: 'Аталышы өзгөртүлдү', tg: 'Ном иваз шуд' },
+  'design.aiReady': { uz: '«{topic}» — {kind}: {n} ta slayd tayyor (demo)', ru: '«{topic}» — {kind}: готово слайдов: {n} (демо)', en: '“{topic}” — {kind}: {n} slides ready (demo)', kk: '«{topic}» — {kind}: {n} слайд дайын (демо)', ky: '«{topic}» — {kind}: {n} слайд даяр (демо)', tg: '«{topic}» — {kind}: {n} слайд тайёр (демо)' },
+  'design.appDemo': { uz: '«{topic}» — {app} tayyorlanmoqda… (demo, AI hali ulanmagan)', ru: '«{topic}» — {app}: готовим… (демо, AI ещё не подключён)', en: '“{topic}” — {app} in progress… (demo, AI not connected yet)', kk: '«{topic}» — {app} дайындалуда… (демо, AI әлі қосылмаған)', ky: '«{topic}» — {app} даярдалууда… (демо, AI азырынча туташкан эмес)', tg: '«{topic}» — {app} омода мешавад… (демо, AI ҳоло пайваст нашудааст)' },
+  'design.newDesign': { uz: 'Yangi dizayn', ru: 'Новый дизайн', en: 'New design', kk: 'Жаңа дизайн', ky: 'Жаңы дизайн', tg: 'Дизайни нав' },
+
+  // generic actions
+  'ui.close': { uz: 'Yopiş', ru: 'Закрыть', en: 'Close', kk: 'Жабу', ky: 'Жабуу', tg: 'Пӯшидан' },
+  'ui.cancel': { uz: 'Bekor qiliş', ru: 'Отмена', en: 'Cancel', kk: 'Бас тарту', ky: 'Жокко чыгаруу', tg: 'Бекор кардан' },
+  'ui.save': { uz: 'Saqlaş', ru: 'Сохранить', en: 'Save', kk: 'Сақтау', ky: 'Сактоо', tg: 'Нигоҳ доштан' },
+  'ui.delete': { uz: 'Öçiriş', ru: 'Удалить', en: 'Delete', kk: 'Жою', ky: 'Өчүрүү', tg: 'Нест кардан' },
+  'ui.create': { uz: 'Yaratiş', ru: 'Создать', en: 'Create', kk: 'Жасау', ky: 'Түзүү', tg: 'Сохтан' },
+  'ui.soon': { uz: 'Tez kunda', ru: 'Скоро', en: 'Coming soon', kk: 'Жақында', ky: 'Жакында', tg: 'Ба наздикӣ' },
+  'ui.wait': { uz: 'Kutilmoqda…', ru: 'Подождите…', en: 'Please wait…', kk: 'Күтіңіз…', ky: 'Күтө туруңуз…', tg: 'Интизор шавед…' },
+  'ui.topicPh': { uz: 'Mavzuni kiriting', ru: 'Введите тему', en: 'Enter a topic', kk: 'Тақырыпты енгізіңіз', ky: 'Теманы киргизиңиз', tg: 'Мавзӯъро ворид кунед' },
+  'ui.download': { uz: 'Yuklab oliş', ru: 'Скачать', en: 'Download', kk: 'Жүктеп алу', ky: 'Жүктөп алуу', tg: 'Зеркашӣ' },
+  'ui.back': { uz: 'Orqaga', ru: 'Назад', en: 'Back', kk: 'Артқа', ky: 'Артка', tg: 'Ба қафо' },
+
+  // client-side API errors (the server sends its own, already translated)
+  'err.network': { uz: 'Server bilan boğlanib bölmadi', ru: 'Не удалось связаться с сервером', en: "Couldn't reach the server", kk: 'Сервермен байланысу мүмкін болмады', ky: 'Сервер менен байланышуу мүмкүн болбоду', tg: 'Бо сервер пайваст шудан нашуд' },
+  'err.sessionExpired': { uz: 'Sessiya tugadi — hisobingizga qaytadan kiring. Coin va fayllaringiz joyida.', ru: 'Сессия завершилась — войдите снова. Монеты и файлы на месте.', en: 'Your session ended — please sign in again. Your coins and files are safe.', kk: 'Сессия аяқталды — қайта кіріңіз. Монеталар мен файлдар орнында.', ky: 'Сессия бүттү — кайра кириңиз. Монеталар жана файлдар ордунда.', tg: 'Ҷаласа анҷом ёфт — дубора ворид шавед. Тангаҳо ва файлҳо дар ҷояшон.' },
+  'err.offline': { uz: 'Server bilan aloqa yöq. Internetni tekşirib, birozdan keyin qayta urinib köring.', ru: 'Нет связи с сервером. Проверьте интернет и попробуйте чуть позже.', en: 'No connection to the server. Check your internet and try again shortly.', kk: 'Сервермен байланыс жоқ. Интернетті тексеріп, сәлден кейін қайталап көріңіз.', ky: 'Сервер менен байланыш жок. Интернетти текшерип, бир аздан кийин кайра аракет кылыңыз.', tg: 'Бо сервер алоқа нест. Интернетро санҷед ва каме баъд дубора кӯшиш кунед.' },
+  'err.upload': { uz: 'Yuklab bölmadi', ru: 'Не удалось загрузить', en: 'Upload failed', kk: 'Жүктеу мүмкін болмады', ky: 'Жүктөө мүмкүн болбоду', tg: 'Боргузорӣ нашуд' },
+  'err.fetchFile': { uz: 'Faylni olib bölmadi', ru: 'Не удалось получить файл', en: "Couldn't get the file", kk: 'Файлды алу мүмкін болмады', ky: 'Файлды алуу мүмкүн болбоду', tg: 'Файлро гирифтан нашуд' },
+  'err.jobFailed': { uz: 'Amal bajarilmadi', ru: 'Действие не выполнено', en: 'The action failed', kk: 'Әрекет орындалмады', ky: 'Аракет аткарылган жок', tg: 'Амал иҷро нашуд' },
+
+  // time & size
+  'time.expired': { uz: 'muddati tugadi', ru: 'срок истёк', en: 'expired', kk: 'мерзімі өтті', ky: 'мөөнөтү бүттү', tg: 'мӯҳлаташ гузашт' },
+  'time.delHours': { uz: '{n} soatdan keyin öçadi', ru: { one: 'удалится через {n} час', few: 'удалится через {n} часа', many: 'удалится через {n} часов', other: 'удалится через {n} часа' }, en: { one: 'deleted in {n} hour', other: 'deleted in {n} hours' }, kk: '{n} сағаттан кейін жойылады', ky: '{n} сааттан кийин өчөт', tg: 'баъди {n} соат нест мешавад' },
+  'time.delMinutes': { uz: '{n} daqiqadan keyin öçadi', ru: { one: 'удалится через {n} минуту', few: 'удалится через {n} минуты', many: 'удалится через {n} минут', other: 'удалится через {n} минуты' }, en: { one: 'deleted in {n} minute', other: 'deleted in {n} minutes' }, kk: '{n} минуттан кейін жойылады', ky: '{n} мүнөттөн кийин өчөт', tg: 'баъди {n} дақиқа нест мешавад' },
+  'size.b': { uz: '{n} B', ru: '{n} Б', en: '{n} B', kk: '{n} Б', ky: '{n} Б', tg: '{n} Б' },
+  'size.kb': { uz: '{n} KB', ru: '{n} КБ', en: '{n} KB', kk: '{n} КБ', ky: '{n} КБ', tg: '{n} КБ' },
+  'size.mb': { uz: '{n} MB', ru: '{n} МБ', en: '{n} MB', kk: '{n} МБ', ky: '{n} МБ', tg: '{n} МБ' },
+}

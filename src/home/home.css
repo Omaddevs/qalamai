@@ -1,0 +1,755 @@
+/* ═════════════ Home ═════════════ */
+.hm {
+  --rail: 80px;
+  display: flex;
+  min-height: 100vh;
+  background: #fbfaf7;
+}
+
+/* Rail (reuses .ed-rail-item visuals from the editor) */
+.hm-side {
+  position: sticky;
+  z-index: 40; /* sticky = own stacking context; keep its popovers above the hero */
+  top: 0;
+  flex-shrink: 0;
+  width: var(--rail);
+  height: 100vh;
+  transition: width 0.22s ease;
+}
+
+.hm-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 2px;
+  width: 100%;
+  height: 100%;
+  padding: 14px 0 16px;
+  overflow: hidden;
+  border-right: 1px solid #eceae4;
+  background: #fff;
+}
+
+.hm.rail-open {
+  --rail: 236px;
+}
+
+/* Brand: nib when collapsed, full wordmark when open */
+.hm-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 14px;
+}
+
+.hm-brand-logo {
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  transition: transform 0.15s;
+}
+
+.hm-brand-logo:hover {
+  transform: translateY(-1px);
+}
+
+/* open/close handle sitting on the rail's edge, level with the logo */
+.hm-rail-toggle {
+  position: absolute;
+  top: 28px;
+  right: -12px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid #e4e1da;
+  border-radius: 50%;
+  background: #fff;
+  color: #5b616b;
+  box-shadow: 0 2px 6px rgba(15, 17, 21, 0.1);
+  transition: color 0.15s, border-color 0.15s, transform 0.15s;
+}
+
+.hm-rail-toggle:hover {
+  border-color: var(--teal);
+  color: var(--teal-dark);
+  transform: scale(1.08);
+}
+
+.rail-open .hm-brand {
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 0 10px 0 14px;
+}
+
+/* Open rail: items become icon + label rows, stacked one after another */
+.rail-open .hm-rail .ed-rail-item {
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 10px;
+  width: calc(100% - 20px);
+  height: 42px;
+  padding: 0 10px;
+  border-radius: 11px;
+  transition: background 0.15s;
+}
+
+.rail-open .hm-rail .ed-rail-icon {
+  width: 26px;
+  height: 26px;
+  background: none !important;
+  box-shadow: none !important;
+}
+
+.rail-open .hm-rail .ed-rail-label {
+  font-size: 14px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.rail-open .hm-rail .ed-rail-item:hover {
+  background: var(--hover);
+}
+
+.rail-open .hm-rail .ed-rail-item.on {
+  background: #ebf8f5;
+  color: var(--teal-dark);
+}
+
+.rail-open .hm-rail .ed-rail-item.on .ed-rail-label {
+  color: var(--teal-dark);
+}
+
+.hm-create-pop {
+  width: 250px;
+  left: 8px;
+}
+
+.hm-create-item {
+  padding: 6px 8px;
+}
+
+.hm-create-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hm-create-row .hm-cat-tile {
+  width: 32px;
+  height: 32px;
+  border-radius: 11px;
+}
+
+
+.hm-create-row .hm-cat-tile svg {
+  width: 18px;
+  height: 18px;
+}
+
+.hm-rail-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.hm-bell {
+  position: relative;
+}
+
+.hm-bell-dot {
+  position: absolute;
+  top: 7px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: var(--red);
+}
+
+.hm-me {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  text-align: left;
+}
+
+.hm-me-text {
+  display: none;
+  flex-direction: column;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.hm-me-text b {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #16181d;
+}
+
+.hm-me-text small {
+  font-size: 12px;
+  color: #8b919a;
+}
+
+.rail-open .hm-rail-bottom {
+  align-items: stretch;
+  width: 100%;
+  padding: 0 10px;
+}
+
+.rail-open .hm-bell {
+  align-self: flex-start;
+  margin-left: 4px;
+}
+
+.rail-open .hm-me {
+  flex: 1;
+  min-width: 0;
+  padding: 8px;
+}
+
+.hm-me-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hm-me-text { min-width: 0; }
+.hm-me-text b,
+.hm-me-text small { overflow: hidden; text-overflow: ellipsis; }
+
+.hm-signout { display: none; flex-shrink: 0; color: #8b919a; }
+.rail-open .hm-signout { display: grid; }
+.hm-signout:hover { color: #dc2626; background: #fef2f2; }
+
+.rail-open .hm-me:hover {
+  background: var(--hover);
+}
+
+.rail-open .hm-me.on {
+  background: #ebf8f5;
+}
+
+.hm-me.on .hm-avatar {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px var(--teal);
+}
+
+.rail-open .hm-me-text {
+  display: flex;
+}
+
+.hm-avatar {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #a46a4f, #6d3f2c);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px #e4e1da;
+}
+
+/* Main */
+.hm-main {
+  flex: 1;
+  min-width: 0;
+  padding: 0 28px 64px;
+}
+
+.hm-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+.hm-top-right { display: flex; align-items: center; gap: 6px; }
+
+.hm .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* Pro button: logo colours (nib black + steel edge) with a shine sweep and a soft pulse */
+.hm .btn.hm-pro {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid #5f6168;
+  background: linear-gradient(160deg, #2c2d31 0%, #0b0b0d 100%);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 6px 16px -6px rgba(11, 11, 13, 0.55);
+  animation: pro-pulse 2.8s ease-in-out infinite;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.hm .btn.hm-pro svg {
+  color: #f5c451;
+  filter: drop-shadow(0 0 4px rgba(245, 196, 81, 0.55));
+}
+
+/* glossy highlight, like the nib's shine */
+.hm .btn.hm-pro::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 55%);
+  pointer-events: none;
+}
+
+/* moving light streak */
+.hm .btn.hm-pro::after {
+  content: '';
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  left: 0;
+  width: 46%;
+  background: linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.5) 50%, transparent 100%);
+  transform: translateX(-160%) skewX(-18deg);
+  animation: pro-shine 2.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.hm .btn.hm-pro:hover {
+  border-color: #8a8d95;
+  background: linear-gradient(160deg, #2c2d31 0%, #0b0b0d 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px -8px rgba(11, 11, 13, 0.7), 0 0 0 4px rgba(245, 196, 81, 0.18);
+}
+
+@keyframes pro-shine {
+  0%, 55% { transform: translateX(-160%) skewX(-18deg); }
+  85%, 100% { transform: translateX(320%) skewX(-18deg); }
+}
+
+@keyframes pro-pulse {
+  0%, 100% { box-shadow: 0 6px 16px -6px rgba(11, 11, 13, 0.55), 0 0 0 0 rgba(245, 196, 81, 0); }
+  50% { box-shadow: 0 6px 16px -6px rgba(11, 11, 13, 0.55), 0 0 0 5px rgba(245, 196, 81, 0.22); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hm .btn.hm-pro,
+  .hm .btn.hm-pro::after {
+    animation: none;
+  }
+}
+
+/* AI / Qidiruv toggle (used inside the hero search) */
+.hm-mode {
+  display: flex;
+  flex-shrink: 0;
+  padding: 3px;
+  border-radius: 11px;
+  background: #f1f2f4;
+}
+
+.hm-mode button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 32px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: #5b616b;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.hm-mode button.on {
+  background: #fff;
+  color: #16181d;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.12);
+}
+
+.hm-mode-brand {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.hm-mode-brand b {
+  margin-left: 1px;
+  color: #0f9e8e;
+  font-weight: 800;
+}
+
+.hm-mode button:not(.on) .hm-mode-brand b {
+  color: inherit;
+}
+
+.hm-mode button:not(.on) svg {
+  opacity: 0.55;
+  filter: grayscale(1);
+}
+
+/* Categories */
+.hm-cats {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 28px 0 8px;
+  padding-bottom: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.hm-cats .dd {
+  flex-shrink: 0;
+}
+
+.hm-cat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 8px;
+  width: 84px;
+  padding: 6px 0;
+  border: 0;
+  border-radius: 14px;
+  background: none;
+  font-size: 12px;
+  font-weight: 500;
+  color: #2b2f36;
+}
+
+.hm-cat:hover {
+  background: #f1efe9;
+}
+
+/* Colored tiles — flat, no drop shadow */
+.hm-cat-tile {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  overflow: hidden;
+  border-radius: 19px;
+  color: #fff;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hm-cat-tile svg {
+  position: relative;
+  z-index: 1;
+}
+
+.hm-cat:hover .hm-cat-tile {
+  transform: translateY(-4px) scale(1.04);
+}
+
+/* the type currently selected in the hero composer */
+.hm-cat.on {
+  background: #f1efe9;
+  color: #16181d;
+  font-weight: 600;
+}
+
+.hm-cat.on .hm-cat-tile {
+  box-shadow: 0 0 0 3px #fbfaf7, 0 0 0 5px #14b8a6;
+}
+
+/* utility tools: tinted background, colored icon */
+.hm-cat-tile.neutral {
+  background: #efede7;
+  color: #4b5160;
+}
+
+.hm-cats-div {
+  flex-shrink: 0;
+  width: 1px;
+  height: 46px;
+  margin: 8px 8px 0;
+  background: #e4e0d6;
+}
+
+/* Sections */
+.hm-section {
+  max-width: 1320px;
+  margin: 30px auto 0;
+}
+
+.hm-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.hm-section-head h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.hm-link {
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.hm-link:hover {
+  background: #f1efe9;
+}
+
+.hm-empty {
+  color: var(--muted);
+}
+
+.hm-chips {
+  padding: 0 0 16px;
+}
+
+/* Design cards */
+.dz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 22px 18px;
+}
+
+.dz-card {
+  position: relative;
+  min-width: 0;
+}
+
+.dz-thumb {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 14px;
+  background: #eee;
+  box-shadow: 0 0 0 1px rgba(16, 24, 40, 0.08);
+  transition: box-shadow 0.18s, transform 0.18s;
+}
+
+.dz-thumb:hover {
+  box-shadow: 0 0 0 2px #16181d, 5px 5px 0 #16181d;
+  transform: translate(-2px, -2px);
+}
+
+.dz-count {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(22, 24, 29, 0.6);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 600;
+  backdrop-filter: blur(4px);
+}
+
+/* hover slideshow */
+.dz-frame {
+  animation: dz-fade 0.35s ease;
+}
+
+@keyframes dz-fade {
+  from {
+    opacity: 0.4;
+    transform: scale(1.015);
+  }
+}
+
+.dz-progress {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: flex;
+  gap: 3px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.dz-card:hover .dz-progress {
+  opacity: 1;
+}
+
+.dz-progress i {
+  width: 5px;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
+  transition: width 0.25s, background 0.25s;
+}
+
+.dz-progress i.on {
+  width: 14px;
+  background: #fff;
+}
+
+.dz-rename {
+  width: 100%;
+  height: 26px;
+  margin: -3px 0 0 -6px;
+  padding: 0 6px;
+  border: 1.5px solid var(--teal);
+  border-radius: 7px;
+  outline: 0;
+  font: 600 14px var(--font);
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+}
+
+.dz-menu {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.dz-card:hover .dz-menu,
+.dz-menu:focus-within {
+  opacity: 1;
+}
+
+.dz-menu-btn {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(16, 24, 40, 0.18);
+}
+
+.dz-meta {
+  padding: 10px 2px 0;
+}
+
+.dz-name {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.dz-sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.dz-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 3px;
+}
+
+/* Template gallery */
+.hm-tpl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.hm-tpl {
+  margin: 0;
+}
+
+.hm-tpl .tpl-card {
+  width: 100%;
+  border-radius: 14px;
+}
+
+.hm-tpl figcaption {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 2px 0;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.hm-tpl figcaption svg {
+  color: #e5a50a;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .hm-cats {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .hm {
+    --rail: 62px;
+  }
+  .hm-rail .ed-rail-item {
+    width: 58px;
+  }
+  .hm-rail .ed-rail-label {
+    font-size: 9.5px;
+  }
+  .hm-main {
+    padding: 0 14px 48px;
+  }
+  /* on phones the open rail floats over the page instead of squeezing it */
+  .hm.rail-open .hm-side {
+    position: fixed;
+    left: 0;
+  }
+  .hm.rail-open .hm-rail {
+    box-shadow: 0 20px 60px rgba(15, 17, 21, 0.25);
+  }
+  .hm.rail-open .hm-main {
+    margin-left: 62px;
+  }
+  .hm-pro {
+    padding: 0 12px;
+  }
+  .dz-grid,
+  .hm-tpl-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 12px;
+  }
+}
+.hm-avatar { overflow: hidden; }
+.hm-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* guest: an obvious way back into the account */
+.hm-login { display: flex; align-items: center; justify-content: center; gap: 6px; height: 34px; margin: 0 4px; border-radius: 10px; background: var(--teal); color: #fff; font-size: 13px; font-weight: 600; text-decoration: none; }
+.hm-login:hover { background: var(--teal-dark); }
+.hm-login span { display: none; }
+.rail-open .hm-login span { display: inline; }
+.hm-me-row:has(.hm-login) { flex-direction: column; align-items: stretch; }

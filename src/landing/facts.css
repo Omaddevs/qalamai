@@ -1,0 +1,245 @@
+/* ══════════════════════ Facts — bento stat tiles ══════════════════════ */
+.fc {
+  --fc-e: cubic-bezier(0.22, 1, 0.36, 1);
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 40px;
+}
+
+.fc-tile {
+  --mx: 50%;
+  --my: 0%;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 268px;
+  padding: 22px;
+  border-radius: 22px;
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(16, 24, 40, 0.05), 0 1px 2px rgba(16, 24, 40, 0.04);
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.9s var(--fc-e) calc(var(--i) * 90ms),
+    transform 0.9s var(--fc-e) calc(var(--i) * 90ms),
+    box-shadow 0.6s var(--fc-e);
+}
+.fc.seen .fc-tile { opacity: 1; transform: none; }
+.fc.seen .fc-tile:hover {
+  transform: translateY(-4px);
+  transition-delay: 0s;
+  box-shadow: 0 0 0 1px rgba(16, 24, 40, 0.07), 0 30px 50px -30px rgba(16, 24, 40, 0.4);
+}
+/* pointer spotlight */
+.fc-tile::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(260px circle at var(--mx) var(--my), rgba(20, 184, 166, 0.09), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.6s var(--fc-e);
+}
+.fc-tile:hover::before { opacity: 1; }
+
+.fc-tile.dark {
+  background: radial-gradient(120% 90% at 100% 0%, #26272d 0%, #111114 55%, #0b0b0d 100%);
+  color: #fff;
+  box-shadow: 0 0 0 1px #1f2025, 0 24px 44px -28px rgba(11, 11, 13, 0.7);
+}
+.fc-tile.dark::before { background: radial-gradient(280px circle at var(--mx) var(--my), rgba(255, 255, 255, 0.1), transparent 70%); }
+/* fine dot grid on the dark tile */
+.fc-tile.dark::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.09) 1px, transparent 1px);
+  background-size: 14px 14px;
+  -webkit-mask-image: linear-gradient(180deg, #000, transparent 75%);
+  mask-image: linear-gradient(180deg, #000, transparent 75%);
+}
+
+/* copy */
+.fc-copy { margin-top: auto; padding-top: 18px; }
+.fc-num {
+  display: flex;
+  align-items: baseline;
+  font-family: var(--font);
+  font-size: clamp(40px, 4.2vw, 56px);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.055em;
+  font-variant-numeric: tabular-nums;
+  color: var(--lp-ink);
+}
+.fc-tile.dark .fc-num { color: #fff; }
+.fc-suf, .fc-dash { color: #b5b9c0; margin-left: 0.02em; }
+.fc-tile.dark .fc-suf { color: #6d7079; }
+.fc-dash { margin: 0 0.04em; }
+.fc-unit {
+  margin-left: 0.18em;
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 0.62em;
+  letter-spacing: -0.01em;
+  color: #9ba0a8;
+}
+.fc-label { margin-top: 8px; font-size: 15px; font-weight: 600; letter-spacing: -0.015em; color: var(--lp-ink); }
+.fc-tile.dark .fc-label { color: #fff; }
+.fc-sub { display: flex; align-items: center; gap: 4px; margin-top: 2px; font-size: 13px; color: var(--lp-muted); }
+.fc-tile.dark .fc-sub { color: #8a8e97; }
+.fc-sub svg { color: var(--lp-accent); }
+
+/* ───────── 1 · template fan ───────── */
+.fc-fan { position: relative; height: 120px; }
+.fc-fan-card {
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  width: 86px;
+  height: 64px;
+  margin-left: -43px;
+  padding: 7px;
+  border-radius: 9px;
+  background: #1b1c21;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 14px 22px -12px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transform: translateX(calc(var(--k) * 6px)) rotate(calc(var(--k) * 2deg));
+  transition: transform 0.9s var(--fc-e);
+  z-index: calc(3 - var(--k) * var(--k));
+}
+.fc-fan-card i { height: 44%; border-radius: 4px; background: var(--c); }
+.fc-fan-card b { height: 4px; width: 80%; border-radius: 2px; background: rgba(255, 255, 255, 0.16); }
+.fc-fan-card b.s { width: 52%; }
+.fc.seen .fc-fan-card { transform: translateX(calc(var(--k) * 34px)) translateY(calc(var(--k) * var(--k) * 4px)) rotate(calc(var(--k) * 7deg)); transition-delay: 0.25s; }
+.fc.seen .fc-t-tpl:hover .fc-fan-card { transform: translateX(calc(var(--k) * 44px)) translateY(calc(var(--k) * var(--k) * 6px - 6px)) rotate(calc(var(--k) * 10deg)); transition-delay: 0s; }
+
+/* ───────── 2 · tool grid ───────── */
+.fc-tools { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; max-width: 240px; }
+.fc-tool {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  background: #f4f5f7;
+  color: #a6abb3;
+  transition: background 0.5s var(--fc-e), color 0.5s var(--fc-e), transform 0.5s var(--fc-e);
+}
+.fc.seen .fc-tool { animation: fc-wave 4.2s var(--fc-e) infinite; animation-delay: calc(var(--k) * 90ms + 0.6s); }
+.fc-tools:hover .fc-tool { animation: none; background: color-mix(in srgb, var(--c) 14%, #fff); color: var(--c); }
+.fc-tools:hover .fc-tool:hover { transform: scale(1.12); }
+
+/* ───────── 3 · slide range ───────── */
+.fc-range { padding-top: 6px; }
+.fc-bars { display: flex; align-items: flex-end; gap: 4px; height: 76px; }
+.fc-bars span {
+  flex: 1;
+  height: var(--h);
+  border-radius: 3px;
+  background: #eef0f3;
+  transform-origin: bottom;
+  transform: scaleY(0.25);
+  transition: transform 0.9s var(--fc-e) calc(var(--k) * 35ms + 0.3s), background 0.6s;
+}
+.fc-bars span.in { background: linear-gradient(180deg, var(--lp-accent), #0f9f8f); }
+.fc.seen .fc-bars span { transform: none; }
+.fc-t-slides:hover .fc-bars span.in { background: linear-gradient(180deg, #7c6cf2, var(--lp-accent)); }
+.fc-track { position: relative; height: 4px; margin-top: 12px; border-radius: 2px; background: #eef0f3; }
+.fc-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(3 / 16 * 100%);
+  right: calc(2 / 16 * 100%);
+  border-radius: inherit;
+  background: var(--lp-ink);
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform 1.1s var(--fc-e) 0.5s;
+}
+.fc.seen .fc-fill { transform: none; }
+.fc-knob {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 2px var(--lp-ink), 0 4px 8px -2px rgba(16, 24, 40, 0.3);
+  opacity: 0;
+  transition: opacity 0.4s 1s, transform 0.6s var(--fc-e);
+}
+.fc-knob.l { left: calc(3 / 16 * 100%); }
+.fc-knob.r { left: calc(14 / 16 * 100%); }
+.fc.seen .fc-knob { opacity: 1; }
+.fc-t-slides:hover .fc-knob { transform: scale(1.15); }
+
+/* ───────── 4 · export files ───────── */
+.fc-files { position: relative; height: 120px; }
+.fc-file {
+  position: absolute;
+  left: 50%;
+  top: 8px;
+  width: 64px;
+  height: 80px;
+  margin-left: -32px;
+  padding: 10px 8px;
+  border-radius: 10px 18px 10px 10px;
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(16, 24, 40, 0.07), 0 16px 26px -16px rgba(16, 24, 40, 0.45);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transform: translateY(16px) rotate(0deg);
+  opacity: 0;
+  transition: transform 0.9s var(--fc-e), opacity 0.6s;
+  z-index: calc(2 - var(--k) * var(--k));
+}
+.fc-file i { width: 18px; height: 18px; border-radius: 5px; background: var(--c); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35); }
+.fc-file b { font-size: 10.5px; font-weight: 700; letter-spacing: 0.05em; color: var(--lp-ink); }
+.fc-file::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  right: 14px;
+  top: 38px;
+  height: 12px;
+  background: repeating-linear-gradient(180deg, #eceef1 0 3px, transparent 3px 6px);
+  border-radius: 2px;
+}
+.fc.seen .fc-file {
+  opacity: 1;
+  transform: translateX(calc(var(--k) * 52px)) translateY(calc(var(--k) * var(--k) * 8px)) rotate(calc(var(--k) * 9deg));
+  transition-delay: calc((var(--k) + 1) * 90ms + 0.45s);
+}
+.fc.seen .fc-t-export:hover .fc-file {
+  transform: translateX(calc(var(--k) * 60px)) translateY(calc(var(--k) * var(--k) * 8px - 8px)) rotate(calc(var(--k) * 12deg));
+  transition-delay: 0s;
+}
+
+@keyframes fc-wave {
+  0%, 16%, 100% { background: #f4f5f7; color: #a6abb3; transform: none; }
+  6% { background: color-mix(in srgb, var(--c) 16%, #fff); color: var(--c); transform: translateY(-2px); }
+}
+
+/* ───────── responsive ───────── */
+@media (max-width: 1040px) {
+  .fc { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 520px) {
+  .fc { grid-template-columns: 1fr; }
+  .fc-tile { min-height: 236px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fc-tile, .fc-fan-card, .fc-file, .fc-bars span, .fc-fill, .fc-knob { transition: none !important; }
+  .fc-tool { animation: none !important; }
+}

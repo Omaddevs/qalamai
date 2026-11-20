@@ -5,26 +5,9 @@ import { BIO_TEMPLATES } from './bioTemplates.js'
 import { LOGO_DEFAULT } from './logo.js'
 import { CV_TEMPLATES, newCv, rid } from './cv.js'
 import { getLang, has, t } from '../i18n/index.js'
+import { KIT_TYPES } from './kitTypes.js'
 
-// `kind` is the stable id stored on designs; label and blurb follow the interface language.
-export const KIT_TYPES = Object.fromEntries(
-  [
-    ['logo', 'Logo'],
-    ['bio', 'Link in Bio'],
-    ['cv', 'Rezyume'],
-  ].map(([type, kind]) => [
-    type,
-    {
-      kind,
-      get label() {
-        return t(`kit.${type}.label`)
-      },
-      get blurb() {
-        return t(`kit.${type}.blurb`)
-      },
-    },
-  ]),
-)
+export { KIT_TYPES, isKit } from './kitTypes.js'
 
 
 export const KIT_TEMPLATES = [
@@ -105,4 +88,3 @@ export function newKit(type, templateId) {
   }
 }
 
-export const isKit = (d) => Boolean(d?.type && KIT_TYPES[d.type])

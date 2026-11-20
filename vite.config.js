@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import { LANGS } from './shared/i18n.js'
+import i18nSplit from './scripts/vite-i18n-split.mjs'
 
 /**
  * SEO files that depend on the public domain (VITE_SITE_URL, default https://qalam.uz):
@@ -69,7 +70,7 @@ export default defineConfig(({ mode }) => {
   const siteUrl = (env.VITE_SITE_URL || 'https://qalam.uz').replace(/\/+$/, '')
   const api = { target: process.env.API_TARGET ?? 'http://localhost:4000', changeOrigin: false }
   return {
-    plugins: [react(), seo(siteUrl)],
+    plugins: [react(), seo(siteUrl), i18nSplit(new URL('./src/i18n/msg', import.meta.url).pathname)],
     server: {
       proxy: {
         '/api': api,

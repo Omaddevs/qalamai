@@ -1,18 +1,39 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import EditorPage from './editor/EditorPage.jsx'
-import HomePage from './home/HomePage.jsx'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { AppModal } from './components/Modals.jsx'
 import { CoinShopHost } from './components/Coins.jsx'
 import { openCoinShop, spendCoins } from './coins.js'
 import { APPS } from './data.js'
 import { onSynced } from './changes.js'
 import { deleteDesign, duplicateDesign, getDesign, loadDesigns, newDeck, saveDesign } from './store.js'
-import CreatorStudio from './creators/CreatorStudio.jsx'
-import { isKit, newKit } from './creators/kits.js'
-import Landing from './landing/Landing.jsx'
-import AuthPage from './auth/AuthPage.jsx'
+import { isKit } from './creators/kitTypes.js'
 import { t } from './i18n/index.js'
 import { kindLabel } from './i18n/kinds.js'
+
+// Each page is its own chunk: a visitor downloads only the page in front of them.
+const PAGES = {
+  landing: () => import('./landing/Landing.jsx'),
+  auth: () => import('./auth/AuthPage.jsx'),
+  home: () => import('./home/HomePage.jsx'),
+  editor: () => import('./editor/EditorPage.jsx'),
+  creator: () => import('./creators/CreatorStudio.jsx'),
+}
+const Landing = lazy(PAGES.landing)
+const AuthPage = lazy(PAGES.auth)
+const HomePage = lazy(PAGES.home)
+const EditorPage = lazy(PAGES.editor)
+const CreatorStudio = lazy(PAGES.creator)
+
+// Once the first page is up and the browser is idle, fetch the pages a click away,
+// so moving between them never waits on the network.
+const NEXT = { landing: ['auth', 'home'], auth: ['home'], home: ['editor', 'creator'], editor: ['home'], creator: ['home'] }
+const prefetched = new Set()
+function prefetchAfter(page) {
+  const run = () => NEXT[page].forEach((p) => prefetched.has(p) || (prefetched.add(p), PAGES[p]().catch(() => prefetched.delete(p))))
+  if ('requestIdleCallback' in window) requestIdleCallback(run, { timeout: 4000 })
+  else setTimeout(run, 1500)
+}
+
+const PageLoading = () => <div className="page-loading" role="status" aria-busy="true" />
 
 // Routes: "" or "#/welcome" → landing, "#/" → home, "#/d/<id>" → editor for that design.
 const parseRoute = () => window.location.hash.match(/^#\/d\/(.+)$/)?.[1] ?? null
@@ -24,6 +45,14 @@ const parseAuth = () => {
 }
 
 export default function App() {
+  return (
+    <Suspense fallback={<PageLoading />}>
+      <Pages />
+    </Suspense>
+  )
+}
+
+function Pages() {
   const [designId, setDesignId] = useState(parseRoute)
   const [landing, setLanding] = useState(isLanding)
   const [authMode, setAuthMode] = useState(parseAuth)
@@ -71,7 +100,8 @@ export default function App() {
   }
 
   // Logo, link-in-bio and resume designs open in their own studio.
-  const createKit = (type, templateId) => {
+  const createKit = async (type, templateId) => {
+    const { newKit } = await import('./creators/kits.js') // templates load with the studio
     const kit = newKit(type, templateId)
     saveDesign(kit)
     openDesign(kit.id)
@@ -89,6 +119,9 @@ export default function App() {
   }
 
   const deck = useMemo(() => (designId ? getDesign(designId) : null), [designId])
+
+  const page = landing ? 'landing' : authMode ? 'auth' : deck ? (isKit(deck) ? 'creator' : 'editor') : 'home'
+  useEffect(() => prefetchAfter(page), [page])
 
   // Unknown design id (deleted / other browser) → back home.
   useEffect(() => {

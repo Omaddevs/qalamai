@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import ProBadge from '../components/ProBadge.jsx'
 // Icons: Phosphor (rounded duotone set) — https://phosphoricons.com
 import {
@@ -13,24 +13,27 @@ import { TemplateCard } from '../editor/panels.jsx'
 import { TEMPLATES } from '../editor/templates.js'
 import Hero from './Hero.jsx'
 import DesignCard from './DesignCard.jsx'
-import ProjectsView from './ProjectsView.jsx'
-import TemplatesView from './TemplatesView.jsx'
-import ProfileView from './ProfileView.jsx'
-import MediaView from './MediaView.jsx'
-import FilesStudio from '../files/FilesStudio.jsx'
 import { initials, loadProfile } from '../profile.js'
 import { onSynced } from '../changes.js'
 import { apiUrl, currentUser, onUser } from '../api.js'
 import { signOut } from '../account.js'
 import SyncBadge from '../components/SyncBadge.jsx'
 import { blankDoc, loadDocs, saveDocs } from '../docs.js'
-import AlifboView from './AlifboView.jsx'
 import { CREATE, CatTile } from './create.jsx'
 import '../editor/editor.css'
 import './home.css'
 import { t } from '../i18n/index.js'
 import { kindLabel } from '../i18n/kinds.js'
 import LangSwitch from '../landing/LangSwitch.jsx'
+
+// Tabs other than the start screen load their code when first opened.
+const ProjectsView = lazy(() => import('./ProjectsView.jsx'))
+const TemplatesView = lazy(() => import('./TemplatesView.jsx'))
+const ProfileView = lazy(() => import('./ProfileView.jsx'))
+const MediaView = lazy(() => import('./MediaView.jsx'))
+const FilesStudio = lazy(() => import('../files/FilesStudio.jsx'))
+const AlifboView = lazy(() => import('./AlifboView.jsx'))
+const TabLoading = () => <div className="page-loading" role="status" aria-busy="true" />
 
 const RAIL_KEY = 'qalamai.rail.open'
 const TAB_KEY = 'qalamai.tab'
@@ -261,6 +264,7 @@ export default function HomePage({
         </header>
 
         {tab === 'projects' ? (
+          <Suspense fallback={<TabLoading />}>
           <ProjectsView
             designs={designs}
             onTab={(next) => { setTab(next); setQ('') }}
@@ -270,16 +274,27 @@ export default function HomePage({
             onDelete={onDeleteDesign}
             onRename={onRenameDesign}
           />
+          </Suspense>
         ) : tab === 'alifbo' ? (
+          <Suspense fallback={<TabLoading />}>
           <AlifboView onTab={(next) => { setTab(next); setQ('') }} onOpenPricing={onOpenPricing} />
+          </Suspense>
         ) : tab === 'templates' ? (
+          <Suspense fallback={<TabLoading />}>
           <TemplatesView onTab={(next) => { setTab(next); setQ('') }} onCreate={onCreate} onCreateKit={onCreateKit} />
+          </Suspense>
         ) : tab === 'files' ? (
+          <Suspense fallback={<TabLoading />}>
           <FilesStudio key={filesTab} initialTab={filesTab} notify={notify} onOpenPricing={onOpenPricing} />
+          </Suspense>
         ) : tab === 'media' ? (
+          <Suspense fallback={<TabLoading />}>
           <MediaView notify={notify} />
+          </Suspense>
         ) : tab === 'profile' ? (
+          <Suspense fallback={<TabLoading />}>
           <ProfileView profile={profile} onProfile={onProfile} notify={notify} />
+          </Suspense>
         ) : (
           <>
           <Hero

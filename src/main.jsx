@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
-import { useLang } from './i18n/index.js'
+import { ready, useLang } from './i18n/index.js'
 import './styles.css'
 import './components/pro-badge.css' // after page CSS, so badge placements win
 import { startSync } from './sync.js'
@@ -15,8 +15,11 @@ function Root() {
   return <App key={lang} />
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <Root />
-  </React.StrictMode>,
+// Only the shown language's texts are downloaded; render once they are in.
+ready().then(() =>
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    <React.StrictMode>
+      <Root />
+    </React.StrictMode>,
+  ),
 )

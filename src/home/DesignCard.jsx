@@ -6,7 +6,7 @@ import { deckTheme } from '../editor/templates.js'
 import { timeAgo } from '../store.js'
 import { KIND_COLOR } from './create.jsx'
 import KitThumb from '../creators/KitThumb.jsx'
-import { isKit } from '../creators/kits.js'
+import { isKit } from '../creators/kitTypes.js'
 import { t } from '../i18n/index.js'
 import { kindLabel } from '../i18n/kinds.js'
 

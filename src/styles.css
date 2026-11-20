@@ -512,3 +512,19 @@ p {
     align-items: stretch;
   }
 }
+
+/* While a page's code chunk downloads (usually prefetched, so rarely seen): a thin progress bar. */
+.page-loading {
+  position: fixed;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--teal), transparent);
+  background-size: 50% 100%;
+  background-repeat: no-repeat;
+  animation: page-loading 1s ease-in-out infinite;
+  z-index: 9999;
+}
+@keyframes page-loading {
+  from { background-position: -50% 0; }
+  to { background-position: 150% 0; }
+}

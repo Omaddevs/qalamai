@@ -12,7 +12,7 @@ import {
   pickLang,
   translate,
 } from '../../shared/i18n.js'
-import MESSAGES from './messages.js'
+import { loadMessages } from './messages.js'
 
 export { LANGS, DEFAULT_LANG, localeOf }
 
@@ -51,8 +51,29 @@ if (typeof document !== 'undefined') document.documentElement.lang = htmlLangOf(
 
 export const getLang = () => lang
 
-export function setLang(id) {
+// The dictionary of the shown language; filled by ready() before the first render.
+let MESSAGES = {}
+let loading = null
+
+/** Loads the current language's texts. main.jsx renders the app once this resolves. */
+export function ready() {
+  return (loading ??= loadMessages(lang).then((dict) => {
+    MESSAGES = dict
+  }))
+}
+
+let pending = 0
+export async function setLang(id) {
   if (!isLang(id) || id === lang) return
+  const ticket = ++pending
+  let dict
+  try {
+    dict = await loadMessages(id)
+  } catch {
+    return // offline: keep the current language
+  }
+  if (ticket !== pending) return // a later choice won
+  MESSAGES = dict
   lang = id
   try {
     localStorage.setItem(KEY, id)

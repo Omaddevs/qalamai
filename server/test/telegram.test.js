@@ -153,7 +153,8 @@ test('existing phone account (password) gets linked, and the password keeps work
   assert.equal(ok.body.user.id, reg.body.user.id)
   assert.equal(ok.body.user.name, 'Dilnoza', 'an existing name is kept')
   assert.equal(ok.body.user.phoneVerified, true)
-  assert.equal(ok.body.user.avatarUrl, null, 'no picture when Telegram has none')
+  assert.equal(ok.body.user.avatarUrl, reg.body.user.avatarUrl, 'no Telegram picture: the drawn avatar from sign-up stays')
+  assert.match(ok.body.user.avatarUrl, /^\/avatars\/\d{2}\.webp$/)
 
   const login = await client(srv.base).req('POST', '/api/v1/auth/login', { json: { login: '+998991112233', password: 'parol12345' } })
   assert.equal(login.status, 200)

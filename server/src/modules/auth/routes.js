@@ -1,6 +1,7 @@
 import { timingSafeEqual } from 'node:crypto'
 import { limitsFor } from '../plans/plans.js'
 import { randomToken } from '../../lib/crypto.js'
+import { ensureAvatar } from '../../lib/avatars.js'
 import { AppError } from '../../lib/errors.js'
 import { publicUser } from './service.js'
 
@@ -43,7 +44,18 @@ export default async function authRoutes(app) {
   const meta = (req) => ({ ip: req.ip, userAgent: req.headers['user-agent'] })
 
   // Browsers get the refresh token as an httpOnly cookie; native clients ask for it in the body.
-  const send = async (req, reply, s) => {
+  const send = async (req, reply, s, method) => {
+    // an account that just stopped being a guest: remember how and where from (admin panel)
+    if (method && !s.user.isGuest && !s.user.registeredAt) {
+      await app.ctx.analytics.recordSignup(s.user, req, method).catch((err) => req.log.warn({ err }, 'signup record failed'))
+    }
+    // a registered account without a picture gets the next drawn avatar (best effort)
+    if (!s.user.isGuest && !s.user.avatarKey) {
+      s.user = await ensureAvatar(app.ctx.db, s.user).catch((err) => {
+        req.log.warn({ err }, 'default avatar not set')
+        return s.user
+      })
+    }
     const bodyTransport = req.headers['x-token-transport'] === 'body'
     if (!bodyTransport) {
       reply.setCookie(COOKIE, s.refreshToken, {
@@ -81,7 +93,7 @@ export default async function authRoutes(app) {
         response: { 200: sessionReply },
       },
     },
-    async (req, reply) => send(req, reply, await auth.register(req.body, req.user, meta(req))),
+    async (req, reply) => send(req, reply, await auth.register(req.body, req.user, meta(req)), 'password'),
   )
 
   app.post('/login', { ...strict, schema: { tags: ['auth'], summary: 'Kiriş', body: credentials, response: { 200: sessionReply } } }, async (req, reply) =>
@@ -164,7 +176,7 @@ export default async function authRoutes(app) {
       if (!savedState || !verifier || !code || !sameText(savedState, state ?? '')) return backToApp(reply, 'google_state')
       try {
         const identity = await google.identity({ code, redirectUri, verifier })
-        await send(req, reply, await auth.googleSignIn(identity, req.cookies?.[COOKIE], meta(req)))
+        await send(req, reply, await auth.googleSignIn(identity, req.cookies?.[COOKIE], meta(req)), 'google')
         return backToApp(reply)
       } catch (err) {
         req.log.warn({ err }, 'google sign-in failed')
@@ -222,7 +234,7 @@ export default async function authRoutes(app) {
     async (req, reply) => {
       const s = await telegramOn().verify(req.params.id, req.cookies?.[TG_COOKIE], req.body.code, { name: req.body.name, currentUser: req.user, meta: meta(req) })
       reply.clearCookie(TG_COOKIE, { path: TG_PATH })
-      return send(req, reply, s)
+      return send(req, reply, s, 'telegram')
     },
   )
 }

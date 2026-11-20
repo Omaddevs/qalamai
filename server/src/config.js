@@ -68,6 +68,10 @@ const schema = z.object({
   TELEGRAM_API_URL: z.string().url().default('https://api.telegram.org'),
   /** Connect to this IP instead of what DNS says (TLS still checks api.telegram.org) — for networks that block the usual address. */
   TELEGRAM_API_IP: z.ipv4().optional(),
+  /** Telegram chat (user, group or channel id) that receives QalamChat messages through the bot above. */
+  CONTACT_CHAT_ID: z.string().optional(),
+  /** First password of the admin panel (/admin). After the first sign-in it is changed from the panel itself. */
+  ADMIN_PASSWORD: z.string().min(8).optional(),
 })
 
 function load() {
@@ -125,6 +129,8 @@ function load() {
         ? { clientId: env.GOOGLE_CLIENT_ID, clientSecret: env.GOOGLE_CLIENT_SECRET }
         : null,
     telegram: env.TELEGRAM_BOT_TOKEN ? { token: env.TELEGRAM_BOT_TOKEN, polling: env.TELEGRAM_POLLING, apiUrl: env.TELEGRAM_API_URL.replace(/\/$/, ''), apiIp: env.TELEGRAM_API_IP ?? null } : null,
+    support: { chatId: env.CONTACT_CHAT_ID || null },
+    admin: { password: env.ADMIN_PASSWORD ?? null },
     coins: {
       demoPurchase: env.COIN_DEMO_PURCHASE ?? !isProd,
     },

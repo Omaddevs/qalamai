@@ -19,4 +19,5 @@ export const ID_PREFIX = {
   design: 'dsn',
   bio: 'bio',
   coin: 'cxn',
+  support: 'msg',
 }

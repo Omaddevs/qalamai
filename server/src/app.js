@@ -28,7 +28,9 @@ import { designRoutes, documentRoutes } from './modules/documents/routes.js'
 import { bioApiRoutes, bioPublicRoutes } from './modules/bio/routes.js'
 import { PLAN_LIMITS } from './modules/plans/plans.js'
 import coinRoutes from './modules/coins/routes.js'
+import supportRoutes from './modules/support/routes.js'
 import { createCoinService } from './modules/coins/service.js'
+import { adminRoutes, createAnalytics, trackRoutes, verificationRoutes } from './modules/admin/routes.js'
 import { COIN_COSTS, COIN_PACKS, SIGNUP_BONUS } from '../../shared/coins.js'
 
 const SEEN_EVERY_MS = 5 * 60_000
@@ -69,7 +71,8 @@ export async function buildApp(config) {
   // Telegram bot that confirms phone numbers; polling is started by index.js (not in tests)
   const bot = config.telegram ? createBotApi(config.telegram.token, { apiUrl: config.telegram.apiUrl, apiIp: config.telegram.apiIp, log: app.log }) : null
   const telegram = bot ? createTelegramLogin({ db, bot, auth, secret: config.auth.jwtSecret, storage, log: app.log }) : null
-  app.decorate('ctx', { config, db, storage, tokens, pool, files, jobs, auth, coins, google, bot, telegram, driver })
+  const analytics = createAnalytics({ db, config })
+  app.decorate('ctx', { config, db, storage, tokens, pool, files, jobs, auth, coins, google, bot, telegram, driver, analytics })
 
   /* ── auth decorators ── */
   const loadUser = async (req) => {
@@ -133,10 +136,14 @@ export async function buildApp(config) {
       await api.register(documentRoutes, { prefix: '/documents' })
       await api.register(designRoutes, { prefix: '/designs' })
       await api.register(bioApiRoutes, { prefix: '/bio' })
+      await api.register(trackRoutes)
+      await api.register(adminRoutes, { prefix: '/admin' })
+      await api.register(supportRoutes, { prefix: '/support' })
     },
     { prefix: '/api/v1' },
   )
   await app.register(bioPublicRoutes, { prefix: '/b' })
+  await app.register(verificationRoutes) // /google….html for Search Console
 
   app.addHook('onClose', async () => {
     app.ctx.bot?.stopPolling()

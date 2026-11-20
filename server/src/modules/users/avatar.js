@@ -3,6 +3,7 @@
 import { eq } from 'drizzle-orm'
 import { schema } from '../../db/index.js'
 import { notFound } from '../../lib/errors.js'
+import { isStoredAvatar } from '../../lib/avatars.js'
 
 /** @param {import('fastify').FastifyInstance} app */
 export default async function avatarRoutes(app) {
@@ -12,7 +13,7 @@ export default async function avatarRoutes(app) {
     { schema: { tags: ['me'], summary: 'Profil rasmi', params: { type: 'object', required: ['id'], properties: { id: { type: 'string', maxLength: 40 } } } } },
     async (req, reply) => {
       const [u] = await db.select({ key: schema.users.avatarKey }).from(schema.users).where(eq(schema.users.id, req.params.id)).limit(1)
-      if (!u?.key || !(await storage.exists(u.key))) throw notFound('Rasm topilmadi')
+      if (!isStoredAvatar(u?.key) || !(await storage.exists(u.key))) throw notFound('Rasm topilmadi')
       return reply
         .header('content-type', 'image/jpeg')
         .header('cache-control', req.query?.v ? 'public, max-age=31536000, immutable' : 'public, max-age=300')

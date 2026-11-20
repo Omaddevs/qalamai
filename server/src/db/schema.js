@@ -1,7 +1,7 @@
 // Database schema (PostgreSQL). Runs unchanged on embedded PGlite in development.
 // After editing: `npm run db:generate` writes a new SQL migration to src/db/migrations.
 import { sql } from 'drizzle-orm'
-import { bigint, boolean, index, integer, jsonb, pgTable, primaryKey, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core'
+import { bigint, bigserial, boolean, index, integer, jsonb, pgTable, primaryKey, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core'
 
 const ts = (name) => timestamp(name, { withTimezone: true, mode: 'date' })
 const createdAt = () => ts('created_at').notNull().defaultNow()
@@ -33,6 +33,22 @@ export const users = pgTable(
     /** First coin purchase — unlocks watermark-free export, Pro templates and bigger file limits. */
     coinsPurchasedAt: ts('coins_purchased_at'),
     isGuest: boolean('is_guest').notNull().default(false),
+    /** When the account stopped being a guest (guests are upgraded in place, so createdAt is the first visit). */
+    registeredAt: ts('registered_at'),
+    /** How and from where the account signed up — shown in the admin panel. */
+    signupMethod: text('signup_method', { enum: ['password', 'google', 'telegram'] }),
+    signupIp: text('signup_ip'),
+    signupCountry: text('signup_country'),
+    signupDevice: text('signup_device'),
+    signupBrowser: text('signup_browser'),
+    signupOs: text('signup_os'),
+    /** direct / search / social / referral, the referring host and utm tags of the visitor's first visit. */
+    signupSource: text('signup_source'),
+    signupReferrer: text('signup_referrer'),
+    signupUtm: jsonb('signup_utm'),
+    signupLanding: text('signup_landing'),
+    /** Anonymous visitor id (analytics) the account signed up from. */
+    visitorId: text('visitor_id'),
     /** Titul varagʻi profile: university, faculty, group, supervisor … (see frontend profile.js). */
     profile: jsonb('profile').notNull().default({}),
     createdAt: createdAt(),
@@ -45,6 +61,7 @@ export const users = pgTable(
     uniqueIndex('users_google_uq').on(t.googleId),
     uniqueIndex('users_telegram_uq').on(t.telegramId),
     index('users_guest_seen_idx').on(t.isGuest, t.lastSeenAt),
+    index('users_registered_idx').on(t.registeredAt),
   ],
 )
 
@@ -210,4 +227,62 @@ export const coinLedger = pgTable(
     createdAt: createdAt(),
   },
   (t) => [index('coin_ledger_user_idx').on(t.userId, t.createdAt), uniqueIndex('coin_ledger_ref_uq').on(t.userId, t.ref)],
+)
+
+/** Site analytics: one row per page view, sent by the web app (src/track.js). No IPs are kept. */
+export const pageViews = pgTable(
+  'page_views',
+  {
+    id: bigserial('id', { mode: 'number' }).primaryKey(),
+    visitorId: text('visitor_id').notNull(),
+    sessionId: text('session_id').notNull(),
+    path: text('path').notNull(),
+    /** First view of the session — sources are counted on these. */
+    entry: boolean('entry').notNull().default(false),
+    source: text('source', { enum: ['direct', 'search', 'social', 'referral'] }),
+    referrer: text('referrer'),
+    searchEngine: text('search_engine'),
+    searchTerm: text('search_term'),
+    utmSource: text('utm_source'),
+    utmMedium: text('utm_medium'),
+    utmCampaign: text('utm_campaign'),
+    country: text('country'),
+    timezone: text('timezone'),
+    lang: text('lang'),
+    device: text('device'),
+    browser: text('browser'),
+    os: text('os'),
+    screen: text('screen'),
+    createdAt: createdAt(),
+  },
+  (t) => [index('page_views_created_idx').on(t.createdAt), index('page_views_visitor_idx').on(t.visitorId, t.createdAt)],
+)
+
+/** Admin panel settings: password hash, Google Search Console / Analytics ids … */
+export const adminSettings = pgTable('admin_settings', {
+  key: text('key').primaryKey(),
+  value: jsonb('value').notNull(),
+  updatedAt: ts('updated_at').notNull().defaultNow(),
+})
+
+/** QalamChat: messages a registered user sends to the team (partnership, complaint …). Forwarded to CONTACT_CHAT_ID in Telegram. */
+export const supportMessages = pgTable(
+  'support_messages',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    /** One of SUPPORT_TOPICS (shared/support.js). */
+    topic: text('topic').notNull(),
+    message: text('message').notNull(),
+    /** How the team gets back to the sender — typed in the chat, prefilled from the account. */
+    contactName: text('contact_name'),
+    contactPhone: text('contact_phone'),
+    contactEmail: text('contact_email'),
+    lang: text('lang'),
+    status: text('status', { enum: ['new', 'done'] }).notNull().default('new'),
+    /** When an admin marked it done. */
+    doneAt: ts('done_at'),
+    createdAt: createdAt(),
+  },
+  (t) => [index('support_messages_user_idx').on(t.userId, t.createdAt), index('support_messages_created_idx').on(t.createdAt)],
 )

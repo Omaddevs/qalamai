@@ -3,6 +3,7 @@ import { schema } from '../../db/index.js'
 import { AppError, badRequest, conflict, unauthorized } from '../../lib/errors.js'
 import { hashPassword, randomToken, sha256, verifyPassword } from '../../lib/crypto.js'
 import { ID_PREFIX, newId } from '../../lib/ids.js'
+import { avatarUrlOf } from '../../lib/avatars.js'
 
 const { users, sessions } = schema
 
@@ -40,7 +41,7 @@ export function publicUser(u, limits) {
     isGuest: u.isGuest,
     phoneVerified: Boolean(u.phoneVerifiedAt),
     telegramUsername: u.telegramUsername ?? null,
-    avatarUrl: u.avatarKey ? `/api/v1/avatars/${u.id}?v=${new Date(u.avatarAt ?? 0).getTime()}` : null,
+    avatarUrl: avatarUrlOf(u.id, u.avatarKey, u.avatarAt),
     /** Sign-in methods linked to the account. */
     linked: { google: Boolean(u.googleId), telegram: Boolean(u.telegramId), password: Boolean(u.passwordHash) },
     coins: u.coins ?? 0,

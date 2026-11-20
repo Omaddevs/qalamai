@@ -76,12 +76,15 @@ export default defineConfig(({ mode }) => {
         '/api': api,
         // public Link-in-Bio pages
         '/b/': api,
+        // Google Search Console verification file (set in the admin panel)
+        '^/google[0-9a-f]+\\.html$': api,
       },
     },
     preview: {
       proxy: {
         '/api': api,
         '/b/': api,
+        '^/google[0-9a-f]+\\.html$': api,
       },
     },
   }

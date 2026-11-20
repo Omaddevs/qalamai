@@ -25,6 +25,7 @@ import './home.css'
 import { t } from '../i18n/index.js'
 import { kindLabel } from '../i18n/kinds.js'
 import LangSwitch from '../landing/LangSwitch.jsx'
+import { trackView } from '../track.js'
 
 // Tabs other than the start screen load their code when first opened.
 const ProjectsView = lazy(() => import('./ProjectsView.jsx'))
@@ -88,6 +89,7 @@ export default function HomePage({
   const [tab, setTab] = useState(() => sessionStorage.getItem(TAB_KEY) || 'home')
   useEffect(() => {
     sessionStorage.setItem(TAB_KEY, tab)
+    trackView(tab === 'home' ? '/app' : `/app/${tab}`)
   }, [tab])
   const [railOpen, setRailOpen] = useState(readRailOpen)
   const [me, setMe] = useState(currentUser)

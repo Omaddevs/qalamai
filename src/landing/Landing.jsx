@@ -6,6 +6,7 @@ import { QalamNib, Wordmark } from '../components/ui.jsx'
 import { SIGNUP_BONUS } from '../../shared/coins.js'
 import { COLORS } from '../data.js'
 import { t } from '../i18n/index.js'
+import { openQalamChat } from '../components/qalamChatBus.js'
 import '../editor/editor.css'
 import ProductMock from './ProductMock.jsx'
 import HeroCursors from './HeroCursors.jsx'
@@ -315,7 +316,7 @@ function Faq({ onContact }) {
     <FaqItem key={q} q={q} a={a} id={`faq-${i}`} open={open === i} onToggle={() => setOpen(open === i ? -1 : i)} />
   )
   return (
-    <section className="lp-faq-panel" id="savollar">
+    <section className="lp-faq" id="savollar">
       <div className="lp-head lp-reveal">
         <span className="lp-eyebrow">{t('lp.faq.eyebrow')}</span>
         <h2 className="lp-h2">{t('lp.faq.title1')} <em>{t('lp.faq.titleEm')}</em></h2>
@@ -411,14 +412,14 @@ function Footer({ onStart }) {
       <div className="lp-footer-mid">
         <div className="lp-footer-reach" id="aloqa">
           <b>{t('lp.ft.reach')}</b>
-          <div className="lp-tg">
+          <a className="lp-tg" href="https://t.me/omadbek_egamberdiyev" target="_blank" rel="noopener noreferrer">
             <span className="lp-tg-ic"><TelegramLogo size={19} weight="fill" /></span>
             <span className="lp-tg-txt">
               <strong>{t('lp.ft.tg')} <em><i />{t('lp.ft.online')}</em></strong>
               <small>{t('lp.ft.reply')}</small>
             </span>
             <span className="lp-tg-go" aria-hidden="true"><ArrowRight size={14} weight="bold" /></span>
-          </div>
+          </a>
         </div>
         <nav className="lp-footer-cols" aria-label="Footer">
           <div>
@@ -485,7 +486,9 @@ export default function Landing({ onStart, onLogin }) {
         <Pricing onStart={onStart} />
       </main>
       <div className="lp-end">
-        <Faq onContact={() => scrollToId('aloqa')} />
+        <div className="lp-faq-panel">
+          <Faq onContact={openQalamChat} />
+        </div>
         <FinalCta onStart={onStart} />
         <Footer onStart={onStart} />
       </div>

@@ -547,6 +547,7 @@
 }
 
 /* faq panel — the soft grey card the CTA overlaps */
+.lp-faq { scroll-margin-top: 80px; }
 .lp-faq-panel {
   max-width: calc(var(--lp-max) + 48px);
   margin: 0 auto;
@@ -956,7 +957,8 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.12),
     0 18px 32px -16px rgba(11, 11, 13, 0.65),
     0 4px 10px -4px rgba(11, 11, 13, 0.35);
-  cursor: default;
+  text-decoration: none;
+  cursor: pointer;
   transition: transform 0.35s var(--lp-ease), box-shadow 0.35s;
 }
 /* steel rim with a travelling highlight (shares the CTA's animated angle) */

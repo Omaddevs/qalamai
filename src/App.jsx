@@ -22,6 +22,14 @@ const AuthPage = lazy(PAGES.auth)
 const HomePage = lazy(PAGES.home)
 const EditorPage = lazy(PAGES.editor)
 const CreatorStudio = lazy(PAGES.creator)
+// QalamChat (bottom-right chat to the team) is its own small chunk, shown on the landing and home pages.
+const QalamChat = lazy(() => import('./components/QalamChat.jsx'))
+
+const toAuth = (hash) => () => {
+  window.location.hash = hash
+  window.scrollTo(0, 0)
+}
+const chat = <Suspense fallback={null}><QalamChat onSignup={toAuth('#/auth')} onLogin={toAuth('#/auth/login')} /></Suspense>
 
 // Once the first page is up and the browser is idle, fetch the pages a click away,
 // so moving between them never waits on the network.
@@ -130,16 +138,10 @@ function Pages() {
 
   if (landing) {
     return (
-      <Landing
-        onStart={() => {
-          window.location.hash = '#/auth'
-          window.scrollTo(0, 0)
-        }}
-        onLogin={() => {
-          window.location.hash = '#/auth/login'
-          window.scrollTo(0, 0)
-        }}
-      />
+      <>
+        <Landing onStart={toAuth('#/auth')} onLogin={toAuth('#/auth/login')} />
+        {chat}
+      </>
     )
   }
 
@@ -245,6 +247,7 @@ function Pages() {
 
       <CoinShopHost notify={notify} />
 
+      {chat}
       {toastEl}
     </>
   )

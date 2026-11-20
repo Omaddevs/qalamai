@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   UserCircle, MapPin, CheckCircle, IdentificationCard, FileText, PresentationChart, Scroll, Envelope, Sparkle,
-  GearSix, ShieldCheck, TelegramLogo, Phone, User, LockSimple, Check, SignOut, Crown, Key, Eye, EyeSlash, WarningCircle,
+  GearSix, ShieldCheck, Camera, TelegramLogo, Phone, User, LockSimple, Check, SignOut, Crown, Key, Eye, EyeSlash, WarningCircle,
 } from '@phosphor-icons/react'
 import { apiUrl, changePassword, currentUser, onUser, setTgAutofill, tgAutofill } from '../api.js'
 import { signOut } from '../account.js'
 import { QalamNib } from '../components/ui.jsx'
 import { initials, loadProfile, profileProgress, saveProfile } from '../profile.js'
 import { onSynced } from '../changes.js'
+import { t } from '../i18n/index.js'
+import AvatarPicker from './AvatarPicker.jsx'
 import './titul.css'
 import './profile.css'
 
@@ -254,6 +256,7 @@ export default function ProfileView({ profile, onProfile, notify }) {
   const [p, setP] = useState(profile)
   const [saved, setSaved] = useState(true)
   const [me, setMe] = useState(currentUser)
+  const [picking, setPicking] = useState(false)
   useEffect(() => onUser(setMe), [])
   const first = useRef(true)
   const pending = useRef(null)
@@ -354,9 +357,12 @@ export default function ProfileView({ profile, onProfile, notify }) {
           </div>
           <div className="pf-id-main">
             <span className="pf-ring" style={{ '--p': done / total }}>
-              <span className="pf-avatar">
+              <button type="button" className="pf-avatar" onClick={() => setPicking(true)} aria-label={t('pf.avatar.change')} title={t('pf.avatar.change')}>
                 {me?.avatarUrl ? <img src={apiUrl(me.avatarUrl)} alt="" /> : initials(p.fullName) || <UserCircle size={26} weight="duotone" />}
-              </span>
+                <span className="pf-avatar-edit" aria-hidden="true">
+                  <Camera size={13} weight="bold" />
+                </span>
+              </button>
             </span>
             <span className="pf-card-text">
               <b>{p.fullName.trim() || 'Ismingiz'}</b>
@@ -421,6 +427,7 @@ export default function ProfileView({ profile, onProfile, notify }) {
           </aside>
         </div>
       )}
+      {picking && <AvatarPicker current={me?.avatarUrl} onClose={() => setPicking(false)} notify={notify} />}
     </div>
   )
 }

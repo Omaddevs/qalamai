@@ -60,7 +60,8 @@ export function updateUser(patch) {
 }
 
 /** Absolute URL for paths the API returns (signed file links). */
-export const apiUrl = (path) => (path?.startsWith('http') ? path : `${ORIGIN}${path}`)
+// only API paths go to the API origin; others (e.g. the drawn avatars in /avatars/) are the web app's own files
+export const apiUrl = (path) => (path?.startsWith('/api/') ? `${ORIGIN}${path}` : path)
 
 async function parse(res) {
   const type = res.headers.get('content-type') ?? ''
@@ -126,6 +127,7 @@ export const api = {
   get: (p, o) => request('GET', p, o),
   post: (p, json, o) => request('POST', p, { ...o, json }),
   patch: (p, json, o) => request('PATCH', p, { ...o, json }),
+  put: (p, json, o) => request('PUT', p, { ...o, json }),
   del: (p, o) => request('DELETE', p, o),
 }
 
@@ -315,6 +317,13 @@ export async function runTool(toolId, fileIds, options = {}, { onUpdate, signal 
   return job
 }
 
+/** Change the profile picture: `{ preset: 1…15 }` or `{ image: dataUrl }`. Returns the updated user. */
+export async function setAvatar(body) {
+  const u = await api.put('/me/avatar', body)
+  updateUser({ avatarUrl: u.avatarUrl })
+  return u
+}
+
 export const getUsage = () => api.get('/me/usage')
 
 /* ───────── helpers ───────── */
@@ -354,3 +363,26 @@ export async function exportBioHtml(data) {
   if (!res.ok) await parse(res)
   return res.blob()
 }
+
+/* ───────── QalamChat ───────── */
+
+/**
+ * The signed-in user without side effects: uses the current session or the refresh cookie,
+ * but never creates a guest account (the landing page must not make one just by opening the chat).
+ */
+export async function peekUser() {
+  if (user) return user
+  try {
+    await acrossTabs(async () => {
+      if (access) return
+      const r = await fetch(`${BASE}/auth/refresh`, { method: 'POST', credentials: 'include', headers: H() })
+      if (r.ok) setSession(await r.json())
+    })
+  } catch {
+    /* offline: treat as signed out */
+  }
+  return user
+}
+
+export const supportMessages = () => api.get('/support').then((r) => r.messages)
+export const sendSupport = (topic, message, contact) => api.post('/support', { topic, message, contact }).then((r) => r.message)

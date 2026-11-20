@@ -4,3 +4,5 @@ dist
 .backup
 *.log
 .env
+deploy/.env
+deploy/server.env

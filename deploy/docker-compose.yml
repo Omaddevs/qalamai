@@ -1,0 +1,57 @@
+# QalamAI on the shared VPS: /opt/qalamai. TLS is terminated by the TaxiLine Caddy, which
+# proxies qalamai.uz to the web container on the bridge gateway (172.18.0.1:8094).
+# Secrets live in deploy/.env (not in git): POSTGRES_PASSWORD, and server.env for the API.
+name: qalamai
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: qalam
+      POSTGRES_USER: qalam
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in deploy/.env}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U qalam -d qalam']
+      interval: 10s
+      retries: 5
+    mem_limit: 512m
+
+  api:
+    build:
+      context: ..
+      dockerfile: deploy/api.Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: server.env
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://qalam:${POSTGRES_PASSWORD}@db:5432/qalam
+      STORAGE_DIR: /data/storage
+      MODELS_DIR: /data/models
+      TRUST_PROXY: 'true'
+    volumes:
+      - api-data:/data
+    healthcheck:
+      test: ['CMD', 'node', '-e', "fetch('http://localhost:4000/health').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"]
+      interval: 30s
+      retries: 3
+    mem_limit: 2g
+
+  web:
+    build:
+      context: ..
+      dockerfile: deploy/web.Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports: ['172.18.0.1:8094:80']
+    mem_limit: 128m
+
+volumes:
+  db-data:
+  api-data:

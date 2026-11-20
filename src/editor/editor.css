@@ -1271,15 +1271,15 @@
 .pro-modal-actions .btn { flex: 1; justify-content: center; }
 
 /* ═════════════ Presenting ═════════════ */
-.pr { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: #000; cursor: pointer; }
-.pr-stage { width: min(100vw, 100vh * 16 / 9); }
-.pr-stage .slide { box-shadow: none; }
-.pr-bar { position: fixed; left: 50%; bottom: 20px; display: flex; align-items: center; gap: 6px; padding: 6px; border-radius: 999px; background: rgba(20, 20, 24, 0.75); color: #fff; font-size: 13px; transform: translateX(-50%); opacity: 0; transition: opacity 0.3s; cursor: default; }
-.pr:hover .pr-bar { opacity: 1; }
-.pr-bar span { padding: 0 8px; font-variant-numeric: tabular-nums; }
-.pr-bar button { display: grid; place-items: center; width: 32px; height: 32px; border: 0; border-radius: 50%; background: none; color: #fff; cursor: pointer; }
-.pr-bar button:hover:not(:disabled) { background: rgba(255, 255, 255, 0.15); }
-.pr-bar button:disabled { opacity: 0.35; }
+.present { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: #000; cursor: pointer; }
+.present-stage { width: min(100vw, 100vh * 16 / 9); }
+.present-stage .slide { box-shadow: none; }
+.present-bar { position: fixed; left: 50%; bottom: 20px; display: flex; align-items: center; gap: 6px; padding: 6px; border-radius: 999px; background: rgba(20, 20, 24, 0.75); color: #fff; font-size: 13px; transform: translateX(-50%); opacity: 0; transition: opacity 0.3s; cursor: default; }
+.present:hover .present-bar { opacity: 1; }
+.present-bar span { padding: 0 8px; font-variant-numeric: tabular-nums; }
+.present-bar button { display: grid; place-items: center; width: 32px; height: 32px; border: 0; border-radius: 50%; background: none; color: #fff; cursor: pointer; }
+.present-bar button:hover:not(:disabled) { background: rgba(255, 255, 255, 0.15); }
+.present-bar button:disabled { opacity: 0.35; }
 
 /* ═════════════ Print → PDF ═════════════ */
 .print-root { display: none; }

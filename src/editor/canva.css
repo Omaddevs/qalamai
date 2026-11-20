@@ -51,9 +51,9 @@
 }
 .fx-lock { position: absolute; right: -10px; top: -12px; font-size: 13px; }
 
-.fx-guide { position: absolute; z-index: 4; background: #ec4899; pointer-events: none; }
-.fx-guide.x { top: 0; bottom: 0; width: 1px; }
-.fx-guide.y { left: 0; right: 0; height: 1px; }
+.snap-guide { position: absolute; z-index: 4; background: #ec4899; pointer-events: none; }
+.snap-guide.x { top: 0; bottom: 0; width: 1px; }
+.snap-guide.y { left: 0; right: 0; height: 1px; }
 .fx-marquee { position: absolute; z-index: 4; border: 1px solid #7c3aed; background: rgba(124, 58, 237, 0.1); pointer-events: none; }
 
 /* images */

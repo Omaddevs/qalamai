@@ -361,7 +361,7 @@ export default function FreeLayer({
         )
       })}
       {guides.map((g, i) => (
-        <span key={i} className={`fx-guide ${g.axis}`} style={g.axis === 'x' ? { left: `${g.at}%` } : { top: `${g.at}%` }} />
+        <span key={i} className={`snap-guide ${g.axis}`} style={g.axis === 'x' ? { left: `${g.at}%` } : { top: `${g.at}%` }} />
       ))}
       {marquee && <span className="fx-marquee" style={{ left: `${marquee.x}%`, top: `${marquee.y}%`, width: `${marquee.w}%`, height: `${marquee.h}%` }} />}
     </div>

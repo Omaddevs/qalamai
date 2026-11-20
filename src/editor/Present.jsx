@@ -32,11 +32,11 @@ export function Present({ slides, theme, start = 0, onClose }) {
   }, [next, prev, onClose])
 
   return createPortal(
-    <div className="pr" ref={box} onClick={next}>
-      <div className="pr-stage">
+    <div className="present" ref={box} onClick={next}>
+      <div className="present-stage">
         <Slide key={slides[i].id} slide={slides[i]} theme={theme} index={i} playing />
       </div>
-      <div className="pr-bar" onClick={(e) => e.stopPropagation()}>
+      <div className="present-bar" onClick={(e) => e.stopPropagation()}>
         <button type="button" onClick={prev} disabled={i === 0} aria-label="Oldingi">
           <ChevronLeft size={18} />
         </button>

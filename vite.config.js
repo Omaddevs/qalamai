@@ -117,6 +117,10 @@ export default defineConfig(({ mode }) => {
   const api = { target: process.env.API_TARGET ?? 'http://localhost:4000', changeOrigin: false }
   return {
     plugins: [react(), seo(siteUrl), i18nSplit(new URL('./src/i18n/msg', import.meta.url).pathname)],
+    // Lazily imported heavy deps: pre-bundle them at start-up. Found only when a page first
+    // imports them, Vite re-optimizes mid-session and answers the open page with
+    // "504 Outdated Optimize Dep" — the PDF editor then fails with "PDF ni oçib bölmadi".
+    optimizeDeps: { include: ['pdfjs-dist', 'mammoth/mammoth.browser.js'] },
     server: {
       proxy: {
         '/api': api,

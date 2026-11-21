@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   X, ArrowUUpLeft, ArrowUUpRight, MagnifyingGlassMinus, MagnifyingGlassPlus, FloppyDisk, Cursor, CursorText, TextT, HighlighterCircle,
   Eraser, Rectangle, Circle, ArrowUpRight, LineSegment, PenNib, Image as ImageIcon, Signature, ArrowClockwise, ArrowCounterClockwise,
-  Trash, TextB, TextItalic, CircleNotch, CheckCircle, DownloadSimple, NotePencil, WarningCircle,
+  Trash, TextB, TextItalic, CircleNotch, CheckCircle, DownloadSimple, NotePencil, WarningCircle, ArrowsOutLineHorizontal,
 } from '@phosphor-icons/react'
 import { apiUrl, downloadFile, runTool } from '../api.js'
 import { t } from '../i18n/index.js'
@@ -18,20 +18,23 @@ function loadPdfjs() {
   return pdfjsPromise
 }
 
+// `group` splits the tool rail: pick/edit · text · marks · shapes · insert
 const TOOLS = [
-  { id: 'select', icon: Cursor, get label() { return t('pe.tool.select') }, key: 'v' },
-  { id: 'edit', icon: CursorText, get label() { return t('pe.tool.edit') }, key: 'e' },
-  { id: 'text', icon: TextT, get label() { return t('pe.tool.text') }, key: 't' },
-  { id: 'highlight', icon: HighlighterCircle, get label() { return t('pe.tool.highlight') }, key: 'h' },
-  { id: 'whiteout', icon: Eraser, get label() { return t('pe.tool.whiteout') }, key: 'w' },
-  { id: 'rect', icon: Rectangle, get label() { return t('pe.tool.rect') }, key: 'r' },
-  { id: 'ellipse', icon: Circle, get label() { return t('pe.tool.ellipse') }, key: 'o' },
-  { id: 'arrow', icon: ArrowUpRight, get label() { return t('pe.tool.arrow') }, key: 'a' },
-  { id: 'line', icon: LineSegment, get label() { return t('pe.tool.line') }, key: 'l' },
-  { id: 'ink', icon: PenNib, get label() { return t('pe.tool.ink') }, key: 'p' },
-  { id: 'image', icon: ImageIcon, get label() { return t('pe.tool.image') }, key: 'i' },
-  { id: 'sign', icon: Signature, get label() { return t('pe.tool.sign') }, key: 's' },
+  { id: 'select', icon: Cursor, get label() { return t('pe.tool.select') }, key: 'v', group: 0 },
+  { id: 'edit', icon: CursorText, get label() { return t('pe.tool.edit') }, key: 'e', group: 0 },
+  { id: 'text', icon: TextT, get label() { return t('pe.tool.text') }, key: 't', group: 1 },
+  { id: 'highlight', icon: HighlighterCircle, get label() { return t('pe.tool.highlight') }, key: 'h', group: 1 },
+  { id: 'whiteout', icon: Eraser, get label() { return t('pe.tool.whiteout') }, key: 'w', group: 1 },
+  { id: 'rect', icon: Rectangle, get label() { return t('pe.tool.rect') }, key: 'r', group: 2 },
+  { id: 'ellipse', icon: Circle, get label() { return t('pe.tool.ellipse') }, key: 'o', group: 2 },
+  { id: 'arrow', icon: ArrowUpRight, get label() { return t('pe.tool.arrow') }, key: 'a', group: 2 },
+  { id: 'line', icon: LineSegment, get label() { return t('pe.tool.line') }, key: 'l', group: 2 },
+  { id: 'ink', icon: PenNib, get label() { return t('pe.tool.ink') }, key: 'p', group: 2 },
+  { id: 'image', icon: ImageIcon, get label() { return t('pe.tool.image') }, key: 'i', group: 3 },
+  { id: 'sign', icon: Signature, get label() { return t('pe.tool.sign') }, key: 's', group: 3 },
 ]
+/** A tool's name without the "(R)" shortcut its label carries (shown separately as a key). */
+const toolName = (tl) => tl.label.replace(/\s*\([^)]*\)\s*$/, '')
 const COLORS = ['#111111', '#2563eb', '#dc2626', '#16a34a', '#f59e0b', '#7c3aed', '#ffffff']
 const HL_COLORS = ['#fde047', '#86efac', '#93c5fd', '#f9a8d4', '#fdba74']
 const uid = () => Math.random().toString(36).slice(2, 10)
@@ -382,7 +385,7 @@ function PageView({ pdf, src, info, zoom, plan, anns, tool, style, selected, edi
     <div className="pe-page-wrap">
       <div ref={wrap} className={`pe-page tool-${tool} ${placing ? 'placing' : ''}`} style={{ width: z(W), height: z(H) }}>
         <canvas ref={canvas} style={{ width: z(W), height: z(H) }} />
-        {plan.rotate ? <span className="pe-rot-badge">↻ {plan.rotate}° — saqlaşda aylanadi</span> : null}
+        {plan.rotate ? <span className="pe-rot-badge">{t('pe.rotBadge', { deg: plan.rotate })}</span> : null}
 
         <div className="pe-overlay" onPointerDown={down} onPointerMove={move} onPointerUp={up}>
           {/* existing text runs (edit mode) */}
@@ -565,6 +568,8 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
   const [signing, setSigning] = useState(false)
   const [saving, setSaving] = useState(null)
   const [saved, setSaved] = useState(null)
+  const [attempt, setAttempt] = useState(0) // bumps to open the PDF again after a failure
+  const [current, setCurrent] = useState(0) // index in `pages` of the page in view
   const scroller = useRef(null)
   const imgInput = useRef(null)
   const dragFrom = useRef(null)
@@ -594,14 +599,38 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
         const avail = (scroller.current?.clientWidth ?? 900) - 80
         setZoom(Math.max(0.5, Math.min(1.6, avail / Math.max(...list.map((p) => p.width)))))
       } catch (err) {
-        if (!dead) setError(err?.name === 'PasswordException' ? t('pe.locked') : t('pe.openFailed'))
+        if (dead) return
+        console.error('PDF editor: open failed', err)
+        setError(err?.name === 'PasswordException' ? { title: t('pe.locked'), locked: true } : { title: t('pe.openFailed'), text: t('pe.openFailedText') })
       }
     })()
     return () => {
       dead = true
       doc?.loadingTask?.destroy()
     }
-  }, [file.url])
+  }, [file.url, attempt])
+
+  // which page is in view (page indicator + highlighted thumbnail)
+  useEffect(() => {
+    const root = scroller.current
+    if (!root || !pdf) return
+    const io = new IntersectionObserver(
+      (entries) => {
+        const best = entries.filter((e) => e.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
+        if (best) setCurrent(Number(best.target.dataset.index))
+      },
+      { root, threshold: [0.25, 0.5, 0.75] },
+    )
+    root.querySelectorAll('[data-index]').forEach((el) => io.observe(el))
+    return () => io.disconnect()
+  }, [pdf, pages])
+
+  const fitWidth = () => {
+    const avail = (scroller.current?.clientWidth ?? 900) - 80
+    const widest = Math.max(...pages.map((p) => (p.rotate % 180 ? infos[p.src]?.height : infos[p.src]?.width) ?? 600))
+    setZoom(Math.max(0.4, Math.min(3, +(avail / widest).toFixed(2))))
+  }
+  const goTo = (i) => document.getElementById(`pe-p-${pages[i]?.key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'
@@ -911,9 +940,25 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
         <div className="pe-name">
           <NotePencil size={18} weight="duotone" />
           <b title={file.name}>{file.name}</b>
-          {count > 0 && <span className="pe-count">{count} ta özgariş</span>}
+          {count > 0 && <span className="pe-count">{t('pe.changes', { n: count })}</span>}
         </div>
         <div className="pe-top-mid">
+          {pages.length > 0 && (
+            <>
+              <span className="pe-pager" title={t('pe.pageOf', { n: current + 1, total: pages.length })}>
+                <input
+                  type="number"
+                  min={1}
+                  max={pages.length}
+                  value={current + 1}
+                  onChange={(e) => goTo(Math.min(pages.length, Math.max(1, Number(e.target.value) || 1)) - 1)}
+                  aria-label={t('pe.page')}
+                />
+                <span>/ {pages.length}</span>
+              </span>
+              <span className="pe-sep" />
+            </>
+          )}
           <button className="fs-ibtn" onClick={undo} disabled={!past.length} title={t('pe.undo')}>
             <ArrowUUpLeft size={18} />
           </button>
@@ -928,14 +973,26 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
           <button className="fs-ibtn" onClick={() => setZoom((z) => Math.min(3, +(z + 0.1).toFixed(2)))} title={t('pe.zoomIn')}>
             <MagnifyingGlassPlus size={18} />
           </button>
+          <button className="fs-ibtn" onClick={fitWidth} disabled={!pdf} title={t('pe.fitWidth')}>
+            <ArrowsOutLineHorizontal size={18} />
+          </button>
         </div>
-        <button className="fs-btn dark" onClick={save} disabled={!pdf || saving}>
+        <button className={`fs-btn dark pe-save ${count > 0 ? 'ready' : ''}`} onClick={save} disabled={!pdf || saving}>
           {saving ? <CircleNotch size={16} className="spin" /> : <FloppyDisk size={16} weight="bold" />} {saving ? `${saving.progress ?? 0}%` : t('pe.save')}
         </button>
       </header>
 
       {/* contextual style bar */}
       <div className="pe-props">
+        {(() => {
+          const cur = TOOLS.find((x) => x.id === (placing ? (placing.kind === 'sign' ? 'sign' : 'image') : tool)) ?? TOOLS[0]
+          return (
+            <span className="pe-current">
+              <cur.icon size={15} weight="bold" /> {toolName(cur)}
+            </span>
+          )
+        })()}
+        <span className="pe-sep" />
         {tool === 'highlight' || selAnn?.type === 'highlight' ? (
           <div className="pe-swatches">
             {HL_COLORS.map((c) => (
@@ -1011,10 +1068,11 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
 
       <div className="pe-body">
         <aside className="pe-thumbs">
+          {pages.length > 0 && <div className="pe-thumbs-head">{t('pe.pagesCount', { n: pages.length })}</div>}
           {pages.map((p, i) => (
             <div
               key={p.key}
-              className="pe-thumb"
+              className={`pe-thumb ${i === current ? 'on' : ''}`}
               draggable
               onDragStart={() => (dragFrom.current = i)}
               onDragOver={(e) => e.preventDefault()}
@@ -1052,18 +1110,38 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
         </aside>
 
         <nav className="pe-tools" aria-label={t('pe.tools')}>
-          {TOOLS.map((tl) => (
-            <button key={tl.id} className={tool === tl.id && !placing ? 'on' : ''} onClick={() => pickTool(tl.id)} title={tl.label} aria-label={tl.label}>
-              <tl.icon size={20} weight={tool === tl.id ? 'duotone' : 'regular'} />
-            </button>
+          {TOOLS.map((tl, i) => (
+            <span key={tl.id} className="pe-tool-slot">
+              {i > 0 && TOOLS[i - 1].group !== tl.group && <i className="pe-tools-sep" aria-hidden="true" />}
+              <button className={tool === tl.id && !placing ? 'on' : ''} onClick={() => pickTool(tl.id)} aria-label={`${toolName(tl)} (${tl.key.toUpperCase()})`}>
+                <tl.icon size={20} weight={tool === tl.id ? 'duotone' : 'regular'} />
+                <span className="pe-tip" aria-hidden="true">
+                  {toolName(tl)}
+                  <kbd>{tl.key.toUpperCase()}</kbd>
+                </span>
+              </button>
+            </span>
           ))}
         </nav>
 
         <main className="pe-scroll" ref={scroller} onPointerDown={(e) => e.target === e.currentTarget && setSelected(null)}>
           {error ? (
-            <div className="pe-state">
-              <WarningCircle size={36} weight="duotone" />
-              <b>{error}</b>
+            <div className="pe-state error">
+              <span className="pe-state-ic">
+                <WarningCircle size={30} weight="duotone" />
+              </span>
+              <b>{error.title}</b>
+              {error.text && <p>{error.text}</p>}
+              <div className="tw-row">
+                {!error.locked && (
+                  <button className="fs-btn dark" onClick={() => { setError(null); setAttempt((n) => n + 1) }}>
+                    <ArrowClockwise size={15} weight="bold" /> {t('pe.retry')}
+                  </button>
+                )}
+                <button className="fs-btn" onClick={onClose}>
+                  {t('ui.close')}
+                </button>
+              </div>
             </div>
           ) : !pdf ? (
             <div className="pe-state">
@@ -1071,8 +1149,8 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
               <b>{t('pe.opening')}</b>
             </div>
           ) : (
-            pages.map((p) => (
-              <div key={p.key} id={`pe-p-${p.key}`}>
+            pages.map((p, i) => (
+              <div key={p.key} id={`pe-p-${p.key}`} data-index={i}>
                 <PageView
                   pdf={pdf}
                   src={p.src}
@@ -1107,7 +1185,7 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
           onClose={() => setSigning(false)}
           onDone={(sig) => {
             setSigning(false)
-            setPlacing(sig)
+            setPlacing({ ...sig, kind: 'sign' })
             setTool('select')
             notify(t('pe.clickSign'))
           }}
@@ -1115,7 +1193,7 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
       )}
       {saving && (
         <div className="pe-saving">
-          <CircleNotch size={22} className="spin" /> {saving.stage ?? 'Saqlanmoqda'} · {saving.progress ?? 0}%
+          <CircleNotch size={22} className="spin" /> {saving.stage ?? t('pe.saving')} · {saving.progress ?? 0}%
         </div>
       )}
       {saved && (

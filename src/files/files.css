@@ -2035,6 +2035,8 @@
   background: #dc2626;
 }
 .pe-tools {
+  position: relative;
+  z-index: 5;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -2047,6 +2049,7 @@
   box-shadow: 0 14px 30px -20px rgba(16, 24, 40, 0.4);
 }
 .pe-tools button {
+  position: relative;
   display: grid;
   place-items: center;
   width: 40px;
@@ -2065,6 +2068,7 @@
   color: #fff;
 }
 .pe-scroll {
+  scroll-behavior: smooth;
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -2435,4 +2439,170 @@
   .tw-ring-center .fs-ticon {
     animation: none;
   }
+}
+
+/* ───── PDF editor: tool rail groups + tooltips, page indicator, current tool, states ───── */
+.pe-tool-slot {
+  display: contents;
+}
+.pe-tools-sep {
+  display: block;
+  height: 1px;
+  margin: 3px 8px;
+  background: #ebe8e1;
+}
+.pe-tip {
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 12px);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 7px 6px 10px;
+  border-radius: 9px;
+  background: #0b0b0d;
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-4px, -50%);
+  transition: opacity 0.12s, transform 0.12s;
+  box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.5);
+}
+.pe-tip::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -4px;
+  width: 8px;
+  height: 8px;
+  background: inherit;
+  transform: translateY(-50%) rotate(45deg);
+}
+.pe-tip kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.16);
+  font-family: inherit;
+  font-size: 10.5px;
+}
+.pe-tools button:hover .pe-tip,
+.pe-tools button:focus-visible .pe-tip {
+  opacity: 1;
+  transform: translate(0, -50%);
+  transition-delay: 0.25s;
+}
+.pe-tools button.on {
+  box-shadow: 0 6px 14px -6px rgba(0, 0, 0, 0.5);
+}
+
+.pe-pager {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #6b717a;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.pe-pager input {
+  width: 44px;
+  height: 30px;
+  padding: 0 4px;
+  border: 1px solid #ddd9cf;
+  border-radius: 8px;
+  background: #fff;
+  color: #16181d;
+  font: inherit;
+  font-weight: 700;
+  text-align: center;
+  -moz-appearance: textfield;
+}
+.pe-pager input::-webkit-inner-spin-button,
+.pe-pager input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+.pe-pager input:focus {
+  outline: none;
+  border-color: var(--brand-strong);
+  box-shadow: 0 0 0 3px var(--brand-soft);
+}
+
+/* save turns lime once there is something to save */
+.pe-save.ready:not(:disabled) {
+  border-color: var(--brand-strong);
+  background: var(--brand);
+  color: var(--brand-ink);
+  box-shadow: 0 10px 24px -12px rgba(141, 179, 16, 0.9);
+}
+.pe-save.ready:not(:disabled):hover {
+  background: var(--brand-hover);
+}
+
+.pe-current {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 11px 0 9px;
+  border-radius: 99px;
+  background: #0b0b0d;
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.pe-current svg {
+  color: var(--brand);
+}
+
+.pe-thumbs-head {
+  padding: 0 4px;
+  color: #8b919a;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.pe-thumb.on {
+  border-color: var(--brand-strong);
+  background: #fff;
+  box-shadow: 0 0 0 3px var(--brand-soft);
+}
+.pe-thumb.on .pe-thumb-no {
+  color: var(--brand-fg);
+}
+
+.pe-state.error {
+  max-width: 380px;
+  padding: 30px 28px;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 20px 50px -26px rgba(16, 24, 40, 0.4);
+  text-align: center;
+}
+.pe-state.error b {
+  color: #16181d;
+  font-size: 16px;
+}
+.pe-state.error p {
+  margin: 0 0 8px;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.pe-state-ic {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 4px;
+  border-radius: 16px;
+  background: #fef2f2;
+  color: #dc2626;
 }

@@ -41,6 +41,8 @@ try {
   if (bot && config.telegram.polling) bot.startPolling((u) => telegram.handleUpdate(u))
 } catch (err) {
   app.log.error(err)
+  // close the database first: exiting with an embedded PGlite still open can corrupt it
+  await app.close().catch(() => {})
   process.exit(1)
 }
 
@@ -49,15 +51,25 @@ const timer = setInterval(sweep, 10 * 60_000)
 timer.unref()
 
 let closing = false
+async function shutdown(code) {
+  if (closing) return
+  closing = true
+  clearInterval(timer)
+  const force = setTimeout(() => process.exit(1), 15_000)
+  force.unref()
+  await app.close().catch((err) => app.log.error({ err }, 'shutdown failed'))
+  process.exit(code)
+}
 for (const signal of ['SIGINT', 'SIGTERM']) {
-  process.on(signal, async () => {
-    if (closing) return
-    closing = true
+  process.on(signal, () => {
     app.log.info(`${signal} — shutting down`)
-    clearInterval(timer)
-    const force = setTimeout(() => process.exit(1), 15_000)
-    force.unref()
-    await app.close()
-    process.exit(0)
+    shutdown(0)
+  })
+}
+// A crash must still close the database: an embedded PGlite left open is unusable afterwards.
+for (const event of ['uncaughtException', 'unhandledRejection']) {
+  process.on(event, (err) => {
+    app.log.fatal({ err }, event)
+    shutdown(1)
   })
 }

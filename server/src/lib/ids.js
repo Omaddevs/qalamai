@@ -20,4 +20,5 @@ export const ID_PREFIX = {
   bio: 'bio',
   coin: 'cxn',
   support: 'msg',
+  notification: 'ntf',
 }

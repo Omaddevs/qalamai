@@ -6,7 +6,7 @@
 // httpOnly, SameSite=Strict cookie; changing the password bumps a version that ends every session.
 import { createHash } from 'node:crypto'
 import { SignJWT, jwtVerify } from 'jose'
-import { and, count, desc, eq, ilike, or, sql } from 'drizzle-orm'
+import { and, count, desc, eq, ilike, isNull, or, sql } from 'drizzle-orm'
 import { schema } from '../../db/index.js'
 import { AppError, badRequest, notFound, unauthorized } from '../../lib/errors.js'
 import { hashPassword, verifyPassword } from '../../lib/crypto.js'
@@ -14,7 +14,7 @@ import { avatarUrlOf } from '../../lib/avatars.js'
 import { createAnalytics, VISITOR_COOKIE } from './analytics.js'
 import { parseUa } from './detect.js'
 
-const { users, sessions, adminSettings, designs, documents, files, jobs, coinLedger, bioPages, supportMessages } = schema
+const { users, sessions, adminSettings, designs, documents, files, jobs, coinLedger, bioPages, supportMessages, notifications, notificationReads } = schema
 
 const COOKIE = 'qalam_adm'
 const COOKIE_PATH = '/api/v1/admin'
@@ -26,7 +26,7 @@ const GA4_ID = /^G-[A-Z0-9]{4,16}$/
 
 /** @param {import('fastify').FastifyInstance} app */
 export async function adminRoutes(app) {
-  const { db, config, coins } = app.ctx
+  const { db, config, coins, notifier } = app.ctx
   const analytics = app.ctx.analytics
   const key = createHash('sha256').update(`qalam-admin:${config.auth.jwtSecret}`).digest()
 
@@ -326,20 +326,71 @@ export async function adminRoutes(app) {
         schema: {
           hide: true,
           params: { type: 'object', properties: { id: { type: 'string', maxLength: 64 } } },
-          body: { type: 'object', required: ['status'], additionalProperties: false, properties: { status: { type: 'string', enum: ['new', 'done'] } } },
+          body: { type: 'object', required: ['status'], additionalProperties: false, properties: { status: { type: 'string', enum: ['new', 'done'] }, notify: { type: 'boolean' } } },
         },
       },
       async (req) => {
         const done = req.body.status === 'done'
+        // only a new → done change tells the user (re-marking or undoing stays quiet)
+        const [before] = await db.select({ status: supportMessages.status }).from(supportMessages).where(eq(supportMessages.id, req.params.id)).limit(1)
         const [row] = await db
           .update(supportMessages)
           .set({ status: req.body.status, doneAt: done ? new Date() : null })
           .where(eq(supportMessages.id, req.params.id))
-          .returning({ id: supportMessages.id, status: supportMessages.status, doneAt: supportMessages.doneAt })
+          .returning({ id: supportMessages.id, status: supportMessages.status, doneAt: supportMessages.doneAt, userId: supportMessages.userId, topic: supportMessages.topic })
         if (!row) throw notFound('Xabar topilmadi')
-        return row
+        if (done && before?.status === 'new' && req.body.notify !== false) await notifier.send(row.userId, 'support.done', { topic: row.topic })
+        return { id: row.id, status: row.status, doneAt: row.doneAt }
       },
     )
+
+    /* ───────── announcements (Bildirişnomalar for everyone) ───────── */
+
+    admin.get('/notifications', { schema: { hide: true } }, async () => {
+      const rows = await db
+        .select({ n: notifications, reads: count(notificationReads.userId) })
+        .from(notifications)
+        .leftJoin(notificationReads, eq(notificationReads.notificationId, notifications.id))
+        .where(isNull(notifications.userId))
+        .groupBy(notifications.id)
+        .orderBy(desc(notifications.createdAt))
+        .limit(100)
+      return { items: rows.map(({ n, reads }) => ({ id: n.id, title: n.title, body: n.body, link: n.link, createdAt: n.createdAt, reads: Number(reads) })) }
+    })
+
+    admin.post(
+      '/notifications',
+      {
+        schema: {
+          hide: true,
+          body: {
+            type: 'object',
+            required: ['title', 'body'],
+            additionalProperties: false,
+            properties: {
+              title: { type: 'string', minLength: 2, maxLength: 120 },
+              body: { type: 'string', minLength: 2, maxLength: 1000 },
+              link: { type: 'string', maxLength: 500 },
+            },
+          },
+        },
+      },
+      async (req) => {
+        const link = req.body.link?.trim() || null
+        if (link && !/^(https:\/\/|#\/)/.test(link)) throw badRequest('Havola https:// yoki #/ bilan boşlanişi kerak')
+        const row = await notifier.announce({ title: req.body.title.trim(), body: req.body.body.trim(), link })
+        return { id: row.id, title: row.title, body: row.body, link: row.link, createdAt: row.createdAt, reads: 0 }
+      },
+    )
+
+    admin.delete('/notifications/:id', { schema: { hide: true, params: { type: 'object', properties: { id: { type: 'string', maxLength: 64 } } } } }, async (req) => {
+      const [row] = await db
+        .delete(notifications)
+        .where(and(eq(notifications.id, req.params.id), isNull(notifications.userId)))
+        .returning({ id: notifications.id })
+      if (!row) throw notFound('Bildirişnoma topilmadi')
+      return { ok: true }
+    })
 
     /* ───────── site settings ───────── */
 

@@ -13,7 +13,7 @@ export const notEnoughCoins = (need, balance) =>
 
 const isUniqueViolation = (err) => String(err.code ?? err.cause?.code) === '23505' || /unique/i.test(err.message)
 
-export function createCoinService({ db }) {
+export function createCoinService({ db, notifier = null }) {
   /** Add (delta > 0) or take (delta < 0) coins. Taking never drives the balance below zero. */
   async function move(userId, delta, reason, { item = null, ref = null, meta = {}, purchased = false } = {}) {
     return db.transaction(async (tx) => {
@@ -85,15 +85,25 @@ export function createCoinService({ db }) {
         .where(and(eq(coinLedger.userId, userId), eq(coinLedger.reason, 'purchase')))
       return tierOf(rows.map((r) => r.item))
     },
-    signupBonus: (userId) => moveOnce(userId, SIGNUP_BONUS, 'signup', { ref: 'signup' }),
+    async signupBonus(userId) {
+      const res = await moveOnce(userId, SIGNUP_BONUS, 'signup', { ref: 'signup' })
+      if (!res.repeated) await notifier?.send(userId, 'welcome', { coins: SIGNUP_BONUS })
+      return res
+    },
 
     /** Credit a paid pack. `ref` is the payment provider's transaction id. */
     async purchase(userId, packId, ref, meta = {}) {
       const pack = COIN_PACKS.find((p) => p.id === packId)
       if (!pack) throw badRequest('Bunday paket yöq', { pack: packId })
-      return moveOnce(userId, pack.coins, 'purchase', { item: pack.id, ref, meta: { ...meta, price: pack.price }, purchased: true })
+      const res = await moveOnce(userId, pack.coins, 'purchase', { item: pack.id, ref, meta: { ...meta, price: pack.price }, purchased: true })
+      if (!res.repeated) await notifier?.send(userId, 'coins.purchase', { coins: pack.coins, balance: res.balance })
+      return res
     },
 
-    grant: (userId, amount, by, note) => moveOnce(userId, amount, 'grant', { meta: { by, note } }),
+    async grant(userId, amount, by, note) {
+      const res = await moveOnce(userId, amount, 'grant', { meta: { by, note } })
+      if (amount > 0) await notifier?.send(userId, 'coins.grant', { coins: amount, balance: res.balance })
+      return res
+    },
   }
 }

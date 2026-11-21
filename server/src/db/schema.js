@@ -286,3 +286,36 @@ export const supportMessages = pgTable(
   },
   (t) => [index('support_messages_user_idx').on(t.userId, t.createdAt), index('support_messages_created_idx').on(t.createdAt)],
 )
+
+/**
+ * In-app notifications (Bildirişnomalar). A row with `userId` is for that user; `userId = null`
+ * is an announcement for everyone, written by an admin. System notifications keep a `kind` +
+ * `data`, so the web app shows them in the reader's language; announcements carry their own text.
+ */
+export const notifications = pgTable(
+  'notifications',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }),
+    /** welcome · coins.purchase · coins.grant · support.done · announce */
+    kind: text('kind').notNull(),
+    data: jsonb('data').notNull().default({}),
+    title: text('title'),
+    body: text('body'),
+    /** Where "open" leads in the web app (an in-app hash such as #/ or a full https link). */
+    link: text('link'),
+    createdAt: createdAt(),
+  },
+  (t) => [index('notifications_user_idx').on(t.userId, t.createdAt), index('notifications_created_idx').on(t.createdAt)],
+)
+
+/** Who has read which notification (one table for personal ones and announcements alike). */
+export const notificationReads = pgTable(
+  'notification_reads',
+  {
+    notificationId: text('notification_id').notNull().references(() => notifications.id, { onDelete: 'cascade' }),
+    userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    readAt: ts('read_at').notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.notificationId, t.userId] }), index('notification_reads_user_idx').on(t.userId)],
+)

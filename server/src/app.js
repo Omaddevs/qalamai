@@ -29,6 +29,8 @@ import { bioApiRoutes, bioPublicRoutes } from './modules/bio/routes.js'
 import { PLAN_LIMITS } from './modules/plans/plans.js'
 import coinRoutes from './modules/coins/routes.js'
 import supportRoutes from './modules/support/routes.js'
+import notificationRoutes from './modules/notifications/routes.js'
+import { createNotifier } from './modules/notifications/service.js'
 import { createCoinService } from './modules/coins/service.js'
 import { adminRoutes, createAnalytics, trackRoutes, verificationRoutes } from './modules/admin/routes.js'
 import { COIN_COSTS, COIN_PACKS, SIGNUP_BONUS } from '../../shared/coins.js'
@@ -64,7 +66,8 @@ export async function buildApp(config) {
   })
   const files = createFileService({ db, storage, config, log: app.log })
   const jobs = createJobService({ db, pool, files, storage, log: app.log })
-  const coins = createCoinService({ db })
+  const notifier = createNotifier({ db, log: app.log })
+  const coins = createCoinService({ db, notifier })
   const auth = createAuthService({ db, tokens, config, coins })
   // null until GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET are set; tests swap in a fake
   const google = config.google ? createGoogleClient(config.google) : null
@@ -72,7 +75,7 @@ export async function buildApp(config) {
   const bot = config.telegram ? createBotApi(config.telegram.token, { apiUrl: config.telegram.apiUrl, apiIp: config.telegram.apiIp, log: app.log }) : null
   const telegram = bot ? createTelegramLogin({ db, bot, auth, secret: config.auth.jwtSecret, storage, log: app.log }) : null
   const analytics = createAnalytics({ db, config })
-  app.decorate('ctx', { config, db, storage, tokens, pool, files, jobs, auth, coins, google, bot, telegram, driver, analytics })
+  app.decorate('ctx', { config, db, storage, tokens, pool, files, jobs, auth, coins, notifier, google, bot, telegram, driver, analytics })
 
   /* ── auth decorators ── */
   const loadUser = async (req) => {
@@ -139,6 +142,7 @@ export async function buildApp(config) {
       await api.register(trackRoutes)
       await api.register(adminRoutes, { prefix: '/admin' })
       await api.register(supportRoutes, { prefix: '/support' })
+      await api.register(notificationRoutes, { prefix: '/notifications' })
     },
     { prefix: '/api/v1' },
   )

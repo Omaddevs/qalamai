@@ -9,9 +9,9 @@
   --ad-ink: #0b0d12;
   --ad-ink-2: #3b414b;
   --ad-muted: #858b95;
-  --ad-accent: #0d9488;
-  --ad-accent-ink: #0f766e;
-  --ad-accent-soft: rgba(20, 184, 166, 0.12);
+  --ad-accent: #8db310;
+  --ad-accent-ink: #4f6b00;
+  --ad-accent-soft: rgba(198, 244, 50, 0.24);
   --ad-track: #eef1f4;
   --ad-good: #047857;
   --ad-good-bg: #ecfdf5;
@@ -24,11 +24,11 @@
   --ad-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.03);
   --ad-shadow-lg: 0 12px 32px -8px rgba(16, 24, 40, 0.14), 0 4px 10px rgba(16, 24, 40, 0.05);
   --ad-heat-0: #eff1f4;
-  --ad-heat-1: #ccfbf1;
-  --ad-heat-2: #99f6e4;
-  --ad-heat-3: #2dd4bf;
-  --ad-heat-4: #0d9488;
-  --ad-heat-5: #115e59;
+  --ad-heat-1: #f1fccc;
+  --ad-heat-2: #e2f98f;
+  --ad-heat-3: #c6f432;
+  --ad-heat-4: #9bc712;
+  --ad-heat-5: #5e7a00;
   color-scheme: light;
 }
 
@@ -41,9 +41,9 @@
   --ad-ink: #f3f5f8;
   --ad-ink-2: #c3c8d1;
   --ad-muted: #7f8794;
-  --ad-accent: #2dd4bf;
-  --ad-accent-ink: #5eead4;
-  --ad-accent-soft: rgba(45, 212, 191, 0.12);
+  --ad-accent: #c6f432;
+  --ad-accent-ink: #c6f432;
+  --ad-accent-soft: rgba(198, 244, 50, 0.12);
   --ad-track: #1e232c;
   --ad-good: #34d399;
   --ad-good-bg: rgba(52, 211, 153, 0.1);
@@ -56,11 +56,11 @@
   --ad-shadow: 0 1px 0 rgba(255, 255, 255, 0.02) inset;
   --ad-shadow-lg: 0 16px 40px -8px rgba(0, 0, 0, 0.6);
   --ad-heat-0: #1a1e26;
-  --ad-heat-1: #134e4a;
-  --ad-heat-2: #115e59;
-  --ad-heat-3: #0f766e;
-  --ad-heat-4: #14b8a6;
-  --ad-heat-5: #5eead4;
+  --ad-heat-1: #2c3810;
+  --ad-heat-2: #45581a;
+  --ad-heat-3: #6f8f12;
+  --ad-heat-4: #a3cc1c;
+  --ad-heat-5: #c6f432;
   color-scheme: dark;
 }
 
@@ -1634,7 +1634,7 @@
   background: #f59e0b;
 }
 .ad-strength.s3 span:nth-child(-n + 3) {
-  background: #14b8a6;
+  background: var(--brand);
 }
 .ad-strength.s4 span:nth-child(-n + 4) {
   background: #059669;
@@ -2209,7 +2209,7 @@
 .ad-msg.done .ad-msg-text { color: var(--ad-ink-2); }
 
 .ad-topic { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--tb); color: var(--tc); }
-.ad-topic.t-question { --tc: #0f766e; --tb: rgba(20, 184, 166, 0.13); }
+.ad-topic.t-question { --tc: var(--ad-accent-ink); --tb: var(--ad-accent-soft); }
 .ad-topic.t-partnership { --tc: #5b4ee0; --tb: rgba(124, 108, 242, 0.14); }
 .ad-topic.t-complaint { --tc: #be123c; --tb: rgba(225, 29, 72, 0.12); }
 .ad-topic.t-idea { --tc: #b45309; --tb: rgba(217, 119, 6, 0.14); }
@@ -2240,4 +2240,50 @@
   .ad-chat-list { padding: 4px 12px 14px; }
   .ad-msg { padding: 14px 14px 12px 16px; }
   .ad-msg-act { margin-left: 0; }
+}
+
+/* ───────── Bildirişnomalar (announcements) ───────── */
+.ad-textarea {
+  height: auto;
+  min-height: 120px;
+  padding: 12px 14px;
+  line-height: 1.5;
+  resize: vertical;
+}
+.ad-ntf-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ad-ntf-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--ad-line);
+}
+.ad-ntf-list li:last-child {
+  border-bottom: 0;
+}
+.ad-ntf-list li > div {
+  flex: 1;
+  min-width: 0;
+}
+.ad-ntf-list b {
+  font-size: 14.5px;
+  color: var(--ad-ink);
+}
+.ad-ntf-list p {
+  margin: 4px 0 6px;
+  color: var(--ad-ink-2);
+  font-size: 13.5px;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+.ad-ntf-list small {
+  color: var(--ad-ink-3, var(--ad-ink-2));
+  font-size: 12px;
+  overflow-wrap: anywhere;
 }

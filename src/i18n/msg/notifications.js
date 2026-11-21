@@ -1,0 +1,30 @@
+// Bildirişnomalar page (src/home/NotificationsView.jsx). System notices arrive as kind + data
+// from the server and are worded here; announcements bring their own text.
+export default {
+  'nt.sub': { uz: 'Hisobingiz, coinlar va QalamAI yangiliklari bir joyda', ru: 'Аккаунт, коины и новости QalamAI в одном месте', en: 'Your account, coins and QalamAI news in one place', kk: 'Аккаунт, коиндер және QalamAI жаңалықтары бір жерде', ky: 'Аккаунт, коиндер жана QalamAI жаңылыктары бир жерде', tg: 'Ҳисоб, коинҳо ва навгониҳои QalamAI дар як ҷо' },
+  'nt.all': { uz: 'Hammasi', ru: 'Все', en: 'All', kk: 'Барлығы', ky: 'Баары', tg: 'Ҳама' },
+  'nt.unread': { uz: 'Öqilmagan', ru: 'Непрочитанные', en: 'Unread', kk: 'Оқылмаған', ky: 'Окула элек', tg: 'Хонданашуда' },
+  'nt.readAll': { uz: 'Hammasini öqildi qiliş', ru: 'Прочитать все', en: 'Mark all as read', kk: 'Барлығын оқылды деу', ky: 'Баарын окулду деп белгилөө', tg: 'Ҳамаро хондашуда кардан' },
+  'nt.markRead': { uz: 'Öqildi', ru: 'Прочитано', en: 'Mark read', kk: 'Оқылды', ky: 'Окулду', tg: 'Хонда шуд' },
+  'nt.new': { uz: 'Yangi', ru: 'Новое', en: 'New', kk: 'Жаңа', ky: 'Жаңы', tg: 'Нав' },
+  'nt.today': { uz: 'Bugun', ru: 'Сегодня', en: 'Today', kk: 'Бүгін', ky: 'Бүгүн', tg: 'Имрӯз' },
+  'nt.yesterday': { uz: 'Keça', ru: 'Вчера', en: 'Yesterday', kk: 'Кеше', ky: 'Кечээ', tg: 'Дирӯз' },
+  'nt.more': { uz: 'Yana yuklaş', ru: 'Показать ещё', en: 'Load more', kk: 'Тағы жүктеу', ky: 'Дагы жүктөө', tg: 'Боз бор кардан' },
+  'nt.empty': { uz: 'Hozirça bildirişnoma yöq', ru: 'Пока уведомлений нет', en: 'No notifications yet', kk: 'Әзірге хабарландыру жоқ', ky: 'Азырынча билдирүү жок', tg: 'Ҳоло огоҳинома нест' },
+  'nt.emptyUnread': { uz: 'Hammasi öqilgan', ru: 'Всё прочитано', en: 'You’re all caught up', kk: 'Барлығы оқылған', ky: 'Баары окулган', tg: 'Ҳама хонда шудааст' },
+  'nt.emptyHint': { uz: 'Coinlar, javoblar va yangiliklar şu yerda paydo böladi', ru: 'Здесь появятся коины, ответы и новости', en: 'Coins, replies and news will show up here', kk: 'Мұнда коиндер, жауаптар және жаңалықтар пайда болады', ky: 'Бул жерде коиндер, жооптор жана жаңылыктар пайда болот', tg: 'Дар ин ҷо коинҳо, ҷавобҳо ва навгониҳо пайдо мешаванд' },
+  'nt.error': { uz: 'Bildirişnomalarni yuklab bölmadi', ru: 'Не удалось загрузить уведомления', en: 'Couldn’t load notifications', kk: 'Хабарландыруларды жүктеу мүмкін болмады', ky: 'Билдирүүлөрдү жүктөө мүмкүн болбоду', tg: 'Огоҳиномаҳо бор нашуданд' },
+
+  'nt.welcome.title': { uz: 'QalamAI’ga xuş kelibsiz!', ru: 'Добро пожаловать в QalamAI!', en: 'Welcome to QalamAI!', kk: 'QalamAI-ға қош келдіңіз!', ky: 'QalamAI’га кош келиңиз!', tg: 'Ба QalamAI хуш омадед!' },
+  'nt.welcome.body': { uz: 'Hisobingizga {coins} QalamCoin sovğa qilindi. Birinçi işingizni boşlang.', ru: 'В подарок на ваш счёт начислено {coins} QalamCoin. Начните первую работу.', en: '{coins} QalamCoin were added to your account as a gift. Start your first piece.', kk: 'Есептік жазбаңызға сыйлыққа {coins} QalamCoin берілді. Алғашқы жұмысыңызды бастаңыз.', ky: 'Аккаунтуңузга белекке {coins} QalamCoin берилди. Биринчи ишиңизди баштаңыз.', tg: 'Ба ҳисоби шумо {coins} QalamCoin тӯҳфа шуд. Кори аввалинатонро оғоз кунед.' },
+  'nt.welcome.action': { uz: 'Yaratişni boşlaş', ru: 'Начать', en: 'Start creating', kk: 'Жасауды бастау', ky: 'Түзүүнү баштоо', tg: 'Оғози эҷод' },
+  'nt.coins.purchase.title': { uz: '{coins} coin hisobingizga tuşdi', ru: 'Зачислено коинов: {coins}', en: '{coins} coins added', kk: 'Есепке {coins} коин түсті', ky: 'Эсепке {coins} коин түштү', tg: '{coins} коин ба ҳисоб ворид шуд' },
+  'nt.coins.purchase.body': { uz: 'Xaridingiz uçun rahmat! Balans: {balance} coin. Watermarksiz yuklaş va Pro şablonlar oçildi.', ru: 'Спасибо за покупку! Баланс: {balance}. Открыты экспорт без водяного знака и Pro-шаблоны.', en: 'Thanks for your purchase! Balance: {balance}. Watermark-free export and Pro templates are unlocked.', kk: 'Сатып алғаныңызға рахмет! Баланс: {balance}. Су таңбасыз жүктеу және Pro үлгілер ашылды.', ky: 'Сатып алганыңыз үчүн рахмат! Баланс: {balance}. Суу белгисиз жүктөө жана Pro шаблондор ачылды.', tg: 'Ташаккур барои харид! Баланс: {balance}. Боргирии бе тамға ва қолабҳои Pro кушода шуданд.' },
+  'nt.coins.grant.title': { uz: 'Sizga {coins} coin sovğa qilindi', ru: 'Вам подарено коинов: {coins}', en: 'You received {coins} coins as a gift', kk: 'Сізге {coins} коин сыйланды', ky: 'Сизге {coins} коин белекке берилди', tg: 'Ба шумо {coins} коин тӯҳфа шуд' },
+  'nt.coins.grant.body': { uz: 'QalamAI jamoasidan. Hozirgi balans: {balance} coin.', ru: 'От команды QalamAI. Текущий баланс: {balance}.', en: 'From the QalamAI team. Current balance: {balance}.', kk: 'QalamAI командасынан. Ағымдағы баланс: {balance}.', ky: 'QalamAI командасынан. Учурдагы баланс: {balance}.', tg: 'Аз дастаи QalamAI. Баланси ҷорӣ: {balance}.' },
+  'nt.coins.action': { uz: 'Balansni köriş', ru: 'Открыть баланс', en: 'View balance', kk: 'Балансты көру', ky: 'Балансты көрүү', tg: 'Дидани баланс' },
+  'nt.support.done.title': { uz: 'Murojaatingiz körib çiqildi', ru: 'Ваше обращение рассмотрено', en: 'Your message has been handled', kk: 'Өтінішіңіз қаралды', ky: 'Кайрылууңуз каралды', tg: 'Муроҷиати шумо баррасӣ шуд' },
+  'nt.support.done.body': { uz: '«{topic}» mavzusidagi xabaringizni jamoa körib çiqdi. Kerak bölsa, siz bilan boğlanamiz.', ru: 'Команда рассмотрела ваше сообщение по теме «{topic}». При необходимости мы свяжемся с вами.', en: 'The team has handled your “{topic}” message. We’ll contact you if needed.', kk: 'Команда «{topic}» тақырыбындағы хабарламаңызды қарады. Қажет болса, сізбен байланысамыз.', ky: 'Команда «{topic}» темасындагы билдирүүңүздү карады. Керек болсо, сиз менен байланышабыз.', tg: 'Даста паёми шуморо дар мавзӯи «{topic}» баррасӣ кард. Агар лозим бошад, бо шумо тамос мегирем.' },
+  'nt.announce.badge': { uz: 'QalamAI yangiligi', ru: 'Новость QalamAI', en: 'QalamAI news', kk: 'QalamAI жаңалығы', ky: 'QalamAI жаңылыгы', tg: 'Хабари QalamAI' },
+  'nt.announce.open': { uz: 'Batafsil', ru: 'Подробнее', en: 'Learn more', kk: 'Толығырақ', ky: 'Кененирээк', tg: 'Муфассал' },
+}

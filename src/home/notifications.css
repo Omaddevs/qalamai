@@ -1,0 +1,461 @@
+/* ═════════════ Bildirişnomalar — a day-by-day timeline ═════════════ */
+.nt {
+  max-width: 920px;
+  margin: 0 auto;
+  padding-bottom: 40px;
+  animation: hx-rise 0.4s both;
+}
+
+/* ── header ── */
+.nt-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px 18px;
+  padding: 22px 24px;
+  border: 1px solid #ebe8e1;
+  border-radius: 22px;
+  background:
+    radial-gradient(ellipse 60% 120% at 0% 0%, rgba(198, 244, 50, 0.14), transparent 60%),
+    #fcfbf8;
+}
+
+.nt-head-tile {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px 16px 16px 6px; /* the nib-cut corner used across QalamAI */
+  background: var(--text);
+  color: #fff;
+}
+
+.nt-head-tile b {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border: 2px solid #fcfbf8;
+  border-radius: 999px;
+  background: var(--brand);
+  color: var(--brand-ink);
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+}
+
+.nt-head-text {
+  flex: 1;
+  min-width: 200px;
+}
+
+.nt-head h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.nt-head p {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 13.5px;
+}
+
+.nt-head-acts {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.nt-seg {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid #e6e3dc;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.nt-seg button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 9px;
+  background: none;
+  color: #5b616b;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.nt-seg button.on {
+  background: var(--text);
+  color: #fff;
+}
+
+.nt-count {
+  min-width: 18px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--brand);
+  color: var(--brand-ink);
+  font-size: 11px;
+  line-height: 16px;
+  text-align: center;
+}
+
+.nt-readall {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 14px;
+  border: 1px solid #e6e3dc;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 600;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.nt-readall:hover:not(:disabled) {
+  border-color: var(--brand-strong);
+  color: var(--brand-fg);
+}
+
+.nt-readall:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* ── timeline ── */
+.nt-line {
+  position: relative;
+  margin-top: 22px;
+}
+
+/* the thread that runs through every day */
+.nt-line::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 118px;
+  width: 2px;
+  border-radius: 2px;
+  background: repeating-linear-gradient(180deg, #e3dfd4 0 6px, transparent 6px 11px);
+}
+
+.nt-day {
+  display: grid;
+  grid-template-columns: 104px 1fr;
+  gap: 30px;
+  margin-bottom: 18px;
+}
+
+.nt-day-label {
+  position: sticky;
+  top: 72px;
+  align-self: start;
+  margin: 10px 0 0;
+  text-align: right;
+}
+
+.nt-day-label span {
+  position: relative;
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b6f76;
+}
+
+/* the knot on the thread */
+.nt-day-label span::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -21px;
+  width: 10px;
+  height: 10px;
+  border: 2px solid #fbfaf7;
+  border-radius: 50%;
+  background: #ef6a60;
+  transform: translateY(-50%);
+}
+
+.nt-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── one notice ── */
+.nt-item {
+  --tone: var(--brand-fg);
+  --tone-bg: var(--brand-soft);
+  position: relative;
+  display: flex;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 1px solid #ebe8e1;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 10px 26px -22px rgba(15, 17, 21, 0.35);
+  animation: hx-rise 0.4s both;
+  animation-delay: calc(min(var(--i), 8) * 45ms);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.nt-item.unread {
+  cursor: pointer;
+  border-color: color-mix(in srgb, var(--tone) 35%, #ebe8e1);
+}
+
+.nt-item.unread:hover {
+  border-color: var(--tone);
+}
+
+.nt-item.read {
+  background: #fdfcf9;
+  box-shadow: none;
+}
+
+.nt-item.read .nt-tile {
+  filter: saturate(0.4);
+  opacity: 0.75;
+}
+
+.tone-amber { --tone: #f5a524; --tone-bg: #fdf0d8; }
+.tone-violet { --tone: #9a6af5; --tone-bg: #f1ebfe; }
+.tone-green { --tone: #2bb069; --tone-bg: #ddf4e6; }
+.tone-blue { --tone: #2f5bff; --tone-bg: #e3ebfd; }
+
+.nt-tile {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px 13px 13px 5px;
+  background: var(--tone-bg);
+  color: var(--tone);
+}
+
+.nt-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.nt-top {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+
+.nt-top h3 {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 650;
+  color: var(--text);
+}
+
+.nt-item.read .nt-top h3 {
+  font-weight: 550;
+  color: var(--text-2);
+}
+
+.nt-top time {
+  flex-shrink: 0;
+  color: #9a968c;
+  font-size: 12px;
+}
+
+.nt-badge {
+  flex-basis: 100%;
+  color: var(--tone);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nt-text p {
+  margin-top: 5px;
+  color: #5b616b;
+  font-size: 13.5px;
+  line-height: 1.55;
+  white-space: pre-line;
+}
+
+.nt-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.nt-go,
+.nt-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 13px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.nt-go {
+  border: 0;
+  background: var(--text);
+  color: #fff;
+}
+
+.nt-go:hover {
+  background: var(--brand);
+  color: var(--brand-ink);
+}
+
+.nt-mark {
+  border: 1px solid #e6e3dc;
+  background: #fff;
+  color: #5b616b;
+}
+
+.nt-mark:hover {
+  border-color: var(--brand-strong);
+  color: var(--brand-fg);
+}
+
+.nt-dot {
+  position: absolute;
+  top: 18px;
+  right: -5px;
+  width: 10px;
+  height: 10px;
+  border: 2px solid #fbfaf7;
+  border-radius: 50%;
+  background: var(--tone);
+}
+
+.nt-more {
+  display: block;
+  margin: 6px 0 0 134px;
+  height: 38px;
+  padding: 0 18px;
+  border: 1px dashed #d9d4c8;
+  border-radius: 12px;
+  background: none;
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.nt-more:hover:not(:disabled) {
+  border-color: var(--brand-strong);
+  color: var(--brand-fg);
+}
+
+/* ── empty / loading ── */
+.nt-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 22px;
+  padding: 56px 24px;
+  border: 1px dashed #e0dbcf;
+  border-radius: 22px;
+  text-align: center;
+}
+
+.nt-empty-art {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 6px;
+  border-radius: 20px 20px 20px 7px;
+  background: var(--brand-soft);
+  color: var(--brand-fg);
+}
+
+.nt-empty b {
+  font-size: 16px;
+}
+
+.nt-empty p {
+  color: var(--muted);
+  font-size: 13.5px;
+}
+
+.nt-skel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 22px 0 0 134px;
+}
+
+.nt-skel span {
+  height: 92px;
+  border-radius: 18px;
+  background: linear-gradient(90deg, #f1efe9 0%, #f8f7f3 50%, #f1efe9 100%) 0 0 / 200% 100%;
+  animation: nt-shine 1.2s linear infinite;
+  animation-delay: calc(var(--i) * 120ms);
+}
+
+@keyframes nt-shine {
+  to { background-position: -200% 0; }
+}
+
+@media (max-width: 720px) {
+  .nt-line::before {
+    display: none;
+  }
+
+  .nt-day {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .nt-day-label {
+    position: static;
+    text-align: left;
+  }
+
+  .nt-day-label span::after {
+    display: none;
+  }
+
+  .nt-more,
+  .nt-skel {
+    margin-left: 0;
+  }
+
+  .nt-head h1 {
+    font-size: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nt,
+  .nt-item,
+  .nt-skel span {
+    animation: none;
+  }
+}

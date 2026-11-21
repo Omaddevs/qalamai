@@ -46,6 +46,9 @@ export const admin = {
   grantCoins: (id, amount, note) => request('POST', `/users/${encodeURIComponent(id)}/coins`, { amount, note }),
   chat: (params) => request('GET', `/chat?${new URLSearchParams(Object.entries(params).filter(([, v]) => v !== '' && v != null))}`),
   setChatStatus: (id, status) => request('PATCH', `/chat/${encodeURIComponent(id)}`, { status }),
+  notifications: () => request('GET', '/notifications'),
+  announce: (body) => request('POST', '/notifications', body),
+  deleteAnnouncement: (id) => request('DELETE', `/notifications/${encodeURIComponent(id)}`),
   settings: () => request('GET', '/settings'),
   saveSettings: (patch) => request('PATCH', '/settings', patch),
 }

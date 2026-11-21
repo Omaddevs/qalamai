@@ -5,6 +5,8 @@ cd "$(dirname "$0")/.."
 git pull --ff-only origin main
 cd deploy
 docker compose up -d --build
+# nginx resolves the api container's address once at start; a recreated api gets a new one
+docker compose restart web >/dev/null
 docker image prune -f >/dev/null
 sleep 10
 docker compose ps --format '{{.Name}} {{.Status}}'

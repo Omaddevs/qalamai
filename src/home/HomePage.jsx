@@ -3,8 +3,9 @@ import ProBadge from '../components/ProBadge.jsx'
 // Icons: Phosphor (rounded duotone set) — https://phosphoricons.com
 import {
   TextAa, FilePdf, Translate, FileMagnifyingGlass, SquaresFour,
-  HouseSimple, FolderSimple, Layout, Images, FileText, Bell, CaretLeft, CaretRight, SignOut, SignIn,
+  HouseSimple, FolderSimple, Layout, Images, FileText, Bell, CaretLeft, CaretRight, SignOut, SignIn, Plus,
 } from '@phosphor-icons/react'
+import { blueprintOf } from '../blueprints.js'
 import { CoinChip } from '../components/Coins.jsx'
 import { som } from '../coins.js'
 import { APPS, COLORS } from '../data.js'
@@ -26,6 +27,7 @@ import { t } from '../i18n/index.js'
 import { kindLabel } from '../i18n/kinds.js'
 import LangSwitch from '../landing/LangSwitch.jsx'
 import { trackView } from '../track.js'
+import { onUnread, watchUnread } from '../notifications.js'
 
 // Tabs other than the start screen load their code when first opened.
 const ProjectsView = lazy(() => import('./ProjectsView.jsx'))
@@ -34,8 +36,11 @@ const ProfileView = lazy(() => import('./ProfileView.jsx'))
 const MediaView = lazy(() => import('./MediaView.jsx'))
 const FilesStudio = lazy(() => import('../files/FilesStudio.jsx'))
 const AlifboView = lazy(() => import('./AlifboView.jsx'))
+const CreateSheet = lazy(() => import('./CreateSheet.jsx'))
+const NotificationsView = lazy(() => import('./NotificationsView.jsx'))
 const TabLoading = () => <div className="page-loading" role="status" aria-busy="true" />
 
+const IS_MAC = /Mac|iPhone|iPad/.test(navigator.platform)
 const RAIL_KEY = 'qalamai.rail.open'
 const TAB_KEY = 'qalamai.tab'
 const readRailOpen = () => {
@@ -94,6 +99,10 @@ export default function HomePage({
   const [railOpen, setRailOpen] = useState(readRailOpen)
   const [me, setMe] = useState(currentUser)
   useEffect(() => onUser(setMe), [])
+  const [unread, setUnread] = useState(0)
+  useEffect(() => onUnread(setUnread), [])
+  const meId = me?.id
+  useEffect(() => (meId ? watchUnread() : undefined), [meId])
   const [profile, setProfile] = useState(loadProfile)
   const onProfile = useCallback((p) => setProfile(p), [])
   useEffect(() => onSynced((got) => got.profile && setProfile(loadProfile())), [])
@@ -114,6 +123,19 @@ export default function HomePage({
     setTypeChosen(true)
   }
   const [filesTab, setFilesTab] = useState('tools')
+  const [creating, setCreating] = useState(false)
+  const openCreate = useCallback(() => setCreating(true), [])
+  // Ctrl/⌘+K opens the "+ Yaratiş" sheet from anywhere on the home screens
+  useEffect(() => {
+    const onKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setCreating((v) => !v)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   // Category tiles pick the type in the composer, then the cursor waits for a topic.
   const pickType = (label) => {
@@ -201,6 +223,14 @@ export default function HomePage({
           )}
         </div>
 
+        <button className={`hm-new ${creating ? 'on' : ''}`} onClick={() => setCreating(true)} title={railOpen ? undefined : `${t('cs.new')} · ${IS_MAC ? '⌘K' : 'Ctrl+K'}`}>
+          <span className="hm-new-icon">
+            <Plus size={22} weight="bold" />
+          </span>
+          <span className="hm-new-label">{t('cs.new')}</span>
+          <kbd className="hm-new-kbd">{IS_MAC ? '⌘K' : 'Ctrl K'}</kbd>
+        </button>
+
         {RAIL.map(({ id, label, icon: Icon, pro, onClick }) => {
           const active = id === tab || (id === 'home' && tab === 'home')
           return (
@@ -217,9 +247,15 @@ export default function HomePage({
         })}
 
         <div className="hm-rail-bottom">
-          <button className="ed-ibtn hm-bell" onClick={() => notify(t('hm.noNotifs'))} aria-label={t('hm.notifs')}>
-            <Bell size={20} />
-            <span className="hm-bell-dot" />
+          <button
+            className={`ed-ibtn hm-bell ${tab === 'notifications' ? 'on' : ''}`}
+            onClick={() => { setTab('notifications'); setQ('') }}
+            aria-label={unread ? `${t('hm.notifs')} (${unread})` : t('hm.notifs')}
+            title={t('hm.notifs')}
+          >
+            <Bell size={20} weight={tab === 'notifications' ? 'duotone' : 'regular'} />
+            {unread > 0 && <span className="hm-bell-dot">{unread > 9 ? '9+' : unread}</span>}
+            <span className="hm-bell-label">{t('hm.notifs')}</span>
           </button>
           <div className="hm-me-row">
           <button className={`hm-me ${tab === 'profile' ? 'on' : ''}`} onClick={() => { setTab('profile'); setQ('') }} aria-label={t('hm.profile')} title={railOpen ? undefined : t('hm.profile')}>
@@ -253,6 +289,25 @@ export default function HomePage({
           {railOpen ? <CaretLeft size={13} weight="bold" /> : <CaretRight size={13} weight="bold" />}
         </button>
       </div>
+
+      {creating && (
+        <Suspense fallback={null}>
+          <CreateSheet
+            onClose={() => setCreating(false)}
+            onAi={(id, topic) => {
+              setTab('home')
+              pickType(id)
+              setQ(topic)
+            }}
+            onBlank={(c) => {
+              if (blueprintOf(c.id).format === 'doc') createDoc({ name: c.label, kind: c.label })
+              else onCreate({ templateId: c.templateId, kind: c.kind, blank: true })
+            }}
+            onKit={(type) => onCreateKit(type)}
+            onTool={openApp}
+          />
+        </Suspense>
+      )}
 
       {/* ───── Main ───── */}
       <main className="hm-main">
@@ -292,6 +347,10 @@ export default function HomePage({
         ) : tab === 'media' ? (
           <Suspense fallback={<TabLoading />}>
           <MediaView notify={notify} />
+          </Suspense>
+        ) : tab === 'notifications' ? (
+          <Suspense fallback={<TabLoading />}>
+          <NotificationsView onCreate={openCreate} onOpenPricing={onOpenPricing} />
           </Suspense>
         ) : tab === 'profile' ? (
           <Suspense fallback={<TabLoading />}>

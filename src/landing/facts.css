@@ -40,7 +40,7 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: radial-gradient(260px circle at var(--mx) var(--my), rgba(20, 184, 166, 0.09), transparent 70%);
+  background: radial-gradient(260px circle at var(--mx) var(--my), rgba(198, 244, 50, 0.14), transparent 70%);
   opacity: 0;
   transition: opacity 0.6s var(--fc-e);
 }
@@ -94,7 +94,7 @@
 .fc-tile.dark .fc-label { color: #fff; }
 .fc-sub { display: flex; align-items: center; gap: 4px; margin-top: 2px; font-size: 13px; color: var(--lp-muted); }
 .fc-tile.dark .fc-sub { color: #8a8e97; }
-.fc-sub svg { color: var(--lp-accent); }
+.fc-sub svg { color: var(--brand-fg); }
 
 /* ───────── 1 · template fan ───────── */
 .fc-fan { position: relative; height: 120px; }
@@ -149,9 +149,9 @@
   transform: scaleY(0.25);
   transition: transform 0.9s var(--fc-e) calc(var(--k) * 35ms + 0.3s), background 0.6s;
 }
-.fc-bars span.in { background: linear-gradient(180deg, var(--lp-accent), #0f9f8f); }
+.fc-bars span.in { background: linear-gradient(180deg, var(--brand), var(--brand-strong)); }
 .fc.seen .fc-bars span { transform: none; }
-.fc-t-slides:hover .fc-bars span.in { background: linear-gradient(180deg, #7c6cf2, var(--lp-accent)); }
+.fc-t-slides:hover .fc-bars span.in { background: linear-gradient(180deg, var(--brand-strong), var(--brand)); }
 .fc-track { position: relative; height: 4px; margin-top: 12px; border-radius: 2px; background: #eef0f3; }
 .fc-fill {
   position: absolute;

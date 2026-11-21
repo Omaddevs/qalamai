@@ -31,7 +31,7 @@
 }
 
 .tv-spark {
-  color: #0f9e8e;
+  color: var(--brand-fg);
 }
 
 .tv-title {
@@ -61,8 +61,8 @@
 }
 
 .tv-search:focus-within {
-  border-color: #14b8a6;
-  box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.14);
+  border-color: var(--brand-strong);
+  box-shadow: 0 0 0 4px rgba(198, 244, 50, 0.31);
 }
 
 .tv-search input {
@@ -260,7 +260,7 @@
 }
 
 .tv-cat:hover .tv-cat-count {
-  color: #0f9e8e;
+  color: var(--brand-fg);
 }
 
 .tv-cat:hover .tv-cat-count svg {
@@ -643,7 +643,7 @@
 
 .tp-strip-item.on {
   opacity: 1;
-  box-shadow: 0 0 0 2.5px #14b8a6;
+  box-shadow: 0 0 0 2.5px var(--brand-strong);
 }
 
 .tp-side {
@@ -658,8 +658,8 @@
   align-self: flex-start;
   padding: 3px 10px;
   border-radius: 999px;
-  background: #e7f8f4;
-  color: #0b7f73;
+  background: var(--brand-soft);
+  color: var(--brand-fg);
   font-size: 12px;
   font-weight: 600;
 }
@@ -713,7 +713,7 @@
 }
 
 .tp-feats svg {
-  color: #14b8a6;
+  color: var(--brand-fg);
 }
 
 .tp-swatches {
@@ -752,7 +752,8 @@
 }
 
 .tp-use:hover {
-  background: #0f9e8e;
+  background: var(--brand);
+  color: var(--brand-ink);
   transform: translateY(-1px);
 }
 

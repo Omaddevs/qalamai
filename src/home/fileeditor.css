@@ -72,7 +72,7 @@
 }
 
 .fe-side-head h2 svg {
-  color: #0f9e8e;
+  color: var(--brand-fg);
 }
 
 .fe-side-head > span {
@@ -166,9 +166,9 @@
 }
 
 .fe-doc.on .fe-doc-ic {
-  background: #ebf8f5;
-  color: #0f9e8e;
-  box-shadow: 0 0 0 1px #bfeee5;
+  background: var(--brand-soft);
+  color: var(--brand-fg);
+  box-shadow: 0 0 0 1px var(--brand-line);
 }
 
 .fe-doc-text {
@@ -263,9 +263,9 @@
 }
 
 .fe-name:focus {
-  border-color: #14b8a6;
+  border-color: var(--brand-strong);
   background: #fff;
-  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.14);
+  box-shadow: 0 0 0 3px rgba(198, 244, 50, 0.31);
 }
 
 .fe-saved {
@@ -279,7 +279,7 @@
 }
 
 .fe-saved.ok {
-  color: #0f9e8e;
+  color: var(--brand-fg);
 }
 
 .fe-top-right {
@@ -295,7 +295,7 @@
 }
 
 .fe-menu svg {
-  color: #0f9e8e;
+  color: var(--brand-fg);
 }
 
 /* toolbar */
@@ -333,8 +333,8 @@
 }
 
 .fe-tool.on {
-  background: #ebf8f5;
-  color: #0f766e;
+  background: var(--brand-soft);
+  color: var(--brand-fg);
 }
 
 .fe-sep {
@@ -394,7 +394,7 @@
   font-family: 'Times New Roman', Times, 'Liberation Serif', serif;
   font-size: 18.67px; /* 14pt */
   line-height: 1.5;
-  caret-color: #0f9e8e;
+  caret-color: var(--brand-strong);
 }
 
 .fe-page:empty::before {
@@ -439,7 +439,7 @@
 .fe-page blockquote {
   margin: 10px 0;
   padding: 4px 0 4px 16px;
-  border-left: 3px solid #14b8a6;
+  border-left: 3px solid var(--brand-strong);
   color: #3f4550;
   font-style: italic;
 }
@@ -463,7 +463,7 @@
 }
 
 .fe-page a {
-  color: #0f766e;
+  color: var(--brand-fg);
 }
 
 .fe-page img {
@@ -471,7 +471,7 @@
 }
 
 .fe-page ::selection {
-  background: rgba(20, 184, 166, 0.22);
+  background: rgba(198, 244, 50, 0.35);
 }
 
 /* ── Generated documents (src/blueprints.js) ── */
@@ -544,9 +544,9 @@
 .fe-page p.hint {
   margin: 4px 0 8px;
   padding: 5px 12px;
-  border-left: 3px solid #9fe3d4;
+  border-left: 3px solid var(--brand);
   border-radius: 0 8px 8px 0;
-  background: #f4fbf9;
+  background: var(--brand-soft);
   font-size: 16px;
   line-height: 1.45;
   text-align: left;
@@ -631,8 +631,8 @@
 }
 
 .fe-empty:hover {
-  border-color: #14b8a6;
-  background: #f6fcfb;
+  border-color: var(--brand-strong);
+  background: var(--brand-soft);
 }
 
 .fe-empty b {
@@ -653,12 +653,12 @@
   height: 72px;
   margin-bottom: 6px;
   border-radius: 22px;
-  background: #ebf8f5;
-  color: #0f9e8e;
+  background: var(--brand-soft);
+  color: var(--brand-fg);
 }
 
 .fe-empty-or u {
-  color: #0f766e;
+  color: var(--brand-fg);
   font-weight: 600;
   cursor: pointer;
 }

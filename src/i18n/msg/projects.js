@@ -1,6 +1,6 @@
 // Projects page, design cards, alphabet page and converter, dates.
 export default {
-  'pj.continue': { uz: 'Davom ettiriş', ru: 'Продолжить', en: 'Continue', kk: 'Жалғастыру', ky: 'Улантуу', tg: 'Идома додан' },
+  'pj.jump': { uz: 'Qolgan joydan davom eting', ru: 'Продолжите с того же места', en: 'Pick up where you left off', kk: 'Тоқтаған жерден жалғастырыңыз', ky: 'Токтогон жерден улантыңыз', tg: 'Аз ҳамон ҷо идома диҳед' },
   'date.weekdays': { uz: 'yakşanba|duşanba|seşanba|çorşanba|payşanba|juma|şanba', ru: 'воскресенье|понедельник|вторник|среда|четверг|пятница|суббота', en: 'Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday', kk: 'жексенбі|дүйсенбі|сейсенбі|сәрсенбі|бейсенбі|жұма|сенбі', ky: 'жекшемби|дүйшөмбү|шейшемби|шаршемби|бейшемби|жума|ишемби', tg: 'якшанбе|душанбе|сешанбе|чоршанбе|панҷшанбе|ҷумъа|шанбе' },
   'date.weekdaysShort': { uz: 'Ya|Du|Se|Ço|Pa|Ju|Şa', ru: 'Вс|Пн|Вт|Ср|Чт|Пт|Сб', en: 'Su|Mo|Tu|We|Th|Fr|Sa', kk: 'Жс|Дс|Сс|Ср|Бс|Жм|Сб', ky: 'Жш|Дш|Шш|Шр|Бш|Жм|Иш', tg: 'Яш|Дш|Сш|Чш|Пш|Ҷм|Шб' },
   'greet.night': { uz: 'Xayrli tun', ru: 'Доброй ночи', en: 'Good night', kk: 'Қайырлы түн', ky: 'Кайырлуу түн', tg: 'Шаби хуш' },
@@ -32,7 +32,6 @@ export default {
   'pj.title2': { uz: 'loyihalarim', ru: 'проекты', en: 'projects', kk: 'жобаларым', ky: 'долбоорлорум', tg: 'ман' },
   'pj.count': { uz: '{n} ta dizayn', ru: { one: '{n} дизайн', few: '{n} дизайна', many: '{n} дизайнов', other: '{n} дизайна' }, en: { one: '{n} design', other: '{n} designs' }, kk: '{n} дизайн', ky: '{n} дизайн', tg: '{n} дизайн' },
   'pj.lastEdit': { uz: 'oxirgi tahrir {ago}', ru: 'последнее изменение {ago}', en: 'last edited {ago}', kk: 'соңғы өңдеу {ago}', ky: 'акыркы түзөтүү {ago}', tg: 'таҳрири охирин {ago}' },
-  'pj.edited': { uz: 'tahrirlandi · {ago}', ru: 'изменено · {ago}', en: 'edited · {ago}', kk: 'өңделді · {ago}', ky: 'түзөтүлдү · {ago}', tg: 'таҳрир шуд · {ago}' },
   'pj.total': { uz: 'Jami dizaynlar', ru: 'Всего дизайнов', en: 'Total designs', kk: 'Барлық дизайндар', ky: 'Бардык дизайндар', tg: 'Ҳамаи дизайнҳо' },
   'pj.kinds': { uz: '{n} xil turda', ru: { one: '{n} тип', few: '{n} типа', many: '{n} типов', other: '{n} типа' }, en: { one: '{n} type', other: '{n} types' }, kk: '{n} түрде', ky: '{n} түрдө', tg: 'дар {n} намуд' },
   'pj.totalSlides': { uz: 'Jami slaydlar', ru: 'Всего слайдов', en: 'Total slides', kk: 'Барлық слайдтар', ky: 'Бардык слайддар', tg: 'Ҳамаи слайдҳо' },

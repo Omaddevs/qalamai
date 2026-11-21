@@ -149,12 +149,12 @@
 }
 
 .cs-alert.gift {
-  border-color: #c9ece4;
-  background: #effbf8;
+  border-color: var(--brand-line);
+  background: var(--brand-soft);
 }
 
 .cs-alert.gift svg {
-  color: var(--teal-dark);
+  color: var(--brand-fg);
 }
 
 .cs-alert-btn {
@@ -389,7 +389,7 @@
 }
 
 .cs-perks.free svg {
-  color: var(--teal-dark);
+  color: var(--brand-fg);
 }
 
 /* ───── Pastki qator ───── */

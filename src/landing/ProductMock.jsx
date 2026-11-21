@@ -36,7 +36,7 @@ function mock() {
 }
 const TARGET = 3 // «Tahlil»
 const TPL = getTemplate('pitch')
-const SWATCHES = ['#5eead4', '#fbbf24', '#f472b6', '#60a5fa', '#a78bfa']
+const SWATCHES = ['#c6f432', '#fbbf24', '#f472b6', '#60a5fa', '#a78bfa']
 
 const ELEMENT_ICONS = [
   ['h', TextHOne], ['t', TextT], ['list', ListBullets], ['q', Quotes],
@@ -319,7 +319,7 @@ export default function ProductMock() {
                     <div className="mk-composer-row">
                       <span className="chip">Prezentatsiya <CaretDown size={9} /></span>
                       <span className="chip">{COUNT} slayd</span>
-                      <span className="chip"><i style={{ background: '#5eead4' }} /> {TPL.name}</span>
+                      <span className="chip"><i style={{ background: '#c6f432' }} /> {TPL.name}</span>
                       <span className={`mk-go ${s.go ? 'down' : ''}`}>{t('ui.create')} <ArrowUp size={11} weight="bold" /></span>
                     </div>
                   </div>

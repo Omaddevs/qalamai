@@ -23,7 +23,7 @@
 }
 
 .av-ic {
-  color: #0f9e8e;
+  color: var(--brand-fg);
 }
 
 .av-sub {
@@ -67,7 +67,7 @@
 }
 
 .av-pair span:last-child {
-  color: var(--teal-dark);
+  color: var(--brand-fg);
 }
 
 .av-pair i {

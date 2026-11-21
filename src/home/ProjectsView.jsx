@@ -125,78 +125,57 @@ function DesignRow({ d, onOpen, onDuplicate, onDelete, onRename }) {
   )
 }
 
-/* ───── Header showcase: "continue where you left off" ─────
- * One clean spotlight card that plays the latest designs (story-style progress bars),
- * a quiet deck of cards behind it for depth, and a queue of the next designs on the side.
- * Nothing floats over the preview; hovering pauses the rotation. */
-function Showcase({ designs, onOpen }) {
-  const list = useMemo(() => designs.slice(0, 4), [designs])
-  const [at, setAt] = useState(0)
-  const [paused, setPaused] = useState(false)
-  const reduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-
-  useEffect(() => {
-    if (reduced || paused || list.length < 2) return
-    const t = setTimeout(() => setAt((a) => (a + 1) % list.length), 4500)
-    return () => clearTimeout(t)
-  }, [at, paused, list.length, reduced])
-
-  const idx = at % list.length
-  const cur = list[idx]
-  const color = KIND_COLOR[cur.kind] ?? '#14b8a6'
-
+/* ───── Header: "pick up where you left off" ─────
+ * A quiet panel with the three latest designs as rows: thumbnail (plays its slides on hover),
+ * name, kind, size and when it was last edited. One click opens the design. */
+function ResumeRow({ d, onOpen, i }) {
+  const { idx, start, stop } = useHoverPreview(d.slides.length)
+  const theme = useMemo(() => deckTheme(d), [d])
+  const color = KIND_COLOR[d.kind] ?? '#8b919a'
   return (
-    <div
-      className={`pj-show ${paused ? 'paused' : ''}`}
-      style={{ '--glow': color }}
-      onPointerEnter={() => setPaused(true)}
-      onPointerLeave={() => setPaused(false)}
+    <button
+      type="button"
+      className="pj-resume-row"
+      style={{ '--k': color, '--i': i }}
+      onClick={() => onOpen(d.id)}
+      onPointerEnter={start}
+      onPointerLeave={stop}
     >
-      <span className="pj-show-glow" aria-hidden="true" />
+      <span className="pj-resume-thumb">
+        <DesignThumb d={d} idx={idx} theme={theme} />
+      </span>
+      <span className="pj-resume-text">
+        <b title={d.name}>{d.name}</b>
+        <span className="pj-resume-meta">
+          <span className="pj-resume-kind"><i />{kindLabel(d.kind)}</span>
+          {!isKit(d) && <span>{t('dz.slides', { n: d.slides.length })}</span>}
+          <span>{timeAgo(d.updatedAt)}</span>
+        </span>
+      </span>
+      <span className="pj-resume-go" aria-hidden="true">
+        <ArrowRight size={14} weight="bold" />
+      </span>
+    </button>
+  )
+}
 
-      <div className="pj-spot">
-        <span className="pj-spot-back b2" aria-hidden="true" />
-        <span className="pj-spot-back b1" aria-hidden="true" />
-        <button type="button" className="pj-spot-card" onClick={() => onOpen(cur.id)}>
-          <span className="pj-spot-view">
-            {list.map((d, k) => (
-              <span key={d.id} className={`pj-spot-slide ${k === idx ? 'on' : ''}`}>
-                <DesignThumb d={d} />
-              </span>
-            ))}
-            {list.length > 1 && (
-              <span className="pj-spot-bars" key={idx}>
-                {list.map((d, k) => (
-                  <i key={d.id} className={k < idx ? 'done' : k === idx ? 'on' : ''} />
-                ))}
-              </span>
-            )}
-          </span>
-          <span className="pj-spot-foot">
-            <span className="pj-spot-info">
-              <span className="pj-spot-meta">
-                <span className="pj-spot-kind">{kindLabel(cur.kind)}</span>
-                <small>{t('pj.edited', { ago: timeAgo(cur.updatedAt) })}</small>
-              </span>
-              <b title={cur.name}>{cur.name}</b>
-            </span>
-            <span className="pj-spot-go">
-              {t('pj.continue')} <ArrowRight size={13} weight="bold" />
-            </span>
-          </span>
-        </button>
+function Resume({ designs, onOpen }) {
+  const list = designs.slice(0, 3)
+  return (
+    <section className="pj-resume" aria-label={t('pj.jump')}>
+      <header className="pj-resume-head">
+        <span className="pj-resume-title">
+          <PencilSimpleLine size={15} weight="bold" />
+          {t('pj.jump')}
+        </span>
+        <span className="pj-resume-count">{list.length}/{designs.length}</span>
+      </header>
+      <div className="pj-resume-list">
+        {list.map((d, i) => (
+          <ResumeRow key={d.id} d={d} i={i} onOpen={onOpen} />
+        ))}
       </div>
-
-      {list.length > 1 && (
-        <div className="pj-queue">
-          {list.map((d, k) => (
-            <button key={d.id} type="button" className={k === idx ? 'on' : ''} onClick={() => setAt(k)} title={d.name} aria-label={d.name}>
-              <DesignThumb d={d} />
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
+    </section>
   )
 }
 
@@ -380,7 +359,7 @@ export default function ProjectsView({ designs, onTab, onCreate, onOpen, onDupli
           </div>
 
           {designs.length > 0 && (
-            <Showcase designs={designs} onOpen={onOpen} />
+            <Resume designs={designs} onOpen={onOpen} />
           )}
         </div>
 
@@ -514,7 +493,7 @@ export default function ProjectsView({ designs, onTab, onCreate, onOpen, onDupli
               {t('pj.clearFilter')}
             </button>
           ) : (
-            <button className="btn primary" onClick={() => onCreate(CREATE[0])}>
+            <button className="btn primary" onClick={() => onCreate({ templateId: CREATE[0].templateId, kind: CREATE[0].kind, blank: true })}>
               <Plus size={15} weight="bold" /> {t('pj.newPres')}
             </button>
           )}
@@ -530,7 +509,7 @@ export default function ProjectsView({ designs, onTab, onCreate, onOpen, onDupli
             {view === 'grid' ? (
               <div className="dz-grid pj-grid">
                 {gi === 0 && !filtering && (
-                  <button className="pj-new-card" onClick={() => onCreate(CREATE[0])}>
+                  <button className="pj-new-card" onClick={() => onCreate({ templateId: CREATE[0].templateId, kind: CREATE[0].kind, blank: true })}>
                     <span className="pj-new-plus">
                       <Plus size={22} weight="bold" />
                     </span>

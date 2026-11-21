@@ -41,7 +41,7 @@ export function CreateMenu({ onCreate, close }) {
     <>
       <div className="pop-label">{t('design.newDesign')}</div>
       {CREATE.map((c) => (
-        <button key={c.id} className="menu-item hm-create-item" onClick={() => { close(); onCreate(c) }}>
+        <button key={c.id} className="menu-item hm-create-item" onClick={() => { close(); onCreate({ templateId: c.templateId, kind: c.kind, blank: true }) }}>
           <span className="hm-create-row">
             <CatTile icon={c.icon} color={c.color} />
             {c.label}

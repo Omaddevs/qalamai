@@ -31,7 +31,7 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: radial-gradient(320px circle at var(--mx) var(--my), rgba(20, 184, 166, 0.08), transparent 70%);
+  background: radial-gradient(320px circle at var(--mx) var(--my), rgba(198, 244, 50, 0.13), transparent 70%);
   opacity: 0;
   transition: opacity 0.6s var(--pr-e);
 }
@@ -63,9 +63,9 @@
   border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
-  color: #5eead4;
-  background: rgba(20, 184, 166, 0.14);
-  box-shadow: inset 0 0 0 1px rgba(94, 234, 212, 0.25);
+  color: var(--brand);
+  background: rgba(198, 244, 50, 0.22);
+  box-shadow: inset 0 0 0 1px rgba(198, 244, 50, 0.55);
 }
 .pr-badge.soft { color: var(--lp-text-2); background: #f2f3f6; box-shadow: none; }
 
@@ -92,7 +92,7 @@
 .pr-cur { font-size: 15px; font-weight: 600; color: var(--lp-ink); }
 .pr-per { font-size: 15px; color: var(--lp-muted); animation: pr-in 0.5s var(--pr-e) both; }
 .pr-hint { margin: 8px 0 0; min-height: 20px; font-size: 13px; color: var(--lp-muted); animation: pr-in 0.5s var(--pr-e) both; }
-.pr-hint em { font-style: normal; font-weight: 600; color: var(--lp-accent-d); }
+.pr-hint em { font-style: normal; font-weight: 600; color: var(--brand-fg); }
 .pr-hint s { color: #a3a8b2; }
 
 /* buttons */
@@ -117,8 +117,8 @@
 .lp .pr-btn:active { transform: translateY(0) scale(0.985); }
 .lp .pr-btn.soft { background: #fff; color: var(--lp-ink); box-shadow: 0 0 0 1px var(--lp-line), 0 1px 2px rgba(16, 24, 40, 0.05); }
 .lp .pr-btn.soft:hover { box-shadow: 0 0 0 1px #cfd3da, 0 10px 20px -10px rgba(16, 24, 40, 0.25); }
-.lp .pr-btn.light { background: #fff; color: var(--lp-ink); box-shadow: 0 12px 28px -12px rgba(94, 234, 212, 0.45); }
-.lp .pr-btn.light:hover { background: #f4fffd; box-shadow: 0 16px 34px -12px rgba(94, 234, 212, 0.6); }
+.lp .pr-btn.light { background: #fff; color: var(--lp-ink); box-shadow: 0 12px 28px -12px rgba(198, 244, 50, 0.99); }
+.lp .pr-btn.light:hover { background: var(--brand-soft); box-shadow: 0 16px 34px -12px rgba(198, 244, 50, 1); }
 .lp .pr-btn.dark {
   background: var(--lp-ink);
   color: #fff;
@@ -161,8 +161,8 @@
   height: 19px;
   margin-top: 1px;
   border-radius: 50%;
-  background: var(--lp-accent-t);
-  color: var(--lp-accent-d);
+  background: var(--brand-soft);
+  color: var(--brand-fg);
 }
 
 /* ───────── Pro (featured) ───────── */
@@ -226,15 +226,15 @@
 }
 .pr-card.pro::before { border-radius: 24px; background: radial-gradient(320px circle at var(--mx) var(--my), rgba(255, 255, 255, 0.07), transparent 70%); }
 .pr-card.pro.lp-reveal.in:hover { box-shadow: 0 50px 80px -40px rgba(11, 11, 13, 0.85); }
-.pr-card.pro .pr-ic { background: linear-gradient(160deg, #5eead4, #14b8a6); color: #062a26; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 10px 20px -10px rgba(20, 184, 166, 0.8); }
+.pr-card.pro .pr-ic { background: linear-gradient(160deg, var(--brand), var(--brand)); color: var(--brand-ink); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 10px 20px -10px rgba(198, 244, 50, 1); }
 .lp .pr-card.pro h3, .pr-card.pro .pr-price b, .pr-card.pro .pr-cur { color: #fff; }
 .pr-card.pro .pr-note, .pr-card.pro .pr-per, .pr-card.pro .pr-hint { color: #9aa0aa; }
-.pr-card.pro .pr-hint em { color: #5eead4; }
+.pr-card.pro .pr-hint em { color: var(--brand); }
 .pr-card.pro .pr-hint s { color: #6b7079; }
 .pr-card.pro .pr-sep { color: #6b7079; }
 .pr-card.pro .pr-sep::after { background: rgba(255, 255, 255, 0.1); }
 .pr-card.pro .pr-list li { color: #d7dae0; }
-.pr-card.pro .pr-check { background: rgba(94, 234, 212, 0.14); color: #5eead4; }
+.pr-card.pro .pr-check { background: rgba(198, 244, 50, 0.22); color: var(--brand); }
 
 /* ───────── coin glyph in card icon ───────── */
 .pr-ic.pr-coin { background: none; box-shadow: none; }

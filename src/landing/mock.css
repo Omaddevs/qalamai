@@ -47,7 +47,7 @@
 .mk-doc-t { display: flex; flex-direction: column; min-width: 0; }
 .mk-doc-t b { font-size: 11.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 15px; }
 .mk-doc-t small { display: inline-flex; align-items: center; gap: 4px; font-size: 9.5px; color: #868c96; }
-.mk-doc-t small svg { color: #14b8a6; }
+.mk-doc-t small svg { color: var(--brand-fg); }
 .mk-seg { display: flex; gap: 2px; padding: 3px; border-radius: 9px; background: #f2f3f5; }
 .mk-seg span { display: grid; place-items: center; width: 26px; height: 22px; border-radius: 6px; color: #8b919a; }
 .mk-seg span.on { background: #0b0b0d; color: #fff; }
@@ -80,7 +80,7 @@
   white-space: nowrap;
 }
 .mk-ghost-btn { color: #4a505a; box-shadow: 0 0 0 1px #e4e7ec; }
-.mk-cta { margin-left: 4px; background: #14b8a6; color: #fff; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2); }
+.mk-cta { margin-left: 4px; background: var(--brand); color: var(--brand-ink); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2); }
 
 /* ── body ── */
 .mk-body { display: grid; grid-template-columns: 44px 172px minmax(0, 1fr) 176px; height: 452px; }
@@ -96,7 +96,7 @@
 }
 .mk-rail span { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; }
 .mk-rail span.on { background: #f1f2f4; color: #0b0b0d; }
-.mk-rail span.add { background: #e6f8f5; color: #0d9488; }
+.mk-rail span.add { background: var(--brand-soft); color: var(--brand-fg); }
 
 .mk-panel, .mk-insp { padding: 12px 10px; overflow: hidden; background: #fff; }
 .mk-panel { border-right: 1px solid #eceef2; }
@@ -187,13 +187,13 @@
   transition: opacity 0.3s, transform 0.3s;
 }
 .mk-composer.leaving { opacity: 0; transform: scale(0.97); }
-.mk-composer-h { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 600; color: #0d9488; }
+.mk-composer-h { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 600; color: var(--brand-fg); }
 .mk-composer-in {
   margin-top: 8px;
   padding: 9px 10px;
   border-radius: 8px;
   background: #f7f8fa;
-  box-shadow: inset 0 0 0 1.5px #14b8a6;
+  box-shadow: inset 0 0 0 1.5px var(--brand-strong);
   font-size: 13px;
   font-weight: 500;
   color: #0b0b0d;
@@ -254,10 +254,10 @@
   width: 19px;
   height: 19px;
   border-radius: 50%;
-  color: #fff;
-  background: linear-gradient(135deg, #14b8a6, #7c6cf2);
+  color: var(--brand-ink);
+  background: var(--brand);
 }
-.mk-chip > svg { color: #14b8a6; }
+.mk-chip > svg { color: var(--brand-fg); }
 
 .mk-strip { display: flex; gap: 8px; justify-content: center; padding: 10px 14px 16px; }
 .mk-thumb { display: flex; flex-direction: column; align-items: center; gap: 3px; width: 76px; flex-shrink: 0; }
@@ -273,8 +273,8 @@
   transition: box-shadow 0.25s, transform 0.25s;
 }
 .mk-thumb.ready .mk-thumb-in { animation: mk-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.mk-thumb.on .mk-thumb-in { box-shadow: 0 0 0 2px #14b8a6, 0 6px 12px -6px rgba(16, 24, 40, 0.35); }
-.mk-thumb.on small { color: #0d9488; font-weight: 700; }
+.mk-thumb.on .mk-thumb-in { box-shadow: 0 0 0 2px var(--brand-strong), 0 6px 12px -6px rgba(16, 24, 40, 0.35); }
+.mk-thumb.on small { color: var(--brand-fg); font-weight: 700; }
 .mk-skel {
   display: block;
   width: 100%;
@@ -322,13 +322,13 @@
 .mk-sel {
   position: absolute;
   z-index: 3;
-  border: 1.5px solid #14b8a6;
+  border: 1.5px solid var(--brand-strong);
   border-radius: 2px;
   pointer-events: none;
   animation: mk-pop 0.18s ease-out both;
   transition: left 0.25s, top 0.25s, width 0.25s, height 0.25s;
 }
-.mk-sel i { position: absolute; width: 7px; height: 7px; background: #fff; border: 1.5px solid #14b8a6; border-radius: 2px; }
+.mk-sel i { position: absolute; width: 7px; height: 7px; background: #fff; border: 1.5px solid var(--brand-strong); border-radius: 2px; }
 .mk-sel i:nth-child(1) { left: -4px; top: -4px; }
 .mk-sel i:nth-child(2) { right: -4px; top: -4px; }
 .mk-sel i:nth-child(3) { left: -4px; bottom: -4px; }
@@ -339,8 +339,8 @@
   top: -17px;
   padding: 1px 5px;
   border-radius: 3px 3px 3px 0;
-  background: #14b8a6;
-  color: #fff;
+  background: var(--brand);
+  color: var(--brand-ink);
   font-style: normal;
   font-size: 9px;
   font-weight: 600;

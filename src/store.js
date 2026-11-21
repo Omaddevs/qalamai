@@ -14,15 +14,18 @@ export const KIND_BY_CAT = {
   taklifnoma: 'Taklifnoma',
 }
 
-export function newDeck({ topic, templateId = 'pitch', count = 6, kind, slides: outline }) {
-  const tpl = getTemplate(templateId)
+export function newDeck({ topic, templateId = 'pitch', count = 6, kind, slides: outline, blank = false }) {
+  const tpl = getTemplate(blank ? 'blank' : templateId)
   const name = topic?.trim() || t('design.untitled')
   // A type blueprint (src/blueprints.js) may hand over its own structure.
   const custom = outline?.length > 0
   // Profile: credit the author on the first slide automatically.
   const credit = topic?.trim() ? authorLine() : null
   let slides
-  if (custom) {
+  if (blank) {
+    // one empty page; the template picked in the editor fills the deck
+    slides = [{ id: newId('s'), type: 'title', title: '', subtitle: '', free: true, elements: [] }]
+  } else if (custom) {
     slides = outline.map(({ bullets, ...s }) => ({ ...s, ...(bullets ? { bullets: [...bullets] } : {}), id: newId('s'), elements: [] }))
   } else if (tpl.pages) {
     // structured template: all of its pages, the topic on the cover

@@ -20,6 +20,20 @@ function pick(entry, lang) {
 export default function i18nSplit(dir) {
   return {
     name: 'qalam-i18n-split',
+    // addWatchFile() only covers files that already exist: a new (or deleted) msg/*.js must
+    // also rebuild the dictionaries, or its keys show up raw until the dev server restarts.
+    configureServer(server) {
+      server.watcher.add(dir)
+      const onChange = (file) => {
+        if (!file.startsWith(dir) || !file.endsWith('.js')) return
+        for (const mod of server.moduleGraph.idToModuleMap.values()) {
+          if (mod.id?.startsWith(`\0${PREFIX}`)) server.moduleGraph.invalidateModule(mod)
+        }
+        server.ws.send({ type: 'full-reload' })
+      }
+      server.watcher.on('add', onChange)
+      server.watcher.on('unlink', onChange)
+    },
     resolveId(id) {
       if (id.startsWith(PREFIX)) return `\0${id}`
     },

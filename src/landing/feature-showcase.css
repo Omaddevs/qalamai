@@ -241,7 +241,7 @@
     inset 0 1px 0 #fff,
     0 22px 34px -18px rgba(16, 24, 40, 0.42);
 }
-.fx .fx-card button:focus-visible { outline: 2px solid var(--lp-accent); outline-offset: 3px; }
+.fx .fx-card button:focus-visible { outline: 2px solid var(--brand-strong); outline-offset: 3px; }
 
 .fx-ic {
   display: grid;
@@ -267,7 +267,7 @@
 .fx-t-purple { background: #f1ebfe; color: #7c4ae6; }
 .fx-t-sky { background: #e2f1fd; color: #2384d6; }
 .fx-t-indigo { background: #e8eafc; color: #4f5bd5; }
-.fx-t-teal { background: var(--lp-accent-t); color: var(--lp-accent-d); }
+.fx-t-teal { background: var(--brand-soft); color: var(--brand-fg); }
 .fx-t-red { background: #fde5e5; color: #d6383e; }
 .fx-t-emerald { background: #ddf4e6; color: #1f9a57; }
 .fx-t-amber { background: #fdf0d8; color: #c47f08; }
@@ -293,7 +293,7 @@
   font-weight: 500;
   box-shadow: 0 0 0 1px rgba(16, 24, 40, 0.08);
 }
-.fx-pill svg:first-child { color: var(--lp-accent-d); }
+.fx-pill svg:first-child { color: var(--brand-fg); }
 
 .fx-h2 {
   margin-top: 18px !important;

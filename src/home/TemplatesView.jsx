@@ -63,7 +63,7 @@ function CategoryCard({ c, i, onCreate }) {
   const tpls = useMemo(() => [c.templateId, c.alt].filter(Boolean).map(getTemplate).concat(own).filter((x, k, a) => a.indexOf(x) === k).slice(0, 2), [c.templateId, c.alt, own])
   const soon = own.length === 0
   return (
-    <button className={`tv-cat ${soon ? 'soon' : ''}`} style={{ '--i': i }} onClick={soon ? undefined : () => onCreate(c)} disabled={soon}>
+    <button className={`tv-cat ${soon ? 'soon' : ''}`} style={{ '--i': i }} onClick={soon ? undefined : () => onCreate({ templateId: c.templateId, kind: c.kind, blank: true })} disabled={soon}>
       <span className="tv-cat-text">
         <CatTile icon={c.icon} color={c.color} />
         <b>{c.label}</b>

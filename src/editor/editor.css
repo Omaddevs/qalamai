@@ -83,11 +83,11 @@
 }
 
 .slide [contenteditable]:hover {
-  box-shadow: 0 0 0 1px rgba(20, 184, 166, 0.7);
+  box-shadow: 0 0 0 1px rgba(198, 244, 50, 1);
 }
 
 .slide [contenteditable]:focus {
-  box-shadow: 0 0 0 2px var(--teal);
+  box-shadow: 0 0 0 2px var(--brand-strong);
 }
 
 .s-el {
@@ -98,12 +98,12 @@
 }
 
 .ed-canvas .s-el:hover {
-  outline: 1px solid rgba(20, 184, 166, 0.7);
+  outline: 1px solid rgba(198, 244, 50, 1);
   outline-offset: 2px;
 }
 
 .ed-canvas .s-el.selected {
-  outline: 2px solid var(--teal);
+  outline: 2px solid var(--brand-strong);
   outline-offset: 2px;
 }
 
@@ -117,7 +117,7 @@
   bottom: -8px;
   width: 13px;
   height: 13px;
-  border: 2px solid var(--teal);
+  border: 2px solid var(--brand-strong);
   border-radius: 4px;
   background: #fff;
   cursor: nwse-resize;
@@ -233,8 +233,8 @@
 }
 
 .ed-name:focus {
-  border-color: var(--teal);
-  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+  border-color: var(--brand-strong);
+  box-shadow: 0 0 0 3px rgba(198, 244, 50, 0.33);
 }
 
 .ed-saved {
@@ -364,7 +364,7 @@
 
 .ed-rail-item.on .ed-rail-icon {
   background: #fff;
-  color: var(--teal-dark);
+  color: var(--brand-fg);
   box-shadow: 0 0 0 1px rgba(16, 24, 40, 0.08), 0 3px 8px rgba(16, 24, 40, 0.1);
 }
 
@@ -454,8 +454,8 @@
 }
 
 .pn-search:focus-within {
-  border-color: var(--teal);
-  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.14);
+  border-color: var(--brand-strong);
+  box-shadow: 0 0 0 3px rgba(198, 244, 50, 0.31);
 }
 
 .pn-search input {
@@ -556,7 +556,7 @@
 }
 
 .pn-link:hover {
-  color: var(--teal-dark);
+  color: var(--brand-fg);
 }
 
 .pn-empty,
@@ -604,12 +604,12 @@
 }
 
 .tpl-card:hover {
-  box-shadow: 0 0 0 2px #b6ece2, 0 6px 16px rgba(16, 24, 40, 0.12);
+  box-shadow: 0 0 0 2px var(--brand-line), 0 6px 16px rgba(16, 24, 40, 0.12);
   transform: translateY(-1px);
 }
 
 .tpl-card.active {
-  box-shadow: 0 0 0 2.5px var(--teal);
+  box-shadow: 0 0 0 2.5px var(--brand-strong);
 }
 
 .tpl-pro,
@@ -645,8 +645,8 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: var(--teal);
-  color: #fff;
+  background: var(--brand);
+  color: var(--brand-ink);
 }
 
 /* AI panel */
@@ -656,8 +656,8 @@
   margin: 8px 0 14px;
   padding: 14px;
   border-radius: 14px;
-  background: linear-gradient(135deg, #e7fbf6, #efeafe);
-  color: var(--teal-dark);
+  background: var(--brand-soft);
+  color: var(--brand-fg);
 }
 
 .ai-hero b {
@@ -685,8 +685,8 @@
 }
 
 .pn-textarea:focus {
-  border-color: var(--teal);
-  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.14);
+  border-color: var(--brand-strong);
+  box-shadow: 0 0 0 3px rgba(198, 244, 50, 0.31);
 }
 
 .seg.full {
@@ -796,7 +796,7 @@
 }
 
 .swatch.on {
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1), 0 0 0 2px #fff, 0 0 0 4px var(--teal);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1), 0 0 0 2px #fff, 0 0 0 4px var(--brand-strong);
 }
 
 .swatch.sm {
@@ -823,7 +823,7 @@
   border: 1.5px dashed #c9cdd4;
   border-radius: 14px;
   background: #fafbfc;
-  color: var(--teal-dark);
+  color: var(--brand-fg);
 }
 
 .dropzone b {
@@ -837,8 +837,8 @@
 
 .dropzone:hover,
 .dropzone.drag {
-  border-color: var(--teal);
-  background: #f2fcf9;
+  border-color: var(--brand-strong);
+  background: var(--brand-soft);
 }
 
 .upl-grid {
@@ -881,8 +881,8 @@
 }
 
 .alifbo-btn:hover {
-  border-color: var(--teal);
-  background: #f2fcf9;
+  border-color: var(--brand-strong);
+  background: var(--brand-soft);
 }
 
 .alifbo-sample {
@@ -891,8 +891,8 @@
   width: 92px;
   height: 40px;
   border-radius: 9px;
-  background: #dbf6ef;
-  color: #0f8a7a;
+  background: var(--brand-soft);
+  color: var(--brand-fg);
   font-family: var(--font-display);
   font-weight: 600;
 }
@@ -1047,11 +1047,11 @@
 }
 
 .ed-thumb-btn:hover {
-  box-shadow: 0 0 0 2px #b6ece2;
+  box-shadow: 0 0 0 2px var(--brand-line);
 }
 
 .ed-thumb.on .ed-thumb-btn {
-  box-shadow: 0 0 0 2.5px var(--teal);
+  box-shadow: 0 0 0 2.5px var(--brand-strong);
 }
 
 .ed-thumb-num {
@@ -1090,7 +1090,7 @@
 }
 
 .ed-thumb-actions button:hover {
-  color: var(--teal-dark);
+  color: var(--brand-fg);
 }
 
 .ed-add {
@@ -1106,8 +1106,8 @@
 }
 
 .ed-add:hover {
-  border-color: var(--teal);
-  color: var(--teal-dark);
+  border-color: var(--brand-strong);
+  color: var(--brand-fg);
 }
 
 /* ═════════════ Responsive ═════════════ */

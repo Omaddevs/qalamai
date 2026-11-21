@@ -61,7 +61,7 @@
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: #14b8a6;
+  background: var(--brand);
   transition: width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
@@ -76,7 +76,7 @@
 }
 
 .tl-saved.ok {
-  color: #0f9e8e;
+  color: var(--brand-fg);
 }
 
 /* Body */
@@ -120,7 +120,7 @@
 }
 
 .tl-group legend svg {
-  color: #0f9e8e;
+  color: var(--brand-fg);
 }
 
 .tl-grid {
@@ -177,8 +177,8 @@
 
 .tl-field input:focus,
 .tl-field select:focus {
-  border-color: #14b8a6;
-  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.14);
+  border-color: var(--brand-strong);
+  box-shadow: 0 0 0 3px rgba(198, 244, 50, 0.31);
 }
 
 .tl-hint {
@@ -281,8 +281,9 @@
 }
 
 .tl-btn.primary:hover {
-  border-color: #0f9e8e;
-  background: #0f9e8e;
+  border-color: var(--brand);
+  background: var(--brand);
+  color: var(--brand-ink);
   transform: translateY(-1px);
 }
 

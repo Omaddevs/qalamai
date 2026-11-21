@@ -15,7 +15,7 @@
   transition: color 0.2s, background 0.2s, border-color 0.2s;
 }
 .sync-badge:disabled { cursor: default; }
-.sync-badge.ok svg { color: var(--teal-dark); }
+.sync-badge.ok svg { color: var(--brand-fg); }
 .sync-badge.busy svg { animation: sync-spin 0.9s linear infinite; }
 .sync-badge.off { border-color: #f3dfb5; background: #fffaf0; color: #92610e; cursor: pointer; }
 .sync-badge.bad { border-color: #f3d4d4; background: #fef2f2; color: #b91c1c; cursor: pointer; }

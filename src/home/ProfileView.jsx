@@ -8,14 +8,21 @@ import { signOut } from '../account.js'
 import { QalamNib } from '../components/ui.jsx'
 import { initials, loadProfile, profileProgress, saveProfile } from '../profile.js'
 import { onSynced } from '../changes.js'
-import { t } from '../i18n/index.js'
+import { t, tr } from '../i18n/index.js'
 import AvatarPicker from './AvatarPicker.jsx'
 import './titul.css'
 import './profile.css'
 
 const SUBTABS = [
-  ['info', 'Maʼlumotlar', IdentificationCard],
-  ['settings', 'Sozlamalar', GearSix],
+  ['info', 'pf.tab.info', IdentificationCard],
+  ['settings', 'pf.tab.settings', GearSix],
+]
+
+// The three things the profile asks for, in order; the header shows them as steps.
+const STEPS = [
+  ['fullName', 'pf.fullName', User],
+  ['phone', 'pf.phone', Phone],
+  ['city', 'pf.city', MapPin],
 ]
 
 function Switch({ checked, onChange, label }) {
@@ -301,97 +308,120 @@ export default function ProfileView({ profile, onProfile, notify }) {
   const { done, total } = profileProgress(p)
   const has = (v) => String(v ?? '').trim().length > 0
   const personalDone = [p.fullName, p.phone, p.city].filter(has).length
+  const nextStep = STEPS.find(([k]) => !has(p[k]))?.[0] ?? null
+  // a step chip jumps to its field (switching back to the details tab if needed)
+  const focusField = (key) => {
+    setSub('info')
+    setTimeout(() => {
+      const el = document.getElementById(`pf-f-${key}`)
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      el?.focus({ preventScroll: true })
+    }, 0)
+  }
 
   return (
     <div className="tl pf">
       {/* ───── Header ───── */}
-      <header className="tl-head">
-        <div className="tv-bg" aria-hidden="true">
-          <span className="pj-wash" />
-          <span className="pj-paper" />
+      <header className="pf-hero">
+        <div className="pf-hero-bg" aria-hidden="true">
+          <span className="pf-blob b1" />
+          <span className="pf-blob b2" />
+          <span className="pf-blob b3" />
+          <span className="pf-grid" />
         </div>
-        <div className="tl-head-text">
-          <span className="pj-greet">
-            <Sparkle size={14} weight="fill" className="tv-spark" />
-            Bir marta töldiring — hamma joyda işlaydi
-          </span>
-          <h1 className="pj-title">
-            Mening{' '}
-            <span className="hx-word">
-              <em>profilim</em>
-              <svg className="hx-stroke" viewBox="0 0 300 24" preserveAspectRatio="none" aria-hidden="true">
-                <path d="M4 15C60 5 118 23 178 12S262 7 296 14" pathLength="1" />
-              </svg>
-              <span className="hx-pen" aria-hidden="true">
-                <QalamNib height={44} />
-              </span>
-            </span>
-          </h1>
-          <p className="pj-sub">Ism va aloqa maʼlumotlari titul, taqdimot va hujjatlarga özi qöyiladi.</p>
 
-          <div className="pj-tabs pf-tabs" role="tablist">
+        <div className="pf-hero-main">
+          <span className="pf-eyebrow">
+            <span className="pf-eyebrow-ic"><Sparkle size={12} weight="fill" /></span>
+            {t('pf.eyebrow')}
+          </span>
+          <h1 className="pf-title">{tr('pf.title')}</h1>
+          <p className="pf-lead">{t('pf.sub')}</p>
+
+          <ol className="pf-steps" aria-label={t('pf.steps')}>
+            {STEPS.map(([key, label, Icon], k) => {
+              const ok = has(p[key])
+              return (
+                <li key={key} className={ok ? 'ok' : nextStep === key ? 'next' : ''} style={{ '--k': k }}>
+                  <button type="button" onClick={() => focusField(key)}>
+                    <span className="pf-step-ic">{ok ? <Check size={12} weight="bold" /> : <Icon size={13} weight="bold" />}</span>
+                    {t(label)}
+                  </button>
+                </li>
+              )
+            })}
+          </ol>
+          <p className={`pf-hint ${nextStep ? '' : 'ok'}`}>
+            {nextStep ? t('pf.next', { field: t(STEPS.find(([k]) => k === nextStep)[1]) }) : t('pf.ready')}
+          </p>
+
+          <div className="pf-seg" role="tablist" style={{ '--i': SUBTABS.findIndex(([id]) => id === sub) }}>
+            <span className="pf-seg-pill" aria-hidden="true" />
             {SUBTABS.map(([id, label, Icon]) => (
               <button key={id} role="tab" aria-selected={sub === id} className={sub === id ? 'on' : ''} onClick={() => setSub(id)}>
-                <Icon size={15} weight={sub === id ? 'duotone' : 'regular'} /> {label}
+                <Icon size={16} weight={sub === id ? 'fill' : 'regular'} /> {t(label)}
               </button>
             ))}
           </div>
         </div>
 
-        <div
-          className="pf-id"
-          aria-label={`Töldirilgan: ${done} / ${total}`}
-          onPointerMove={(e) => {
-            const r = e.currentTarget.getBoundingClientRect()
-            e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`)
-            e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`)
-          }}
-        >
-          <div className="pf-id-top">
-            <span className="pf-id-brand">
-              <QalamNib height={16} /> QalamAI ID
-            </span>
-            <span className={`pf-id-saved ${saved ? 'ok' : ''}`}>
-              <span /> {saved ? 'Saqlandi' : 'Saqlanmoqda…'}
-            </span>
-          </div>
-          <div className="pf-id-main">
-            <span className="pf-ring" style={{ '--p': done / total }}>
-              <button type="button" className="pf-avatar" onClick={() => setPicking(true)} aria-label={t('pf.avatar.change')} title={t('pf.avatar.change')}>
-                {me?.avatarUrl ? <img src={apiUrl(me.avatarUrl)} alt="" /> : initials(p.fullName) || <UserCircle size={26} weight="duotone" />}
-                <span className="pf-avatar-edit" aria-hidden="true">
-                  <Camera size={13} weight="bold" />
+        <div className="pf-hero-card">
+          <span className="pf-card-glow" aria-hidden="true" />
+          <div
+            className="pf-id"
+            aria-label={t('pf.filled', { done, total })}
+            onPointerMove={(e) => {
+              const r = e.currentTarget.getBoundingClientRect()
+              e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`)
+              e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`)
+            }}
+          >
+            <div className="pf-id-top">
+              <span className="pf-id-brand">
+                <QalamNib height={16} /> QalamAI ID
+              </span>
+              <span className={`pf-id-saved ${saved ? 'ok' : ''}`}>
+                <span /> {saved ? t('pf.saved') : t('pf.saving')}
+              </span>
+            </div>
+            <div className="pf-id-main">
+              <span className="pf-ring" style={{ '--p': done / total }}>
+                <button type="button" className="pf-avatar" onClick={() => setPicking(true)} aria-label={t('pf.avatar.change')} title={t('pf.avatar.change')}>
+                  {me?.avatarUrl ? <img src={apiUrl(me.avatarUrl)} alt="" /> : initials(p.fullName) || <UserCircle size={26} weight="duotone" />}
+                  <span className="pf-avatar-edit" aria-hidden="true">
+                    <Camera size={13} weight="bold" />
+                  </span>
+                </button>
+              </span>
+              <span className="pf-card-text">
+                <b>{p.fullName.trim() || t('pf.yourName')}</b>
+                <small>{me?.telegramUsername ? `@${me.telegramUsername}` : t('pf.student')}</small>
+              </span>
+            </div>
+            <div className="pf-id-chips">
+              {me && !me.isGuest && (
+                <span className={`pf-tier ${me.tier ? 'paid' : ''}`}>
+                  <Crown size={12} weight="fill" /> {me.tier ?? t('pf.free')}
                 </span>
-              </button>
-            </span>
-            <span className="pf-card-text">
-              <b>{p.fullName.trim() || 'Ismingiz'}</b>
-              <small>{me?.telegramUsername ? `@${me.telegramUsername}` : 'Talaba'}</small>
-            </span>
-          </div>
-          <div className="pf-id-chips">
-            {me && !me.isGuest && (
-              <span className={`pf-tier ${me.tier ? 'paid' : ''}`}>
-                <Crown size={12} weight="fill" /> {me.tier ?? 'Bepul'}
-              </span>
-            )}
-            {p.city.trim() && (
-              <span>
-                <MapPin size={12} weight="bold" /> {p.city.trim()}
-              </span>
-            )}
-          </div>
-          <div className="pf-id-prog">
-            <span>{done === total ? 'Profil töliq' : 'Töldirilgan'}</span>
-            <b>
-              {done}
-              <i>/{total}</i>
-            </b>
-          </div>
-          <div className="pf-segs">
-            {Array.from({ length: total }, (_, k) => (
-              <span key={k} className={k < done ? 'on' : ''} style={{ '--k': k }} />
-            ))}
+              )}
+              {p.city.trim() && (
+                <span>
+                  <MapPin size={12} weight="bold" /> {p.city.trim()}
+                </span>
+              )}
+            </div>
+            <div className="pf-id-prog">
+              <span>{done === total ? t('pf.complete') : t('pf.filledShort')}</span>
+              <b>
+                {done}
+                <i>/{total}</i>
+              </b>
+            </div>
+            <div className="pf-segs">
+              {Array.from({ length: total }, (_, k) => (
+                <span key={k} className={k < done ? 'on' : ''} style={{ '--k': k }} />
+              ))}
+            </div>
           </div>
         </div>
       </header>
@@ -402,9 +432,9 @@ export default function ProfileView({ profile, onProfile, notify }) {
         <div className="pf-body">
           <form className="pf-form" onSubmit={(e) => e.preventDefault()}>
             <Section n={1} title="Şaxsiy maʼlumotlar" sub="Hujjat va taqdimotlarga avtomatik qöyiladi" done={personalDone} total={3}>
-              <Input wide icon={User} label="F.I.Ş." value={p.fullName} onChange={set('fullName')} placeholder="Familiya Ism Otasining ismi" autoComplete="name" />
-              <Input icon={Phone} label="Telefon" value={p.phone} onChange={set('phone')} placeholder="+998 90 123 45 67" autoComplete="tel" inputMode="tel" />
-              <Input icon={MapPin} label="Şahar" value={p.city} onChange={set('city')} placeholder="Toşkent" />
+              <Input wide icon={User} label="F.I.Ş." id="pf-f-fullName" value={p.fullName} onChange={set('fullName')} placeholder="Familiya Ism Otasining ismi" autoComplete="name" />
+              <Input icon={Phone} label="Telefon" id="pf-f-phone" value={p.phone} onChange={set('phone')} placeholder="+998 90 123 45 67" autoComplete="tel" inputMode="tel" />
+              <Input icon={MapPin} label="Şahar" id="pf-f-city" value={p.city} onChange={set('city')} placeholder="Toşkent" />
             </Section>
 
             <p className="pf-private">

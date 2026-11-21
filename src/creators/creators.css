@@ -46,8 +46,8 @@
   color: #b45309;
 }
 .cs-kind.k-bio {
-  background: #e6faf6;
-  color: #0f766e;
+  background: var(--brand-soft);
+  color: var(--brand-fg);
 }
 .cs-kind.k-cv {
   background: #e8efff;
@@ -280,8 +280,8 @@
   resize: vertical;
 }
 .cs-input:focus {
-  border-color: #14b8a6;
-  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+  border-color: var(--brand-strong);
+  box-shadow: 0 0 0 3px rgba(198, 244, 50, 0.33);
 }
 .cs-range {
   width: 100%;
@@ -390,7 +390,7 @@
   transition: transform 0.2s;
 }
 .cs-toggle input:checked + i {
-  background: #14b8a6;
+  background: var(--brand);
 }
 .cs-toggle input:checked + i::after {
   transform: translateX(17px);
@@ -966,7 +966,7 @@
   color: #6b717a;
 }
 .bio-social:focus-within {
-  border-color: #14b8a6;
+  border-color: var(--brand-strong);
 }
 .bio-social input {
   flex: 1;
@@ -1803,7 +1803,7 @@
 .bi-head b { font-size: 15px; }
 .bi-head-tools { display: flex; gap: 4px; }
 .bi-head-tools button { display: grid; place-items: center; width: 28px; height: 28px; border: 1px solid #e7e4dd; border-radius: 8px; background: #fff; color: #374151; cursor: pointer; }
-.bi-head-tools button:hover:not(:disabled) { border-color: #14b8a6; color: #0d9488; }
+.bi-head-tools button:hover:not(:disabled) { border-color: var(--brand-strong); color: var(--brand-fg); }
 .bi-head-tools button:disabled { opacity: 0.3; cursor: default; }
 .bi-label { font-size: 12px; font-weight: 600; color: #4b5160; }
 .bi-label b { float: right; font-weight: 600; color: #8b919a; font-variant-numeric: tabular-nums; }
@@ -1816,10 +1816,10 @@
 .bi-swatch { position: relative; grid-row: 1; grid-column: 2; width: 30px; height: 30px; border-radius: 8px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12); background: var(--c), repeating-conic-gradient(#e5e7eb 0 25%, #fff 0 50%) 0 0 / 10px 10px; background: linear-gradient(var(--c), var(--c)), repeating-conic-gradient(#e5e7eb 0 25%, #fff 0 50%) 0 0 / 10px 10px; cursor: pointer; overflow: hidden; }
 .bi-swatch input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 .bi-hex { grid-row: 1; grid-column: 3; width: 100%; height: 30px; padding: 0 8px; border: 1px solid #e7e4dd; border-radius: 8px; font: 12px ui-monospace, monospace; }
-.bi-alpha { grid-column: 1 / -1; width: 100%; accent-color: #14b8a6; }
+.bi-alpha { grid-column: 1 / -1; width: 100%; accent-color: var(--brand-strong); }
 
 .bi-range { display: flex; flex-direction: column; gap: 4px; }
-.bi-range input { width: 100%; accent-color: #14b8a6; }
+.bi-range input { width: 100%; accent-color: var(--brand-strong); }
 
 .bi-chips { display: flex; flex-wrap: wrap; gap: 4px; }
 .bi-chips button { padding: 5px 9px; border: 1px solid #e7e4dd; border-radius: 8px; background: #fff; font-size: 12px; cursor: pointer; }
@@ -1827,7 +1827,7 @@
 
 .bi-icons { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; max-height: 150px; overflow: auto; }
 .bi-icons button { display: grid; place-items: center; aspect-ratio: 1; border: 1px solid #ece9e3; border-radius: 8px; background: #fff; color: #374151; cursor: pointer; }
-.bi-icons button.on { border-color: #14b8a6; background: #e6f8f5; color: #0d9488; }
+.bi-icons button.on { border-color: var(--brand-strong); background: var(--brand-soft); color: var(--brand-fg); }
 .bi-ico { display: grid; }
 
 .bi-img-row { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
@@ -1851,15 +1851,15 @@
 .bi-add .bi-sep:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
 .bi-add-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 4px; }
 .bi-add-row button { display: inline-flex; align-items: center; gap: 4px; padding: 6px 10px; border: 1px solid #e7e4dd; border-radius: 999px; background: #fff; font-size: 12.5px; font-weight: 600; cursor: pointer; }
-.bi-add-row button:hover { border-color: #14b8a6; color: #0d9488; }
+.bi-add-row button:hover { border-color: var(--brand-strong); color: var(--brand-fg); }
 .bi-add-decos { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 8px; }
 .bi-add-decos button { aspect-ratio: 1; padding: 6px; border: 1px solid #ece9e3; border-radius: 10px; background: #faf9f6; cursor: pointer; }
-.bi-add-decos button:hover { border-color: #14b8a6; }
+.bi-add-decos button:hover { border-color: var(--brand-strong); }
 .bi-add-decos svg { width: 100%; height: 100%; }
 
 .bio-tpls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
 .bio-tpl { display: flex; flex-direction: column; gap: 4px; padding: 0; border: 0; background: none; cursor: pointer; }
 .bio-tpl-page { position: relative; display: block; height: 150px; overflow: hidden; border-radius: 12px; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08); }
 .bio-tpl-page > .bp2 { position: absolute; top: 0; left: 0; width: 390px; height: 844px; transform: scale(0.218); transform-origin: top left; }
-.bio-tpl:hover .bio-tpl-page { box-shadow: 0 0 0 2px #14b8a6; }
+.bio-tpl:hover .bio-tpl-page { box-shadow: 0 0 0 2px var(--brand-strong); }
 .bio-tpl small { font-size: 11.5px; font-weight: 600; text-align: center; }

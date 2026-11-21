@@ -34,7 +34,7 @@
   opacity: 0.32;
   pointer-events: none;
 }
-.tm-glow.g1 { left: 14%; background: var(--lp-accent); transform: translateY(-60%); }
+.tm-glow.g1 { left: 14%; background: var(--brand); transform: translateY(-60%); }
 .tm-glow.g2 { right: 12%; background: var(--lp-violet); transform: translateY(-30%); opacity: 0.26; }
 
 .tm-plane {

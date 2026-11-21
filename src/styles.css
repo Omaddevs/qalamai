@@ -6,8 +6,18 @@
   --muted: #8b919a;
   --line: #e6e8ec;
   --hover: #eef0f3;
-  --teal: #14b8a6;
-  --teal-dark: #0f9e8e;
+  /* Brand: black, white and lime. */
+  --black: #0b0b0d;
+  --white: #ffffff;
+  --brand: #c6f432;          /* lime: fills, highlights */
+  --brand-hover: #b4e21e;    /* lime, pressed/hover */
+  --brand-ink: #0b0b0d;      /* text and icons on lime */
+  --brand-soft: #f4fcdb;     /* lime tint backgrounds */
+  --brand-line: #dff58f;     /* light lime borders */
+  --brand-strong: #8db310;   /* borders, rings, strokes on white */
+  --brand-fg: #4f6b00;       /* lime-family text on white */
+  --teal: var(--brand);
+  --teal-dark: var(--brand-hover);
   --red: #ef4444;
   --radius: 14px;
   --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
@@ -236,13 +246,13 @@ p {
 }
 
 .btn.primary {
-  border-color: var(--teal);
-  background: var(--teal);
-  color: #fff;
+  border-color: var(--brand-strong);
+  background: var(--brand);
+  color: var(--brand-ink);
 }
 
 .btn.primary:hover {
-  background: var(--teal-dark);
+  background: var(--brand-hover);
 }
 
 .btn:disabled {
@@ -347,8 +357,8 @@ p {
 }
 
 .create-row input:focus {
-  border-color: var(--teal);
-  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+  border-color: var(--brand-strong);
+  box-shadow: 0 0 0 3px rgba(198, 244, 50, 0.33);
 }
 
 .compare {
@@ -364,8 +374,8 @@ p {
 }
 
 .compare-col.pro {
-  border-color: #bfeee5;
-  background: #f2fcf9;
+  border-color: var(--brand-line);
+  background: var(--brand-soft);
 }
 
 .compare-name {
@@ -381,7 +391,7 @@ p {
 }
 
 .compare-col.pro .compare-name {
-  color: var(--teal-dark);
+  color: var(--brand-fg);
 }
 
 .compare-val {
@@ -450,8 +460,8 @@ p {
 }
 
 .pane.out {
-  background: #f6fcfb;
-  border-color: #cdeee7;
+  background: var(--brand-soft);
+  border-color: var(--brand-line);
 }
 
 .pane textarea {
@@ -518,7 +528,7 @@ p {
   position: fixed;
   inset: 0 0 auto;
   height: 3px;
-  background: linear-gradient(90deg, transparent, var(--teal), transparent);
+  background: linear-gradient(90deg, transparent, var(--brand), transparent);
   background-size: 50% 100%;
   background-repeat: no-repeat;
   animation: page-loading 1s ease-in-out infinite;

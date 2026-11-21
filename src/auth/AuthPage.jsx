@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   EnvelopeSimple, LockSimple, Eye, EyeSlash, User, ArrowLeft, ArrowRight, CircleNotch, WarningCircle, Info,
-  TelegramLogo, Check, Sparkle, ArrowsLeftRight,
+  TelegramLogo, Check, Sparkle,
 } from '@phosphor-icons/react'
 import { Wordmark } from '../components/ui.jsx'
 import Slide from '../editor/Slide.jsx'
-import { getTemplate } from '../editor/templates.js'
+import { TEMPLATES, sampleDeck } from '../editor/templates.js'
 import { TOOL_UI } from '../files/toolMeta.js'
 import { ensureSession, login, register, signInWithGoogle } from '../api.js'
 import TelegramFlow from './TelegramFlow.jsx'
@@ -90,33 +90,13 @@ const showItems = () =>
     return { title, text }
   })
 
-const slideOf = (id) => {
-  const tpl = getTemplate(id)
-  return { slide: { id: `au-${id}`, type: 'title', ...tpl.sample, elements: [] }, theme: tpl.theme }
-}
+/** Real template slides and document pages, laid out as a slowly scrolling, tilted wall. */
+const WALL_COLS = 4
 
-function VisualSlides() {
-  const items = useMemo(() => ['brand', 'pitch', 'quiz'].map(slideOf), [])
-  return (
-    <div className="au-vis-slides">
-      {items.map((s, i) => (
-        <div key={i} className={`au-vs s${i + 1}`}>
-          <Slide slide={s.slide} theme={s.theme} preview />
-        </div>
-      ))}
-      <span className="au-vis-chip">
-        <span className="spark"><Sparkle size={11} weight="fill" /></span>
-        {t('au.vis.chip')}
-        <Check size={11} weight="bold" />
-      </span>
-    </div>
-  )
-}
-
-function VisualDoc() {
+function DocPage({ kind }) {
   const [uni, type, topic, done, sup, toc, ...rows] = t('au.vis.doc').split('|')
-  return (
-    <div className="au-vis-doc">
+  if (kind === 'title') {
+    return (
       <div className="au-page title">
         <small>{t('bp.ministry')}</small>
         <small>{uni}</small>
@@ -124,28 +104,61 @@ function VisualDoc() {
         <span>{topic}</span>
         <em>{done}<br />{sup}</em>
       </div>
-      <div className="au-page toc">
-        <b>{toc}</b>
-        {rows.map((row, i) => (
-          <span key={row} className={row.startsWith('1.') ? 'sub' : ''}><em>{row}</em><i />{3 + i * 5}</span>
-        ))}
-      </div>
+    )
+  }
+  return (
+    <div className="au-page toc">
+      <b>{toc}</b>
+      {rows.map((row, i) => (
+        <span key={row} className={row.startsWith('1.') ? 'sub' : ''}><em>{row}</em><i />{3 + i * 5}</span>
+      ))}
     </div>
   )
 }
 
-function VisualTools() {
-  const tools = Object.values(TOOL_UI).slice(0, 12)
+function useWallColumns() {
+  return useMemo(() => {
+    // cover + one inner page of every template, interleaved so neighbours differ
+    const covers = TEMPLATES.map((tpl) => ({ tpl, slide: sampleDeck(tpl, 1)[0] }))
+    const inner = TEMPLATES.map((tpl) => ({ tpl, slide: sampleDeck(tpl, 3)[2] ?? sampleDeck(tpl, 2)[1] })).filter((x) => x.slide)
+    const pool = covers.flatMap((c, i) => (inner[i] ? [c, inner[(i * 7) % inner.length]] : [c]))
+    const cols = Array.from({ length: WALL_COLS }, () => [])
+    pool.forEach((item, i) => cols[i % WALL_COLS].push({ ...item, key: `s${i}` }))
+    // a title page and a contents page in two of the columns
+    cols[1].splice(2, 0, { doc: 'title', key: 'd1' })
+    cols[3].splice(3, 0, { doc: 'toc', key: 'd2' })
+    return cols
+  }, [])
+}
+
+function Wall() {
+  const cols = useWallColumns()
+  const card = (it, dup) =>
+    it.doc ? (
+      <div key={it.key + dup} className="au-wall-card doc"><DocPage kind={it.doc} /></div>
+    ) : (
+      <div key={it.key + dup} className="au-wall-card">
+        <Slide slide={it.slide} theme={it.tpl.theme} preview />
+      </div>
+    )
   return (
-    <div className="au-vis-tools">
-      {tools.map((tool, i) => (
-        <span key={i} className="au-tool" style={{ '--i': i }}>
-          <span className={`ic c-${tool.color}`}><tool.icon size={14} weight="bold" /></span>
-          <span>{tool.from}</span>
-          <ArrowsLeftRight size={10} weight="bold" className="arr" />
-          <span>{tool.to}</span>
-        </span>
-      ))}
+    <div className="au-wall">
+      <div className="au-wall-tilt">
+        {cols.map((col, c) => (
+          <div key={c} className={`au-wall-col ${c % 2 ? 'down' : 'up'}`} style={{ '--dur': `${70 + c * 9}s` }}>
+            {/* the list twice, so moving by half its height loops seamlessly */}
+            <div className="au-wall-track">
+              {col.map((it) => card(it, 'a'))}
+              {col.map((it) => card(it, 'b'))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <span className="au-vis-chip">
+        <span className="spark"><Sparkle size={11} weight="fill" /></span>
+        {t('au.vis.chip')}
+        <Check size={11} weight="bold" />
+      </span>
     </div>
   )
 }
@@ -166,12 +179,7 @@ function Showcase() {
       onMouseLeave={() => (paused.current = false)}
       aria-label={t('au.showAria')}
     >
-      <div className="au-show-lines" aria-hidden="true" />
-      <div className="au-show-stage" aria-hidden="true">
-        <div className={`au-vis ${i === 0 ? 'on' : ''}`}><VisualSlides /></div>
-        <div className={`au-vis ${i === 1 ? 'on' : ''}`}><VisualDoc /></div>
-        <div className={`au-vis ${i === 2 ? 'on' : ''}`}><VisualTools /></div>
-      </div>
+      <div className="au-show-stage" aria-hidden="true"><Wall /></div>
       <div className="au-show-copy" aria-live="polite">
         <h2 key={`h${i}`}>{SHOW[i].title}</h2>
         <p key={`p${i}`}>{SHOW[i].text}</p>

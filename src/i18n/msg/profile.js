@@ -76,6 +76,11 @@ export default {
   'wt.bmi': { uz: 'Bitiruv malakaviy işi', ru: 'Выпускная квалификационная работа', en: 'Graduation thesis', kk: 'Бітіру біліктілік жұмысы', ky: 'Бүтүрүү квалификациялык иши', tg: 'Кори хатмкунии тахассусӣ' },
 
   // profile page
+  'pf.title': { uz: 'Mening <em>profilim</em>', ru: 'Мой <em>профиль</em>', en: 'My <em>profile</em>', kk: 'Менің <em>профилім</em>', ky: 'Менин <em>профилим</em>', tg: '<em>Профили</em> ман' },
+  'pf.next': { uz: 'Keyingi qadam: {field}', ru: 'Следующий шаг: {field}', en: 'Next step: {field}', kk: 'Келесі қадам: {field}', ky: 'Кийинки кадам: {field}', tg: 'Қадами навбатӣ: {field}' },
+  'pf.ready': { uz: 'Hammasi tayyor — hujjatlar özi töldiriladi', ru: 'Всё готово — документы заполнятся сами', en: 'All set — documents fill themselves in', kk: 'Бәрі дайын — құжаттар өзі толтырылады', ky: 'Баары даяр — документтер өзү толтурулат', tg: 'Ҳама тайёр — ҳуҷҷатҳо худ пур мешаванд' },
+  'pf.steps': { uz: 'Profil qadamlari', ru: 'Шаги профиля', en: 'Profile steps', kk: 'Профиль қадамдары', ky: 'Профиль кадамдары', tg: 'Қадамҳои профил' },
+  'pf.free': { uz: 'Bepul', ru: 'Бесплатно', en: 'Free', kk: 'Тегін', ky: 'Акысыз', tg: 'Ройгон' },
   'pf.tab.info': { uz: 'Maʼlumotlar', ru: 'Данные', en: 'Details', kk: 'Мәліметтер', ky: 'Маалыматтар', tg: 'Маълумот' },
   'pf.tab.titul': { uz: 'Titul varaği', ru: 'Титульный лист', en: 'Title page', kk: 'Титул парағы', ky: 'Титулдук барак', tg: 'Варақаи титулӣ' },
   'pf.tab.settings': { uz: 'Sozlamalar', ru: 'Настройки', en: 'Settings', kk: 'Баптаулар', ky: 'Жөндөөлөр', tg: 'Танзимот' },
@@ -109,7 +114,7 @@ export default {
   'pf.eyebrow': { uz: 'Bir marta töldiring — hamma joyda işlaydi', ru: 'Заполните один раз — работает везде', en: 'Fill it in once — it works everywhere', kk: 'Бір рет толтырыңыз — барлық жерде жұмыс істейді', ky: 'Бир жолу толтуруңуз — бардык жерде иштейт', tg: 'Як бор пур кунед — дар ҳама ҷо кор мекунад' },
   'pf.title1': { uz: 'Mening', ru: 'Мой', en: 'My', kk: 'Менің', ky: 'Менин', tg: 'Профили' },
   'pf.title2': { uz: 'profilim', ru: 'профиль', en: 'profile', kk: 'профилім', ky: 'профилим', tg: 'ман' },
-  'pf.sub': { uz: 'Ism va OTM maʼlumotlari titul, taqdimot va hujjatlarga özi qöyiladi.', ru: 'Имя и данные вуза сами подставляются в титул, презентации и документы.', en: 'Your name and university details fill in title pages, presentations and documents automatically.', kk: 'Аты-жөніңіз бен ЖОО мәліметтері титулға, презентация мен құжаттарға өзі қойылады.', ky: 'Атыңыз жана ЖОЖ маалыматтары титулга, презентацияга жана документтерге өзү коюлат.', tg: 'Ном ва маълумоти МТО худ ба титул, презентатсия ва ҳуҷҷатҳо гузошта мешаванд.' },
+  'pf.sub': { uz: 'Ism va aloqa maʼlumotlari titul, taqdimot va hujjatlarga özi qöyiladi.', ru: 'Имя и контакты сами подставляются в титульный лист, презентации и документы.', en: 'Your name and contacts fill in title pages, presentations and documents for you.', kk: 'Аты-жөніңіз бен байланыс деректеріңіз титулға, презентация мен құжаттарға өзі қойылады.', ky: 'Атыңыз жана байланыш маалыматтарыңыз титулга, презентация жана документтерге өзү коюлат.', tg: 'Ном ва маълумоти тамос худ ба варақаи титулӣ, презентатсия ва ҳуҷҷатҳо гузошта мешаванд.' },
   'pf.filled': { uz: 'Töldirilgan: {done} / {total}', ru: 'Заполнено: {done} / {total}', en: 'Completed: {done} / {total}', kk: 'Толтырылған: {done} / {total}', ky: 'Толтурулган: {done} / {total}', tg: 'Пуршуда: {done} / {total}' },
   'pf.saved': { uz: 'Saqlandi', ru: 'Сохранено', en: 'Saved', kk: 'Сақталды', ky: 'Сакталды', tg: 'Нигоҳ дошта шуд' },
   'pf.saving': { uz: 'Saqlanmoqda…', ru: 'Сохраняется…', en: 'Saving…', kk: 'Сақталуда…', ky: 'Сакталууда…', tg: 'Нигоҳ дошта мешавад…' },

@@ -483,7 +483,23 @@ for (const tpl of TEMPLATES) {
 
 export const BRAND_COLORS = ['#14b8a6', '#2f5bff', '#c2185b', '#ff6b2c', '#7c3aed', '#16a34a', '#111111', '#e5a50a']
 
-export const getTemplate = (id) => TEMPLATES.find((t) => t.id === (LEGACY[id] ?? id)) ?? TEMPLATES[0]
+/**
+ * A plain white page for designs opened from a type card before any template is picked.
+ * Not listed in TEMPLATES, so no picker shows it.
+ */
+export const BLANK = {
+  id: 'blank',
+  cat: null,
+  pages: null,
+  theme: {
+    bg: '#ffffff', text: '#0b1220', muted: '#5b6474', accent: '#2563eb',
+    titleFont: F.sans, bodyFont: F.sans, titleWeight: 600, ...classic,
+  },
+  get name() { return t('design.untitled') },
+  get sample() { return { title: t('design.untitled'), subtitle: '' } },
+}
+
+export const getTemplate = (id) => (id === BLANK.id ? BLANK : TEMPLATES.find((t) => t.id === (LEGACY[id] ?? id)) ?? TEMPLATES[0])
 
 /** Template for create types that have none of their own yet (their designs come later). */
 export const DEFAULT_TEMPLATE = 'pitch'

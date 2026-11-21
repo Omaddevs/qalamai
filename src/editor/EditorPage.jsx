@@ -67,6 +67,13 @@ function useHistory(initial) {
 
 const ZOOMS = [0.5, 0.75, 1, 1.25, 1.5]
 
+/** First template picked for a blank design: its pages, keeping what the user put on each blank page. */
+function fillBlank(slides, tpl) {
+  const pages = tpl.pages ? templatePages(tpl) : generateSlides('', 6)
+  const extra = slides.slice(pages.length).map((s) => ({ ...s, themeIndex: undefined }))
+  return [...pages.map((p, i) => ({ ...p, elements: slides[i]?.elements ?? [] })), ...extra]
+}
+
 // Every user-visible string on a page (any layout), not ids, image data or layout settings.
 const NOT_TEXT = new Set(['id', 'type', 'image', 'src', 'side', 'answer', 'num', 'elements'])
 function convertTexts(node, c) {
@@ -335,7 +342,8 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
     set((d) => ({
       ...d,
       templateId: id,
-      slides: d.slides.map((s) => {
+      // a blank design (no template yet) gets the template's own pages; what the user added stays
+      slides: d.templateId === 'blank' ? fillBlank(d.slides, getTemplate(id)) : d.slides.map((s) => {
         if (!s.free) return s
         const { free: _f, themeIndex: _t, ...rest } = s
         return { ...rest, elements: s.elements.filter((e) => !e.fromLayout) }

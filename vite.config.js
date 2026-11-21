@@ -61,6 +61,9 @@ function seo(siteUrl) {
       `<link rel="alternate" hreflang="x-default" href="${url}" />`,
     ].join('\n    ')
 
+  // Crawlable links to every public page, in the HTML itself (React replaces them once it runs).
+  const staticNav = `<nav><a href="/">QalamAI</a>${PUBLIC_PAGES.map((p) => ` · <a href="${p.path}">${esc(MSG[p.title].uz.split(/ [—|] /)[0])}</a>`).join('')}</nav>`
+
   // index.html (already built) → the same page with another address, title and description (Uzbek;
   // the app switches them to the visitor's language). Each replacement must hit, or the build fails.
   const variant = (html, page) => {
@@ -76,6 +79,8 @@ function seo(siteUrl) {
       [/(<meta property="og:description" content=")[^"]*/, `$1${desc}`],
       [/(<meta name="twitter:title" content=")[^"]*/, `$1${title}`],
       [/(<meta name="twitter:description" content=")[^"]*/, `$1${desc}`],
+      [/(<h1 id="seo-h1">)[^<]*/, `$1${title}`],
+      [/(<p id="seo-p">)[^<]*/, `$1${desc}`],
     ]
     for (const [re, to] of subs) {
       if (!re.test(html)) throw new Error(`qalam-seo: ${re} not found in index.html`)
@@ -87,7 +92,7 @@ function seo(siteUrl) {
     name: 'qalam-seo',
     transformIndexHtml: {
       order: 'pre', // before Vite parses the URLs in index.html
-      handler: (html) => html.replaceAll('%SITE_URL%', siteUrl).replace('<!-- %HREFLANG% -->', alternates(home)),
+      handler: (html) => html.replaceAll('%SITE_URL%', siteUrl).replace('<!-- %HREFLANG% -->', alternates(home)).replace('<!-- %STATIC_NAV% -->', staticNav),
     },
     configureServer: serve,
     configurePreviewServer: serve,

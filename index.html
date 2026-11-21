@@ -79,11 +79,13 @@
     />
   </head>
   <body>
-    <div id="root"></div>
-    <noscript>
-      <h1>QalamAI — Mavzuni yozing, qolganini Qalam qiladi</h1>
-      <p>Prezentatsiya, referat, kurs işi va dizaynni akademik standartlarda bir neça daqiqada yarating. QalamAI'dan foydalaniş uçun brauzeringizda JavaScript'ni yoqing.</p>
-    </noscript>
+    <!-- What search engines and link previews read before the app starts; React replaces it.
+         vite.config.js swaps the heading and text for each public page (/narxlar …). -->
+    <div id="root"><div class="seo-static" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">
+      <h1 id="seo-h1">QalamAI — Mavzuni yozing, qolganini Qalam qiladi</h1>
+      <p id="seo-p">Prezentatsiya, referat, kurs işi va dizaynni akademik standartlarda bir neça daqiqada yarating. Dizayn tajribasi ham, murakkab dasturlar ham şart emas.</p>
+      <!-- %STATIC_NAV% -->
+    </div></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

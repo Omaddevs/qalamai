@@ -1,0 +1,13 @@
+// Offline screen (src/components/OfflineScreen.jsx): shown while the browser has no connection.
+export default {
+  'off.badge': { uz: 'Oflayn', ru: 'Офлайн', en: 'Offline', kk: 'Офлайн', ky: 'Офлайн', tg: 'Офлайн' },
+  'off.title': { uz: 'Internet yöq', ru: 'Нет подключения к интернету', en: 'No internet connection', kk: 'Интернет байланысы жоқ', ky: 'Интернет байланышы жок', tg: 'Пайвасти интернет нест' },
+  'off.text': { uz: 'Xavotir olmang — işingiz qurilmangizda saqlanib turibdi. Aloqa tiklanişi bilan hammasi avtomatik sinxronlanadi.', ru: 'Не волнуйтесь — ваша работа сохранена на устройстве. Как только связь вернётся, всё синхронизируется автоматически.', en: 'Don’t worry — your work is saved on this device. Everything syncs automatically once you’re back online.', kk: 'Уайымдамаңыз — жұмысыңыз құрылғыда сақталған. Байланыс қалпына келгенде бәрі автоматты түрде синхрондалады.', ky: 'Тынчсызданбаңыз — ишиңиз түзмөктө сакталган. Байланыш калыбына келгенде баары автоматтык түрдө синхрондолот.', tg: 'Хавотир нашавед — кори шумо дар дастгоҳ нигоҳ дошта шудааст. Ҳамин ки пайваст барқарор шавад, ҳама худкор ҳамоҳанг мешавад.' },
+  'off.tip': { uz: 'Wi‑Fi yoki mobil internetni tekşirib köring', ru: 'Проверьте Wi‑Fi или мобильный интернет', en: 'Check your Wi‑Fi or mobile data', kk: 'Wi‑Fi немесе мобильді интернетті тексеріңіз', ky: 'Wi‑Fi же мобилдик интернетти текшериңиз', tg: 'Wi‑Fi ё интернети мобилиро санҷед' },
+  'off.retry': { uz: 'Qayta urinib köriş', ru: 'Повторить', en: 'Try again', kk: 'Қайталау', ky: 'Кайра аракет кылуу', tg: 'Бори дигар кӯшиш кардан' },
+  'off.checking': { uz: 'Tekşirilmoqda…', ru: 'Проверяем…', en: 'Checking…', kk: 'Тексерілуде…', ky: 'Текшерилүүдө…', tg: 'Санҷида истодааст…' },
+  'off.still': { uz: 'Hali ham aloqa yöq', ru: 'Связи всё ещё нет', en: 'Still offline', kk: 'Әлі байланыс жоқ', ky: 'Дагы эле байланыш жок', tg: 'Ҳанӯз пайваст нест' },
+  'off.continue': { uz: 'Oflayn davom etiş', ru: 'Продолжить офлайн', en: 'Continue offline', kk: 'Офлайн жалғастыру', ky: 'Офлайн улантуу', tg: 'Офлайн идома додан' },
+  'off.banner': { uz: 'Internet yöq — özgarişlar qurilmada saqlanmoqda', ru: 'Нет интернета — изменения сохраняются на устройстве', en: 'Offline — changes are saved on this device', kk: 'Интернет жоқ — өзгерістер құрылғыда сақталуда', ky: 'Интернет жок — өзгөрүүлөр түзмөктө сакталууда', tg: 'Интернет нест — тағйирот дар дастгоҳ нигоҳ дошта мешавад' },
+  'off.back': { uz: 'Internet qaytdi', ru: 'Соединение восстановлено', en: 'You’re back online', kk: 'Интернет қайта қосылды', ky: 'Интернет кайра туташты', tg: 'Интернет барқарор шуд' },
+}

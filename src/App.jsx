@@ -10,6 +10,7 @@ import { t } from './i18n/index.js'
 import { kindLabel } from './i18n/kinds.js'
 import { pageByPath, pathOf } from './landing/pages.js'
 import { go } from './nav.js'
+import NotFound from './components/NotFound.jsx'
 
 // Each page is its own chunk: a visitor downloads only the page in front of them.
 const PAGES = {
@@ -24,7 +25,7 @@ const AuthPage = lazy(PAGES.auth)
 const HomePage = lazy(PAGES.home)
 const EditorPage = lazy(PAGES.editor)
 const CreatorStudio = lazy(PAGES.creator)
-// QalamChat (bottom-right chat to the team) is its own small chunk, shown on the landing and home pages.
+// QalamChat (bottom-right chat to the team) is its own small chunk, shown only on the landing (not inside the app after sign-up).
 const QalamChat = lazy(() => import('./components/QalamChat.jsx'))
 
 // Sign-up / sign-in have their own public addresses (/royxatdan-otish, /kirish).
@@ -55,7 +56,8 @@ const publicPage = () => (noHash() ? pageByPath(window.location.pathname) : null
 const parseLanding = () => {
   if (!noHash()) return null
   const p = publicPage()
-  return p ? (p.auth ? null : p.id) : 'home'
+  if (p) return p.auth ? null : p.id
+  return ['', '/index.html'].includes(window.location.pathname.replace(/\/+$/, '')) ? 'home' : 'notfound'
 }
 const parseAuth = () => {
   const p = publicPage()
@@ -116,8 +118,9 @@ function Pages() {
   }, [])
   const onSave = useCallback((deck) => saveDesign(deck), [])
 
-  const create = ({ topic, templateId, kind, count, ai, slides }) => {
-    const deck = newDeck({ topic, templateId, kind, count, slides })
+  // blank: opened from a type card (not a template) — an empty page, no template picked yet.
+  const create = ({ topic, templateId, kind, count, ai, slides, blank }) => {
+    const deck = newDeck({ topic, templateId, kind, count, slides, blank: blank && !ai })
     saveDesign(deck)
     setNextPanel(ai ? 'ai' : 'templates')
     setOpenAppId(null)
@@ -153,6 +156,8 @@ function Pages() {
   useEffect(() => {
     if (designId && !deck) goHome()
   }, [designId, deck, goHome])
+
+  if (landing === 'notfound') return <NotFound />
 
   if (landing) {
     return (
@@ -260,7 +265,6 @@ function Pages() {
 
       <CoinShopHost notify={notify} />
 
-      {chat}
       {toastEl}
     </>
   )

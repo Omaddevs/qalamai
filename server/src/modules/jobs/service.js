@@ -36,7 +36,7 @@ export function createJobService({ db, pool, files, storage, log }) {
       .onConflictDoUpdate({ target: [usage.userId, usage.day, usage.metric], set: { count: sql`${usage.count} + 1` }, setWhere: sql`${usage.count} < ${dailyToolRuns}` })
       .returning({ count: usage.count })
     if (!rows.length) {
-      throw quotaExceeded(`«${label}» hisobda kuniga ${dailyToolRuns} ta amal mumkin. Ertaga davom eting yoki coin sotib oling — limitlar oçiladi.`, { limit: dailyToolRuns })
+      throw quotaExceeded(`«${label}» hisobda kuniga ${dailyToolRuns} ta amal mumkin. Ertaga davom eting yoki coin sotib oling — limitlar oçiladi.`, { limit: dailyToolRuns, kind: 'daily' })
     }
   }
 
@@ -131,7 +131,7 @@ export function createJobService({ db, pool, files, storage, log }) {
       }
       const pages = inputs.reduce((n, f) => n + (f.meta?.pages ?? 0), 0)
       if (pages > limits.maxPdfPages) {
-        throw quotaExceeded(`«${limits.label}» hisobda bir martada ${limits.maxPdfPages} sahifagaça. Bu fayllarda ${pages} sahifa bor.`, { limit: limits.maxPdfPages })
+        throw quotaExceeded(`«${limits.label}» hisobda bir martada ${limits.maxPdfPages} sahifagaça. Bu fayllarda ${pages} sahifa bor.`, { limit: limits.maxPdfPages, kind: 'pages', pages })
       }
       await consumeRun(user)
 

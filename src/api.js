@@ -3,7 +3,7 @@
 // • 401 → one refresh + retry.  • Uploads report progress.  • Jobs are long-polled.
 // In development Vite proxies /api to the Node server (see vite.config.js).
 
-import { formatNumber, getLang, t } from './i18n/index.js'
+import { formatNumber, getLang, has, t } from './i18n/index.js'
 import { clearProfile } from './profile.js'
 
 const ORIGIN = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '')
@@ -63,12 +63,22 @@ export function updateUser(patch) {
 // only API paths go to the API origin; others (e.g. the drawn avatars in /avatars/) are the web app's own files
 export const apiUrl = (path) => (path?.startsWith('/api/') ? `${ORIGIN}${path}` : path)
 
+/**
+ * The server words its errors in Uzbek. In another interface language, a known error code gets
+ * its translated text (with the error's details as variables); unknown codes keep the server's.
+ */
+export function errorText(code, message, details) {
+  if (getLang() === 'uz') return message
+  const key = code === 'QUOTA_EXCEEDED' && details?.kind ? `err.code.QUOTA_EXCEEDED.${details.kind}` : `err.code.${code}`
+  return has(key) ? t(key, details ?? {}) : message
+}
+
 async function parse(res) {
   const type = res.headers.get('content-type') ?? ''
   const body = type.includes('json') ? await res.json().catch(() => null) : null
   if (!res.ok) {
     const e = body?.error
-    throw new ApiError(res.status, e?.code ?? 'HTTP_ERROR', e?.message ?? t('err.network'), e?.details)
+    throw new ApiError(res.status, e?.code ?? 'HTTP_ERROR', e?.message ? errorText(e.code, e.message, e.details) : t('err.network'), e?.details)
   }
   return body
 }
@@ -247,7 +257,7 @@ export async function uploadFiles(files, onProgress, { signal } = {}) {
           /* not JSON */
         }
         if (xhr.status >= 200 && xhr.status < 300) resolve(body.files)
-        else reject(new ApiError(xhr.status, body?.error?.code ?? 'HTTP_ERROR', body?.error?.message ?? t('err.upload')))
+        else reject(new ApiError(xhr.status, body?.error?.code ?? 'HTTP_ERROR', body?.error?.message ? errorText(body.error.code, body.error.message, body.error.details) : t('err.upload')))
       }
       xhr.onerror = () => reject(offline())
       xhr.onabort = () => reject(new DOMException('aborted', 'AbortError'))
@@ -291,7 +301,14 @@ export function downloadFile(file) {
 const catalogs = new Map()
 export function getTools() {
   const lang = getLang()
-  if (!catalogs.has(lang)) catalogs.set(lang, api.get('/tools').then((r) => r.tools).catch((e) => (catalogs.delete(lang), Promise.reject(e))))
+  // titles and descriptions come from the server in Uzbek: swap in the interface language's
+  const local = (tool) => {
+    const key = `fs.tool.${tool.id}`
+    if (!has(key)) return tool
+    const [title, description] = t(key).split('|')
+    return { ...tool, title, description }
+  }
+  if (!catalogs.has(lang)) catalogs.set(lang, api.get('/tools').then((r) => r.tools.map(local)).catch((e) => (catalogs.delete(lang), Promise.reject(e))))
   return catalogs.get(lang)
 }
 
@@ -313,7 +330,10 @@ export async function runTool(toolId, fileIds, options = {}, { onUpdate, signal 
     job = await api.get(`/jobs/${job.id}?wait=20000`, { signal })
     onUpdate?.(job)
   }
-  if (job.status !== 'done') throw new ApiError(422, job.error?.code ?? job.status.toUpperCase(), job.error?.message ?? t('err.jobFailed'))
+  if (job.status !== 'done') {
+    const code = job.error?.code ?? job.status.toUpperCase()
+    throw new ApiError(422, code, job.error?.message ? errorText(code, job.error.message, job.error.details) : t('err.jobFailed'))
+  }
   return job
 }
 

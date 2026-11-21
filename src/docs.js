@@ -1,4 +1,5 @@
 import { markChanged } from './changes.js'
+import { t } from './i18n/index.js'
 // Text documents for the file editor (Fayl muharriri). HTML bodies are small enough for localStorage.
 const KEY = 'qalamai.docs.v1'
 
@@ -24,7 +25,7 @@ export function saveDocs(docs, { silent = false } = {}) {
   }
 }
 
-export const blankDoc = (name = 'Nomsiz hujjat', html = '<h1>Sarlavha</h1><p><br></p>') => ({
+export const blankDoc = (name = t('fe.untitled'), html = `<h1>${t('fe.heading')}</h1><p><br></p>`) => ({
   id: newDocId(),
   name,
   html,

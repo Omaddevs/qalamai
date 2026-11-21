@@ -10,20 +10,15 @@ import { SCRIPTS, convert, detectScript } from '../lib/alifbo.js'
 import { onSynced } from '../changes.js'
 import { IMPORT_ACCEPT, blankDoc, exportDoc, importFile, loadDocs, sanitize, saveDocs } from '../docs.js'
 import './fileeditor.css'
+import { formatDate, t } from '../i18n/index.js'
 
-const BLOCKS = [
-  ['p', 'Oddiy matn'],
-  ['h1', 'Sarlavha 1'],
-  ['h2', 'Sarlavha 2'],
-  ['h3', 'Sarlavha 3'],
-]
+const BLOCKS = ['p', 'h1', 'h2', 'h3']
+const blockLabel = (tag) => (tag === 'p' ? t('fe.block.p') : t('fe.block.h', { n: tag.slice(1) }))
 
-const MONTHS = ['yan', 'fev', 'mar', 'apr', 'may', 'iyn', 'iyl', 'avg', 'sen', 'okt', 'noy', 'dek']
-const when = (t) => {
-  const d = new Date(t)
-  const today = new Date()
+const when = (ts) => {
+  const d = new Date(ts)
   const hm = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
-  return d.toDateString() === today.toDateString() ? `Bugun, ${hm}` : `${d.getDate()} ${MONTHS[d.getMonth()]}, ${hm}`
+  return d.toDateString() === new Date().toDateString() ? t('fe.today', { time: hm }) : `${formatDate(d, { day: 'numeric', month: 'short' })}, ${hm}`
 }
 
 const A4_RATIO = 297 / 210
@@ -73,7 +68,7 @@ export default function FileEditorView({ notify }) {
       clearTimeout(saveTimer.current)
       saveTimer.current = setTimeout(() => {
         if (saveDocs(next)) setSaved(true)
-        else notify('Saqlab bölmadi — brauzer xotirasi tölgan')
+        else notify(t('fe.saveFail'))
       }, 500)
     },
     [notify],
@@ -120,12 +115,12 @@ export default function FileEditorView({ notify }) {
 
   const remove = (id) => {
     const d = docs.find((x) => x.id === id)
-    if (!window.confirm(`«${d.name}» öçirilsinmi?`)) return
+    if (!window.confirm(t('fe.confirmDelete', { name: d.name }))) return
     const next = docs.filter((x) => x.id !== id)
     setDocs(next)
     persist(next)
     if (id === activeId) setActiveId(next[0]?.id ?? null)
-    notify('Hujjat öçirildi')
+    notify(t('fe.deleted'))
   }
 
   const open = async (files) => {
@@ -133,9 +128,9 @@ export default function FileEditorView({ notify }) {
       try {
         const { name, html } = await importFile(f)
         add(blankDoc(name, html))
-        notify(`«${f.name}» oçildi`)
+        notify(t('fe.opened', { name: f.name }))
       } catch {
-        notify(`«${f.name}» oçilmadi — DOCX, TXT, MD yoki HTML fayl tanlang`)
+        notify(t('fe.openFail', { name: f.name }))
       }
     }
   }
@@ -231,7 +226,7 @@ export default function FileEditorView({ notify }) {
     const el = editor.current
     if (!el) return
     const from = detectScript(el.innerText)
-    if (from === to) return notify('Hujjat allaqaçon şu alifboda')
+    if (from === to) return notify(t('fe.already'))
     const clone = el.cloneNode(true)
     const walker = document.createTreeWalker(clone, NodeFilter.SHOW_TEXT)
     for (let n = walker.nextNode(); n; n = walker.nextNode()) n.nodeValue = convert(n.nodeValue, from, to)
@@ -243,7 +238,7 @@ export default function FileEditorView({ notify }) {
     sel.addRange(range)
     exec('insertHTML', clone.innerHTML)
     onInput()
-    notify(`${SCRIPTS.find((s) => s.id === to).label} alifbosiga ötkazildi · Ctrl+Z — bekor qiliş`)
+    notify(t('fe.converted', { script: SCRIPTS.find((s) => s.id === to).label }))
   }
 
   // paste: keep structure, drop foreign styles and anything unsafe
@@ -259,7 +254,7 @@ export default function FileEditorView({ notify }) {
   const doExport = (format) => {
     if (!active) return
     const ok = exportDoc({ ...active, html: editor.current.innerHTML }, format)
-    if (ok === false) notify('Brauzer yangi oynani blokladi — ruxsat bering')
+    if (ok === false) notify(t('fe.popupBlocked'))
   }
 
   const shown = useMemo(() => {
@@ -297,22 +292,22 @@ export default function FileEditorView({ notify }) {
       <aside className="fe-side">
         <div className="fe-side-head">
           <h2>
-            <FileText size={18} weight="duotone" /> Hujjatlar
+            <FileText size={18} weight="duotone" /> {t('fe.title')}
           </h2>
           <span>{docs.length}</span>
         </div>
         <div className="fe-side-actions">
           <button className="fe-btn dark" onClick={() => add(blankDoc())}>
-            <FilePlus size={16} weight="duotone" /> Yangi
+            <FilePlus size={16} weight="duotone" /> {t('fe.new')}
           </button>
           <button className="fe-btn" onClick={() => fileInput.current.click()}>
-            <FolderOpen size={16} weight="duotone" /> Oçiş
+            <FolderOpen size={16} weight="duotone" /> {t('fe.open')}
           </button>
         </div>
         {docs.length > 4 && (
           <label className="fe-search">
             <MagnifyingGlass size={15} />
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Qidiriş" />
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('fe.search')} />
           </label>
         )}
         <div className="fe-list">
@@ -327,14 +322,14 @@ export default function FileEditorView({ notify }) {
                   <small>{when(d.updatedAt)}</small>
                 </span>
               </button>
-              <button className="fe-doc-del" onClick={() => remove(d.id)} aria-label="Öçiriş">
+              <button className="fe-doc-del" onClick={() => remove(d.id)} aria-label={t('fe.delete')}>
                 <Trash size={15} />
               </button>
             </div>
           ))}
-          {!docs.length && <p className="fe-list-empty">Hali hujjat yöq</p>}
+          {!docs.length && <p className="fe-list-empty">{t('fe.none')}</p>}
         </div>
-        <p className="fe-formats">DOCX · TXT · MD · HTML oçiladi</p>
+        <p className="fe-formats">{t('fe.formats')}</p>
       </aside>
 
       {/* ───── Editor ───── */}
@@ -344,17 +339,17 @@ export default function FileEditorView({ notify }) {
             <span className="fe-empty-ic">
               <CloudArrowUp size={36} weight="duotone" />
             </span>
-            <b>Faylni oçing yoki şu yerga taşlang</b>
-            <span>Word (DOCX), matn (TXT), Markdown va HTML fayllarni tahrirlang — keyin PDF yoki Word qilib yuklab oling.</span>
+            <b>{t('fe.emptyTitle')}</b>
+            <span>{t('fe.emptyText')}</span>
             <span className="fe-empty-or">
-              yoki{' '}
+              {t('fe.or')}{' '}
               <u
                 onClick={(e) => {
                   e.stopPropagation()
                   add(blankDoc())
                 }}
               >
-                böş hujjat yarating
+                {t('fe.blank')}
               </u>
             </span>
           </button>
@@ -365,24 +360,24 @@ export default function FileEditorView({ notify }) {
                 className="fe-name"
                 value={active.name}
                 onChange={(e) => update(active.id, { name: e.target.value })}
-                onBlur={(e) => !e.target.value.trim() && update(active.id, { name: 'Nomsiz hujjat' })}
-                aria-label="Hujjat nomi"
+                onBlur={(e) => !e.target.value.trim() && update(active.id, { name: t('fe.untitled') })}
+                aria-label={t('fe.name')}
               />
               <span className={`fe-saved ${saved ? 'ok' : ''}`}>
-                <CheckCircle size={14} weight="fill" /> {saved ? 'Saqlandi' : 'Saqlanmoqda…'}
+                <CheckCircle size={14} weight="fill" /> {saved ? t('fe.saved') : t('fe.saving')}
               </span>
               <div className="fe-top-right">
                 <Dropdown
                   align="right"
                   button={({ toggle }) => (
                     <button className="fe-btn" onClick={toggle}>
-                      <TextAa size={16} /> Alifbo <CaretDown size={12} />
+                      <TextAa size={16} /> {t('fe.alphabet')} <CaretDown size={12} />
                     </button>
                   )}
                 >
                   {(close) => (
                     <>
-                      <div className="pop-label">Butun hujjatni ötkaziş</div>
+                      <div className="pop-label">{t('fe.convertAll')}</div>
                       {SCRIPTS.map((s) => (
                         <button key={s.id} className="menu-item" onClick={() => { close(); toScript(s.id) }}>
                           {s.label}
@@ -395,22 +390,22 @@ export default function FileEditorView({ notify }) {
                   align="right"
                   button={({ toggle }) => (
                     <button className="fe-btn dark" onClick={toggle}>
-                      <DownloadSimple size={16} /> Yuklab oliş <CaretDown size={12} />
+                      <DownloadSimple size={16} /> {t('fe.download')} <CaretDown size={12} />
                     </button>
                   )}
                 >
                   {(close) => (
                     <>
-                      <div className="pop-label">Format</div>
+                      <div className="pop-label">{t('fe.format')}</div>
                       {[
-                        ['pdf', 'PDF / çop etiş', FilePdf],
-                        ['word', 'Word (.doc)', FileDoc],
-                        ['html', 'Veb sahifa (.html)', FileHtml],
-                        ['txt', 'Oddiy matn (.txt)', FileTxt],
-                      ].map(([id, label, Icon]) => (
+                        ['pdf', FilePdf],
+                        ['word', FileDoc],
+                        ['html', FileHtml],
+                        ['txt', FileTxt],
+                      ].map(([id, Icon]) => (
                         <button key={id} className="menu-item fe-menu" onClick={() => { close(); doExport(id) }}>
                           <span>
-                            <Icon size={17} weight="duotone" /> {label}
+                            <Icon size={17} weight="duotone" /> {t(`fe.exp.${id}`)}
                           </span>
                         </button>
                       ))}
@@ -421,40 +416,40 @@ export default function FileEditorView({ notify }) {
             </div>
 
             {/* toolbar */}
-            <div className="fe-toolbar" role="toolbar" aria-label="Formatlaş">
-              <Tool icon={ArrowCounterClockwise} label="Bekor qiliş (Ctrl+Z)" onClick={() => run('undo')} />
-              <Tool icon={ArrowClockwise} label="Qaytariş (Ctrl+Y)" onClick={() => run('redo')} />
+            <div className="fe-toolbar" role="toolbar" aria-label={t('fe.toolbar')}>
+              <Tool icon={ArrowCounterClockwise} label={t('fe.undo')} onClick={() => run('undo')} />
+              <Tool icon={ArrowClockwise} label={t('fe.redo')} onClick={() => run('redo')} />
               <span className="fe-sep" />
               <select
                 className="fe-block"
-                value={BLOCKS.some(([t]) => t === fmt.block) ? fmt.block : 'p'}
+                value={BLOCKS.includes(fmt.block) ? fmt.block : 'p'}
                 onChange={(e) => setBlock(e.target.value)}
-                aria-label="Matn turi"
+                aria-label={t('fe.blockType')}
               >
-                {BLOCKS.map(([t, l]) => (
-                  <option key={t} value={t}>
-                    {l}
+                {BLOCKS.map((tag) => (
+                  <option key={tag} value={tag}>
+                    {blockLabel(tag)}
                   </option>
                 ))}
               </select>
               <span className="fe-sep" />
-              <Tool icon={TextB} label="Qalin (Ctrl+B)" on={fmt.bold} onClick={() => run('bold')} />
-              <Tool icon={TextItalic} label="Kursiv (Ctrl+I)" on={fmt.italic} onClick={() => run('italic')} />
-              <Tool icon={TextUnderline} label="Tagiga çiziş (Ctrl+U)" on={fmt.underline} onClick={() => run('underline')} />
-              <Tool icon={TextStrikethrough} label="Ustidan çiziş" on={fmt.strike} onClick={() => run('strikeThrough')} />
+              <Tool icon={TextB} label={t('fe.bold')} on={fmt.bold} onClick={() => run('bold')} />
+              <Tool icon={TextItalic} label={t('fe.italic')} on={fmt.italic} onClick={() => run('italic')} />
+              <Tool icon={TextUnderline} label={t('fe.underline')} on={fmt.underline} onClick={() => run('underline')} />
+              <Tool icon={TextStrikethrough} label={t('fe.strike')} on={fmt.strike} onClick={() => run('strikeThrough')} />
               <span className="fe-sep" />
-              <Tool icon={TextAlignLeft} label="Çapga" on={fmt.left} onClick={() => run('justifyLeft')} />
-              <Tool icon={TextAlignCenter} label="Markazga" on={fmt.center} onClick={() => run('justifyCenter')} />
-              <Tool icon={TextAlignRight} label="Öngga" on={fmt.right} onClick={() => run('justifyRight')} />
-              <Tool icon={TextAlignJustify} label="Ikki tomonga" on={fmt.full} onClick={() => run('justifyFull')} />
+              <Tool icon={TextAlignLeft} label={t('fe.left')} on={fmt.left} onClick={() => run('justifyLeft')} />
+              <Tool icon={TextAlignCenter} label={t('fe.center')} on={fmt.center} onClick={() => run('justifyCenter')} />
+              <Tool icon={TextAlignRight} label={t('fe.right')} on={fmt.right} onClick={() => run('justifyRight')} />
+              <Tool icon={TextAlignJustify} label={t('fe.justify')} on={fmt.full} onClick={() => run('justifyFull')} />
               <span className="fe-sep" />
-              <Tool icon={ListBullets} label="Belgili röyxat" on={fmt.ul} onClick={() => run('insertUnorderedList')} />
-              <Tool icon={ListNumbers} label="Raqamli röyxat" on={fmt.ol} onClick={() => run('insertOrderedList')} />
-              <Tool icon={Quotes} label="Iqtibos" onClick={() => run('formatBlock', '<blockquote>')} />
-              <Tool icon={Table} label="Jadval (3×3)" onClick={insertTable} />
+              <Tool icon={ListBullets} label={t('fe.ul')} on={fmt.ul} onClick={() => run('insertUnorderedList')} />
+              <Tool icon={ListNumbers} label={t('fe.ol')} on={fmt.ol} onClick={() => run('insertOrderedList')} />
+              <Tool icon={Quotes} label={t('fe.quote')} onClick={() => run('formatBlock', '<blockquote>')} />
+              <Tool icon={Table} label={t('fe.table')} onClick={insertTable} />
               <span className="fe-sep" />
-              <Tool icon={Eraser} label="Formatni tozalaş" onClick={() => { run('removeFormat'); setBlock('p') }} />
-              <Tool icon={Printer} label="Çop etiş" onClick={() => doExport('pdf')} />
+              <Tool icon={Eraser} label={t('fe.clear')} onClick={() => { run('removeFormat'); setBlock('p') }} />
+              <Tool icon={Printer} label={t('fe.print')} onClick={() => doExport('pdf')} />
             </div>
 
             {/* A4 sheet */}
@@ -468,15 +463,15 @@ export default function FileEditorView({ notify }) {
                 lang="uz"
                 onInput={onInput}
                 onPaste={onPaste}
-                data-placeholder="Yozişni boşlang…"
+                data-placeholder={t('fe.placeholder')}
               />
             </div>
 
             <div className="fe-status">
-              <span>{stats.words} söz</span>
-              <span>{stats.chars} belgi</span>
-              <span>~{stats.pages} sahifa</span>
-              <span className="fe-status-std">A4 · Times New Roman 14 · interval 1.5</span>
+              <span>{t('fe.words', { n: stats.words })}</span>
+              <span>{t('fe.chars', { n: stats.chars })}</span>
+              <span>{t('fe.pages', { n: stats.pages })}</span>
+              <span className="fe-status-std">{t('fe.standard')}</span>
             </div>
           </>
         )}
@@ -486,8 +481,8 @@ export default function FileEditorView({ notify }) {
         <div className="md-drop fe-drop" aria-hidden="true">
           <div>
             <CloudArrowUp size={44} weight="duotone" />
-            <b>Faylni şu yerga taşlang</b>
-            <span>DOCX, TXT, MD yoki HTML — tahrirlaş uçun oçiladi</span>
+            <b>{t('fe.dropTitle')}</b>
+            <span>{t('fe.dropText')}</span>
           </div>
         </div>
       )}

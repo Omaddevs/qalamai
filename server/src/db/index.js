@@ -15,6 +15,9 @@ export async function connectDb(cfg, log) {
     const { drizzle } = await import('drizzle-orm/node-postgres')
     const { migrate } = await import('drizzle-orm/node-postgres/migrator')
     const pool = new pg.Pool({ connectionString: cfg.url, max: 10, idleTimeoutMillis: 30_000 })
+    // An idle connection dropped by the server (Postgres restart, network blip) must not crash the API:
+    // the pool discards that client and opens a new one on the next query.
+    pool.on('error', (err) => log?.warn({ err }, 'database: idle connection lost'))
     const db = drizzle(pool, { schema })
     await migrate(db, { migrationsFolder: MIGRATIONS })
     log?.info('database: PostgreSQL')

@@ -1,6 +1,7 @@
 // Tool worker: runs file tools on the user's own device, off the main thread.
-// The PDF tools are the very same code the server runs (server/src/converters/core);
-// the image tools use OffscreenCanvas. Files never leave the browser.
+// Every tool the server has runs here too. The PDF and document tools are the very same code the
+// server runs (server/src/converters/core); image tools and background removal use OffscreenCanvas
+// and onnxruntime-web. Files never leave the browser.
 //
 // in:  { id, op: 'run', tool, inputs: [{ name, kind, ext, size, meta, blob }], options }
 //      { id, op: 'probe', file }                  → type + meta of a picked file
@@ -16,6 +17,14 @@ const TOOLS = {
   'pdf-watermark': () => import('../../server/src/converters/core/stamp.js').then((m) => m.watermark),
   'pdf-page-numbers': () => import('../../server/src/converters/core/stamp.js').then((m) => m.pageNumbers),
   'pdf-edit': () => import('../../server/src/converters/core/edit.js').then((m) => m.run),
+  'pdf-to-docx': () => import('../../server/src/converters/core/docx.js').then((m) => m.run),
+  'pdf-to-images': () => import('../../server/src/converters/core/formats.js').then((m) => m.toImages),
+  'pdf-to-text': () => import('../../server/src/converters/core/formats.js').then((m) => m.toText),
+  'pdf-to-xlsx': () => import('../../server/src/converters/core/formats.js').then((m) => m.toXlsx),
+  'pdf-to-pptx': () => import('../../server/src/converters/core/formats.js').then((m) => m.toPptx),
+  'pdf-compress': () => import('../../server/src/converters/core/compress.js').then((m) => m.run),
+  'doc-to-pdf': () => import('../../server/src/converters/core/office.js').then((m) => m.run),
+  'image-remove-bg': () => import('./removebg.js').then((m) => m.run),
   'image-convert': () => import('./image.js').then((m) => m.convert),
   'image-compress': () => import('./image.js').then((m) => m.compress),
   'image-resize': () => import('./image.js').then((m) => m.resize),

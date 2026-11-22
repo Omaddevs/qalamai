@@ -9,14 +9,11 @@ import { pipeline } from 'node:stream/promises'
 import sharp from 'sharp'
 import { ToolError } from '../../lib/errors.js'
 import { emit, renameExt } from '../lib/util.js'
+import { MODELS, maskBounds, modelInput, predictionToMask, tightenMask } from '../core/segment.js'
+
+export { MODELS, maskBounds }
 
 const RELEASE = 'https://github.com/danielgatis/rembg/releases/download/v0.0.0'
-export const MODELS = {
-  u2netp: { file: 'u2netp.onnx', size: 320, mean: [0.485, 0.456, 0.406], std: [0.229, 0.224, 0.225], mb: 4.6 },
-  silueta: { file: 'silueta.onnx', size: 320, mean: [0.485, 0.456, 0.406], std: [0.229, 0.224, 0.225], mb: 43 },
-  u2net: { file: 'u2net.onnx', size: 320, mean: [0.485, 0.456, 0.406], std: [0.229, 0.224, 0.225], mb: 176 },
-  'isnet-general-use': { file: 'isnet-general-use.onnx', size: 1024, mean: [0.5, 0.5, 0.5], std: [1, 1, 1], mb: 178 },
-}
 
 export async function ensureModel(name, dir, { autoDownload = true, onProgress } = {}) {
   const spec = MODELS[name]
@@ -66,55 +63,17 @@ export async function predictMask(rgb, width, height, { modelPath, spec }) {
   const S = spec.size
   const { data } = await sharp(rgb, { raw: { width, height, channels: 3 } }).resize(S, S, { fit: 'fill', kernel: 'lanczos3' }).raw().toBuffer({ resolveWithObject: true })
 
-  let max = 1e-6
-  for (let i = 0; i < data.length; i++) if (data[i] > max) max = data[i]
   const plane = S * S
-  const input = new Float32Array(3 * plane)
-  for (let i = 0; i < plane; i++) {
-    for (let c = 0; c < 3; c++) input[c * plane + i] = (data[i * 3 + c] / max - spec.mean[c]) / spec.std[c]
-  }
+  const input = modelInput(data, S, spec)
   const out = await s.run({ [s.inputNames[0]]: new ort.Tensor('float32', input, [1, 3, S, S]) })
-  const pred = out[s.outputNames[0]].data
-  let lo = Infinity
-  let hi = -Infinity
-  for (let i = 0; i < plane; i++) {
-    if (pred[i] < lo) lo = pred[i]
-    if (pred[i] > hi) hi = pred[i]
-  }
-  const range = hi - lo || 1
-  const small = Buffer.alloc(plane)
-  for (let i = 0; i < plane; i++) small[i] = Math.round(((pred[i] - lo) / range) * 255)
+  const small = Buffer.from(predictionToMask(out[s.outputNames[0]].data, plane).buffer)
 
   // back to full size, then tighten the soft edge band a little to avoid halos
   // extractChannel: sharp writes single-channel raw input back out as 3-channel sRGB otherwise
   const mask = await sharp(small, { raw: { width: S, height: S, channels: 1 } }).resize(width, height, { fit: 'fill', kernel: 'lanczos3' }).extractChannel(0).raw().toBuffer()
   if (mask.length !== width * height) throw new Error(`mask size ${mask.length} ≠ ${width}×${height}`)
-  const LO = 18
-  const HI = 236
-  for (let i = 0; i < mask.length; i++) {
-    const v = mask[i]
-    mask[i] = v <= LO ? 0 : v >= HI ? 255 : Math.round(((v - LO) / (HI - LO)) * 255)
-  }
+  tightenMask(mask)
   return mask
-}
-
-/** Bounding box of the visibly opaque part of a mask, or null if there is none. */
-export function maskBounds(mask, width, height, threshold = 24) {
-  let left = width
-  let right = -1
-  let top = height
-  let bottom = -1
-  for (let y = 0; y < height; y++) {
-    const row = y * width
-    for (let x = 0; x < width; x++) {
-      if (mask[row + x] <= threshold) continue
-      if (x < left) left = x
-      if (x > right) right = x
-      if (top === height) top = y
-      bottom = y
-    }
-  }
-  return right < 0 ? null : { left, top, right, bottom }
 }
 
 export async function run({ inputs, options, outDir }, { progress, env }) {

@@ -6,3 +6,5 @@ dist
 .env
 deploy/.env
 deploy/server.env
+# downloaded at install (scripts/fetch-model.mjs)
+public/models

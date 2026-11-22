@@ -3,7 +3,7 @@ import {
   CloudArrowUp, X, ArrowRight, Sparkle, DownloadSimple, Trash, NotePencil, ShieldCheck, Lightning, FolderOpen, CheckCircle, CircleNotch,
 } from '@phosphor-icons/react'
 import { ApiError, downloadFile, formatSize, getTools, timeLeft } from '../api.js'
-import { addLocalFiles, listFiles, removeFile } from './store.js'
+import { LOCAL_TOOLS, addLocalFiles, listFiles, removeFile } from './store.js'
 import { COLORS } from '../data.js'
 import { Offline, Thumb, ToolIcon } from './parts.jsx'
 import FileEditorView from '../home/FileEditorView.jsx'
@@ -176,7 +176,7 @@ function ToolCard({ tool, onOpen }) {
     <button className={`fs-tool ${ui.hero ? 'hero' : ''}`} onClick={() => onOpen(tool)} style={{ '--tint': COLORS[ui.color ?? 'teal'].band, '--tone': COLORS[ui.color ?? 'teal'].to }}>
       <div className="fs-tool-top">
         <ToolIcon id={tool.id} />
-        {tool.available === false ? (
+        {(tool.available === false && !LOCAL_TOOLS.has(tool.id)) ? (
           <span className="fs-tag warn">{t('fs.notInstalled')}</span>
         ) : (
           ui.tag && <span className={`fs-tag ${ui.tag === 'AI' ? 'ai' : ''}`}>{ui.tag === 'AI' && <Sparkle size={10} weight="fill" />} {ui.tag}</span>
@@ -374,7 +374,7 @@ export default function FilesStudio({ notify, onOpenPricing, initialTab = 'tools
   }, [tab, workspace, editing, addFiles])
 
   const openTool = (tool, files) => {
-    if (tool.available === false) return notify(t('fs.engineMissing', { name: tool.title }))
+    if ((tool.available === false && !LOCAL_TOOLS.has(tool.id))) return notify(t('fs.engineMissing', { name: tool.title }))
     const usable = (files ?? staged.filter((s) => s.record).map((s) => s.record)).filter((f) => (tool.editor ? ['pdf'] : tool.accepts).includes(f.kind) && (!tool.exts || tool.exts.includes(f.ext)))
     if (tool.editor) {
       const pdf = usable.find((f) => f.kind === 'pdf')

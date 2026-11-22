@@ -1,7 +1,7 @@
 // The file studio's files live on the user's device (IndexedDB), and tools run in the browser
 // (src/tools/worker.js) — the server never receives them. The server is only asked to check the
-// plan's limits (POST /tools/:id/local-runs). Tools the browser can't do yet (PDF → Word/Excel/
-// PowerPoint, Word → PDF, PDF compression, background removal, …) still run on the server: their
+// plan's limits (POST /tools/:id/local-runs). What a browser can't do (SVG/TIFF/HEIC images,
+// AVIF/GIF/TIFF output, PNG palette compression, an old browser…) falls back to the server: the
 // files are uploaded at that moment, exactly as before.
 //
 // A record looks the same wherever it lives, so the UI doesn't care:
@@ -13,10 +13,11 @@ import {
 import { t } from '../i18n/index.js'
 import { PDF_ASSETS, loadPdfjs } from './pdfjs.js'
 
-/** Tools that run on the device (the rest go to the server). */
+/** Tools that run on the device — all of them; the server is the fallback (see runsHere). */
 export const LOCAL_TOOLS = new Set([
-  'pdf-merge', 'pdf-split', 'pdf-rotate', 'pdf-watermark', 'pdf-page-numbers', 'pdf-edit', 'images-to-pdf',
-  'image-convert', 'image-compress', 'image-resize',
+  'pdf-to-docx', 'pdf-to-images', 'pdf-to-text', 'pdf-to-xlsx', 'pdf-to-pptx',
+  'pdf-merge', 'pdf-split', 'pdf-rotate', 'pdf-compress', 'pdf-watermark', 'pdf-page-numbers', 'pdf-edit', 'images-to-pdf',
+  'image-remove-bg', 'image-convert', 'image-compress', 'image-resize', 'doc-to-pdf',
 ])
 
 /** Images every current browser decodes (SVG, TIFF and HEIC go to the server). */
@@ -258,12 +259,15 @@ export function runsHere(toolId, files, options = {}) {
       return images.every((f) => f.ext === 'jpg' || f.ext === 'webp')
     case 'image-resize':
       return images.every((f) => ['jpg', 'png', 'webp', 'bmp'].includes(f.ext))
+    case 'image-remove-bg':
+      return typeof WebAssembly === 'object'
     default:
       return true
   }
 }
 
 const NO_ENCRYPTION_CHECK = new Set(['pdf-to-images', 'pdf-to-text'])
+const FALL_BACK = new Set(['LOCAL_UNSUPPORTED', 'TOOL_FAILED', 'WORKER_CRASHED'])
 
 async function runHere(toolId, files, options, { onUpdate, signal }) {
   const locked = files.find((f) => f.kind === 'pdf' && f.meta?.encrypted)
@@ -310,7 +314,12 @@ async function runHere(toolId, files, options, { onUpdate, signal }) {
   }
 }
 
-const MIME = { pdf: 'application/pdf', zip: 'application/zip', png: 'image/png', jpg: 'image/jpeg', webp: 'image/webp' }
+const MIME = {
+  pdf: 'application/pdf', zip: 'application/zip', png: 'image/png', jpg: 'image/jpeg', webp: 'image/webp', txt: 'text/plain;charset=utf-8',
+  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+}
 const typeOf = (name) => MIME[name.split('.').pop().toLowerCase()] ?? 'application/octet-stream'
 
 /** Server copy of a local record — uploaded once, when a server tool needs it. */
@@ -343,8 +352,9 @@ export async function runTool(toolId, fileIds, options = {}, { onUpdate, signal 
     try {
       return await runHere(toolId, files, options, { onUpdate, signal })
     } catch (err) {
-      if (err.code !== 'LOCAL_UNSUPPORTED') throw err
-      // this browser can't (e.g. Safari has no WebP encoder): the server does it
+      // this browser can't (e.g. Safari has no WebP encoder), or failed for no stated reason:
+      // the server does it. A stated reason (locked PDF, bad options, limits) is the answer.
+      if (!FALL_BACK.has(err.code)) throw err
     }
   }
   const remote = await onServer(files, onUpdate)

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   LayoutTemplate, Shapes, Type, Briefcase, CloudUpload, CaseSensitive, Folder, LayoutGrid,
   Undo2, Redo2, Download, Share2, Plus, Minus, Trash2, Copy, ChevronLeft, Crown, BringToFront,
-  MousePointerClick, Play, Presentation,
+  MousePointerClick, Play, Presentation, Loader2,
 } from 'lucide-react'
 import { Dropdown, QalamNib, Wordmark } from '../components/ui.jsx'
 import { AppModal } from '../components/Modals.jsx'
@@ -16,12 +16,17 @@ import { downscale, patchAt, samplePage } from './layouts.jsx'
 import Toolbar from './Toolbar.jsx'
 import { detachPage } from './detach.js'
 import { Present, PrintDeck } from './Present.jsx'
+import ShareDialog from './ShareDialog.jsx'
 import ProBadge from '../components/ProBadge.jsx'
 import LayoutPicker from './LayoutPicker.jsx'
+import DownloadPanel from './DownloadPanel.jsx'
+import { t } from '../i18n/index.js'
 import {
-  AiPanel, AlifboPanel, AppsPanel, BrandPanel, ElementsPanel, ProjectsPanel, TemplatesPanel,
+  AiPanel, AlifboPanel, AppsPanel, BrandPanel, ProjectsPanel, TemplatesPanel,
   TextPanel, UploadsPanel,
 } from './panels.jsx'
+import ElementsPanel from './elements/ElementsPanel.jsx'
+import { placeEls, useElementDrop } from './elements/dnd.js'
 import './editor.css'
 
 const RAIL = [
@@ -112,6 +117,12 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
     },
     [onSave],
   )
+  // save right now (before sharing), not after the autosave pause
+  const flushSave = useCallback(() => {
+    if (!pending.current) return
+    onSave({ ...latest.current, updatedAt: Date.now() })
+    pending.current = false
+  }, [onSave])
 
   const [panel, setPanel] = useState(initialPanel ?? 'templates')
   const [panelOpen, setPanelOpen] = useState(true)
@@ -121,6 +132,8 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
   const setSelectedId = useCallback((id) => setSel(id ? [id] : []), [])
   const [playKey, setPlayKey] = useState(0) // >0: the canvas page plays its animations
   const [presenting, setPresenting] = useState(false)
+  const [sharing, setSharing] = useState(false)
+  const [autoAnim, setAutoAnim] = useState(false) // «Körish» on a page without animations plays a sample entrance
   const [printing, setPrinting] = useState(false)
   const [proAsk, setProAsk] = useState(null) // 'open' | 'download' — the Pro template notice
   const clip = useRef(null) // copied elements (⌘C / ⌘V)
@@ -167,6 +180,27 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
     updateSlide({ elements: [...slide.elements, { x: 40 + offset, y: 34 + offset, w: 20, h: 20, ...el, id }] })
     setSelectedId(id)
   }
+
+  // Elements panel: add (centred, or where they were dropped) and fill a frame/mockup with a picture
+  const insertEls = (specs, at) => {
+    if (!specs?.length) return
+    const made = placeEls(specs, at, slide.elements.length)
+    updateSlide({ elements: [...slide.elements, ...made] })
+    setSel(made.map((m) => m.id))
+  }
+  const fillEl = (id, src) => {
+    const el = slide.elements.find((e) => e.id === id)
+    if (!el || el.locked || (el.kind !== 'image' && el.kind !== 'mockup')) return false
+    updateSlide({ elements: slide.elements.map((e) => (e.id === id ? { ...e, src } : e)), ...(el.path ? patchAt(slide, el.path, src) : {}) })
+    setSel([id])
+    return true
+  }
+  const drop = useElementDrop({
+    page: () => canvasRef.current?.querySelector('.slide'),
+    onInsert: insertEls,
+    onFill: fillEl,
+    onError: notify,
+  })
 
   const removeEl = useCallback(
     (id) => {
@@ -288,7 +322,24 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
     const src = await downscale(file)
     updateSlide({ elements: slide.elements.map((e) => (e.id === el.id ? { ...e, src } : e)), ...(el.path ? patchAt(slide, el.path, src) : {}) })
   }
-  const play = () => setPlayKey((k) => k + 1)
+  const play = () => {
+    setAutoAnim(false)
+    setPlayKey((k) => k + 1)
+  }
+  // «Körish»: the page's own animations; a page without any gets a sample entrance and a hint
+  const preview = () => {
+    if (!slide.elements.length && slide.free) return notify(t('ed.preview.empty'))
+    const own = slide.elements.some((e) => e.anim?.type)
+    setAutoAnim(!own)
+    setPlayKey((k) => k + 1)
+    if (!own) notify(t('ed.preview.auto'))
+  }
+  // the sample entrance is only for that one play — elements added afterwards must not get it
+  useEffect(() => {
+    if (!autoAnim) return
+    const tm = setTimeout(() => setAutoAnim(false), 3500)
+    return () => clearTimeout(tm)
+  }, [autoAnim, playKey])
   const animateAll = (type) => {
     const order = [...slide.elements].map((e) => ({ e, b: boxOf(e.id) })).sort((a, b) => (a.b?.y ?? 0) - (b.b?.y ?? 0) || (a.b?.x ?? 0) - (b.b?.x ?? 0))
     const map = {}
@@ -364,9 +415,23 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
     set((d) => ({ ...d, proSeen: tpl.id }), true)
     setProAsk(null)
   }
+  // printing (from the download panel's "Print" link)
   const download = () => {
     if (tpl.pro && !deck.proPaid) return setProAsk('download')
     setPrinting(true)
+  }
+  // a Pro design is paid once before its first download; the panel waits for the answer
+  const proWait = useRef(null)
+  const beforeDownload = () =>
+    tpl.pro && !deck.proPaid
+      ? new Promise((resolve) => {
+          proWait.current = resolve
+          setProAsk('download')
+        })
+      : true
+  const answerPro = (ok) => {
+    proWait.current?.(ok)
+    proWait.current = null
   }
   const payPro = async () => {
     let paid = null
@@ -376,11 +441,16 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
       notify(err.message)
       return
     }
-    if (!paid) return setProAsk(null) // not enough coins: the coin shop is open
+    if (!paid) {
+      answerPro(false)
+      return setProAsk(null) // not enough coins: the coin shop is open
+    }
     set((d) => ({ ...d, proPaid: true, proSeen: tpl.id }), true)
     setProAsk(null)
     notify(`${paid.cost} coin yeçildi — bu dizaynni endi xohlagança yuklab olasiz`)
-    setPrinting(true)
+    // a download waiting for the payment carries on; otherwise this was the print link
+    if (proWait.current) answerPro(true)
+    else setPrinting(true)
   }
   const donePrinting = useCallback(() => setPrinting(false), [])
   const closePresent = useCallback(() => setPresenting(false), [])
@@ -506,7 +576,7 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
   const panelBody = {
     templates: <TemplatesPanel currentId={deck.templateId} recent={recent} onApply={applyTemplate} />,
     ai: <AiPanel onGenerate={generate} />,
-    elements: <ElementsPanel accent={theme.accent} onAdd={(s) => addEl({ kind: s.kind, w: s.w, h: s.h, radius: s.radius })} />,
+    elements: <ElementsPanel theme={theme} selected={selectedEls.length === 1 ? selectedEl : null} onAdd={insertEls} onFill={fillEl} />,
     text: <TextPanel onAdd={(t) => addEl({ kind: 'text', w: 40, h: 10, x: 30, y: 40, ...t })} />,
     brand: <BrandPanel accent={deck.accent} defaultAccent={tpl.theme.accent} onAccent={(c) => set((d) => ({ ...d, accent: c }))} />,
     uploads: (
@@ -569,54 +639,30 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
           <button className="btn ed-share" onClick={() => setPresenting(true)} title="Taqdimot qiliş (to‘liq ekran)">
             <Presentation size={15} /> <span>Taqdimot</span>
           </button>
-          <button className="btn ed-share" onClick={() => notify('Ulaşiş havolasi nusxalandi (demo)')}>
-            <Share2 size={15} /> <span>Ulaşiş</span>
+          <button className="btn ed-share" onClick={() => setSharing(true)}>
+            <Share2 size={15} /> <span>{t('share.title')}</span>
           </button>
           <Dropdown
             align="right"
+            className="ex-pop"
             button={({ toggle }) => (
               <button className="btn primary" onClick={toggle}>
-                <Download size={15} /> <span>Yuklab oliş</span>
+                <Download size={15} /> <span>{t('ex.title')}</span>
               </button>
             )}
           >
             {(close) => (
-              <>
-                <div className="pop-label">Format</div>
-                <button
-                  className="menu-item"
-                  onClick={() => {
-                    close()
-                    download()
-                  }}
-                >
-                  <span className="col-inline">
-                    PDF
-                    <span className="menu-hint">Barça sahifalar · çop etiş va ulaşiş uçun</span>
-                  </span>
-                </button>
-                {[
-                  ['PPTX', 'PowerPoint taqdimoti'],
-                  ['PNG', 'Har bir sahifa rasm'],
-                ].map(([f, hint]) => (
-                  <button key={f} className="menu-item" disabled title="Tez kunda">
-                    <span className="col-inline">
-                      {f} <em className="menu-soon">tez kunda</em>
-                      <span className="menu-hint">{hint}</span>
-                    </span>
-                  </button>
-                ))}
-                {!premium && (
-                  <>
-                    <div className="menu-sep" />
-                    <button className="menu-item ed-wm-note" onClick={() => { close(); openCoinShop() }}>
-                      <span>
-                        <Crown size={13} /> Coin olsangiz — watermarksiz
-                      </span>
-                    </button>
-                  </>
-                )}
-              </>
+              <DownloadPanel
+                slides={deck.slides}
+                theme={theme}
+                current={slideIdx}
+                name={deck.name}
+                premium={premium}
+                beforeDownload={beforeDownload}
+                onPrint={download}
+                notify={notify}
+                close={close}
+              />
             )}
           </Dropdown>
         </div>
@@ -646,7 +692,7 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
         {/* ───── Panel ───── */}
         {panelOpen && (
           <aside className="ed-panel">
-            {panel !== 'templates' && <h2 className="pn-title">{PANEL_TITLES[panel]}</h2>}
+            {panel !== 'templates' && panel !== 'elements' && <h2 className="pn-title">{PANEL_TITLES[panel]}</h2>}
             {panelBody}
           </aside>
         )}
@@ -667,14 +713,19 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
               <span className="ed-hint">
                 <MousePointerClick size={15} /> Bosing — tanlaş · ikki marta — matnni tahrirlaş · Shift yoki ramka — bir neçtasini tanlaş
                 <span className="ed-sep" />
-                <button className="ed-ibtn wide" onClick={play} title="Sahifa animatsiyasini körish">
+                <button className="ed-ibtn wide" onClick={preview} title="Sahifa animatsiyasini körish">
                   <Play size={15} /> Körish
                 </button>
               </span>
             )}
           </div>
 
-          <div className="ed-stage" onPointerDown={(e) => e.target === e.currentTarget && setSelectedId(null)}>
+          <div className="ed-stage" onPointerDown={(e) => e.target === e.currentTarget && setSelectedId(null)} {...drop.props}>
+            {drop.busy && (
+              <div className="el-drop-busy">
+                <Loader2 size={26} />
+              </div>
+            )}
             <div className="ed-canvas" style={{ '--z': zoom }} ref={canvasRef}>
               <Slide
                 key={`${slide.id}-${playKey}`}
@@ -696,6 +747,7 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
                   imgInput.current?.click()
                 }}
                 playing={playKey > 0}
+                autoAnim={autoAnim}
               />
             </div>
             <input
@@ -744,9 +796,10 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
       </div>
 
       {presenting && <Present slides={deck.slides} theme={theme} start={slideIdx} onClose={closePresent} />}
+      {sharing && <ShareDialog deckId={deck.id} flush={flushSave} onClose={() => setSharing(false)} notify={notify} />}
       {printing && <PrintDeck slides={deck.slides} theme={theme} watermark={!premium} onDone={donePrinting} />}
       {proAsk && (
-        <div className="pro-modal" role="dialog" aria-modal="true" onPointerDown={(e) => e.target === e.currentTarget && (proAsk === 'open' ? closeProNotice() : setProAsk(null))}>
+        <div className="pro-modal" role="dialog" aria-modal="true" onPointerDown={(e) => e.target === e.currentTarget && (proAsk === 'open' ? closeProNotice() : (answerPro(false), setProAsk(null)))}>
           <div className="pro-modal-box">
             <ProBadge size="lg" />
             <h3>{proAsk === 'open' ? `«${tpl.name}» — Pro şablon` : 'Pro şablonni yuklab oliş'}</h3>
@@ -775,7 +828,7 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
                 </>
               ) : (
                 <>
-                  <button className="btn" onClick={() => setProAsk(null)}>
+                  <button className="btn" onClick={() => { answerPro(false); setProAsk(null) }}>
                     Bekor qiliş
                   </button>
                   <button className="btn primary" onClick={payPro}>

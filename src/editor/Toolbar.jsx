@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { FONTS2 } from '../../shared/bio2.js'
 import { useFonts } from '../creators/BioPhone.jsx'
+import ElementTools, { kindLabel } from './elements/tools.jsx'
 
 /* ───── helpers ───── */
 
@@ -32,7 +33,7 @@ function useOutside(ref, open, close) {
   }, [open, close, ref])
 }
 
-function Pop({ button, title, children, wide, align = 'left' }) {
+export function Pop({ button, title, children, wide, align = 'left' }) {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
   useOutside(ref, open, () => setOpen(false))
@@ -48,7 +49,7 @@ function Pop({ button, title, children, wide, align = 'left' }) {
 
 const PALETTE = ['#000000', '#ffffff', '#545454', '#a6a6a6', '#ff3131', '#ff914d', '#ffde59', '#7ed957', '#00bf63', '#0cc0df', '#5271ff', '#8c52ff', '#cb6ce6', '#ff66c4', '#14b8a6', '#0b1220']
 
-function ColorPop({ value, onChange, title, children, theme }) {
+export function ColorPop({ value, onChange, title, children, theme }) {
   const doc = [theme?.accent, theme?.accent2, theme?.text, theme?.muted].filter((c) => c && /^#/.test(c))
   return (
     <Pop title={title} button={children}>
@@ -76,7 +77,7 @@ function ColorPop({ value, onChange, title, children, theme }) {
   )
 }
 
-function Slider({ label, value, min, max, step = 1, onChange, unit = '' }) {
+export function Slider({ label, value, min, max, step = 1, onChange, unit = '' }) {
   return (
     <label className="tb-slider">
       <span>
@@ -91,6 +92,7 @@ const ANIMS = [
   ['fade', 'Paydo böliş'], ['rise', 'Kötariliş'], ['drop', 'Tuşiş'], ['pan', 'Siljiş'], ['zoom', 'Kattalaşiş'],
   ['pop', 'Sakraş'], ['blur', 'Xiralik'], ['wipe', 'Oçiliş'], ['spin', 'Aylaniş'], ['breathe', 'Nafas'],
 ]
+const LEGACY_SHAPES = new Set(['box', 'rect', 'circle', 'triangle', 'star', 'hexagon', 'line', 'arrow'])
 const KIND_LABEL = { text: 'Matn', box: 'Şakl', image: 'Rasm', rect: 'Töğri törtburçak', circle: 'Doira', triangle: 'Uçburçak', star: 'Yulduz', hexagon: 'Olti burçak', line: 'Çiziq', arrow: 'Strelka' }
 
 /**
@@ -103,7 +105,7 @@ export default function Toolbar({ sel, all, theme, act }) {
   const kinds = new Set(sel.map((e) => e.kind))
   const onlyText = kinds.size === 1 && kinds.has('text')
   const onlyImage = kinds.size === 1 && kinds.has('image')
-  const shapey = [...kinds].every((k) => k !== 'text' && k !== 'image')
+  const shapey = [...kinds].every((k) => LEGACY_SHAPES.has(k))
   const file = useRef(null)
   const [fontsOpen, setFontsOpen] = useState(false)
   useFonts(fontsOpen ? Object.values(FONTS2).map((f) => f.g) : [])
@@ -255,6 +257,8 @@ export default function Toolbar({ sel, all, theme, act }) {
         </>
       )}
 
+      <ElementTools sel={sel} theme={theme} act={act} />
+
       {sel.length > 1 && (
         <>
           <Pop title="Tanlanganlarni tekislaş" button={<AlignCenterHorizontal size={16} />}>
@@ -350,7 +354,7 @@ export default function Toolbar({ sel, all, theme, act }) {
             {[...all].reverse().map((e) => (
               <button key={e.id} type="button" className={sel.some((s) => s.id === e.id) ? 'on' : ''} onClick={(ev) => act.select(ev.shiftKey ? [...sel.map((s) => s.id), e.id] : [e.id])}>
                 <span className="tb-layer-ic">{e.kind === 'text' ? <Type size={13} /> : e.kind === 'image' ? <ImageIcon size={13} /> : <Square size={13} />}</span>
-                <span className="tb-layer-name">{e.kind === 'text' ? e.text.slice(0, 40) : KIND_LABEL[e.kind] ?? e.kind}</span>
+                <span className="tb-layer-name">{e.kind === 'text' ? e.text.slice(0, 40) : kindLabel(e.kind) ?? KIND_LABEL[e.kind] ?? e.kind}</span>
                 {e.locked && <Lock size={12} />}
               </button>
             ))}

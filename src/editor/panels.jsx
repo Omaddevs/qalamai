@@ -189,53 +189,6 @@ export function AiPanel({ onGenerate }) {
   )
 }
 
-/* ───────── Elementlar ───────── */
-const SHAPES = [
-  { kind: 'rect', label: 'Törtburçak', w: 22, h: 26, radius: 0 },
-  { kind: 'rect', label: 'Yumaloq', w: 22, h: 26, radius: '2cqw' },
-  { kind: 'circle', label: 'Doira', w: 16, h: 28.4 },
-  { kind: 'triangle', label: 'Uçburçak', w: 18, h: 30 },
-  { kind: 'star', label: 'Yulduz', w: 16, h: 28.4 },
-  { kind: 'hexagon', label: 'Olti burçak', w: 18, h: 28 },
-  { kind: 'line', label: 'Çiziq', w: 30, h: 4 },
-  { kind: 'arrow', label: 'Strelka', w: 22, h: 10 },
-]
-
-export function ElementsPanel({ accent, onAdd }) {
-  return (
-    <div className="pn-scroll">
-      <PanelHead title="Şakllar" />
-      <div className="shape-grid">
-        {SHAPES.map((s) => (
-          <button key={s.label} className="shape-btn" title={s.label} onClick={() => onAdd(s)}>
-            <ShapePreview kind={s.kind} radius={s.radius} color={accent} />
-          </button>
-        ))}
-      </div>
-      <p className="pn-note">Elementni sudrab joylaştiring, burçakdagi tutqiç bilan ölçamini özgartiring.</p>
-    </div>
-  )
-}
-
-function ShapePreview({ kind, radius, color }) {
-  const base = { width: 34, height: 34, background: color }
-  if (kind === 'rect') return <span style={{ ...base, borderRadius: radius ? 9 : 2 }} />
-  if (kind === 'circle') return <span style={{ ...base, borderRadius: '50%' }} />
-  if (kind === 'line') return <span style={{ width: 38, height: 4, borderRadius: 4, background: color }} />
-  if (kind === 'arrow')
-    return (
-      <svg width="40" height="20" viewBox="0 0 100 40" fill="none" stroke={color} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M4 20h88M74 6l18 14-18 14" />
-      </svg>
-    )
-  const clip = {
-    triangle: 'polygon(50% 0,100% 100%,0 100%)',
-    star: 'polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)',
-    hexagon: 'polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%)',
-  }[kind]
-  return <span style={{ ...base, clipPath: clip }} />
-}
-
 /* ───────── Matn ───────── */
 const TEXT_PRESETS = [
   { text: 'Sarlavha qöşiş', size: 5, weight: 700, cls: 'big' },

@@ -4,6 +4,7 @@
 import { useRef, useState } from 'react'
 import { ImagePlus } from 'lucide-react'
 import { Text } from './Text.jsx'
+import { FramedImage, Loop, renderElement } from './elements/render.jsx'
 
 const CLIP = {
   triangle: 'polygon(50% 0,100% 100%,0 100%)',
@@ -46,7 +47,7 @@ export function textStyle(el, theme) {
 }
 
 /** The look of one element (no positioning). */
-export function ElementContent({ el, theme, editing, editable, onCommitText }) {
+export function ElementContent({ el, theme, editing, editable, onCommitText, onPatch }) {
   const color = el.color ?? theme.accent
   switch (el.kind) {
     case 'text':
@@ -54,6 +55,7 @@ export function ElementContent({ el, theme, editing, editable, onCommitText }) {
     case 'box':
       return <div style={{ width: '100%', height: '100%', ...(el.color && !el.bgc && !el.bgi ? { background: el.color } : {}), ...paintStyle(el) }} />
     case 'image':
+      if (el.mask || el.frame) return <FramedImage el={el} editable={editable} />
       return (
         <div className="fx-img" style={{ ...paintStyle(el), borderRadius: el.radius ?? (el.src ? '0.6cqw' : '1cqw') }}>
           {el.src ? (
@@ -83,7 +85,7 @@ export function ElementContent({ el, theme, editing, editable, onCommitText }) {
         </svg>
       )
     default:
-      return null
+      return renderElement(el, theme, { editing, onPatch })
   }
 }
 
@@ -98,7 +100,7 @@ const SNAP_PX = 6
  */
 export default function FreeLayer({
   elements, theme, editable = false, selected = [], editingId = null, rootRef,
-  onSelect, onEdit, onChange, onChangeMany, onCommitStart, onCommitText, onPickImage,
+  onSelect, onEdit, onChange, onChangeMany, onCommitStart, onCommitText, onPickImage, autoAnim = false,
 }) {
   const layer = useRef(null)
   const [guides, setGuides] = useState([])
@@ -182,7 +184,7 @@ export default function FreeLayer({
       setGuides([])
       if (!moved && wasOnlySelected) {
         const el = elements.find((x) => x.id === clickedId)
-        if (el?.kind === 'text') onEdit?.(el.id)
+        if (el?.kind === 'text' || el?.kind === 'table') onEdit?.(el.id)
       }
     }
     window.addEventListener('pointermove', move)
@@ -213,7 +215,7 @@ export default function FreeLayer({
     const cos = Math.cos(th)
     const sin = Math.sin(th)
     const corner = dir.length === 2
-    const keepRatio = corner && (el.kind === 'text' || el.kind === 'image')
+    const keepRatio = corner && ['text', 'image', 'icon', 'graphic', 'mockup'].includes(el.kind)
     const sx = e.clientX
     const sy = e.clientY
     let started = false
@@ -321,14 +323,25 @@ export default function FreeLayer({
     window.addEventListener('pointerup', up)
   }
 
+  const onDouble = (el) => {
+    if (el.kind === 'text' || el.kind === 'table') onEdit?.(el.id)
+    else if (el.kind === 'image' || el.kind === 'mockup') onPickImage?.(el)
+    else if (el.kind === 'chart') window.dispatchEvent(new CustomEvent('qalam:chart-data', { detail: el.id }))
+  }
+
   const single = editable && selected.length === 1 ? elements.find((x) => x.id === selected[0]) : null
+  // «Körish» on a page without animations: everything rises in, top to bottom
+  const sample = autoAnim
+    ? new Map([...elements].sort((a, b) => a.y - b.y || a.x - b.x).map((e, i) => [e.id, { type: 'rise', delay: Math.min(i * 0.1, 1.5), dur: 0.7 }]))
+    : null
 
   return (
     <div ref={layer} className={`fx-layer ${editable ? 'editable' : ''}`} onPointerDown={editable ? onBgDown : undefined}>
       {elements.map((el) => {
         const isSel = editable && selected.includes(el.id)
         const editing = editingId === el.id
-        const anim = el.anim?.type
+        const a = el.anim?.type ? el.anim : sample?.get(el.id)
+        const anim = a?.type
         return (
           <div
             key={el.id}
@@ -343,10 +356,12 @@ export default function FreeLayer({
               ...(el.opacity != null && el.opacity < 1 ? { opacity: el.opacity } : {}),
             }}
             onPointerDown={editable ? (e) => onElDown(e, el) : undefined}
-            onDoubleClick={editable ? () => (el.kind === 'text' ? onEdit?.(el.id) : el.kind === 'image' ? onPickImage?.(el) : null) : undefined}
+            onDoubleClick={editable ? () => onDouble(el) : undefined}
           >
-            <div className="fx-anim" data-anim={anim || undefined} style={anim ? { '--ad': `${el.anim.delay ?? 0}s`, '--adur': `${el.anim.dur ?? 0.7}s` } : undefined}>
-              <ElementContent el={el} theme={theme} editing={editing} editable={editable} onCommitText={onCommitText} />
+            <div className="fx-anim" data-anim={anim || undefined} style={anim ? { '--ad': `${a.delay ?? 0}s`, '--adur': `${a.dur ?? 0.7}s` } : undefined}>
+              <Loop type={el.loop}>
+                <ElementContent el={el} theme={theme} editing={editing} editable={editable} onCommitText={onCommitText} onPatch={(p) => onChange?.(el.id, p)} />
+              </Loop>
             </div>
             {single?.id === el.id && !editing && !el.locked && (
               <>

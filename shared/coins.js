@@ -61,7 +61,7 @@ export function tierOf(packIds) {
 export const FREE_FEATURES = ['Fayl studiyasi (PDF ↔ Word, siqiş, fon öçiriş …)', 'Alifbo konvertori', 'Vizual muharrir va bepul şablonlar']
 
 /** Bir marta coin sotib olganlarga doimiy oçiladi. */
-export const PREMIUM_PERKS = ['Watermarksiz yuklab oliş', 'Barça Pro şablonlar va Brend töplami', 'Katta fayllar (200 MB gaça), fayllar saqlanadi']
+export const PREMIUM_PERKS = ['Watermarksiz yuklab oliş', 'Barça Pro şablonlar va Brend töplami', 'Katta fayllar (200 MB gaça)']
 
 export const costOf = (action, qty = 1) => {
   const c = COIN_COSTS[action]

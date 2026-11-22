@@ -25,7 +25,7 @@ export default {
   'coin.free.2': { uz: 'Vizual muharrir va bepul şablonlar', ru: 'Визуальный редактор и бесплатные шаблоны', en: 'Visual editor and free templates', kk: 'Визуалды редактор және тегін үлгілер', ky: 'Визуалдык редактор жана акысыз шаблондор', tg: 'Муҳаррири визуалӣ ва қолабҳои ройгон' },
   'coin.perk.0': { uz: 'Watermarksiz yuklab oliş', ru: 'Скачивание без водяного знака', en: 'Downloads without a watermark', kk: 'Су белгісіз жүктеп алу', ky: 'Суу белгисиз жүктөп алуу', tg: 'Зеркашӣ бе аломати обӣ' },
   'coin.perk.1': { uz: 'Barça Pro şablonlar va Brend töplami', ru: 'Все Pro-шаблоны и брендбук', en: 'All Pro templates and the Brand kit', kk: 'Барлық Pro үлгілер және бренд жинағы', ky: 'Бардык Pro шаблондор жана бренд топтому', tg: 'Ҳамаи қолабҳои Pro ва маҷмӯаи бренд' },
-  'coin.perk.2': { uz: 'Katta fayllar (200 MB gaça), fayllar saqlanadi', ru: 'Большие файлы (до 200 МБ), файлы сохраняются', en: 'Large files (up to 200 MB), files are kept', kk: 'Үлкен файлдар (200 МБ дейін), файлдар сақталады', ky: 'Чоң файлдар (200 МБ чейин), файлдар сакталат', tg: 'Файлҳои калон (то 200 МБ), файлҳо нигоҳ дошта мешаванд' },
+  'coin.perk.2': { uz: 'Katta fayllar (200 MB gaça)', ru: 'Большие файлы (до 200 МБ)', en: 'Large files (up to 200 MB)', kk: 'Үлкен файлдар (200 МБ дейін)', ky: 'Чоң файлдар (200 МБ чейин)', tg: 'Файлҳои калон (то 200 МБ)' },
 
   // chip & shop
   'coin.unit': { uz: 'coin', ru: { one: 'монета', few: 'монеты', many: 'монет', other: 'монеты' }, en: { one: 'coin', other: 'coins' }, kk: 'монета', ky: 'монета', tg: 'танга' },

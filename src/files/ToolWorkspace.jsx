@@ -53,6 +53,7 @@ export default function ToolWorkspace({ tool, tools, initialFiles, notify, onClo
   const [dropping, setDropping] = useState(false)
   const picker = useRef(null)
   const abort = useRef(null)
+  const starting = useRef(false)
   const dragFrom = useRef(null)
   const ui = TOOL_UI[tool.id] ?? {}
   // the PDF editor opens one PDF (the server also takes images, but only as pages to insert)
@@ -89,6 +90,9 @@ export default function ToolWorkspace({ tool, tools, initialFiles, notify, onClo
   }
 
   async function start() {
+    // a quick double click lands twice before the button re-renders as disabled
+    if (starting.current) return
+    starting.current = true
     setPhase('running')
     setError(null)
     setJob({ progress: 0, stage: t('tw.queued') })
@@ -102,6 +106,8 @@ export default function ToolWorkspace({ tool, tools, initialFiles, notify, onClo
       if (err.name === 'AbortError') return setPhase('setup')
       setError(err)
       setPhase('error')
+    } finally {
+      starting.current = false
     }
   }
 

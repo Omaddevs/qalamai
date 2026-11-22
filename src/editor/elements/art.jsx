@@ -632,7 +632,7 @@ export const ART = {
     draw: (c) => (
       <g fill={c[0]}>
         {[20, 50, 80].map((x, i) => (
-          <circle key={x} className="lp-dot" style={{ animationDelay: `${i * 0.16}s` }} cx={x} cy="20" r="10" />
+          <circle key={x} className="el-lp-dot" style={{ animationDelay: `${i * 0.16}s` }} cx={x} cy="20" r="10" />
         ))}
       </g>
     ),
@@ -644,7 +644,7 @@ export const ART = {
     draw: (c) => (
       <g fill={c[0]}>
         {[10, 30, 50, 70].map((x, i) => (
-          <rect key={x} className="lp-bar" style={{ animationDelay: `${i * 0.14}s` }} x={x} y="6" width="14" height="48" rx="5" />
+          <rect key={x} className="el-lp-bar" style={{ animationDelay: `${i * 0.14}s` }} x={x} y="6" width="14" height="48" rx="5" />
         ))}
       </g>
     ),

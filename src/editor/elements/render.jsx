@@ -842,7 +842,7 @@ export const LOOPS = ['float', 'pulse', 'spin', 'wiggle', 'bounce', 'swing', 'tw
 
 export function Loop({ type, children }) {
   if (!type) return children
-  return <div className={`lp lp-${type}`}>{children}</div>
+  return <div className={`el-lp el-lp-${type}`}>{children}</div>
 }
 
 /** Kinds this module draws. */

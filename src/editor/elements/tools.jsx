@@ -117,7 +117,7 @@ function LoopPop({ first, set }) {
         </button>
         {LOOPS.map((l) => (
           <button key={l} type="button" className={first.loop === l ? 'on' : ''} onClick={() => set({ loop: l })}>
-            <span className={`et-loop-demo lp lp-${l}`}>
+            <span className={`et-loop-demo el-lp el-lp-${l}`}>
               <svg viewBox="0 0 24 24" width="20" height="20">
                 <path pathLength="1" d="M12 3l2.6 5.6 6 .7-4.5 4 1.3 6L12 16.3 6.6 19.3l1.3-6-4.5-4 6-.7z" fill={l === 'draw' ? 'none' : '#8b5cf6'} stroke="#8b5cf6" strokeWidth="1.6" strokeLinejoin="round" />
               </svg>

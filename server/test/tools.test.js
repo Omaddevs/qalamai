@@ -154,6 +154,23 @@ describe('PDF editing and organising', () => {
     assert.match(text, /Ikkinchi qator/)
   })
 
+  test('pdf-edit: moving a PDF image (cover + redraw) with a small JPEG', async () => {
+    // a tiny JPEG decodes into Node's shared Buffer pool (non-zero byteOffset) — pdf-lib used to
+    // fail on it with "SOI not found in JPEG"
+    const tiny = await sharp({ create: { width: 40, height: 30, channels: 3, background: '#2a9d8f' } }).jpeg().toBuffer()
+    assert.ok(tiny.length < 4096)
+    const job = ok(
+      await c.runTool('pdf-edit', [pdf.id], {
+        operations: [
+          { type: 'whiteout', page: 0, rect: [71, 379, 302, 182], color: '#ffffff' },
+          { type: 'image', page: 0, rect: [122, 425, 270, 162], src: `data:image/jpeg;base64,${tiny.toString('base64')}`, opacity: 1 },
+        ],
+      }),
+    )
+    const doc = await PDFDocument.load(await c.download(job.outputs[0]))
+    assert.equal(doc.getPageCount(), 3)
+  })
+
   test('pdf-edit: links, notes, aligned text, and pages inserted from blank / other PDF / image', async () => {
     const { PDFName } = await import('pdf-lib')
     const job = ok(
@@ -329,6 +346,27 @@ describe('limits', () => {
     const id = body.files[0].id
     let last
     for (let i = 0; i < 11; i++) last = await g.req('POST', '/api/v1/tools/image-convert/jobs', { json: { fileIds: [id], options: { format: 'webp' } } })
+    assert.equal(last.status, 429)
+    assert.equal(last.body.error.code, 'QUOTA_EXCEEDED')
+  })
+
+  test('runs on the device check the same limits without sending files', async () => {
+    const g = client(srv.base)
+    await g.req('POST', '/api/v1/auth/guest')
+    const one = { kind: 'pdf', ext: 'pdf', size: 1000, pages: 3 }
+    const ok = await g.req('POST', '/api/v1/tools/pdf-rotate/local-runs', { json: { files: [one] } })
+    assert.equal(ok.status, 200, JSON.stringify(ok.body))
+    // too big for the plan, too many pages, too many files, unknown tool
+    const big = await g.req('POST', '/api/v1/tools/pdf-rotate/local-runs', { json: { files: [{ ...one, size: 900 * 1048576 }] } })
+    assert.equal(big.status, 413)
+    const pages = await g.req('POST', '/api/v1/tools/pdf-rotate/local-runs', { json: { files: [{ ...one, pages: 5000 }] } })
+    assert.equal(pages.body.error.code, 'QUOTA_EXCEEDED')
+    const many = await g.req('POST', '/api/v1/tools/pdf-rotate/local-runs', { json: { files: [one, one] } })
+    assert.equal(many.status, 400)
+    assert.equal((await g.req('POST', '/api/v1/tools/nope/local-runs', { json: { files: [one] } })).status, 404)
+    // the daily quota is shared with server runs
+    let last
+    for (let i = 0; i < 11; i++) last = await g.req('POST', '/api/v1/tools/pdf-merge/local-runs', { json: { files: [one, one] } })
     assert.equal(last.status, 429)
     assert.equal(last.body.error.code, 'QUOTA_EXCEEDED')
   })

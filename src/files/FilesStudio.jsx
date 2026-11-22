@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
-  CloudArrowUp, X, ArrowRight, Sparkle, DownloadSimple, Trash, NotePencil, Clock, ShieldCheck, Lightning, FolderOpen, CheckCircle, CircleNotch,
+  CloudArrowUp, X, ArrowRight, Sparkle, DownloadSimple, Trash, NotePencil, ShieldCheck, Lightning, FolderOpen, CheckCircle, CircleNotch,
 } from '@phosphor-icons/react'
-import { ApiError, deleteFile, downloadFile, formatSize, getTools, listFiles, timeLeft, uploadFiles } from '../api.js'
+import { ApiError, downloadFile, formatSize, getTools, timeLeft } from '../api.js'
+import { addLocalFiles, listFiles, removeFile } from './store.js'
 import { COLORS } from '../data.js'
 import { Offline, Thumb, ToolIcon } from './parts.jsx'
 import FileEditorView from '../home/FileEditorView.jsx'
@@ -203,7 +204,7 @@ function MyFiles({ notify, onEdit, onUse, refreshKey }) {
   const [filter, setFilter] = useState('all')
 
   const load = useCallback(() => {
-    listFiles({ limit: 120 })
+    listFiles()
       .then((xs) => {
         setFiles(xs)
         setError(null)
@@ -231,7 +232,7 @@ function MyFiles({ notify, onEdit, onUse, refreshKey }) {
           ))}
         </div>
         <span className="fs-mine-note">
-          <Clock size={14} /> {t('fs.keep24')}
+          <ShieldCheck size={14} /> {t('fs.keepLocal')}
         </span>
       </div>
       {!shown.length ? (
@@ -251,7 +252,7 @@ function MyFiles({ notify, onEdit, onUse, refreshKey }) {
                   {formatSize(f.size)} · {f.source === 'tool' ? t('fs.result') : t('fs.uploaded')}
                   {f.meta?.pages ? ` · ${t('fs.pages', { n: f.meta.pages })}` : ''}
                 </small>
-                {f.expiresAt && <small className="fs-ttl">{timeLeft(f.expiresAt)}</small>}
+                {f.local ? <small className="fs-ttl device">{t('fs.onDevice')}</small> : f.expiresAt && <small className="fs-ttl">{timeLeft(f.expiresAt)}</small>}
               </div>
               <div className="fs-file-actions">
                 <button className="fs-ibtn" title={t('ui.download')} onClick={() => downloadFile(f)}>
@@ -269,7 +270,7 @@ function MyFiles({ notify, onEdit, onUse, refreshKey }) {
                   className="fs-ibtn danger"
                   title={t('ui.delete')}
                   onClick={async () => {
-                    await deleteFile(f.id).catch(() => {})
+                    await removeFile(f).catch(() => {})
                     setFiles((xs) => xs.filter((x) => x.id !== f.id))
                     notify(t('fs.deleted'))
                   }}
@@ -323,7 +324,7 @@ export default function FilesStudio({ notify, onOpenPricing, initialTab = 'tools
       setStaged((xs) => [...xs, ...entries])
       const keys = new Set(entries.map((e) => e.key))
       try {
-        const records = await uploadFiles(files, (p) => setStaged((xs) => xs.map((s) => (keys.has(s.key) ? { ...s, progress: p } : s))))
+        const records = await addLocalFiles(files, (p) => setStaged((xs) => xs.map((s) => (keys.has(s.key) ? { ...s, progress: p } : s))))
         setStaged((xs) => {
           let i = 0
           return xs.map((s) => (keys.has(s.key) ? { ...s, status: 'ready', progress: 1, record: records[i++] } : s))

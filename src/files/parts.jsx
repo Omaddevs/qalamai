@@ -1,7 +1,8 @@
 // Small building blocks shared by the file studio, tool workspace and editor.
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { FilePdf, FileDoc, FileImage, File as FileIcon, FileText, WarningCircle } from '@phosphor-icons/react'
 import { apiUrl } from '../api.js'
+import { pdfThumb } from './store.js'
 import { COLORS } from '../data.js'
 import { TOOL_UI } from './toolMeta.js'
 import { t } from '../i18n/index.js'
@@ -25,7 +26,18 @@ export function KindIcon({ file, size = 20 }) {
 /** Thumbnail for a stored file, or an icon while/if there is none. */
 export function Thumb({ file, className = '' }) {
   const [failed, setFailed] = useState(false)
-  if (!file.thumbUrl || failed) {
+  const [drawn, setDrawn] = useState(null)
+  // a PDF on the device has no server thumbnail: render its first page here
+  useEffect(() => {
+    if (!file.local || file.kind !== 'pdf') return
+    let live = true
+    pdfThumb(file).then((u) => live && setDrawn(u), () => live && setFailed(true))
+    return () => {
+      live = false
+    }
+  }, [file])
+  const src = file.thumbUrl ?? drawn
+  if (!src || failed) {
     return (
       <span className={`fs-thumb icon ${className}`}>
         <KindIcon file={file} size={30} />
@@ -35,7 +47,7 @@ export function Thumb({ file, className = '' }) {
   }
   return (
     <span className={`fs-thumb ${file.kind === 'image' ? 'checker' : ''} ${className}`}>
-      <img src={apiUrl(file.thumbUrl)} alt="" loading="lazy" onError={() => setFailed(true)} />
+      <img src={apiUrl(src)} alt="" loading="lazy" onError={() => setFailed(true)} />
     </span>
   )
 }

@@ -2,13 +2,14 @@ import { mkdir, rm } from 'node:fs/promises'
 import { join } from 'node:path'
 import { and, desc, eq, inArray, lt, sql } from 'drizzle-orm'
 import { schema } from '../../db/index.js'
-import { AppError, badRequest, notFound, quotaExceeded, unsupported } from '../../lib/errors.js'
+import { AppError, badRequest, notFound, quotaExceeded, tooLarge, unsupported } from '../../lib/errors.js'
 import { ID_PREFIX, newId } from '../../lib/ids.js'
 import { limitsFor, tashkentDay } from '../plans/plans.js'
 import { TOOL_MAP } from '../tools/catalog.js'
 
 const { jobs, usage, users } = schema
 const TOOL_RUNS = 'tool_runs'
+const LOCAL_RUNS = 'local_runs'
 const KIND_LABEL = { pdf: 'PDF', image: 'rasm', document: 'Word hujjat', text: 'matn fayl', spreadsheet: 'Excel', presentation: 'PowerPoint' }
 
 export function createJobService({ db, pool, files, storage, log }) {
@@ -142,6 +143,33 @@ export function createJobService({ db, pool, files, storage, log }) {
       // runs in the background; clients poll GET /jobs/:id
       execute(job, user).catch((err) => log.error({ err, jobId: job.id }, 'job bookkeeping failed'))
       return job
+    },
+
+    /**
+     * A run that happens in the user's browser: the files never reach the server, but the plan's
+     * limits still apply. Checks what the browser reports about the files and spends a daily run.
+     * @param {{ files: Array<{ kind: string, ext: string, size: number, pages?: number }> }} body
+     */
+    async checkLocal(user, toolId, { files: list }) {
+      const tool = TOOL_MAP.get(toolId)
+      if (!tool) throw notFound('Bunday vosita yöq')
+      const limits = limitsFor(user)
+      const max = Math.min(tool.maxFiles, limits.maxFilesPerJob)
+      if (list.length < tool.minFiles) throw badRequest(tool.minFiles > 1 ? `Kamida ${tool.minFiles} ta fayl tanlang` : 'Fayl tanlang')
+      if (list.length > max) throw badRequest(`Bir martada köpi bilan ${max} ta fayl`, { max })
+      const big = list.find((f) => f.size > limits.maxFileMb * 1048576)
+      if (big) throw tooLarge(`Fayl hajmi ${limits.maxFileMb} MB dan oşmasligi kerak`)
+      const pages = list.reduce((n, f) => n + (f.pages ?? 0), 0)
+      if (pages > limits.maxPdfPages) {
+        throw quotaExceeded(`«${limits.label}» hisobda bir martada ${limits.maxPdfPages} sahifagaça. Bu fayllarda ${pages} sahifa bor.`, { limit: limits.maxPdfPages, kind: 'pages', pages })
+      }
+      await consumeRun(user)
+      // how many runs stayed on the device (admin analytics); never blocks the run
+      db.insert(usage)
+        .values({ userId: user.id, day: tashkentDay(), metric: LOCAL_RUNS, count: 1 })
+        .onConflictDoUpdate({ target: [usage.userId, usage.day, usage.metric], set: { count: sql`${usage.count} + 1` } })
+        .catch(() => {})
+      return { ok: true }
     },
 
     async get(user, id) {

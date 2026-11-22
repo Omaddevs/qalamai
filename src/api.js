@@ -246,6 +246,12 @@ export async function logout() {
   // a deliberate sign-out: forget this browser's account and its local copies
   for (const k of ['qalamai.sync.v1', 'qalamai.designs.v1', 'qalamai.docs.v1', ACCOUNT_KEY]) localStorage.removeItem(k)
   listeners.forEach((fn) => fn(null))
+  // the file studio's files kept on this device (src/files/store.js closes its connection above)
+  try {
+    indexedDB.deleteDatabase('qalamai-files')
+  } catch {
+    /* no IndexedDB */
+  }
 }
 
 /* ───────── files ───────── */

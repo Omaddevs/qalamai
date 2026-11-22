@@ -120,7 +120,12 @@ export default defineConfig(({ mode }) => {
     // Lazily imported heavy deps: pre-bundle them at start-up. Found only when a page first
     // imports them, Vite re-optimizes mid-session and answers the open page with
     // "504 Outdated Optimize Dep" — the PDF editor then fails with "PDF ni oçib bölmadi".
-    optimizeDeps: { include: ['pdfjs-dist', 'mammoth/mammoth.browser.js'] },
+    optimizeDeps: { include: ['pdfjs-dist', 'mammoth/mammoth.browser.js', 'pdf-lib', '@pdf-lib/fontkit', 'fflate', 'zod'] },
+    // The file tools run in the browser with the server's own code (server/src/converters/core):
+    // its imports must resolve to this app's copies, not to server/node_modules.
+    resolve: { dedupe: ['pdf-lib', '@pdf-lib/fontkit', 'fflate', 'zod'] },
+    // the tool worker lazy-loads each tool, which needs an ES-module worker
+    worker: { format: 'es' },
     server: {
       proxy: {
         '/api': api,

@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowLeft, X, Plus, DotsSixVertical, ArrowRight, DownloadSimple, NotePencil, FileDoc, CheckCircle, WarningCircle,
-  ArrowCounterClockwise, Sparkle, CloudArrowUp, Crown, FileZip,
+  ArrowCounterClockwise, Sparkle, CloudArrowUp, Crown, FileZip, ShieldCheck,
 } from '@phosphor-icons/react'
-import { ApiError, apiUrl, downloadFile, fetchFile, formatSize, runTool, uploadFiles } from '../api.js'
+import { ApiError, apiUrl, downloadFile, fetchFile, formatSize } from '../api.js'
+import { addLocalFiles, runTool, runsHere } from './store.js'
 import { blankDoc, importFile, loadDocs, saveDocs } from '../docs.js'
 import { ToolIcon, Thumb } from './parts.jsx'
 import OptionsForm from './OptionsForm.jsx'
@@ -76,7 +77,7 @@ export default function ToolWorkspace({ tool, tools, initialFiles, notify, onClo
     if (!picked.length) return
     setUploading(0)
     try {
-      const records = await uploadFiles(picked, setUploading)
+      const records = await addLocalFiles(picked, setUploading)
       const ok = records.filter((f) => accepts.includes(f.kind) && (!tool.exts || tool.exts.includes(f.ext)))
       if (ok.length < records.length) notify(t('tw.notFit', { name: tool.title }))
       setFiles((xs) => (multi ? [...xs, ...ok] : ok.slice(0, 1)).slice(0, maxFiles))
@@ -94,7 +95,7 @@ export default function ToolWorkspace({ tool, tools, initialFiles, notify, onClo
     abort.current = new AbortController()
     try {
       const clean = Object.fromEntries(Object.entries(options).filter(([, v]) => v !== undefined && v !== ''))
-      const done = await runTool(tool.id, files.map((f) => f.id), clean, { onUpdate: setJob, signal: abort.current.signal })
+      const done = await runTool(tool.id, files, clean, { onUpdate: setJob, signal: abort.current.signal })
       setJob(done)
       setPhase('done')
     } catch (err) {
@@ -395,6 +396,11 @@ export default function ToolWorkspace({ tool, tools, initialFiles, notify, onClo
                     {ui.tag === 'AI' && <Sparkle size={16} weight="fill" />}
                     {phase === 'running' ? t('tw.runningDots') : t('tw.start')} <ArrowRight size={16} weight="bold" />
                   </button>
+                  )}
+                  {files.length > 0 && runsHere(tool.id, files, options) && (
+                    <small className="tw-device">
+                      <ShieldCheck size={13} weight="fill" /> {t('tw.onDevice')}
+                    </small>
                   )}
                   <small>{files.length < tool.minFiles ? (tool.minFiles > 1 ? t('tw.minFiles', { n: tool.minFiles }) : t('tw.pickFirst')) : t('tw.filesReady', { n: files.length })}</small>
                 </div>

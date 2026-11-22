@@ -22,7 +22,7 @@ import userRoutes from './modules/users/routes.js'
 import avatarRoutes from './modules/users/avatar.js'
 import fileRoutes from './modules/files/routes.js'
 import { createFileService } from './modules/files/service.js'
-import { jobRoutes, toolRoutes } from './modules/jobs/routes.js'
+import { jobRoutes, localRunRoutes, toolRoutes } from './modules/jobs/routes.js'
 import { createJobService } from './modules/jobs/service.js'
 import { designRoutes, documentRoutes } from './modules/documents/routes.js'
 import { bioApiRoutes, bioPublicRoutes } from './modules/bio/routes.js'
@@ -137,6 +137,7 @@ export async function buildApp(config) {
       await api.register(coinRoutes, { prefix: '/coins' })
       await api.register(fileRoutes, { prefix: '/files' })
       await api.register(toolRoutes, { prefix: '/tools' })
+      await api.register(localRunRoutes, { prefix: '/tools' })
       await api.register(jobRoutes, { prefix: '/jobs' })
       await api.register(documentRoutes, { prefix: '/documents' })
       await api.register(designRoutes, { prefix: '/designs' })

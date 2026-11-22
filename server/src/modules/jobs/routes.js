@@ -42,6 +42,47 @@ export async function toolRoutes(app) {
   )
 }
 
+/** Tools that run on the user's device report here first: limits are checked, no file is sent. */
+export async function localRunRoutes(app) {
+  const { jobs } = app.ctx
+  app.post(
+    '/:tool/local-runs',
+    {
+      preHandler: app.authenticate,
+      config: { rateLimit: { max: 120, timeWindow: '1 minute' } },
+      schema: {
+        tags: ['tools'],
+        summary: 'Brauzerda işlaydigan vosita: limitni tekşiriş va hisoblaş (fayl yuborilmaydi)',
+        params: { type: 'object', properties: { tool: { type: 'string', maxLength: 40 } } },
+        body: {
+          type: 'object',
+          required: ['files'],
+          additionalProperties: false,
+          properties: {
+            files: {
+              type: 'array',
+              minItems: 1,
+              maxItems: 100,
+              items: {
+                type: 'object',
+                required: ['kind', 'size'],
+                additionalProperties: false,
+                properties: {
+                  kind: { type: 'string', maxLength: 20 },
+                  ext: { type: 'string', maxLength: 10 },
+                  size: { type: 'integer', minimum: 0 },
+                  pages: { type: 'integer', minimum: 0, maximum: 100000 },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    async (req) => jobs.checkLocal(req.user, req.params.tool, req.body),
+  )
+}
+
 /** Job status:  /api/v1/jobs */
 export async function jobRoutes(app) {
   const { jobs } = app.ctx

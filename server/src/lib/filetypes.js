@@ -1,5 +1,6 @@
 // File type detection from content (magic bytes), never from the client's claimed MIME.
 // The extension only breaks ties inside a container format (ZIP → docx/xlsx/pptx).
+// Works on any Uint8Array (Node Buffer or browser bytes): the browser tools use it too.
 
 export const TYPES = {
   pdf: { mime: 'application/pdf', kind: 'pdf' },
@@ -25,7 +26,8 @@ export const TYPES = {
 }
 
 const startsWith = (buf, bytes, offset = 0) => bytes.every((b, i) => buf[offset + i] === b)
-const ascii = (buf, start, end) => buf.subarray(start, end).toString('latin1')
+const latin1 = new TextDecoder('latin1')
+const ascii = (buf, start, end) => latin1.decode(buf.subarray(start, end))
 
 function looksLikeUtf8Text(buf) {
   const sample = buf.subarray(0, 4096)
@@ -50,7 +52,7 @@ function lastCharBoundary(buf) {
 }
 
 /**
- * @param {Buffer} head  first bytes of the file (≥ 4 KB when available)
+ * @param {Uint8Array} head  first bytes of the file (≥ 4 KB when available)
  * @param {string} filename  original name — only used for container/text disambiguation
  * @returns {{ ext: string, mime: string, kind: string } | null}
  */
@@ -82,7 +84,7 @@ export function detectType(head, filename = '') {
     return t('zip')
   }
   if (looksLikeUtf8Text(head)) {
-    const text = head.subarray(0, 2048).toString('utf8').trimStart().toLowerCase()
+    const text = new TextDecoder().decode(head.subarray(0, 2048)).trimStart().toLowerCase()
     if (text.startsWith('<svg') || (text.startsWith('<?xml') && text.includes('<svg'))) return t('svg')
     if (nameExt === 'md' || nameExt === 'markdown') return t('md')
     if (nameExt === 'csv') return t('csv')

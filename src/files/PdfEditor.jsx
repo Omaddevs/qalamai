@@ -1,5 +1,6 @@
 // PDF editor. Pages render with pdf.js; edits live in an overlay (in page units at
-// scale 1) and are sent to the server as pdf-edit operations in PDF user space.
+// scale 1) and are saved as pdf-edit operations in PDF user space — applied on the device
+// (src/files/store.js), with the server as the fallback.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   X, ArrowUUpLeft, ArrowUUpRight, MagnifyingGlassMinus, MagnifyingGlassPlus, FloppyDisk, Cursor, CursorText, TextT, HighlighterCircle,
@@ -8,19 +9,13 @@ import {
   ChatCenteredText, LinkSimple, Stamp, Printer, MagnifyingGlass, Hand, CaretUp, CaretDown, Copy, Plus, FilePlus, File as FileIcon,
   SquaresFour, TextAlignLeft, TextAlignCenter, TextAlignRight, Shapes, ArrowSquareOut,
 } from '@phosphor-icons/react'
-import { apiUrl, downloadFile, fetchFile, runTool, uploadFiles } from '../api.js'
+import { apiUrl, downloadFile, fetchFile } from '../api.js'
+import { addLocalFiles, runTool } from './store.js'
+import { loadPdfjs } from './pdfjs.js'
 import { Dropdown } from '../components/ui.jsx'
 import { formatDate, t } from '../i18n/index.js'
 import { A4, STAMPS, flatViewport, imageBox, imagePageSize, loadImage, printBlob, renderSource, stampImage } from './peKit.js'
 
-let pdfjsPromise
-function loadPdfjs() {
-  pdfjsPromise ??= Promise.all([import('pdfjs-dist'), import('pdfjs-dist/build/pdf.worker.min.mjs?url')]).then(([lib, worker]) => {
-    lib.GlobalWorkerOptions.workerSrc = worker.default
-    return lib
-  })
-  return pdfjsPromise
-}
 
 // `group` splits the tool rail: pick/edit · text · marks · shapes · insert
 const TOOLS = [
@@ -995,7 +990,7 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
     if (extraFiles.current.length + picked.length > 19) return notify(t('pe.tooManyFiles'))
     setBusy('insert')
     try {
-      const records = await uploadFiles(picked)
+      const records = await addLocalFiles(picked)
       const items = []
       for (const [k, rec] of records.entries()) {
         const fileIdx = extraFiles.current.push(rec.id) // fileIds[0] is the document itself

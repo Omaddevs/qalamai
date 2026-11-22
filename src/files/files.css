@@ -1013,6 +1013,9 @@
 .fs-ttl {
   color: #b45309 !important;
 }
+.fs-ttl.device {
+  color: #3f7d16 !important;
+}
 .fs-file-actions {
   display: flex;
   gap: 2px;
@@ -1325,6 +1328,13 @@
 .tw-side-foot small {
   color: #80868f;
   font-size: 12px;
+}
+.tw-side-foot small.tw-device {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #3f7d16;
+  font-weight: 600;
 }
 .tw-side-foot .fs-btn.dark svg:first-child {
   color: #f5c451;

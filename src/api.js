@@ -132,6 +132,17 @@ export async function request(method, path, { json, form, signal, retry = true }
   return parse(res)
 }
 
+/** A shared design for its public view page — no account, no session. */
+export async function getSharedDesign(shareId) {
+  let res
+  try {
+    res = await fetch(`${BASE}/shared/${encodeURIComponent(shareId)}`, { headers: H() })
+  } catch {
+    throw offline()
+  }
+  return parse(res)
+}
+
 export const api = {
   get: (p, o) => request('GET', p, o),
   post: (p, json, o) => request('POST', p, { ...o, json }),

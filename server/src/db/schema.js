@@ -176,10 +176,12 @@ export const designs = pgTable(
     kind: text('kind').notNull().default('Taqdimot'),
     templateId: text('template_id'),
     data: jsonb('data').notNull(),
+    // set when the owner shares a view-only link (/v/<shareId>); null = not shared
+    shareId: text('share_id'),
     createdAt: createdAt(),
     updatedAt: ts('updated_at').notNull().defaultNow(),
   },
-  (t) => [index('designs_user_updated_idx').on(t.userId, t.updatedAt)],
+  (t) => [index('designs_user_updated_idx').on(t.userId, t.updatedAt), uniqueIndex('designs_share_id_idx').on(t.shareId)],
 )
 
 /** Daily counters for plan limits (tool runs, AI generations …). */

@@ -1,10 +1,11 @@
 // Rich-text documents (Fayl muharriri) and slide designs (dizayn muharriri).
 // The frontend keeps working offline in localStorage; these endpoints let it sync
 // and move a guest's work into a real account.
-import { and, asc, eq, gt, lte } from 'drizzle-orm'
+import { and, asc, eq, gt, isNull, lte } from 'drizzle-orm'
 import { schema } from '../../db/index.js'
 import { AppError, notFound } from '../../lib/errors.js'
 import { ID_PREFIX, newId } from '../../lib/ids.js'
+import { randomToken } from '../../lib/crypto.js'
 
 const MAX_HTML = 5 * 1048576
 // Server ids (doc_…, dsn_…) and the ids the browser made offline (f_…, d-…-…) are both accepted.
@@ -148,9 +149,63 @@ export async function designRoutes(app) {
       name: r.name,
       kind: r.kind,
       templateId: r.templateId,
-      ...(summary ? { slides: r.data?.slides?.length ?? 0 } : { data: r.data }),
+      ...(summary ? { slides: r.data?.slides?.length ?? 0 } : { data: r.data, shareId: r.shareId ?? null }),
       createdAt: r.createdAt,
       updatedAt: r.updatedAt,
     },
   })
+
+  // View-only link. The link shows the design as it is on the server, so it follows later edits.
+  const { db } = app.ctx
+  const { designs } = schema
+  const owned = (req) => and(eq(designs.id, req.params.id), eq(designs.userId, req.user.id))
+
+  app.post('/:id/share', { schema: { tags: ['designs'], summary: 'Körish havolasini yoqiş (bor bölsa — öşa havola)', params: idParam() } }, async (req) => {
+    const [row] = await db.select({ shareId: designs.shareId }).from(designs).where(owned(req)).limit(1)
+    if (!row) throw notFound('Dizayn topilmadi')
+    if (row.shareId) return { shareId: row.shareId }
+    const shareId = randomToken(12) // 16 url-safe characters — not guessable
+    // only one request wins when two arrive at once; the other reads the winner's id
+    await db.update(designs).set({ shareId }).where(and(owned(req), isNull(designs.shareId)))
+    const [cur] = await db.select({ shareId: designs.shareId }).from(designs).where(owned(req)).limit(1)
+    return { shareId: cur.shareId }
+  })
+
+  app.delete('/:id/share', { schema: { tags: ['designs'], summary: 'Körish havolasini öçiriş', params: idParam() } }, async (req) => {
+    const rows = await db.update(designs).set({ shareId: null }).where(owned(req)).returning({ id: designs.id })
+    if (!rows.length) throw notFound('Dizayn topilmadi')
+    return { ok: true }
+  })
+}
+
+/** Public: a shared design by its link id — no account needed, read-only. */
+export async function sharedDesignRoutes(app) {
+  const { db } = app.ctx
+  const { designs } = schema
+  app.get(
+    '/:shareId',
+    {
+      config: { rateLimit: { max: 120, timeWindow: '1 minute' } },
+      schema: { tags: ['designs'], summary: 'Ulaşilgan dizayn (faqat körish)', params: { type: 'object', required: ['shareId'], properties: { shareId: { type: 'string', pattern: '^[A-Za-z0-9_-]{8,40}$' } } } },
+    },
+    async (req, reply) => {
+      const [row] = await db
+        .select({ name: designs.name, kind: designs.kind, templateId: designs.templateId, data: designs.data, updatedAt: designs.updatedAt })
+        .from(designs)
+        .where(eq(designs.shareId, req.params.shareId))
+        .limit(1)
+      if (!row) throw notFound('Havola topilmadi yoki öçirilgan')
+      reply.header('cache-control', 'no-store')
+      reply.header('x-robots-tag', 'noindex')
+      const d = row.data ?? {}
+      return {
+        name: row.name,
+        kind: row.kind,
+        templateId: row.templateId ?? d.templateId ?? null,
+        // only what a viewer needs to draw the pages
+        deck: { slides: Array.isArray(d.slides) ? d.slides : [], accent: d.accent ?? null, templateId: d.templateId ?? row.templateId ?? null },
+        updatedAt: row.updatedAt,
+      }
+    },
+  )
 }

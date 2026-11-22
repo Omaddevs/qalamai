@@ -26,6 +26,9 @@ const AuthPage = lazy(PAGES.auth)
 const HomePage = lazy(PAGES.home)
 const EditorPage = lazy(PAGES.editor)
 const CreatorStudio = lazy(PAGES.creator)
+// A shared presentation (/v/<id>) — public, view-only, no account needed.
+const SharedDeck = lazy(() => import('./share/SharedDeck.jsx'))
+const sharedId = () => window.location.pathname.match(/^\/v\/([A-Za-z0-9_-]{8,40})\/?$/)?.[1] ?? null
 // QalamChat (bottom-right chat to the team) is its own small chunk, shown only on the landing (not inside the app after sign-up).
 const QalamChat = lazy(() => import('./components/QalamChat.jsx'))
 
@@ -68,9 +71,10 @@ const parseAuth = () => {
 }
 
 export default function App() {
+  const shareId = sharedId()
   return (
     <Suspense fallback={<PageLoading />}>
-      <Pages />
+      {shareId ? <SharedDeck shareId={shareId} /> : <Pages />}
     </Suspense>
   )
 }

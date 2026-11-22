@@ -24,7 +24,7 @@ import fileRoutes from './modules/files/routes.js'
 import { createFileService } from './modules/files/service.js'
 import { jobRoutes, localRunRoutes, toolRoutes } from './modules/jobs/routes.js'
 import { createJobService } from './modules/jobs/service.js'
-import { designRoutes, documentRoutes } from './modules/documents/routes.js'
+import { designRoutes, documentRoutes, sharedDesignRoutes } from './modules/documents/routes.js'
 import { bioApiRoutes, bioPublicRoutes } from './modules/bio/routes.js'
 import { PLAN_LIMITS } from './modules/plans/plans.js'
 import coinRoutes from './modules/coins/routes.js'
@@ -141,6 +141,7 @@ export async function buildApp(config) {
       await api.register(jobRoutes, { prefix: '/jobs' })
       await api.register(documentRoutes, { prefix: '/documents' })
       await api.register(designRoutes, { prefix: '/designs' })
+      await api.register(sharedDesignRoutes, { prefix: '/shared' })
       await api.register(bioApiRoutes, { prefix: '/bio' })
       await api.register(trackRoutes)
       await api.register(adminRoutes, { prefix: '/admin' })

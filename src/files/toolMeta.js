@@ -2,13 +2,14 @@
 // labels for option values (in the interface language), and which options depend on others.
 import {
   FileDoc, FileImage, FileTxt, FileXls, FilePpt, NotePencil, ArrowsMerge, Scissors, ArrowClockwise, ArrowsInSimple,
-  Stamp, ListNumbers, MagicWand, ArrowsLeftRight, ArrowsIn, CornersOut, FilePdf, FileText,
+  Stamp, ListNumbers, MagicWand, ArrowsLeftRight, ArrowsIn, CornersOut, FilePdf, FileText, UserFocus,
 } from '@phosphor-icons/react'
 import { has, t } from '../i18n/index.js'
 
 export const CATEGORIES = ['all', 'pdf', 'edit', 'image', 'document'].map((id) => ({ id, get label() { return t(`fs.cat.${id}`) } }))
 
 export const TOOL_UI = {
+  'image-portrait': { icon: UserFocus, color: 'blue', from: 'JPG', to: '3×4', tag: 'AI', hero: true },
   'image-remove-bg': { icon: MagicWand, color: 'purple', from: 'JPG', to: 'PNG', tag: 'AI', hero: true },
   'pdf-edit': { icon: NotePencil, color: 'indigo', from: 'PDF', to: 'PDF', get tag() { return t('fs.tagNew') }, hero: true },
   'pdf-to-docx': { icon: FileDoc, color: 'sky', from: 'PDF', to: 'DOCX', hero: true },
@@ -29,6 +30,15 @@ export const TOOL_UI = {
   'images-to-pdf': { icon: FileText, color: 'red', from: 'JPG', to: 'PDF' },
 }
 
+/**
+ * The portrait studio runs only in the browser (src/portrait), so it isn't in the server's
+ * catalog: the file studio adds it to the list itself.
+ */
+export function portraitTool() {
+  const [title, description] = t('fs.tool.image-portrait').split('|')
+  return { id: 'image-portrait', category: 'image', title, description, accepts: ['image'], minFiles: 1, maxFiles: 1, studio: true, available: true, options: {} }
+}
+
 /** Display order in the grid. */
 export const TOOL_ORDER = Object.keys(TOOL_UI)
 
@@ -43,7 +53,7 @@ export function suggest(tools, files) {
       ? ['pdf-merge', 'pdf-compress']
       : ['pdf-to-docx', 'pdf-edit', 'pdf-compress', 'pdf-to-images', 'pdf-to-xlsx', 'pdf-to-pptx', 'pdf-split', 'pdf-watermark', 'pdf-page-numbers', 'pdf-rotate', 'pdf-to-text']
     : kinds.has('image')
-      ? ['image-remove-bg', 'image-convert', 'image-compress', 'images-to-pdf', 'image-resize', 'pdf-merge']
+      ? ['image-portrait', 'image-remove-bg', 'image-convert', 'image-compress', 'images-to-pdf', 'image-resize', 'pdf-merge']
       : exts.has('docx') || kinds.has('text')
         ? ['doc-to-pdf']
         : []

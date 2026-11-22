@@ -97,6 +97,14 @@ export default {
     ky: 'Барак номерлери|Курстук иш жана реферат талаптарына ылайык номерлөө.',
     tg: 'Рақами саҳифаҳо|Рақамгузории саҳифаҳо мувофиқи талаботи кори курсӣ ва реферат.',
   },
+  'fs.tool.image-portrait': {
+    uz: 'Professional portret|Oddiy selfidan studiya portreti: kostyum, fon va 3×4 hujjat rasmi.',
+    ru: 'Профессиональный портрет|Студийный портрет из обычного селфи: костюм, фон и фото 3×4 на документы.',
+    en: 'Professional portrait|A studio portrait from a plain selfie: a suit, a backdrop and a 3×4 ID photo.',
+    kk: 'Кәсіби портрет|Қарапайым селфиден студиялық портрет: костюм, фон және 3×4 құжат суреті.',
+    ky: 'Профессионалдык портрет|Жөнөкөй селфиден студиялык портрет: костюм, фон жана 3×4 документ сүрөтү.',
+    tg: 'Портрети касбӣ|Портрети студиявӣ аз селфии оддӣ: костюм, замина ва акси 3×4 барои ҳуҷҷат.',
+  },
   'fs.tool.image-remove-bg': {
     uz: 'Fonni olib taşlaş|Sunʼiy intellekt obyektni ajratadi — şaffof PNG yoki istalgan rangli fon.',
     ru: 'Удалить фон|ИИ выделяет объект — прозрачный PNG или фон любого цвета.',

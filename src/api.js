@@ -5,6 +5,8 @@
 
 import { formatNumber, getLang, has, t } from './i18n/index.js'
 import { clearProfile } from './profile.js'
+import { pageByPath, pathOf } from './landing/pages.js'
+import { go } from './nav.js'
 
 const ORIGIN = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '')
 const BASE = `${ORIGIN}/api/v1`
@@ -97,14 +99,11 @@ async function startSession() {
       if (r.ok) return setSession(await r.json())
       // Server errors / no network: keep whatever the user had, try again later.
       if (r.status >= 500) throw offline()
-      if (hadAccount()) {
-        // the account's session is gone (expired, closed on another device): ask to sign in again —
-        // a silent new guest would look like lost coins, avatar and work
-        signedOut()
-        throw new ApiError(401, 'SESSION_EXPIRED', t('err.sessionExpired'))
-      }
-      const g = await fetch(`${BASE}/auth/guest`, { method: 'POST', credentials: 'include', headers: H() })
-      setSession(await parse(g))
+      // No account session: nothing in the app works without one (there are no guests). A browser
+      // that had an account is told its session ended; anyone else goes to sign-up.
+      const had = hadAccount()
+      signedOut(had ? 'login' : 'signup')
+      throw had ? new ApiError(401, 'SESSION_EXPIRED', t('err.sessionExpired')) : new ApiError(401, 'SIGN_IN_REQUIRED', t('err.signInRequired'))
     } catch (err) {
       throw err instanceof ApiError ? err : offline()
     }
@@ -148,12 +147,27 @@ export async function ensureSession() {
   return user
 }
 
+/**
+ * The signed-in account, or null — without sending anyone anywhere. For the sign-in pages,
+ * which only want to know whether to skip the form.
+ */
+export async function peekSession() {
+  if (access) return user
+  try {
+    const r = await fetch(`${BASE}/auth/refresh`, { method: 'POST', credentials: 'include', headers: H() })
+    if (!r.ok) return null
+    setSession(await r.json())
+    return user
+  } catch {
+    return null
+  }
+}
+
 export async function register({ login, password, name }) {
-  if (!access) await startSession()
   const res = await fetch(`${BASE}/auth/register`, {
     method: 'POST',
     credentials: 'include',
-    headers: H({ 'content-type': 'application/json', authorization: `Bearer ${access}` }),
+    headers: H({ 'content-type': 'application/json' }),
     body: JSON.stringify({ login, password, name }),
   })
   setSession(await parse(res))
@@ -166,9 +180,12 @@ export async function login({ login: id, password }) {
   return user
 }
 
-/** "Google bilan kiriş": a full-page trip to Google and back; the server finishes the session. */
-export function signInWithGoogle() {
-  window.location.assign(`${BASE}/auth/google?lang=${encodeURIComponent(getLang())}`)
+/**
+ * "Google bilan kiriş": a full-page trip to Google and back; the server finishes the session.
+ * mode 'login' only enters an existing account, 'signup' only opens a new one.
+ */
+export function signInWithGoogle(mode) {
+  window.location.assign(`${BASE}/auth/google?mode=${mode === 'signup' ? 'signup' : 'login'}&lang=${encodeURIComponent(getLang())}`)
 }
 
 /* Telegram: the bot confirms the user's own number and sends a code. */
@@ -178,8 +195,8 @@ const TG_AUTOFILL = 'qalam.tg.autofill'
 export const tgAutofill = () => localStorage.getItem(TG_AUTOFILL) !== 'off'
 export const setTgAutofill = (on) => localStorage.setItem(TG_AUTOFILL, on ? 'on' : 'off')
 
-export async function telegramStart(phone) {
-  const res = await fetch(`${BASE}/auth/telegram/start`, { method: 'POST', credentials: 'include', headers: H({ 'content-type': 'application/json' }), body: JSON.stringify({ phone }) }).catch(() => {
+export async function telegramStart(phone, mode) {
+  const res = await fetch(`${BASE}/auth/telegram/start`, { method: 'POST', credentials: 'include', headers: H({ 'content-type': 'application/json' }), body: JSON.stringify({ phone, ...(mode ? { mode } : {}) }) }).catch(() => {
     throw offline()
   })
   return parse(res)
@@ -190,13 +207,12 @@ export async function telegramStatus(id, { signal } = {}) {
   return parse(res)
 }
 
-export async function telegramVerify(id, code, name) {
-  if (!access) await startSession().catch(() => {})
+export async function telegramVerify(id, code, name, mode) {
   const res = await fetch(`${BASE}/auth/telegram/${encodeURIComponent(id)}/verify`, {
     method: 'POST',
     credentials: 'include',
-    headers: H({ 'content-type': 'application/json', ...(access ? { authorization: `Bearer ${access}` } : {}) }),
-    body: JSON.stringify({ code, ...(name ? { name } : {}) }),
+    headers: H({ 'content-type': 'application/json' }),
+    body: JSON.stringify({ code, ...(name ? { name } : {}), ...(mode ? { mode } : {}) }),
   })
   setSession(await parse(res))
   return user
@@ -212,12 +228,14 @@ export async function changePassword(current, next) {
   if (id) await login({ login: id, password: next })
 }
 
-/** Forget the session locally and open the sign-in page (the account itself is untouched). */
-function signedOut() {
+/** Forget the session locally and open the sign-in (or sign-up) page — unless one is already open. */
+function signedOut(to = 'login') {
   access = null
   user = null
   listeners.forEach((fn) => fn(null))
-  if (typeof window !== 'undefined' && window.location && !/^#\/auth/.test(window.location.hash)) window.location.hash = '#/auth/login'
+  if (typeof window === 'undefined' || !window.location) return
+  const onAuthPage = /^#\/auth/.test(window.location.hash) || Boolean(pageByPath(window.location.pathname)?.auth)
+  if (!onAuthPage) go(pathOf(to === 'signup' ? 'signup' : 'login'), { replace: true })
 }
 
 export async function logout() {
@@ -225,7 +243,7 @@ export async function logout() {
   access = null
   user = null
   clearProfile()
-  // a deliberate sign-out: this browser may go back to browsing as a guest
+  // a deliberate sign-out: forget this browser's account and its local copies
   for (const k of ['qalamai.sync.v1', 'qalamai.designs.v1', 'qalamai.docs.v1', ACCOUNT_KEY]) localStorage.removeItem(k)
   listeners.forEach((fn) => fn(null))
 }

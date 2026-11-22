@@ -42,7 +42,6 @@ export default {
   'au.haveAccount': { uz: 'Hisobingiz bormi?', ru: 'Уже есть аккаунт?', en: 'Already have an account?', kk: 'Аккаунтыңыз бар ма?', ky: 'Аккаунтуңуз барбы?', tg: 'Ҳисоб доред?' },
   'au.noAccount': { uz: 'Hisobingiz yöqmi?', ru: 'Нет аккаунта?', en: "Don't have an account?", kk: 'Аккаунтыңыз жоқ па?', ky: 'Аккаунтуңуз жокпу?', tg: 'Ҳисоб надоред?' },
   'au.createAccount': { uz: 'Hisob yaratiş', ru: 'Создать аккаунт', en: 'Create account', kk: 'Аккаунт жасау', ky: 'Аккаунт түзүү', tg: 'Сохтани ҳисоб' },
-  'au.guest': { uz: 'Röyxatdan ötmasdan sinab köriş', ru: 'Попробовать без регистрации', en: 'Try without signing up', kk: 'Тіркелмей-ақ байқап көру', ky: 'Катталбай эле сынап көрүү', tg: 'Бе сабти ном санҷед' },
   'au.agree': { uz: 'Röyxatdan ötib, foydalaniş şartlariga rozilik bildirasiz.', ru: 'Регистрируясь, вы принимаете условия использования.', en: 'By signing up you agree to the terms of use.', kk: 'Тіркелу арқылы пайдалану шарттарына келісесіз.', ky: 'Катталуу менен колдонуу шарттарына макул болосуз.', tg: 'Бо сабти ном шумо ба шартҳои истифода розӣ мешавед.' },
 
   // Telegram
@@ -70,4 +69,6 @@ export default {
   'tg.st.opened': { uz: 'Bot oçildi — raqamingizni yuboring', ru: 'Бот открыт — отправьте свой номер', en: 'Bot opened — share your number', kk: 'Бот ашылды — нөміріңізді жіберіңіз', ky: 'Бот ачылды — номериңизди жөнөтүңүз', tg: 'Бот кушода шуд — рақамро фиристед' },
   'tg.st.verified': { uz: 'Raqam tasdiqlandi — kod botda', ru: 'Номер подтверждён — код в боте', en: 'Number confirmed — the code is in the bot', kk: 'Нөмір расталды — код ботта', ky: 'Номер ырасталды — код ботто', tg: 'Рақам тасдиқ шуд — рамз дар бот' },
   'tg.confirm': { uz: 'Tasdiqlaş', ru: 'Подтвердить', en: 'Confirm', kk: 'Растау', ky: 'Ырастоо', tg: 'Тасдиқ' },
+  'au.g.noAccount': { uz: "Bu Google hisobi bilan hali röyxatdan ötilmagan. Avval hisob yarating.", ru: "С этим аккаунтом Google ещё нет регистрации. Сначала создайте аккаунт.", en: "There’s no account for this Google account yet. Create one first.", kk: "Бұл Google аккаунтымен әлі тіркелмеген. Алдымен аккаунт ашыңыз.", ky: "Бул Google аккаунту менен азырынча катталган эмес. Адегенде аккаунт түзүңүз.", tg: "Бо ин ҳисоби Google ҳанӯз сабти ном нашудааст. Аввал ҳисоб созед." },
+  'au.g.exists': { uz: "Bu Google hisobi bilan allaqaçon röyxatdan ötilgan. «Kiriş» orqali kiring.", ru: "С этим аккаунтом Google уже зарегистрированы. Войдите через «Вход».", en: "This Google account is already registered. Sign in instead.", kk: "Бұл Google аккаунтымен бұрын тіркелген. «Кіру» арқылы кіріңіз.", ky: "Бул Google аккаунту менен мурун катталган. «Кирүү» аркылуу кириңиз.", tg: "Бо ин ҳисоби Google аллакай сабти ном шудааст. Тавассути «Воридшавӣ» ворид шавед." },
 }

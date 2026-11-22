@@ -76,9 +76,10 @@ export default async function authRoutes(app) {
   const tokenFrom = (req) => req.cookies?.[COOKIE] || req.body?.refreshToken
   const strict = { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }
 
-  app.post('/guest', { ...strict, schema: { tags: ['auth'], summary: 'Mehmon sessiyasi (röyxatdan ötmasdan)', response: { 200: sessionReply } } }, async (req, reply) =>
-    send(req, reply, await auth.createGuest(meta(req))),
-  )
+  app.post('/guest', { ...strict, schema: { tags: ['auth'], summary: 'Mehmon sessiyasi (röyxatdan ötmasdan) — faqat ALLOW_GUESTS yoqilganda', response: { 200: sessionReply } } }, async (req, reply) => {
+    if (!config.auth.allowGuests) throw new AppError(403, 'GUESTS_OFF', 'Avval röyxatdan öting yoki hisobingizga kiring')
+    return send(req, reply, await auth.createGuest(meta(req)))
+  })
 
   app.post(
     '/register',
@@ -132,19 +133,30 @@ export default async function authRoutes(app) {
   const redirectUri = `${config.appUrl}/api/v1/auth/google/callback`
   const appHost = new URL(config.appUrl).host
   // success → the app (which picks the session up from the refresh cookie); failure → sign-in page with a reason
-  const backToApp = (reply, error) =>
-    reply.redirect(error ? `${config.appUrl}/?auth_error=${error}#/auth/login` : `${config.appUrl}/#/`)
+  // `page`: which form the reason is shown on — sign-in, or sign-up (e.g. "no account yet")
+  const backToApp = (reply, error, page = 'login') =>
+    reply.redirect(error ? `${config.appUrl}/?auth_error=${error}#/auth${page === 'login' ? '/login' : ''}` : `${config.appUrl}/#/`)
+  const MODES = new Set(['login', 'signup'])
 
   app.get(
     '/google',
-    { ...strict, schema: { tags: ['auth'], summary: 'Google bilan kiriş (Google sahifasiga yönaltiradi)' } },
+    {
+      ...strict,
+      schema: {
+        tags: ['auth'],
+        summary: 'Google bilan kiriş (Google sahifasiga yönaltiradi)',
+        description: '`mode=login` — faqat mavjud hisobga kiriş; `mode=signup` — faqat yangi hisob oçiş.',
+        querystring: { type: 'object', properties: { mode: { type: 'string', enum: ['login', 'signup'] }, lang: { type: 'string', maxLength: 10 } } },
+      },
+    },
     async (req, reply) => {
       if (!app.ctx.google) return backToApp(reply, 'google_off')
+      const mode = MODES.has(req.query.mode) ? req.query.mode : 'any'
       // the state cookie has to live on the host Google sends the user back to
-      if (req.host !== appHost) return reply.redirect(`${config.appUrl}${G_PATH}`)
+      if (req.host !== appHost) return reply.redirect(`${config.appUrl}${G_PATH}${mode === 'any' ? '' : `?mode=${mode}`}`)
       const state = randomToken(24)
       const verifier = randomToken(48)
-      reply.setCookie(G_COOKIE, `${state}.${verifier}`, {
+      reply.setCookie(G_COOKIE, `${state}.${verifier}.${mode}`, {
         path: G_PATH,
         httpOnly: true,
         sameSite: 'lax',
@@ -172,13 +184,16 @@ export default async function authRoutes(app) {
       if (!google) return backToApp(reply, 'google_off')
       const { code, state, error } = req.query
       if (error) return backToApp(reply, error === 'access_denied' ? 'google_cancelled' : 'google_failed')
-      const [savedState, verifier] = saved.split('.')
+      const [savedState, verifier, savedMode] = saved.split('.')
       if (!savedState || !verifier || !code || !sameText(savedState, state ?? '')) return backToApp(reply, 'google_state')
+      const mode = MODES.has(savedMode) ? savedMode : undefined
       try {
         const identity = await google.identity({ code, redirectUri, verifier })
-        await send(req, reply, await auth.googleSignIn(identity, req.cookies?.[COOKIE], meta(req)), 'google')
+        await send(req, reply, await auth.googleSignIn(identity, req.cookies?.[COOKIE], meta(req), { mode }), 'google')
         return backToApp(reply)
       } catch (err) {
+        if (err.code === 'ACCOUNT_NOT_FOUND') return backToApp(reply, 'google_no_account', 'signup')
+        if (err.code === 'ACCOUNT_EXISTS') return backToApp(reply, 'google_exists', 'login')
         req.log.warn({ err }, 'google sign-in failed')
         return backToApp(reply, 'google_failed')
       }
@@ -202,11 +217,11 @@ export default async function authRoutes(app) {
       schema: {
         tags: ['auth'],
         summary: 'Telegram orqali kiriş: raqam → bot havolasi',
-        body: { type: 'object', required: ['phone'], additionalProperties: false, properties: { phone: { type: 'string', maxLength: 32 } } },
+        body: { type: 'object', required: ['phone'], additionalProperties: false, properties: { phone: { type: 'string', maxLength: 32 }, mode: { type: 'string', enum: ['login', 'signup'] } } },
       },
     },
     async (req, reply) => {
-      const r = await telegramOn().start(req.body.phone)
+      const r = await telegramOn().start(req.body.phone, { mode: req.body.mode })
       reply.setCookie(TG_COOKIE, r.browserSecret, { path: TG_PATH, httpOnly: true, sameSite: 'lax', secure: config.auth.cookieSecure, maxAge: 900 })
       return { id: r.id, botUrl: r.botUrl, botUsername: r.botUsername, phone: r.phone, expiresAt: r.expiresAt }
     },
@@ -227,12 +242,17 @@ export default async function authRoutes(app) {
         tags: ['auth'],
         summary: 'Kodni tekşiriş va kiriş / röyxatdan ötiş',
         params: requestId,
-        body: { type: 'object', required: ['code'], additionalProperties: false, properties: { code: { type: 'string', maxLength: 12 }, name: { type: 'string', maxLength: 80 } } },
+        body: {
+          type: 'object',
+          required: ['code'],
+          additionalProperties: false,
+          properties: { code: { type: 'string', maxLength: 12 }, name: { type: 'string', maxLength: 80 }, mode: { type: 'string', enum: ['login', 'signup'] } },
+        },
         response: { 200: sessionReply },
       },
     },
     async (req, reply) => {
-      const s = await telegramOn().verify(req.params.id, req.cookies?.[TG_COOKIE], req.body.code, { name: req.body.name, currentUser: req.user, meta: meta(req) })
+      const s = await telegramOn().verify(req.params.id, req.cookies?.[TG_COOKIE], req.body.code, { name: req.body.name, currentUser: req.user, meta: meta(req), mode: req.body.mode })
       reply.clearCookie(TG_COOKIE, { path: TG_PATH })
       return send(req, reply, s, 'telegram')
     },

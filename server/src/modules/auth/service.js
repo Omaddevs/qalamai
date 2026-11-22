@@ -58,10 +58,29 @@ export function publicUser(u, limits) {
 /** How long an already-rotated refresh token may still be presented (parallel tabs, reloads). */
 const REUSE_GRACE_MS = 60_000
 
+/** Password sign-in: this many wrong tries for one login within the window lock it for the window. */
+const MAX_FAILS = 5
+const FAIL_WINDOW_MS = 15 * 60_000
+
+export const accountExists = () => new AppError(409, 'ACCOUNT_EXISTS', 'Bu hisob bilan allaqaçon röyxatdan ötilgan — «Kiriş» orqali kiring')
+export const accountNotFound = () => new AppError(404, 'ACCOUNT_NOT_FOUND', 'Bunday hisob topilmadi — avval röyxatdan öting')
+
 export function createAuthService({ db, tokens, config, coins }) {
   const refreshMs = config.auth.refreshDays * 86400_000
   // verified against when the login is unknown, so both paths cost one full scrypt
   let dummyHash = null
+  // wrong passwords per login (single API process; the IP rate limit stays the outer guard)
+  const fails = new Map()
+  const failsOf = (key) => {
+    const now = Date.now()
+    const list = (fails.get(key) ?? []).filter((t) => now - t < FAIL_WINDOW_MS)
+    if (list.length) fails.set(key, list)
+    else fails.delete(key)
+    return list
+  }
+
+  /** Close every live session of a user (their refresh tokens stop working). */
+  const revokeAll = (userId) => db.update(sessions).set({ revokedAt: new Date() }).where(and(eq(sessions.userId, userId), isNull(sessions.revokedAt)))
 
   async function issueSession(user, meta, family = newId('fam')) {
     const refreshToken = randomToken()
@@ -97,9 +116,11 @@ export function createAuthService({ db, tokens, config, coins }) {
      * upgraded in place so its files, documents and designs carry over.
      */
     async register({ login, password, name }, currentUser, meta) {
+      // a signed-in account can't open a second one from inside itself
+      if (currentUser && !currentUser.isGuest) throw new AppError(409, 'ALREADY_SIGNED_IN', 'Siz allaqaçon hisobingizga kirgansiz')
       const id = parseLogin(login)
       if (!id) throw badRequest('Email yoki telefon raqamni töğri kiriting (masalan: +998 90 123 45 67)')
-      if (await findByLogin(id)) throw conflict(id.email ? 'Bu email bilan hisob allaqaçon bor' : 'Bu telefon raqam bilan hisob allaqaçon bor')
+      if (await findByLogin(id)) throw new AppError(409, 'ACCOUNT_EXISTS', id.email ? 'Bu email bilan hisob allaqaçon bor — «Kiriş» orqali kiring' : 'Bu telefon raqam bilan hisob allaqaçon bor — «Kiriş» orqali kiring')
       const passwordHash = await hashPassword(password)
       const fields = { ...id, passwordHash, name: name?.trim() ?? '', isGuest: false, updatedAt: new Date() }
 
@@ -125,12 +146,32 @@ export function createAuthService({ db, tokens, config, coins }) {
 
     async login({ login, password }, meta) {
       const id = parseLogin(login)
+      const key = id?.email ?? id?.phone ?? String(login).trim().toLowerCase()
+      if (failsOf(key).length >= MAX_FAILS) {
+        throw new AppError(429, 'TOO_MANY_ATTEMPTS', 'Juda köp notöğri uriniş. 15 daqiqadan keyin qayta urinib köring yoki Google / Telegram orqali kiring.')
+      }
       const user = id ? await findByLogin(id) : null
       // same answer and similar timing whether the account exists or not
       dummyHash ??= await hashPassword(randomToken())
       const ok = await verifyPassword(password, user?.passwordHash ?? dummyHash)
-      if (!user || !ok) throw new AppError(401, 'INVALID_CREDENTIALS', 'Login yoki parol notöğri')
+      if (!user || !ok) {
+        fails.set(key, [...failsOf(key), Date.now()])
+        throw new AppError(401, 'INVALID_CREDENTIALS', 'Login yoki parol notöğri')
+      }
+      fails.delete(key)
       return { user, ...(await issueSession(user, meta)) }
+    },
+
+    /**
+     * The account a Telegram-confirmed number would sign into, if any (same order as phoneSignIn).
+     * Lets a "sign in" / "sign up" choice be checked before the one-time code is spent.
+     */
+    async accountForPhone({ phone, telegramId }) {
+      if (telegramId) {
+        const [linked] = await db.select().from(users).where(eq(users.telegramId, telegramId)).limit(1)
+        if (linked) return linked
+      }
+      return findByLogin({ phone })
     },
 
     /**
@@ -140,23 +181,32 @@ export function createAuthService({ db, tokens, config, coins }) {
      * @param {{ sub: string, email: string|null, emailVerified: boolean, name: string }} g
      * @param {string|undefined} refreshToken the browser's current refresh cookie, if any
      */
-    async googleSignIn(g, refreshToken, meta) {
+    async googleSignIn(g, refreshToken, meta, { mode } = {}) {
       const email = g.emailVerified ? normalizeEmail(g.email) : null
 
       const [linked] = await db.select().from(users).where(eq(users.googleId, g.sub)).limit(1)
-      if (linked) return { user: linked, ...(await issueSession(linked, meta)) }
+      if (linked) {
+        if (mode === 'signup') throw accountExists()
+        return { user: linked, ...(await issueSession(linked, meta)) }
+      }
 
       if (email) {
         const existing = await findByLogin({ email })
         if (existing) {
+          if (mode === 'signup') throw accountExists()
+          // The e-mail of a password account was never proven. Google proves it now, so whatever
+          // password was set on it (perhaps by someone else, before the owner came) stops working.
+          const claim = Boolean(existing.passwordHash)
           const [user] = await db
             .update(users)
-            .set({ googleId: g.sub, isGuest: false, name: existing.name || g.name, updatedAt: new Date() })
+            .set({ googleId: g.sub, isGuest: false, name: existing.name || g.name, ...(claim ? { passwordHash: null } : {}), updatedAt: new Date() })
             .where(eq(users.id, existing.id))
             .returning()
+          if (claim) await revokeAll(user.id)
           return { user, ...(await issueSession(user, meta)) }
         }
       }
+      if (mode === 'login') throw accountNotFound()
 
       // a guest browsing before sign-up keeps their files, documents and designs
       let guest = null
@@ -192,11 +242,15 @@ export function createAuthService({ db, tokens, config, coins }) {
      * account, upgraded in place → a new account.
      * @param {{ phone: string, telegramId: string, name: string }} p
      */
-    async phoneSignIn({ phone, telegramId, telegramUsername = null, name }, currentUser, meta) {
+    async phoneSignIn({ phone, telegramId, telegramUsername = null, name }, currentUser, meta, { mode } = {}) {
       const now = new Date()
       const [linked] = await db.select().from(users).where(eq(users.telegramId, telegramId)).limit(1)
       const existing = linked ?? (await findByLogin({ phone }))
       if (existing) {
+        if (mode === 'signup') throw accountExists()
+        // A number typed in at password sign-up was never proven; Telegram proves it now, so a
+        // password set on it before (perhaps by someone else) stops working.
+        const claim = !linked && existing.phone === phone && !existing.phoneVerifiedAt && Boolean(existing.passwordHash)
         const [user] = await db
           .update(users)
           .set({
@@ -205,12 +259,15 @@ export function createAuthService({ db, tokens, config, coins }) {
             isGuest: false,
             name: existing.name || name,
             ...(existing.phone === phone ? { phoneVerifiedAt: now } : {}),
+            ...(claim ? { passwordHash: null } : {}),
             updatedAt: now,
           })
           .where(eq(users.id, existing.id))
           .returning()
+        if (claim) await revokeAll(user.id)
         return { user, ...(await issueSession(user, meta)) }
       }
+      if (mode === 'login') throw accountNotFound()
 
       const fields = { phone, telegramId, telegramUsername, phoneVerifiedAt: now, name, isGuest: false, updatedAt: now }
       let user
@@ -238,6 +295,11 @@ export function createAuthService({ db, tokens, config, coins }) {
       if (s.expiresAt < new Date()) throw unauthorized('Sessiya muddati tugagan — qaytadan kiring')
       const [user] = await db.select().from(users).where(eq(users.id, s.userId)).limit(1)
       if (!user) throw unauthorized()
+      if (user.isGuest && !config.auth.allowGuests) {
+        // guests are off: an old guest session ends here; the browser goes to sign-up / sign-in
+        await revokeAll(user.id)
+        throw new AppError(401, 'SIGN_IN_REQUIRED', 'Avval röyxatdan öting yoki hisobingizga kiring')
+      }
 
       if (!s.revokedAt) {
         // conditional revoke: of two parallel refreshes with the same token only one rotates it

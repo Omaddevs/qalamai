@@ -15,7 +15,7 @@ import { AppError, badRequest } from '../../lib/errors.js'
 import { createHmac } from 'node:crypto'
 import { writeFile } from 'node:fs/promises'
 import { randomToken, sha256 } from '../../lib/crypto.js'
-import { normalizePhone } from '../auth/service.js'
+import { accountExists, accountNotFound, normalizePhone } from '../auth/service.js'
 
 const { telegramLogins, users } = schema
 
@@ -74,9 +74,15 @@ export function createTelegramLogin({ db, bot, auth, secret, storage, log }) {
   return {
     codeFor,
 
-    async start(phoneInput) {
+    async start(phoneInput, { mode } = {}) {
       const phone = normalizePhone(phoneInput)
       if (!phone) throw badRequest('Telefon raqamni +998 XX XXX XX XX körinişida kiriting')
+      // say it before the trip to the bot: "sign in" needs an account, "sign up" must not have one
+      if (mode) {
+        const known = await auth.accountForPhone({ phone })
+        if (mode === 'login' && !known) throw accountNotFound()
+        if (mode === 'signup' && known) throw accountExists()
+      }
       const [{ n }] = await db
         .select({ n: sql`count(*)::int` })
         .from(telegramLogins)
@@ -105,7 +111,7 @@ export function createTelegramLogin({ db, bot, auth, secret, storage, log }) {
     },
 
     /** Check the code and sign the person in (or register them). */
-    async verify(id, browserSecret, code, { name, currentUser, meta }) {
+    async verify(id, browserSecret, code, { name, currentUser, meta, mode }) {
       const r = await load(id, browserSecret)
       if (expired(r)) throw new AppError(410, 'TG_EXPIRED', 'Kod muddati tugagan. Qaytadan boşlang.')
       if (!r.verifiedAt) throw new AppError(400, 'TG_NOT_CONFIRMED', 'Avval Telegram botda raqamingizni yuboring.')
@@ -113,6 +119,13 @@ export function createTelegramLogin({ db, bot, auth, secret, storage, log }) {
       if (String(code ?? '').replace(/\D/g, '') !== codeFor(r.id)) {
         await db.update(telegramLogins).set({ attempts: sql`${telegramLogins.attempts} + 1` }).where(eq(telegramLogins.id, r.id))
         throw new AppError(400, 'TG_WRONG_CODE', 'Kod notöğri')
+      }
+      // checked again here (the Telegram account may already be linked to an account) — before
+      // the code is spent
+      if (mode) {
+        const known = await auth.accountForPhone({ phone: r.phone, telegramId: r.telegramUserId })
+        if (mode === 'login' && !known) throw accountNotFound()
+        if (mode === 'signup' && known) throw accountExists()
       }
       // single use, also against two parallel requests
       const won = await db
@@ -125,6 +138,7 @@ export function createTelegramLogin({ db, bot, auth, secret, storage, log }) {
         { phone: r.phone, telegramId: r.telegramUserId, telegramUsername: r.telegramUsername, name: r.telegramName || name?.trim() || '' },
         currentUser,
         meta,
+        { mode },
       )
       // the Telegram profile picture becomes the account's avatar (best effort — never blocks sign-in)
       const user = await savePhoto(session.user, r.telegramUserId)

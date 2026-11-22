@@ -33,6 +33,8 @@ const schema = z.object({
   REFRESH_TOKEN_DAYS: z.coerce.number().int().positive().default(30),
   /** Secure cookies need HTTPS; turn off only for plain-HTTP local setups. */
   COOKIE_SECURE: bool.optional(),
+  // guest sessions (using the app without an account) — off: everyone signs up or signs in first
+  ALLOW_GUESTS: bool.default(false),
 
   /** Uploaded files and tool results are deleted after this many hours unless kept. */
   FILE_TTL_HOURS: z.coerce.number().positive().default(24),
@@ -109,6 +111,7 @@ function load() {
       accessTtlMin: env.ACCESS_TOKEN_TTL_MIN,
       refreshDays: env.REFRESH_TOKEN_DAYS,
       cookieSecure: env.COOKIE_SECURE ?? isProd,
+      allowGuests: env.ALLOW_GUESTS,
     },
     files: {
       ttlHours: env.FILE_TTL_HOURS,

@@ -90,7 +90,7 @@ test('guest signs in with Google → same account, upgraded; second sign-in find
   assert.equal((await me(again.rt)).id, u.id, 'found by Google id')
 })
 
-test('Google account with an e-mail already registered links to that account', async () => {
+test('Google account with an e-mail already registered links to that account and voids its unproven password', async () => {
   useFakeGoogle()
   const c = client(srv.base)
   const reg = await c.req('POST', '/api/v1/auth/register', { json: { login: 'aziz@mail.uz', password: 'parol12345', name: 'Aziz' } })
@@ -100,10 +100,13 @@ test('Google account with an e-mail already registered links to that account', a
   const u = await me(rt)
   assert.equal(u.id, reg.body.user.id)
   assert.equal(u.name, 'Aziz', 'existing name kept')
+  assert.equal(u.linked.password, false)
 
-  // the password still works
+  // whoever typed this e-mail at sign-up never proved it: their password and sessions end
   const login = await client(srv.base).req('POST', '/api/v1/auth/login', { json: { login: 'aziz@mail.uz', password: 'parol12345' } })
-  assert.equal(login.status, 200)
+  assert.equal(login.status, 401)
+  const old = await c.req('POST', '/api/v1/auth/refresh')
+  assert.equal(old.status, 401)
 })
 
 test('an unverified Google e-mail never takes over an existing account', async () => {

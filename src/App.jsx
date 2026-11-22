@@ -11,6 +11,7 @@ import { kindLabel } from './i18n/kinds.js'
 import { pageByPath, pathOf } from './landing/pages.js'
 import { go } from './nav.js'
 import NotFound from './components/NotFound.jsx'
+import { currentUser, ensureSession, onUser } from './api.js'
 
 // Each page is its own chunk: a visitor downloads only the page in front of them.
 const PAGES = {
@@ -82,6 +83,10 @@ function Pages() {
   const [nextPanel, setNextPanel] = useState('templates')
   const [openAppId, setOpenAppId] = useState(null)
   const [toast, setToast] = useState(null)
+  // the app itself is for signed-in accounts only; until one is confirmed nothing of it renders
+  const [me, setMe] = useState(currentUser)
+  const [authFailed, setAuthFailed] = useState(null)
+  useEffect(() => onUser(setMe), [])
 
   // designs changed on another device arrived
   useEffect(() => onSynced((got) => got.designs && setDesigns(loadDesigns())), [])
@@ -157,6 +162,14 @@ function Pages() {
     if (designId && !deck) goHome()
   }, [designId, deck, goHome])
 
+  const inApp = landing !== 'notfound' && !landing && !authMode
+  useEffect(() => {
+    if (!inApp || currentUser()) return
+    setAuthFailed(null)
+    // no session: ensureSession sends the browser to sign-up / sign-in itself
+    ensureSession().catch((err) => err?.code === 'OFFLINE' && setAuthFailed(err))
+  }, [inApp])
+
   if (landing === 'notfound') return <NotFound />
 
   if (landing) {
@@ -175,9 +188,21 @@ function Pages() {
         mode={authMode}
         onMode={(m) => go(pathOf(m === 'login' ? 'login' : 'signup'), { replace: true })}
         onDone={toApp}
-        onGuest={toApp}
         onBack={() => go('/')}
       />
+    )
+  }
+
+  if (!me || me.isGuest) {
+    return authFailed ? (
+      <div className="auth-wait" role="alert">
+        <p>{authFailed.message}</p>
+        <button className="btn primary" onClick={() => { setAuthFailed(null); ensureSession().catch((err) => err?.code === 'OFFLINE' && setAuthFailed(err)) }}>
+          {t('pe.retry')}
+        </button>
+      </div>
+    ) : (
+      <PageLoading />
     )
   }
 

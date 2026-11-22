@@ -139,7 +139,7 @@ test('a link opened by one Telegram account can not be taken over by another', a
   assert.match(sent.at(-1).text, /boşqa Telegram hisobi/)
 })
 
-test('existing phone account (password) gets linked, and the password keeps working', async () => {
+test('existing phone account (password) gets linked; the password set on the unproven number stops working', async () => {
   const reg = await client(srv.base).req('POST', '/api/v1/auth/register', { json: { login: '+998 99 111 22 33', password: 'parol12345', name: 'Dilnoza' } })
   assert.equal(reg.status, 200)
   assert.equal(reg.body.user.phoneVerified, false)
@@ -156,8 +156,9 @@ test('existing phone account (password) gets linked, and the password keeps work
   assert.equal(ok.body.user.avatarUrl, reg.body.user.avatarUrl, 'no Telegram picture: the drawn avatar from sign-up stays')
   assert.match(ok.body.user.avatarUrl, /^\/avatars\/\d{2}\.webp$/)
 
+  assert.equal(ok.body.user.linked.password, false)
   const login = await client(srv.base).req('POST', '/api/v1/auth/login', { json: { login: '+998991112233', password: 'parol12345' } })
-  assert.equal(login.status, 200)
+  assert.equal(login.status, 401)
 })
 
 test('wrong codes run out; bad numbers and missing bot are refused', async () => {

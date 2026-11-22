@@ -50,7 +50,8 @@ before(async () => {
   sync = await load('/src/sync.js')
   window.addEventListener('qalam:synced', (e) => synced.push(e.detail))
   sync.startSync()
-  await api.ensureSession()
+  // there are no guests: the browser signs up first
+  await api.register({ login: 'sync@mail.uz', password: 'parol12345', name: 'Sinx' })
   await sync.syncNow()
 })
 
@@ -61,7 +62,7 @@ after(async () => {
 })
 
 test('fresh browser starts empty — no demo designs', async () => {
-  assert.ok(api.currentUser().isGuest)
+  assert.equal(api.currentUser().isGuest, false)
   assert.equal(store.loadDesigns().length, 0)
   assert.equal((await api.api.get('/designs')).items.length, 0)
   assert.equal(sync.syncStatus().state, 'idle')
@@ -122,7 +123,9 @@ test('profile: local edit goes up, a newer remote edit comes down', async () => 
 })
 
 test('an id owned by another account is kept under a new id', async () => {
-  const other = await (await realFetch(`${srv.base}/api/v1/auth/guest`, { method: 'POST' })).json()
+  const other = await (
+    await realFetch(`${srv.base}/api/v1/auth/register`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ login: 'begona@mail.uz', password: 'parol12345' }) })
+  ).json()
   await realFetch(`${srv.base}/api/v1/documents/f_takenid1`, {
     method: 'PUT',
     headers: { authorization: `Bearer ${other.accessToken}`, 'content-type': 'application/json' },

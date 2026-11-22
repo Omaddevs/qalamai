@@ -13,6 +13,8 @@ export async function startServer() {
     MODELS_DIR: new URL('../models', import.meta.url).pathname,
     JOB_CONCURRENCY: '2',
     LOG_LEVEL: 'silent',
+    // most suites drive the API as a guest; test/signin.test.js switches guests off
+    ALLOW_GUESTS: 'true',
   })
   const { config } = await import('../src/config.js')
   const { buildApp } = await import('../src/app.js')

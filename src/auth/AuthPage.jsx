@@ -7,7 +7,7 @@ import { Wordmark } from '../components/ui.jsx'
 import Slide from '../editor/Slide.jsx'
 import { TEMPLATES, sampleDeck } from '../editor/templates.js'
 import { TOOL_UI } from '../files/toolMeta.js'
-import { ensureSession, login, register, signInWithGoogle } from '../api.js'
+import { login, peekSession, register, signInWithGoogle } from '../api.js'
 import TelegramFlow from './TelegramFlow.jsx'
 import '../editor/editor.css'
 import './auth.css'
@@ -43,7 +43,7 @@ function strength(p) {
 }
 
 /** Reasons the server sends back after a Google trip (?auth_error=…). */
-const GOOGLE_ERRORS = { google_off: 'au.g.off', google_cancelled: 'au.g.cancelled', google_state: 'au.g.state', google_failed: 'au.g.failed' }
+const GOOGLE_ERRORS = { google_off: 'au.g.off', google_cancelled: 'au.g.cancelled', google_state: 'au.g.state', google_failed: 'au.g.failed', google_no_account: 'au.g.noAccount', google_exists: 'au.g.exists' }
 
 /** Read ?auth_error once and drop it from the address bar. */
 function takeAuthError() {
@@ -52,7 +52,9 @@ function takeAuthError() {
   if (!code) return null
   url.searchParams.delete('auth_error')
   window.history.replaceState(null, '', url.pathname + url.search + url.hash)
-  return t(GOOGLE_ERRORS[code] ?? GOOGLE_ERRORS.google_failed)
+  // "no account yet" / "already registered" come with a button to the other form
+  const code2 = code === 'google_no_account' ? 'ACCOUNT_NOT_FOUND' : code === 'google_exists' ? 'ACCOUNT_EXISTS' : null
+  return { msg: t(GOOGLE_ERRORS[code] ?? GOOGLE_ERRORS.google_failed), code: code2 }
 }
 // read once per page load: Google sends the browser back with a fresh page
 let pendingAuthError = takeAuthError()
@@ -195,7 +197,7 @@ function Showcase() {
 
 /* ───────── page ───────── */
 
-export default function AuthPage({ mode, onMode, onDone, onBack, onGuest }) {
+export default function AuthPage({ mode, onMode, onDone, onBack }) {
   const isSignup = mode === 'register'
   const [name, setName] = useState('')
   const [id, setId] = useState('')
@@ -203,6 +205,7 @@ export default function AuthPage({ mode, onMode, onDone, onBack, onGuest }) {
   const [show, setShow] = useState(false)
   const [touched, setTouched] = useState({})
   const [busy, setBusy] = useState(false)
+  // { msg, code } — code ACCOUNT_EXISTS / ACCOUNT_NOT_FOUND adds a button to the other form
   const [error, setError] = useState(() => pendingAuthError)
   const [note, setNote] = useState(null)
   const [googleBusy, setGoogleBusy] = useState(false)
@@ -215,9 +218,7 @@ export default function AuthPage({ mode, onMode, onDone, onBack, onGuest }) {
   // Already signed in with a real account? Skip the form (checked once, on mount).
   useEffect(() => {
     let live = true
-    ensureSession()
-      .then((u) => live && u && !u.isGuest && done.current(u))
-      .catch(() => {})
+    peekSession().then((u) => live && u && !u.isGuest && done.current(u))
     return () => {
       live = false
     }
@@ -261,11 +262,12 @@ export default function AuthPage({ mode, onMode, onDone, onBack, onGuest }) {
       const u = isSignup ? await register({ login: value, password: pw, name: name.trim() }) : await login({ login: value, password: pw })
       onDone(u)
     } catch (err) {
-      setError(err.message || t('au.err.generic'))
+      setError({ msg: err.message || t('au.err.generic'), code: err.code })
     } finally {
       setBusy(false)
     }
   }
+  const switchTo = error?.code === 'ACCOUNT_EXISTS' || error?.code === 'ALREADY_SIGNED_IN' ? 'login' : error?.code === 'ACCOUNT_NOT_FOUND' ? 'register' : null
 
   const soon = (what) => {
     setError(null)
@@ -291,7 +293,13 @@ export default function AuthPage({ mode, onMode, onDone, onBack, onGuest }) {
           </p>
 
           {viaTelegram ? (
-            <TelegramFlow name={name.trim()} onDone={onDone} onCancel={() => setViaTelegram(false)} />
+            <TelegramFlow
+              name={name.trim()}
+              mode={isSignup ? 'signup' : 'login'}
+              onDone={onDone}
+              onCancel={() => setViaTelegram(false)}
+              onSwitch={() => onMode(isSignup ? 'login' : 'register')}
+            />
           ) : (
           <>
           <form className="au-form" onSubmit={submit} noValidate>
@@ -367,7 +375,12 @@ export default function AuthPage({ mode, onMode, onDone, onBack, onGuest }) {
 
             {error && (
               <div className="au-alert" role="alert">
-                <WarningCircle size={16} weight="fill" /> {error}
+                <WarningCircle size={16} weight="fill" /> <span>{error.msg}</span>
+                {switchTo && switchTo !== mode && (
+                  <button type="button" className="au-alert-go" onClick={() => onMode(switchTo)}>
+                    {switchTo === 'login' ? t('au.login') : t('au.createAccount')} <ArrowRight size={12} weight="bold" />
+                  </button>
+                )}
               </div>
             )}
             {note && (
@@ -389,7 +402,7 @@ export default function AuthPage({ mode, onMode, onDone, onBack, onGuest }) {
               disabled={googleBusy}
               onClick={() => {
                 setGoogleBusy(true)
-                signInWithGoogle()
+                signInWithGoogle(isSignup ? 'signup' : 'login')
               }}
             >
               {googleBusy ? <CircleNotch size={18} className="au-spin" /> : <GoogleMark />} Google
@@ -406,9 +419,6 @@ export default function AuthPage({ mode, onMode, onDone, onBack, onGuest }) {
               {isSignup ? t('au.login') : t('au.createAccount')}
             </button>
           </p>
-          <button type="button" className="au-guest" onClick={onGuest}>
-            {t('au.guest')} <ArrowRight size={13} weight="bold" />
-          </button>
         </div>
 
         <footer className="au-foot">

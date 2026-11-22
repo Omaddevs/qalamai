@@ -9,7 +9,7 @@ import swagger from '@fastify/swagger'
 import swaggerUi from '@fastify/swagger-ui'
 import { eq } from 'drizzle-orm'
 import { connectDb, schema } from './db/index.js'
-import { errorHandler, unauthorized } from './lib/errors.js'
+import { AppError, errorHandler, unauthorized } from './lib/errors.js'
 import { createStorage } from './lib/storage.js'
 import { createTokenService } from './lib/tokens.js'
 import { WorkerPool } from './workers/pool.js'
@@ -93,6 +93,8 @@ export async function buildApp(config) {
   app.decorate('authenticate', async (req) => {
     req.user = await loadUser(req)
     if (!req.user) throw unauthorized('Sessiya tugagan — qaytadan kiring')
+    // with guests off, a guest account left from before can't use the app any more
+    if (req.user.isGuest && !config.auth.allowGuests) throw new AppError(401, 'SIGN_IN_REQUIRED', 'Avval röyxatdan öting yoki hisobingizga kiring')
   })
   app.decorate('optionalAuth', async (req) => {
     req.user = await loadUser(req)

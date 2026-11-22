@@ -135,6 +135,25 @@
   animation: au-in 0.3s var(--au-ease);
 }
 .au-alert svg { flex-shrink: 0; margin-top: 1px; }
+.au-alert > span { flex: 1; }
+/* "already registered → Sign in" / "no account → Create one" */
+.au-alert-go {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 4px;
+  align-self: center;
+  height: 28px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: #b91c1c;
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+.au-alert-go:hover { background: #991b1b; }
 .au-alert.info { background: var(--brand-soft); color: var(--brand-fg); }
 
 .au-submit {
@@ -179,17 +198,6 @@
 
 .au-switch { margin-top: 26px !important; font-size: 14px; color: var(--au-muted); }
 .au-switch button { font-weight: 600; color: var(--au-ink); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
-.au-guest {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  margin-top: 12px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--brand-fg);
-}
-.au-guest svg { transition: transform 0.2s var(--au-ease); }
-.au-guest:hover svg { transform: translateX(3px); }
 
 .au-foot {
   display: flex;

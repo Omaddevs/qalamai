@@ -534,6 +534,18 @@ p {
   animation: page-loading 1s ease-in-out infinite;
   z-index: 9999;
 }
+/* the app couldn't confirm the account (no connection): say so, with a retry */
+.auth-wait {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 100dvh;
+  padding: 24px;
+  color: var(--muted);
+  text-align: center;
+}
 @keyframes page-loading {
   from { background-position: -50% 0; }
   to { background-position: 150% 0; }

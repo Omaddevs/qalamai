@@ -15,7 +15,7 @@ const pretty = (v) => {
  * Telegram sign-in: phone → the bot confirms it is the user's own number → 6-digit code.
  * With "avtomatik kiritiş" on, the code is filled in and submitted as soon as the bot confirms.
  */
-export default function TelegramFlow({ name, onDone, onCancel }) {
+export default function TelegramFlow({ name, mode, onDone, onCancel, onSwitch }) {
   const [phone, setPhone] = useState('')
   const [req, setReq] = useState(null) // { id, botUrl, botUsername, phone }
   const [status, setStatus] = useState('pending')
@@ -23,6 +23,7 @@ export default function TelegramFlow({ name, onDone, onCancel }) {
   const [auto, setAuto] = useState(tgAutofill)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
+  const [errCode, setErrCode] = useState(null)
   const phoneRef = useRef(null)
   const codeRef = useRef(null)
   const submitted = useRef(false)
@@ -36,13 +37,14 @@ export default function TelegramFlow({ name, onDone, onCancel }) {
     setBusy(true)
     setError(null)
     try {
-      const r = await telegramStart(`+998${d}`)
+      const r = await telegramStart(`+998${d}`, mode)
       setReq(r)
       setStatus('pending')
       setCode('')
       submitted.current = false
     } catch (err) {
       setError(err.message)
+      setErrCode(err.code)
     } finally {
       setBusy(false)
     }
@@ -53,7 +55,7 @@ export default function TelegramFlow({ name, onDone, onCancel }) {
     setBusy(true)
     setError(null)
     try {
-      const u = await telegramVerify(req.id, digits(value), name)
+      const u = await telegramVerify(req.id, digits(value), name, mode)
       // fill the local profile (titul, slides) from Telegram where it is still empty
       const p = loadProfile()
       const next = { ...p, fullName: p.fullName.trim() || u.name || '', phone: p.phone.trim() || u.phone || '' }
@@ -61,6 +63,7 @@ export default function TelegramFlow({ name, onDone, onCancel }) {
       onDone(u)
     } catch (err) {
       setError(err.message)
+      setErrCode(err.code)
       submitted.current = false
       if (err.code === 'TG_EXPIRED' || err.code === 'TG_TOO_MANY') setStatus('expired')
     } finally {
@@ -104,6 +107,26 @@ export default function TelegramFlow({ name, onDone, onCancel }) {
     setTgAutofill(on)
   }
 
+  // "no account yet" / "already registered": one tap to the other form (the code stays valid)
+  const other = errCode === 'ACCOUNT_EXISTS' ? 'login' : errCode === 'ACCOUNT_NOT_FOUND' ? 'signup' : null
+  const alert = (
+    <div className="au-alert" role="alert">
+      <WarningCircle size={16} weight="fill" /> <span>{error}</span>
+      {other && other !== mode && (
+        <button
+          type="button"
+          className="au-alert-go"
+          onClick={() => {
+            setError(null)
+            setErrCode(null)
+            onSwitch?.()
+          }}
+        >
+          {other === 'login' ? t('au.login') : t('au.createAccount')}
+        </button>
+      )}
+    </div>
+  )
   const back = (
     <button type="button" className="au-link tg-back" onClick={req ? () => setReq(null) : onCancel}>
       <ArrowLeft size={14} weight="bold" /> {req ? t('tg.changeNumber') : t('tg.otherWay')}
@@ -135,7 +158,7 @@ export default function TelegramFlow({ name, onDone, onCancel }) {
             aria-label={t('tg.phone')}
           />
         </div>
-        {error && <div className="au-alert" role="alert"><WarningCircle size={16} weight="fill" /> {error}</div>}
+        {error && alert}
         <button className="au-submit tg-submit" type="submit" disabled={busy}>
           {busy ? <CircleNotch size={18} className="au-spin" /> : <><TelegramLogo size={18} weight="fill" /> {t('tg.getCode')}</>}
         </button>
@@ -195,7 +218,7 @@ export default function TelegramFlow({ name, onDone, onCancel }) {
         {t('tg.auto')}
       </label>
 
-      {error && status !== 'expired' && <div className="au-alert" role="alert"><WarningCircle size={16} weight="fill" /> {error}</div>}
+      {error && status !== 'expired' && alert}
 
       {status === 'expired' ? (
         <button className="au-submit tg-submit" type="button" onClick={() => setReq(null)}>{t('tg.restart')}</button>

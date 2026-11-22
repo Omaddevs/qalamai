@@ -1,7 +1,7 @@
-// Free photos for the Elements panel, from Openverse (openverse.org — a WordPress project that
-// indexes openly licensed media). Only public-domain / CC0 images are asked for, so a photo can
-// be used in any design without credit. The browser talks to Openverse directly; a chosen photo
-// is downscaled into the design (like an upload), so it keeps working offline and in exports.
+// Free photos for the Elements panel: Unsplash (through our API, which holds the Access Key) and,
+// when Unsplash isn't set up or its hourly limit is spent, Openverse (openverse.org — openly
+// licensed media; only public-domain / CC0 images are asked for, so no credit is needed).
+import { api } from '../../api.js'
 import { downscale } from '../layouts.jsx'
 
 const API = 'https://api.openverse.org/v1/images/'
@@ -15,10 +15,29 @@ export class PhotoError extends Error {
   }
 }
 
-/** → { items: [{ id, thumb, url, w, h, title }], more: boolean } */
-export async function searchPhotos(q, page = 1, signal) {
-  const key = `${q.trim().toLowerCase()}|${page}`
-  if (cache.has(key)) return cache.get(key)
+/* ───────── Unsplash, through our API (the key stays on the server) ───────── */
+
+// After PHOTOS_OFF (no key on the server) Unsplash isn't asked again this visit;
+// after PHOTOS_LIMIT (hourly limit spent) it is skipped for ten minutes.
+let unsplashOff = false
+let unsplashPauseUntil = 0
+
+async function searchUnsplash(q, page, signal) {
+  if (unsplashOff || Date.now() < unsplashPauseUntil) return null
+  try {
+    const r = await api.get(`/photos/search?${new URLSearchParams({ q: q.trim(), page: String(page) })}`, { signal })
+    return r?.provider === 'unsplash' ? r : null
+  } catch (e) {
+    if (e.name === 'AbortError') throw e
+    if (e.code === 'PHOTOS_OFF') unsplashOff = true
+    if (e.code === 'PHOTOS_LIMIT') unsplashPauseUntil = Date.now() + 10 * 60 * 1000
+    return null // any other problem: this search goes to Openverse
+  }
+}
+
+/* ───────── Openverse (no key; public domain / CC0 only) ───────── */
+
+async function searchOpenverse(q, page, signal) {
   const url = new URL(API)
   url.search = new URLSearchParams({
     q: q.trim(),
@@ -38,11 +57,13 @@ export async function searchPhotos(q, page = 1, signal) {
   if (res.status === 429) throw new PhotoError('limit')
   if (!res.ok) throw new PhotoError('network')
   const json = await res.json()
-  const out = {
+  return {
+    provider: 'openverse',
     items: (json.results ?? [])
       .filter((r) => r.id && (r.thumbnail || r.url))
       .map((r) => ({
         id: r.id,
+        provider: 'openverse',
         thumb: r.thumbnail || r.url,
         url: r.url,
         w: r.width || 4,
@@ -51,6 +72,14 @@ export async function searchPhotos(q, page = 1, signal) {
       })),
     more: page < Math.min(json.page_count ?? 1, 20),
   }
+}
+
+/** Unsplash first, Openverse when Unsplash isn't set up or is busy.
+ *  → { provider, items: [{ id, provider, thumb, url, w, h, title, author?, authorUrl?, link? }], more } */
+export async function searchPhotos(q, page = 1, signal) {
+  const key = `${q.trim().toLowerCase()}|${page}`
+  if (cache.has(key)) return cache.get(key)
+  const out = (await searchUnsplash(q, page, signal)) ?? (await searchOpenverse(q, page, signal))
   cache.set(key, out)
   return out
 }
@@ -63,11 +92,21 @@ async function fetchImage(src) {
   return downscale(blob, 1600)
 }
 
-/** The photo as a data URL kept inside the design (full size when the host allows it, else the preview). */
+/**
+ * What goes into the design for a photo: { src, credit? }.
+ * Unsplash photos keep Unsplash's own address (their guidelines ask for hotlinking; the image
+ * CDN allows cross-origin use, so downloads still work) and their photographer's credit; the
+ * use is reported to Unsplash. Openverse photos are copied into the design (full size when the
+ * host allows it, else the preview).
+ */
 export async function photoData(p) {
+  if (p.provider === 'unsplash') {
+    api.post(`/photos/${encodeURIComponent(p.id)}/download`).catch(() => {})
+    return { src: p.url, credit: { name: p.author, url: p.authorUrl, link: p.link, by: 'Unsplash' } }
+  }
   try {
-    return await fetchImage(p.url)
+    return { src: await fetchImage(p.url) }
   } catch {
-    return fetchImage(p.thumb)
+    return { src: await fetchImage(p.thumb) }
   }
 }

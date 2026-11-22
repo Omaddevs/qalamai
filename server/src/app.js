@@ -30,6 +30,7 @@ import { PLAN_LIMITS } from './modules/plans/plans.js'
 import coinRoutes from './modules/coins/routes.js'
 import supportRoutes from './modules/support/routes.js'
 import notificationRoutes from './modules/notifications/routes.js'
+import photoRoutes from './modules/photos/routes.js'
 import { createNotifier } from './modules/notifications/service.js'
 import { createCoinService } from './modules/coins/service.js'
 import { adminRoutes, createAnalytics, trackRoutes, verificationRoutes } from './modules/admin/routes.js'
@@ -147,6 +148,7 @@ export async function buildApp(config) {
       await api.register(adminRoutes, { prefix: '/admin' })
       await api.register(supportRoutes, { prefix: '/support' })
       await api.register(notificationRoutes, { prefix: '/notifications' })
+      await api.register(photoRoutes, { prefix: '/photos' })
     },
     { prefix: '/api/v1' },
   )

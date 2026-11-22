@@ -63,16 +63,19 @@ export function placeEls(specs, at, existing = 0) {
   })
 }
 
-/** An image element sized to the picture's own proportions. */
-export async function imageSpec(src, maxW = 40, maxH = 62) {
-  const img = new Image()
-  img.src = src
-  try {
-    await img.decode()
-  } catch {
-    /* keep the default ratio */
+/** An image element sized to the picture's own proportions (`size` = known { w, h } in pixels). */
+export async function imageSpec(src, size, maxW = 40, maxH = 62) {
+  let ratio = size?.w > 0 && size?.h > 0 ? size.w / size.h : 0
+  if (!ratio) {
+    const img = new Image()
+    img.src = src
+    try {
+      await img.decode()
+    } catch {
+      /* keep the default ratio */
+    }
+    ratio = img.naturalWidth && img.naturalHeight ? img.naturalWidth / img.naturalHeight : 4 / 3
   }
-  const ratio = img.naturalWidth && img.naturalHeight ? img.naturalWidth / img.naturalHeight : 4 / 3
   let w = maxW
   let h = (w * 16) / 9 / ratio
   if (h > maxH) {
@@ -86,7 +89,7 @@ export const photoErrorText = (e) => (e instanceof PhotoError && e.code === 'lim
 
 /**
  * Drop target for the editor's stage.
- * @param {{ page: () => HTMLElement|null, onInsert: (specs, at) => void, onFill: (id, src) => boolean, onError: (msg) => void }} o
+ * @param {{ page: () => HTMLElement|null, onInsert: (specs, at) => void, onFill: (id, src, extra) => boolean, onError: (msg) => void }} o
  */
 export function useElementDrop(o) {
   const [busy, setBusy] = useState(false)
@@ -129,17 +132,23 @@ export function useElementDrop(o) {
     const file = photo ? null : [...dt.files].find((f) => f.type.startsWith('image/'))
     if (!photo && !file) return
     setBusy(true)
-    let src
+    let got
+    let size
     try {
-      src = photo ? await photoData(JSON.parse(photo)) : await downscale(file)
+      if (photo) {
+        const p = JSON.parse(photo)
+        size = p
+        got = await photoData(p)
+      } else got = { src: await downscale(file) }
     } catch (err) {
       cb.current.onError?.(photo ? photoErrorText(err) : t('el.ph.badFile'))
       return
     } finally {
       setBusy(false)
     }
-    if (targetId && cb.current.onFill(targetId, src)) return
-    cb.current.onInsert([await imageSpec(src)], at)
+    const extra = got.credit ? { credit: got.credit } : {}
+    if (targetId && cb.current.onFill(targetId, got.src, extra)) return
+    cb.current.onInsert([{ ...(await imageSpec(got.src, size)), ...extra }], at)
   }
 
   return { busy, props: { onDragOver, onDrop } }

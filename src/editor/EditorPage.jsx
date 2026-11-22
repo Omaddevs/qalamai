@@ -188,10 +188,11 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
     updateSlide({ elements: [...slide.elements, ...made] })
     setSel(made.map((m) => m.id))
   }
-  const fillEl = (id, src) => {
+  const fillEl = (id, src, extra = {}) => {
     const el = slide.elements.find((e) => e.id === id)
     if (!el || el.locked || (el.kind !== 'image' && el.kind !== 'mockup')) return false
-    updateSlide({ elements: slide.elements.map((e) => (e.id === id ? { ...e, src } : e)), ...(el.path ? patchAt(slide, el.path, src) : {}) })
+    // a new picture replaces the old one's photographer credit
+    updateSlide({ elements: slide.elements.map((e) => (e.id === id ? { ...e, src, credit: extra.credit } : e)), ...(el.path ? patchAt(slide, el.path, src) : {}) })
     setSel([id])
     return true
   }
@@ -320,7 +321,7 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
   const setImage = async (el, file) => {
     if (!file?.type?.startsWith('image/')) return notify('Rasm faylini tanlang')
     const src = await downscale(file)
-    updateSlide({ elements: slide.elements.map((e) => (e.id === el.id ? { ...e, src } : e)), ...(el.path ? patchAt(slide, el.path, src) : {}) })
+    updateSlide({ elements: slide.elements.map((e) => (e.id === el.id ? { ...e, src, credit: undefined } : e)), ...(el.path ? patchAt(slide, el.path, src) : {}) })
   }
   const play = () => {
     setAutoAnim(false)

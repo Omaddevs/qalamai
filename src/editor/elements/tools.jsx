@@ -278,9 +278,19 @@ export default function ElementTools({ sel, theme, act }) {
   )
 
   if (kind === 'image') {
-    // frame shape for any picture
+    // frame shape for any picture; Unsplash photos also show their photographer
+    const credit = one && first.src && first.credit
     return (
       <>
+        {credit && (
+          <span className="et-credit">
+            {t('el.ph.credit')}{' '}
+            <a href={credit.url ?? credit.link} target="_blank" rel="noopener noreferrer">
+              {credit.name}
+            </a>{' '}
+            · {credit.by}
+          </span>
+        )}
         <Pop title={t('el.tb.frame')} button={<span className="tb-wide"><Square size={15} /> {t('el.tb.frame')}</span>}>
           {(close) => (
             <div className="et-frames">

@@ -95,6 +95,37 @@ function Head({ title, onAll }) {
 
 /* ───────── photos ───────── */
 
+/** One photo: click adds it, drag drops it; Unsplash photos show their photographer on hover. */
+function PhotoTile({ p, busyId, onPick, ratio = true }) {
+  return (
+    <div className={`ep-photo ${busyId === p.id ? 'busy' : ''}`} style={ratio ? { aspectRatio: `${p.w} / ${p.h}` } : undefined}>
+      <button
+        type="button"
+        className="ep-photo-btn"
+        title={p.title}
+        draggable
+        onDragStart={(e) => {
+          e.dataTransfer.effectAllowed = 'copy'
+          e.dataTransfer.setData(DND_PHOTO, JSON.stringify(p))
+        }}
+        onClick={() => onPick(p)}
+      >
+        <img src={p.thumb} alt={p.title} loading="lazy" draggable={false} onError={(e) => e.currentTarget.closest('.ep-photo')?.classList.add('broken')} />
+      </button>
+      {p.author && (
+        <a className="ep-credit" href={p.authorUrl ?? p.link} target="_blank" rel="noopener noreferrer" title={t('el.ph.by', { name: p.author })}>
+          {p.author}
+        </a>
+      )}
+      {busyId === p.id && (
+        <span className="ep-photo-spin">
+          <Loader2 size={20} />
+        </span>
+      )}
+    </div>
+  )
+}
+
 function PhotoGrid({ photos, busyId, onPick }) {
   const cols = [[], []]
   const hgt = [0, 0]
@@ -108,26 +139,7 @@ function PhotoGrid({ photos, busyId, onPick }) {
       {cols.map((col, i) => (
         <div key={i} className="ep-photo-col">
           {col.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              className={`ep-photo ${busyId === p.id ? 'busy' : ''}`}
-              style={{ aspectRatio: `${p.w} / ${p.h}` }}
-              title={p.title}
-              draggable
-              onDragStart={(e) => {
-                e.dataTransfer.effectAllowed = 'copy'
-                e.dataTransfer.setData(DND_PHOTO, JSON.stringify(p))
-              }}
-              onClick={() => onPick(p)}
-            >
-              <img src={p.thumb} alt={p.title} loading="lazy" draggable={false} onError={(e) => e.currentTarget.closest('.ep-photo')?.classList.add('broken')} />
-              {busyId === p.id && (
-                <span className="ep-photo-spin">
-                  <Loader2 size={20} />
-                </span>
-              )}
-            </button>
+            <PhotoTile key={p.id} p={p} busyId={busyId} onPick={onPick} />
           ))}
         </div>
       ))}
@@ -136,13 +148,13 @@ function PhotoGrid({ photos, busyId, onPick }) {
 }
 
 function usePhotos(query, enabled = true) {
-  const [state, setState] = useState({ items: [], page: 0, more: false, loading: false, error: null })
+  const [state, setState] = useState({ items: [], page: 0, more: false, loading: false, error: null, provider: null })
   useEffect(() => {
     if (!enabled || !query) return
     const ac = new AbortController()
     setState({ items: [], page: 0, more: false, loading: true, error: null })
     searchPhotos(query, 1, ac.signal)
-      .then((r) => setState({ items: r.items, page: 1, more: r.more, loading: false, error: null }))
+      .then((r) => setState({ items: r.items, page: 1, more: r.more, loading: false, error: null, provider: r.provider }))
       .catch((e) => e.name !== 'AbortError' && setState((s) => ({ ...s, loading: false, error: e })))
     return () => ac.abort()
   }, [query, enabled])
@@ -182,7 +194,16 @@ function PhotosView({ query, setQuery, pick, busyId }) {
           {t('el.ph.more')}
         </button>
       )}
-      <p className="pn-note">{t('el.ph.note')}</p>
+      {res.provider === 'unsplash' ? (
+        <p className="pn-note">
+          {t('el.ph.unsplashNote')}{' '}
+          <a href="https://unsplash.com/?utm_source=qalamai&utm_medium=referral" target="_blank" rel="noopener noreferrer">
+            Unsplash
+          </a>
+        </p>
+      ) : (
+        res.provider && <p className="pn-note">{t('el.ph.note')}</p>
+      )}
     </>
   )
 }
@@ -207,22 +228,7 @@ function PhotoStrip({ pick, busyId, onAll }) {
           typeof p === 'number' ? (
             <span key={i} className="ep-photo ph" />
           ) : (
-            <button
-              key={p.id}
-              type="button"
-              className={`ep-photo ${busyId === p.id ? 'busy' : ''}`}
-              draggable
-              onDragStart={(e) => e.dataTransfer.setData(DND_PHOTO, JSON.stringify(p))}
-              onClick={() => pick(p)}
-              title={p.title}
-            >
-              <img src={p.thumb} alt={p.title} loading="lazy" draggable={false} />
-              {busyId === p.id && (
-                <span className="ep-photo-spin">
-                  <Loader2 size={18} />
-                </span>
-              )}
-            </button>
+            <PhotoTile key={p.id} p={p} busyId={busyId} onPick={pick} ratio={false} />
           ),
         )}
       </div>
@@ -234,7 +240,7 @@ function PhotoStrip({ pick, busyId, onAll }) {
 /* ───────── the panel ───────── */
 
 /**
- * @param {{ theme: object, selected?: object|null, onAdd: (specs: object[]) => void, onFill: (id: string, src: string) => boolean }} p
+ * @param {{ theme: object, selected?: object|null, onAdd: (specs: object[]) => void, onFill: (id: string, src: string, extra?: object) => boolean }} p
  */
 export default function ElementsPanel({ theme, selected, onAdd, onFill }) {
   const [q, setQ] = useState('')
@@ -263,10 +269,11 @@ export default function ElementsPanel({ theme, selected, onAdd, onFill }) {
     setBusyId(p.id)
     setError(null)
     try {
-      const src = await photoData(p)
+      const { src, credit } = await photoData(p)
+      const extra = credit ? { credit } : {}
       // an empty frame or mockup that is selected takes the photo; otherwise it is added
       const target = selected && (selected.kind === 'image' || selected.kind === 'mockup') && !selected.src ? selected.id : null
-      if (!(target && onFill(target, src))) onAdd([await imageSpec(src)])
+      if (!(target && onFill(target, src, extra))) onAdd([{ ...(await imageSpec(src, p)), ...extra }])
     } catch (e) {
       setError(photoErrorText(e))
     } finally {

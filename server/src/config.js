@@ -74,6 +74,9 @@ const schema = z.object({
   CONTACT_CHAT_ID: z.string().optional(),
   /** First password of the admin panel (/admin). After the first sign-in it is changed from the panel itself. */
   ADMIN_PASSWORD: z.string().min(8).optional(),
+  /** Free photos in the editor (unsplash.com/developers → your app → Access Key). Without it the editor uses Openverse. */
+  UNSPLASH_ACCESS_KEY: z.string().optional(),
+  UNSPLASH_API_URL: z.string().url().default('https://api.unsplash.com'),
 })
 
 function load() {
@@ -133,6 +136,7 @@ function load() {
         : null,
     telegram: env.TELEGRAM_BOT_TOKEN ? { token: env.TELEGRAM_BOT_TOKEN, polling: env.TELEGRAM_POLLING, apiUrl: env.TELEGRAM_API_URL.replace(/\/$/, ''), apiIp: env.TELEGRAM_API_IP ?? null } : null,
     support: { chatId: env.CONTACT_CHAT_ID || null },
+    unsplash: env.UNSPLASH_ACCESS_KEY ? { key: env.UNSPLASH_ACCESS_KEY, apiUrl: env.UNSPLASH_API_URL.replace(/\/$/, '') } : null,
     admin: { password: env.ADMIN_PASSWORD ?? null },
     coins: {
       demoPurchase: env.COIN_DEMO_PURCHASE ?? !isProd,

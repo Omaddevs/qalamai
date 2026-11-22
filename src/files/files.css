@@ -892,6 +892,25 @@
   background: #fff7ed;
   color: #c2410c;
 }
+.fs-tag.soon {
+  background: #f1f0ec;
+  color: #6b7079;
+}
+.fs-tool.soon {
+  cursor: default;
+}
+.fs-tool.soon:hover {
+  border-color: var(--line);
+  transform: none;
+  box-shadow: none;
+}
+.fs-tool.soon:hover::after {
+  opacity: 0;
+}
+.fs-tool.soon .fs-ticon {
+  filter: saturate(0.55);
+  opacity: 0.85;
+}
 .fs-tag.ai {
   background: linear-gradient(180deg, #ffd581, #f5a524);
   color: #3a2300;

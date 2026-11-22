@@ -1,8 +1,8 @@
-import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   CloudArrowUp, X, ArrowRight, Sparkle, DownloadSimple, Trash, NotePencil, ShieldCheck, Lightning, FolderOpen, CheckCircle, CircleNotch,
 } from '@phosphor-icons/react'
-import { ApiError, downloadFile, fetchFile, formatSize, getTools, timeLeft } from '../api.js'
+import { ApiError, downloadFile, formatSize, getTools, timeLeft } from '../api.js'
 import { LOCAL_TOOLS, addLocalFiles, listFiles, removeFile } from './store.js'
 import { COLORS } from '../data.js'
 import { Offline, Thumb, ToolIcon } from './parts.jsx'
@@ -10,8 +10,6 @@ import FileEditorView from '../home/FileEditorView.jsx'
 import { CATEGORIES, TOOL_ORDER, TOOL_UI, portraitTool, suggest } from './toolMeta.js'
 import ToolWorkspace from './ToolWorkspace.jsx'
 import PdfEditor from './PdfEditor.jsx'
-
-const PortraitStudio = lazy(() => import('../portrait/PortraitStudio.jsx'))
 import './files.css'
 import { t } from '../i18n/index.js'
 
@@ -175,10 +173,12 @@ function Staged({ staged, tools, onRemove, onClear, onTool, onAdd }) {
 function ToolCard({ tool, onOpen }) {
   const ui = TOOL_UI[tool.id] ?? {}
   return (
-    <button className={`fs-tool ${ui.hero ? 'hero' : ''}`} onClick={() => onOpen(tool)} style={{ '--tint': COLORS[ui.color ?? 'teal'].band, '--tone': COLORS[ui.color ?? 'teal'].to }}>
+    <button className={`fs-tool ${ui.hero ? 'hero' : ''} ${tool.soon ? 'soon' : ''}`} onClick={() => onOpen(tool)} style={{ '--tint': COLORS[ui.color ?? 'teal'].band, '--tone': COLORS[ui.color ?? 'teal'].to }}>
       <div className="fs-tool-top">
         <ToolIcon id={tool.id} />
-        {(tool.available === false && !LOCAL_TOOLS.has(tool.id)) ? (
+        {tool.soon ? (
+          <span className="fs-tag soon">{t('ui.soon')}</span>
+        ) : (tool.available === false && !LOCAL_TOOLS.has(tool.id)) ? (
           <span className="fs-tag warn">{t('fs.notInstalled')}</span>
         ) : (
           ui.tag && <span className={`fs-tag ${ui.tag === 'AI' ? 'ai' : ''}`}>{ui.tag === 'AI' && <Sparkle size={10} weight="fill" />} {ui.tag}</span>
@@ -190,9 +190,11 @@ function ToolCard({ tool, onOpen }) {
         <span className="fs-fmt">
           {ui.from} <ArrowRight size={10} weight="bold" /> {ui.to}
         </span>
-        <span className="fs-go">
-          <ArrowRight size={15} weight="bold" />
-        </span>
+        {!tool.soon && (
+          <span className="fs-go">
+            <ArrowRight size={15} weight="bold" />
+          </span>
+        )}
       </div>
     </button>
   )
@@ -288,25 +290,6 @@ function MyFiles({ notify, onEdit, onUse, refreshKey }) {
   )
 }
 
-/* ───────── Portrait studio ───────── */
-
-/** Opens the portrait studio with a file from the studio's list (its bytes, wherever they live). */
-function PortraitLoader({ record, notify, onClose }) {
-  const [file, setFile] = useState(record ? undefined : null)
-  useEffect(() => {
-    if (!record) return
-    let live = true
-    Promise.resolve(record.blob ?? fetchFile(record))
-      .then((b) => live && setFile(new File([b], record.name, { type: record.mime || b.type || 'image/jpeg' })))
-      .catch(() => live && setFile(null))
-    return () => {
-      live = false
-    }
-  }, [record])
-  if (file === undefined) return null
-  return <PortraitStudio initialFile={file} notify={notify} onClose={onClose} />
-}
-
 /* ───────── Page ───────── */
 
 export default function FilesStudio({ notify, onOpenPricing, initialTab = 'tools' }) {
@@ -318,7 +301,6 @@ export default function FilesStudio({ notify, onOpenPricing, initialTab = 'tools
   const [dragging, setDragging] = useState(false)
   const [workspace, setWorkspace] = useState(null)
   const [editing, setEditing] = useState(null)
-  const [portrait, setPortrait] = useState(null)
   const [refreshKey, setRefreshKey] = useState(0)
   const picker = useRef(null)
   const depth = useRef(0)
@@ -362,7 +344,7 @@ export default function FilesStudio({ notify, onOpenPricing, initialTab = 'tools
 
   // whole-page drag & drop on the tools tab
   useEffect(() => {
-    if (tab !== 'tools' || workspace || editing || portrait) return
+    if (tab !== 'tools' || workspace || editing) return
     const has = (e) => [...(e.dataTransfer?.types ?? [])].includes('Files')
     const enter = (e) => {
       if (!has(e)) return
@@ -393,15 +375,12 @@ export default function FilesStudio({ notify, onOpenPricing, initialTab = 'tools
       window.removeEventListener('dragleave', leave)
       window.removeEventListener('drop', drop)
     }
-  }, [tab, workspace, editing, portrait, addFiles])
+  }, [tab, workspace, editing, addFiles])
 
   const openTool = (tool, files) => {
+    if (tool.soon) return notify(`${tool.title} — ${t('ui.soon').toLowerCase()}`)
     if ((tool.available === false && !LOCAL_TOOLS.has(tool.id))) return notify(t('fs.engineMissing', { name: tool.title }))
     const usable = (files ?? staged.filter((s) => s.record).map((s) => s.record)).filter((f) => (tool.editor ? ['pdf'] : tool.accepts).includes(f.kind) && (!tool.exts || tool.exts.includes(f.ext)))
-    if (tool.studio) {
-      setWorkspace(null)
-      return setPortrait({ record: usable[0] ?? null })
-    }
     if (tool.editor) {
       const pdf = usable.find((f) => f.kind === 'pdf')
       if (pdf) return setEditing(pdf)
@@ -498,11 +477,6 @@ export default function FilesStudio({ notify, onOpenPricing, initialTab = 'tools
             setTab('docs')
           }}
         />
-      )}
-      {portrait && (
-        <Suspense fallback={null}>
-          <PortraitLoader record={portrait.record} notify={notify} onClose={() => setPortrait(null)} />
-        </Suspense>
       )}
       {editing && (
         <PdfEditor

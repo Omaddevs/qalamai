@@ -7,7 +7,7 @@ import {
   MagicWand, Printer, Eye, CheckCircle, WarningCircle, Image as ImageIcon, MagnifyingGlassPlus, Hand,
 } from '@phosphor-icons/react'
 import { t } from '../i18n/index.js'
-import { analyzePhoto, compose, exportImage, exportSheet, outputSize } from './render.js'
+import { analyzePhoto, compose, warmUp, exportImage, exportSheet, outputSize } from './render.js'
 import { FORMATS, framing } from './core.js'
 import { JACKETS, KNITS, OUTFITS, SHIRTS, TIES, TOPS, outfitSvg } from './outfits.js'
 import { BACKDROPS, backdropCss } from './backdrops.js'
@@ -22,6 +22,7 @@ const CHOICE0 = {
   outfit: 'suit', jacket: 'navy', shirt: 'white', tie: 'burgundy', knit: 'black', top: 'white',
   bg: 'studio', custom: '#4a6fa5', format: 'portrait', zoom: 1, dx: 0, dy: 0, tone: TONE0, hairFront: false,
 }
+const RETRYABLE = new Set(['NETWORK', 'NO_MODEL', 'FAILED'])
 const PARTS = { jacket: JACKETS, shirt: SHIRTS, tie: TIES, knit: KNITS, top: TOPS }
 
 /* ───────── outfit thumbnails: the real outfit drawing on a stand-in body ───────── */
@@ -114,6 +115,7 @@ export default function PortraitStudio({ initialFile, notify, onClose }) {
   const [dropping, setDropping] = useState(false)
   const [rendering, setRendering] = useState(false)
   const picker = useRef(null)
+  const lastFile = useRef(null)
   const canvas = useRef(null)
   const stage = useRef(null)
   const drag = useRef(null)
@@ -135,6 +137,7 @@ export default function PortraitStudio({ initialFile, notify, onClose }) {
   const start = useCallback(async (file) => {
     if (!file) return
     if (!/^image\//.test(file.type) && !/\.(jpe?g|png|webp|avif|bmp|gif)$/i.test(file.name ?? '')) return notify?.(t('pt.err.BAD_IMAGE'))
+    lastFile.current = file
     setPhotoUrl(URL.createObjectURL(file))
     setPhase('busy')
     setError(null)
@@ -152,6 +155,7 @@ export default function PortraitStudio({ initialFile, notify, onClose }) {
 
   useEffect(() => {
     if (initialFile) start(initialFile)
+    else warmUp() // the models load while the person picks a photo
     // only the file the studio was opened with
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -337,7 +341,12 @@ export default function PortraitStudio({ initialFile, notify, onClose }) {
                 </span>
                 <h4>{t(`pt.err.${error}`)}</h4>
                 <div className="tw-row">
-                  <button className="fs-btn dark" onClick={() => picker.current?.click()}>
+                  {RETRYABLE.has(error) && lastFile.current && (
+                    <button className="fs-btn dark" onClick={() => start(lastFile.current)}>
+                      <ArrowCounterClockwise size={15} weight="bold" /> {t('pt.retry')}
+                    </button>
+                  )}
+                  <button className={`fs-btn ${RETRYABLE.has(error) ? '' : 'dark'}`} onClick={() => picker.current?.click()}>
                     <ImageIcon size={15} weight="bold" /> {t('pt.tryAgain')}
                   </button>
                 </div>

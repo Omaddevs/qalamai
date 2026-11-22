@@ -8,16 +8,27 @@ import { backdropSvg } from './backdrops.js'
 
 let worker = null
 let seq = 0
+const getWorker = () => (worker ??= new Worker(new URL('./worker.js', import.meta.url), { type: 'module' }))
+
+/** Start loading the AI engine and models (from the device's cache, or the network) right away. */
+export function warmUp() {
+  try {
+    getWorker().postMessage({ type: 'warm' })
+  } catch {
+    /* analyzePhoto will report it */
+  }
+}
 
 /** Analyse a photo in the worker. onProgress(pct, stage, n). Rejects with an Error whose `code` says why. */
 export function analyzePhoto(file, onProgress) {
-  worker ??= new Worker(new URL('./worker.js', import.meta.url), { type: 'module' })
+  getWorker()
   const id = ++seq
   return new Promise((resolve, reject) => {
     const onMessage = ({ data }) => {
       if (data.id !== id) return
       if (data.type === 'progress') return onProgress?.(data.pct, data.stage, data.n)
-      worker.removeEventListener('message', onMessage)
+      worker?.removeEventListener('message', onMessage)
+      worker?.removeEventListener('error', onError)
       if (data.type === 'done') resolve(data.result)
       else reject(Object.assign(new Error(data.code), { code: data.code }))
     }

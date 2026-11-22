@@ -25,43 +25,112 @@ const loadOrt = () =>
   }))
 
 const sessions = new Map()
+const listeners = new Map() // model url → progress callbacks (0…1) of whoever waits for it
+const ready = new Set() // model urls whose session is up
 
-/** A model's session, downloading it once (with progress); the browser caches the file. */
-function session(spec, onBytes) {
-  if (!sessions.has(spec.url)) {
-    const p = (async () => {
-      const ort = await loadOrt().catch(() => {
-        throw new Fail('UNSUPPORTED')
-      })
-      const res = await fetch(spec.url).catch(() => null)
-      if (!res?.ok || /text\/html/.test(res.headers.get('content-type') ?? '')) throw new Fail('NO_MODEL')
-      const total = Number(res.headers.get('content-length')) || 0
+// Models are kept in the Cache API: after the first download they load from the device, with no
+// request to the server at all (the HTTP cache alone forgets them after a week or under pressure).
+const CACHE = 'qalam-models-v1'
+const cached = async (url) => {
+  try {
+    const hit = await (await caches.open(CACHE)).match(url)
+    return hit ? new Uint8Array(await hit.arrayBuffer()) : null
+  } catch {
+    return null
+  }
+}
+const keep = async (url, bytes) => {
+  try {
+    await (await caches.open(CACHE)).put(url, new Response(bytes, { headers: { 'content-type': 'application/octet-stream' } }))
+  } catch {
+    /* private mode, quota: next time it downloads again */
+  }
+}
+
+/**
+ * Download a model with progress. A dropped connection resumes where it stopped (Range), up to a
+ * few times, instead of failing the whole photo; a server that ignores Range starts over.
+ */
+async function download(url, onBytes) {
+  const parts = []
+  let got = 0
+  let total = 0
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const res = await fetch(url, got ? { headers: { Range: `bytes=${got}-` } } : undefined)
+      if (res.status === 404 || /text\/html/.test(res.headers.get('content-type') ?? '')) throw new Fail('NO_MODEL')
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      if (got && res.status !== 206) {
+        parts.length = 0
+        got = 0
+      }
+      if (!total) total = Number(res.headers.get('content-length')) || 0
       const reader = res.body.getReader()
-      const parts = []
-      let got = 0
       for (;;) {
         const { done, value } = await reader.read()
         if (done) break
         parts.push(value)
         got += value.length
-        if (total) onBytes?.(got / total)
+        if (total) onBytes(Math.min(1, got / total))
       }
-      const model = new Uint8Array(got)
-      let at = 0
-      for (const part of parts) {
-        model.set(part, at)
-        at += part.length
+      if (total && got < total) throw new Error('short read')
+      break
+    } catch (err) {
+      if (err instanceof Fail || attempt >= 4) throw new Fail('NETWORK')
+      await new Promise((r) => setTimeout(r, 600 * (attempt + 1)))
+    }
+  }
+  const model = new Uint8Array(got)
+  let at = 0
+  for (const part of parts) {
+    model.set(part, at)
+    at += part.length
+  }
+  return model
+}
+
+/** A model's session: from the device's cache, or downloaded once (with progress). */
+function session(spec, onBytes) {
+  if (onBytes && !ready.has(spec.url)) {
+    if (!listeners.has(spec.url)) listeners.set(spec.url, new Set())
+    listeners.get(spec.url).add(onBytes)
+  }
+  if (!sessions.has(spec.url)) {
+    const report = (k) => listeners.get(spec.url)?.forEach((f) => f(k))
+    const p = (async () => {
+      const [ort, hit] = await Promise.all([
+        loadOrt().catch(() => {
+          throw new Fail('UNSUPPORTED')
+        }),
+        cached(spec.url),
+      ])
+      let model = hit
+      if (!model) {
+        model = await download(spec.url, report)
+        keep(spec.url, model)
       }
+      report(1)
       try {
         return { ort, s: await ort.InferenceSession.create(model, { executionProviders: ['wasm'], graphOptimizationLevel: 'all' }) }
       } catch {
+        // a damaged copy in the cache must not stick
+        if (hit) caches.open(CACHE).then((c) => c.delete(spec.url)).catch(() => {})
         throw new Fail('UNSUPPORTED')
       }
     })()
-    p.catch(() => sessions.delete(spec.url))
+    p.then(() => ready.add(spec.url), () => sessions.delete(spec.url)).finally(() => listeners.delete(spec.url))
     sessions.set(spec.url, p)
   }
   return sessions.get(spec.url)
+}
+
+// One photo at a time: an ONNX session must not run twice at once (a second photo, or React
+// running the opening effect twice in development, would otherwise collide).
+let queue = Promise.resolve()
+const serial = (fn) => {
+  const run = queue.then(fn, fn)
+  queue = run.catch(() => {})
+  return run
 }
 
 const MAX_SIDE = 4096
@@ -157,14 +226,30 @@ async function analyze(file, progress) {
   return { img, orig, alpha, hair: hair.mask, longHair: hair.amount > 0.6, hairAmount: hair.amount, g, tilt, faces: faces.length }
 }
 
-self.onmessage = async ({ data: msg }) => {
+self.onmessage = ({ data: msg }) => {
+  // the studio opened: fetch the engine and the models while the person picks a photo
+  if (msg.type === 'warm') {
+    session(FACE_MODEL).catch(() => {})
+    session(MATTE_MODEL).catch(() => {})
+    return
+  }
   const { id } = msg
   const progress = (pct, stage, n) => self.postMessage({ id, type: 'progress', pct: Math.round(pct), stage, n })
-  try {
-    const r = await analyze(msg.file, progress)
+  serial(async () => {
+    let r
+    try {
+      r = await analyze(msg.file, progress)
+    } catch (err) {
+      if (err?.code) throw err
+      // something unexpected (a model run that went wrong): once more on fresh sessions
+      console.warn('portrait worker, retrying:', err)
+      sessions.clear()
+      ready.clear()
+      r = await analyze(msg.file, progress)
+    }
     self.postMessage({ id, type: 'done', result: r }, [r.img.data.buffer, r.orig.data.buffer, r.alpha.buffer, r.hair.buffer])
-  } catch (err) {
+  }).catch((err) => {
     if (!err?.code) console.error('portrait worker:', err)
-    self.postMessage({ id, type: 'error', code: err?.code ?? 'FAILED' })
-  }
+    self.postMessage({ id, type: 'error', code: err?.code ?? 'FAILED', detail: err?.code ? undefined : String(err?.message ?? err).slice(0, 200) })
+  })
 }

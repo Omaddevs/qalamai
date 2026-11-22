@@ -374,12 +374,12 @@ export default function FilesStudio({ notify, onOpenPricing, initialTab = 'tools
 
   const openTool = (tool, files) => {
     if (tool.available === false) return notify(t('fs.engineMissing', { name: tool.title }))
-    const usable = (files ?? staged.filter((s) => s.record).map((s) => s.record)).filter((f) => tool.accepts.includes(f.kind) && (!tool.exts || tool.exts.includes(f.ext)))
+    const usable = (files ?? staged.filter((s) => s.record).map((s) => s.record)).filter((f) => (tool.editor ? ['pdf'] : tool.accepts).includes(f.kind) && (!tool.exts || tool.exts.includes(f.ext)))
     if (tool.editor) {
       const pdf = usable.find((f) => f.kind === 'pdf')
       if (pdf) return setEditing(pdf)
     }
-    setWorkspace({ tool, files: usable.slice(0, tool.maxFiles) })
+    setWorkspace({ tool, files: usable.slice(0, tool.editor ? 1 : tool.maxFiles) })
   }
 
   return (

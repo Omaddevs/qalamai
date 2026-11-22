@@ -54,8 +54,11 @@ export default function ToolWorkspace({ tool, tools, initialFiles, notify, onClo
   const abort = useRef(null)
   const dragFrom = useRef(null)
   const ui = TOOL_UI[tool.id] ?? {}
-  const multi = tool.maxFiles > 1
-  const accept = tool.accepts.map((k) => (tool.exts && (k === 'document' || k === 'text') ? tool.exts.map((e) => `.${e}`).join(',') : ACCEPT[k])).join(',')
+  // the PDF editor opens one PDF (the server also takes images, but only as pages to insert)
+  const accepts = tool.editor ? ['pdf'] : tool.accepts
+  const maxFiles = tool.editor ? 1 : tool.maxFiles
+  const multi = maxFiles > 1
+  const accept = accepts.map((k) => (tool.exts && (k === 'document' || k === 'text') ? tool.exts.map((e) => `.${e}`).join(',') : ACCEPT[k])).join(',')
 
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && phase !== 'running' && onClose()
@@ -74,9 +77,9 @@ export default function ToolWorkspace({ tool, tools, initialFiles, notify, onClo
     setUploading(0)
     try {
       const records = await uploadFiles(picked, setUploading)
-      const ok = records.filter((f) => tool.accepts.includes(f.kind) && (!tool.exts || tool.exts.includes(f.ext)))
+      const ok = records.filter((f) => accepts.includes(f.kind) && (!tool.exts || tool.exts.includes(f.ext)))
       if (ok.length < records.length) notify(t('tw.notFit', { name: tool.title }))
-      setFiles((xs) => (multi ? [...xs, ...ok] : ok.slice(0, 1)).slice(0, tool.maxFiles))
+      setFiles((xs) => (multi ? [...xs, ...ok] : ok.slice(0, 1)).slice(0, maxFiles))
     } catch (err) {
       notify(err.message)
     } finally {
@@ -222,7 +225,7 @@ export default function ToolWorkspace({ tool, tools, initialFiles, notify, onClo
                         </button>
                       </li>
                     ))}
-                    {multi && files.length < tool.maxFiles && (
+                    {multi && files.length < maxFiles && (
                       <li className="tw-add">
                         <button onClick={() => picker.current?.click()} disabled={uploading !== null}>
                           <Plus size={18} weight="bold" /> {uploading !== null ? `${Math.round(uploading * 100)}%` : t('tw.addFile')}

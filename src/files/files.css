@@ -3140,3 +3140,37 @@
     overflow-x: auto;
   }
 }
+
+/* images the PDF itself paints: hover shows they can be picked up */
+.pe-pic {
+  position: absolute;
+  border: 1.5px dashed transparent;
+  border-radius: 2px;
+  cursor: move;
+}
+.pe-pic:hover {
+  border-color: rgba(99, 102, 241, 0.9);
+  background: rgba(99, 102, 241, 0.06);
+}
+.pe-page.tool-edit .pe-pic {
+  border-color: rgba(99, 102, 241, 0.45);
+}
+/* with the select tool the PDF's own text is quiet until hovered */
+.pe-page.tool-select .pe-run:not(:hover) {
+  border-color: transparent;
+}
+.pe-cover {
+  position: absolute;
+  pointer-events: none;
+}
+/* dragging on the page must not select (and tint) the page's pieces; typing still selects */
+.pe-overlay {
+  -webkit-user-select: none;
+  user-select: none;
+}
+.pe-overlay .pe-text-input,
+.pe-overlay .pe-pop input,
+.pe-overlay textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}

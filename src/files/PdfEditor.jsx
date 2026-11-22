@@ -7,14 +7,14 @@ import {
   Eraser, Rectangle, Circle, ArrowUpRight, LineSegment, PenNib, Image as ImageIcon, Signature, ArrowClockwise, ArrowCounterClockwise,
   Trash, TextB, TextItalic, CircleNotch, CheckCircle, DownloadSimple, NotePencil, WarningCircle, ArrowsOutLineHorizontal,
   ChatCenteredText, LinkSimple, Stamp, Printer, MagnifyingGlass, Hand, CaretUp, CaretDown, Copy, Plus, FilePlus, File as FileIcon,
-  SquaresFour, TextAlignLeft, TextAlignCenter, TextAlignRight, Shapes, ArrowSquareOut,
+  SquaresFour, TextAlignLeft, TextAlignCenter, TextAlignRight, Shapes, ArrowSquareOut, ImageSquare,
 } from '@phosphor-icons/react'
 import { apiUrl, downloadFile, fetchFile } from '../api.js'
 import { addLocalFiles, runTool } from './store.js'
 import { loadPdfjs } from './pdfjs.js'
 import { Dropdown } from '../components/ui.jsx'
 import { formatDate, t } from '../i18n/index.js'
-import { A4, STAMPS, flatViewport, imageBox, imagePageSize, loadImage, printBlob, renderSource, stampImage } from './peKit.js'
+import { A4, STAMPS, cropCanvas, findImages, flatViewport, imageBox, imagePageSize, imageUrl, loadImage, printBlob, renderSource, stampImage } from './peKit.js'
 
 
 // `group` splits the tool rail: pick/edit · text · marks · shapes · insert
@@ -109,6 +109,14 @@ function sampleCover(canvas, rect, zoom) {
   } catch {
     return '#ffffff'
   }
+}
+
+/** A PDF image that was picked up but not changed — nothing to write for it. */
+const untouched = (a) => {
+  const o = a.orig
+  if (a.type !== 'image' || !o || a.swapped || (a.opacity ?? 1) !== 1) return false
+  // orig is the cover box: 0.75 larger than the image on every side
+  return Math.abs(a.x - o.x - 0.75) < 0.01 && Math.abs(a.y - o.y - 0.75) < 0.01 && Math.abs(a.w - o.w + 1.5) < 0.01 && Math.abs(a.h - o.h + 1.5) < 0.01
 }
 
 /** Apply finished in-place text to annotations (drops empty new text / unchanged new replaces). */
@@ -263,7 +271,7 @@ function SignatureModal({ onDone, onClose }) {
 
 /* ───────── One page ───────── */
 
-function PageView({ source, src, info, zoom, plan, anns, tool, style, selected, editingId, onSelect, onCommit, onLive, onEditText, onFinishEdit, registerEditor, textRuns, loadText, placing, onPlace, hits }) {
+function PageView({ source, src, info, zoom, plan, anns, tool, style, selected, editingId, onSelect, onCommit, onLive, onEditText, onFinishEdit, registerEditor, textRuns, pics, onTakeImage, loadText, placing, onPlace, hits }) {
   const canvas = useRef(null)
   const wrap = useRef(null)
   const [visible, setVisible] = useState(false)
@@ -287,7 +295,8 @@ function PageView({ source, src, info, zoom, plan, anns, tool, style, selected, 
   }, [source, info, zoom, visible])
 
   useEffect(() => {
-    if (visible && tool === 'edit') loadText(src)
+    // the PDF's own text and images are editable with the select tool as well as the edit tool
+    if (visible && (tool === 'edit' || tool === 'select')) loadText(src)
   }, [visible, tool, src, loadText])
 
   const pt = (e) => {
@@ -378,7 +387,7 @@ function PageView({ source, src, info, zoom, plan, anns, tool, style, selected, 
   }
 
   function startMove(e, a, kind = 'move') {
-    if (tool !== 'select') {
+    if (tool !== 'select' && !(tool === 'edit' && a.type === 'image')) {
       // clicking existing text with the text/edit tool re-opens it instead of adding a new box
       if ((tool === 'text' && a.type === 'text') || (tool === 'edit' && a.type === 'replace') || a.type === 'note') e.stopPropagation()
       if (a.type === 'note' && tool !== 'hand') onSelect({ page: src, id: a.id })
@@ -391,6 +400,16 @@ function PageView({ source, src, info, zoom, plan, anns, tool, style, selected, 
     drag.current = { kind, id: a.id, start: pt(e), orig: structuredClone(a), before: true }
   }
 
+  /** Press on an image of the PDF: it becomes a movable image annotation, grabbed right away. */
+  function grabPic(e, pic) {
+    if (e.button !== 0) return
+    e.stopPropagation()
+    const a = onTakeImage(src, pic, canvas.current)
+    e.currentTarget.closest('.pe-overlay').setPointerCapture(e.pointerId)
+    drag.current = { kind: 'move', id: a.id, start: pt(e), orig: structuredClone(a), before: true }
+  }
+  const editable = (tool === 'edit' || tool === 'select') && !placing
+
   const z = (v) => v * zoom
   const sel = (a) => selected?.page === src && selected?.id === a.id
 
@@ -401,8 +420,19 @@ function PageView({ source, src, info, zoom, plan, anns, tool, style, selected, 
         {plan.rotate ? <span className="pe-rot-badge">{t('pe.rotBadge', { deg: plan.rotate })}</span> : null}
 
         <div className="pe-overlay" onPointerDown={down} onPointerMove={move} onPointerUp={up}>
-          {/* existing text runs (edit mode) */}
-          {tool === 'edit' &&
+          {/* where a PDF image was taken from: covered, as it will be in the saved file */}
+          {anns.map((a) => (a.orig && !untouched(a) ? <div key={`c${a.id}`} className="pe-cover" style={{ left: z(a.orig.x), top: z(a.orig.y), width: z(a.orig.w), height: z(a.orig.h), background: a.orig.cover }} /> : null))}
+
+          {/* images the PDF paints (select / edit): press to pick one up */}
+          {editable &&
+            pics?.map((p) =>
+              anns.some((a) => a.imgId === p.id) ? null : (
+                <div key={p.id} className="pe-pic" style={{ left: z(p.x), top: z(p.y), width: z(p.w), height: z(p.h) }} onPointerDown={(e) => grabPic(e, p)} title={t('pe.imgHint')} />
+              ),
+            )}
+
+          {/* existing text runs (select / edit): click to edit in place */}
+          {editable &&
             textRuns?.map((r) => {
               if (anns.some((a) => a.type === 'replace' && a.runId === r.id)) return null
               return (
@@ -653,6 +683,7 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
   const [past, setPast] = useState([])
   const [future, setFuture] = useState([])
   const [texts, setTexts] = useState({})
+  const [pics, setPics] = useState({}) // images the PDF itself paints, per page src
   const [placing, setPlacing] = useState(null)
   const [signing, setSigning] = useState(false)
   const [saving, setSaving] = useState(null)
@@ -673,6 +704,7 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
   const insertInput = useRef(null)
   const pan = useRef(null)
   const imgInput = useRef(null)
+  const swapInput = useRef(null)
   const dragFrom = useRef(null)
   const viewports = useRef({})
   const textLoading = useRef(new Map())
@@ -810,10 +842,16 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
       if (textLoading.current.has(src)) return textLoading.current.get(src)
       const job = (async () => {
         if (source.type !== 'pdf') return []
+        const lib = await loadPdfjs()
         const page = await source.doc.getPage(source.n)
-        await page.getOperatorList() // loads fonts → real names for bold/italic
-        const tc = await page.getTextContent()
+        const opList = await page.getOperatorList() // also loads fonts → real names for bold/italic
         const vp = viewports.current[src]
+        try {
+          setPics((prev) => ({ ...prev, [src]: findImages(opList, lib.OPS, vp) }))
+        } catch (err) {
+          console.warn('PDF editor: images of page', src, err)
+        }
+        const tc = await page.getTextContent()
         const runs = groupText(tc.items, tc.styles, page.commonObjs).map((r) => {
           // viewport rect of the run: baseline box from slightly below baseline to the ascent
           const [x1, y1] = vp.convertToViewportPoint(r.x, r.y - r.size * 0.26)
@@ -822,7 +860,11 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
         })
         setTexts((prev) => ({ ...prev, [src]: runs }))
         return runs
-      })().catch(() => [])
+      })().catch((err) => {
+        console.warn('PDF editor: text of page', src, err)
+        textLoading.current.delete(src) // try again next time
+        return []
+      })
       textLoading.current.set(src, job)
       return job
     },
@@ -871,6 +913,105 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
     [zoom, pushHistory],
   )
 
+  /**
+   * An image the PDF itself paints becomes an image annotation the user can move, resize,
+   * swap or delete; its old place is covered with the colour around it. Returns the annotation.
+   */
+  const takeImage = useCallback(
+    (src, pic, canvasEl) => {
+      const cover = canvasEl ? sampleCover(canvasEl, pic, zoom) : '#ffffff'
+      const box = { x: pic.x, y: pic.y, w: pic.w, h: pic.h }
+      // the cover reaches a little past the image, or its anti-aliased edge would stay as a hairline
+      const orig = { x: pic.x - 0.75, y: pic.y - 0.75, w: pic.w + 1.5, h: pic.h + 1.5, cover }
+      const a = { id: uid(), type: 'image', ...box, src: canvasEl ? cropCanvas(canvasEl, box, zoom) : '', opacity: 1, imgId: pic.id, name: pic.name, orig }
+      pushHistory()
+      startDragHistory.current = true // the drag that may follow belongs to this same step
+      setAnns((all) => ({ ...all, [src]: [...(all[src] ?? []), a] }))
+      setSelected({ page: src, id: a.id })
+      // swap the screen crop for the image's own pixels (sharper, nothing drawn over it)
+      pixelsOf(src, a).then((url) => url && setAnns((all) => ({ ...all, [src]: (all[src] ?? []).map((x) => (x.id === a.id && !x.swapped ? { ...x, src: url, hi: true } : x)) })))
+      return a
+    },
+    [zoom, pushHistory],
+  )
+
+  /** Full-resolution pixels of a PDF image annotation (null when pdf.js no longer has them). */
+  const pixelsOf = useCallback(async (src, a) => {
+    const source = sources.current[src]
+    if (source?.type !== 'pdf' || !a.name) return null
+    try {
+      return await imageUrl(await source.doc.getPage(source.n), a.name)
+    } catch {
+      return null
+    }
+  }, [])
+
+  /** Before saving: PDF images that still show the screen crop get their own pixels. */
+  async function sharpen(all) {
+    let changed = false
+    const next = { ...all }
+    for (const [src, list] of Object.entries(all)) {
+      next[src] = await Promise.all(
+        list.map(async (a) => {
+          if (a.type !== 'image' || !a.orig || a.hi || a.swapped || untouched(a)) return a
+          const url = await pixelsOf(Number(src), a)
+          if (!url) return a
+          changed = true
+          return { ...a, src: url, hi: true }
+        }),
+      )
+    }
+    if (!changed) return all
+    setAnns(next)
+    return next
+  }
+
+  /** Delete an annotation; a PDF image that was taken out leaves its covered place behind. */
+  const removeAnn = useCallback(
+    (page, id) => {
+      commit(page, (list) =>
+        list.flatMap((a) => {
+          if (a.id !== id) return [a]
+          if (a.type === 'image' && a.orig) return [{ id: uid(), type: 'whiteout', x: a.orig.x, y: a.orig.y, w: a.orig.w, h: a.orig.h, color: a.orig.cover, imgId: a.imgId }]
+          return []
+        }),
+      )
+      setSelected(null)
+    },
+    [commit],
+  )
+
+  /** Put another picture in the selected image's box (fitted inside it, centred). */
+  function swapImage(fileObj) {
+    const sel = selected
+    if (!fileObj || !sel) return
+    const url = URL.createObjectURL(fileObj)
+    const img = new Image()
+    img.onload = () => {
+      const k = Math.min(1, 2000 / Math.max(img.width, img.height))
+      const c = document.createElement('canvas')
+      c.width = Math.round(img.width * k)
+      c.height = Math.round(img.height * k)
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height)
+      const data = c.toDataURL(/png|svg|webp|gif/.test(fileObj.type) ? 'image/png' : 'image/jpeg', 0.9)
+      URL.revokeObjectURL(url)
+      commit(sel.page, (list) =>
+        list.map((a) => {
+          if (a.id !== sel.id) return a
+          const f = Math.min(a.w / c.width, a.h / c.height)
+          const w = c.width * f
+          const h = c.height * f
+          return { ...a, src: data, swapped: true, x: a.x + (a.w - w) / 2, y: a.y + (a.h - h) / 2, w, h }
+        }),
+      )
+    }
+    img.onerror = () => {
+      URL.revokeObjectURL(url)
+      notify(t('pe.imgFailed'))
+    }
+    img.src = url
+  }
+
   // keyboard shortcuts
   useEffect(() => {
     const onKey = (e) => {
@@ -893,8 +1034,7 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
         print()
       } else if ((e.key === 'Delete' || e.key === 'Backspace') && selected) {
         e.preventDefault()
-        commit(selected.page, (list) => list.filter((a) => a.id !== selected.id))
-        setSelected(null)
+        removeAnn(selected.page, selected.id)
       } else if (e.key === 'Escape') {
         setSelected(null)
         setPlacing(null)
@@ -936,6 +1076,9 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
     const d = 14
     const copy = structuredClone(a)
     copy.id = uid()
+    delete copy.orig
+    delete copy.imgId
+    delete copy.name
     if ('x' in copy) {
       copy.x += d
       copy.y += d
@@ -1164,6 +1307,8 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
         const [bx, by] = P(x + w, y + h)
         return [Math.min(ax, bx), Math.min(ay, by), Math.abs(bx - ax), Math.abs(by - ay)]
       }
+      // covers for moved PDF images go first, under everything else added on the page
+      for (const a of list) if (a.type === 'image' && a.orig && !untouched(a)) ops.push({ type: 'whiteout', page: src, rect: R(a.orig.x, a.orig.y, a.orig.w, a.orig.h), color: a.orig.cover })
       for (const a of list) {
         switch (a.type) {
           case 'replace': {
@@ -1195,6 +1340,7 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
             ops.push({ type: 'ink', page: src, points: a.points.map(([x, y]) => P(x, y)), color: a.color, width: a.width, opacity: a.opacity ?? 1 })
             break
           case 'image':
+            if (untouched(a)) break // a PDF image picked up but left as it was
             ops.push({ type: 'image', page: src, rect: R(a.x, a.y, a.w, a.h), src: a.src, opacity: a.opacity ?? 1 })
             break
           case 'link': {
@@ -1215,8 +1361,8 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
   }
 
   /** The pdf-edit job for the current state, or null when nothing changed. */
-  function payload() {
-    const latest = finishEditing(anns) ?? anns
+  async function payload() {
+    const latest = await sharpen(finishEditing(anns) ?? anns)
     const operations = toOps(latest)
     const own = sources.current.length - appended.current.length
     const planChanged = appended.current.length > 0 || pages.length !== own || pages.some((p, i) => p.src !== i || p.rotate)
@@ -1232,7 +1378,7 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
   }
 
   async function save() {
-    const job = payload()
+    const job = await payload()
     if (!job) return notify(t('pe.noChanges'))
     setSaving({ progress: 0, stage: t('pe.sending') })
     try {
@@ -1252,7 +1398,7 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
     if (!pdf || busy) return
     setBusy('print')
     try {
-      const job = payload()
+      const job = await payload()
       const target = job ? (await runTool('pdf-edit', job.fileIds, job.options)).outputs[0] : file
       printBlob(await fetchFile(target))
     } catch (err) {
@@ -1280,7 +1426,7 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
     scroller.current?.classList.remove('panning')
   }
 
-  const count = useMemo(() => Object.values(anns).reduce((n, l) => n + l.filter((a) => !(a.type === 'replace' && a.text === a.original)).length, 0), [anns]) + appended.current.length
+  const count = useMemo(() => Object.values(anns).reduce((n, l) => n + l.filter((a) => !(a.type === 'replace' && a.text === a.original) && !untouched(a)).length, 0), [anns]) + appended.current.length
   const selAnn = selected ? anns[selected.page]?.find((a) => a.id === selected.id) : null
   const textual = tool === 'text' || selAnn?.type === 'text' || selAnn?.type === 'replace'
   const drawing = ['rect', 'ellipse', 'arrow', 'line', 'ink'].includes(tool) || ['rect', 'ellipse', 'line', 'arrow', 'ink'].includes(selAnn?.type)
@@ -1476,6 +1622,11 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
         {selAnn && (
           <>
             <span className="pe-sep" />
+            {selAnn.type === 'image' && (
+              <button className="fs-btn ghost" onClick={() => swapInput.current?.click()} title={t('pe.swapImage')}>
+                <ImageSquare size={16} /> {t('pe.swapImage')}
+              </button>
+            )}
             {selAnn.type !== 'replace' && (
               <button className="fs-ibtn" onClick={duplicateSelected} title={t('pe.duplicate')}>
                 <Copy size={17} />
@@ -1483,10 +1634,7 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
             )}
             <button
               className="fs-btn ghost danger"
-              onClick={() => {
-                commit(selected.page, (list) => list.filter((a) => a.id !== selected.id))
-                setSelected(null)
-              }}
+              onClick={() => removeAnn(selected.page, selected.id)}
             >
               <Trash size={15} /> {t('ui.delete')}
             </button>
@@ -1626,6 +1774,8 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
                   onFinishEdit={onFinishEdit}
                   registerEditor={registerEditor}
                   textRuns={texts[p.src]}
+                  pics={pics[p.src]}
+                  onTakeImage={takeImage}
                   loadText={loadText}
                   placing={placing}
                   onPlace={place}
@@ -1765,6 +1915,7 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
         </div>
       )}
 
+      <input ref={swapInput} type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" hidden onChange={(e) => { swapImage(e.target.files[0]); e.target.value = '' }} />
       <input ref={imgInput} type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" hidden onChange={(e) => { chooseImage(e.target.files[0]); e.target.value = '' }} />
       <input ref={insertInput} type="file" accept=".pdf,image/png,image/jpeg,image/webp" multiple hidden onChange={(e) => { insertFiles(e.target.files); e.target.value = '' }} />
       {signing && (

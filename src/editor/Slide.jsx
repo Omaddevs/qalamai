@@ -28,6 +28,7 @@ export default function Slide({
   onTextCommit,
   onPickImage,
   playing = false,
+  autoAnim = false,
   preview = false,
   className = '',
 }) {
@@ -149,6 +150,7 @@ export default function Slide({
           onCommitStart={onElCommitStart}
           onCommitText={onTextCommit}
           onPickImage={onPickImage}
+          autoAnim={playing && autoAnim}
         />
       </div>
     </div>

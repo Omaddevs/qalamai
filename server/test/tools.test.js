@@ -154,6 +154,34 @@ describe('PDF editing and organising', () => {
     assert.match(text, /Ikkinchi qator/)
   })
 
+  test('pdf-edit: links, notes, aligned text, and pages inserted from blank / other PDF / image', async () => {
+    const { PDFName } = await import('pdf-lib')
+    const job = ok(
+      await c.runTool('pdf-edit', [pdf.id, pdf.id === png.id ? jpg.id : png.id], {
+        // src 3 = blank A4, src 4 = page 1 of the image (file 1)
+        append: [{ type: 'blank', width: 595, height: 842 }, { type: 'file', file: 1 }],
+        operations: [
+          { type: 'link', page: 0, rect: [72, 700, 200, 20], url: 'https://qalamai.uz/narxlar' },
+          { type: 'note', page: 0, x: 500, y: 800, text: 'Bu yerni tekşiring — Oʻzbekiston' },
+          { type: 'text', page: 3, x: 72, y: 700, text: 'Markaz\nIkkinçi uzunroq qator', size: 14, align: 'center' },
+        ],
+        pages: [{ src: 0 }, { src: 3 }, { src: 4 }, { src: 1 }],
+      }),
+    )
+    const buf = await c.download(job.outputs[0])
+    const doc = await PDFDocument.load(buf)
+    assert.equal(doc.getPageCount(), 4)
+    const annots = doc.getPage(0).node.Annots()
+    const subtypes = annots.asArray().map((ref) => doc.context.lookup(ref).get(PDFName.of('Subtype')).toString())
+    assert.deepEqual(subtypes.sort(), ['/Link', '/Text'])
+    const text = await textOf(buf)
+    assert.match(text, /Markaz/)
+    assert.match(text, /Ikkinçi uzunroq qator/)
+    // a bad link is refused before the job runs
+    const bad = await c.req('POST', '/api/v1/tools/pdf-edit/jobs', { json: { fileIds: [pdf.id], options: { operations: [{ type: 'link', page: 0, rect: [0, 0, 10, 10], url: 'javascript:alert(1)' }] } } })
+    assert.equal(bad.status, 400)
+  })
+
   test('pdf-merge mixes PDFs and images', async () => {
     const job = ok(await c.runTool('pdf-merge', [pdf.id, png.id, jpg.id]))
     assert.equal((await PDFDocument.load(await c.download(job.outputs[0]))).getPageCount(), 5)

@@ -5,9 +5,13 @@ import {
   X, ArrowUUpLeft, ArrowUUpRight, MagnifyingGlassMinus, MagnifyingGlassPlus, FloppyDisk, Cursor, CursorText, TextT, HighlighterCircle,
   Eraser, Rectangle, Circle, ArrowUpRight, LineSegment, PenNib, Image as ImageIcon, Signature, ArrowClockwise, ArrowCounterClockwise,
   Trash, TextB, TextItalic, CircleNotch, CheckCircle, DownloadSimple, NotePencil, WarningCircle, ArrowsOutLineHorizontal,
+  ChatCenteredText, LinkSimple, Stamp, Printer, MagnifyingGlass, Hand, CaretUp, CaretDown, Copy, Plus, FilePlus, File as FileIcon,
+  SquaresFour, TextAlignLeft, TextAlignCenter, TextAlignRight, Shapes, ArrowSquareOut,
 } from '@phosphor-icons/react'
-import { apiUrl, downloadFile, runTool } from '../api.js'
-import { t } from '../i18n/index.js'
+import { apiUrl, downloadFile, fetchFile, runTool, uploadFiles } from '../api.js'
+import { Dropdown } from '../components/ui.jsx'
+import { formatDate, t } from '../i18n/index.js'
+import { A4, STAMPS, flatViewport, imageBox, imagePageSize, loadImage, printBlob, renderSource, stampImage } from './peKit.js'
 
 let pdfjsPromise
 function loadPdfjs() {
@@ -32,13 +36,28 @@ const TOOLS = [
   { id: 'ink', icon: PenNib, get label() { return t('pe.tool.ink') }, key: 'p', group: 2 },
   { id: 'image', icon: ImageIcon, get label() { return t('pe.tool.image') }, key: 'i', group: 3 },
   { id: 'sign', icon: Signature, get label() { return t('pe.tool.sign') }, key: 's', group: 3 },
+  { id: 'stamp', icon: Stamp, get label() { return t('pe.tool.stamp') }, key: 'm', group: 3 },
+  { id: 'link', icon: LinkSimple, get label() { return t('pe.tool.link') }, key: 'k', group: 4 },
+  { id: 'note', icon: ChatCenteredText, get label() { return t('pe.tool.note') }, key: 'n', group: 4 },
+  { id: 'hand', icon: Hand, get label() { return t('pe.tool.hand') }, key: 'g', group: 0 },
 ]
+const SHAPES = ['rect', 'ellipse', 'line', 'arrow']
+const tool$ = (id) => TOOLS.find((x) => x.id === id)
+/** Web address as typed → one the PDF can open (adds https:// when no scheme was given). */
+const normUrl = (u) => {
+  const v = u.trim()
+  if (!v) return ''
+  if (/^(https?:\/\/|mailto:|tel:)/i.test(v)) return v
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return `mailto:${v}`
+  return `https://${v}`
+}
 /** A tool's name without the "(R)" shortcut its label carries (shown separately as a key). */
 const toolName = (tl) => tl.label.replace(/\s*\([^)]*\)\s*$/, '')
 const COLORS = ['#111111', '#2563eb', '#dc2626', '#16a34a', '#f59e0b', '#7c3aed', '#ffffff']
 const HL_COLORS = ['#fde047', '#86efac', '#93c5fd', '#f9a8d4', '#fdba74']
+const NOTE_COLORS = ['#facc15', '#fb923c', '#f472b6', '#60a5fa', '#4ade80']
 const uid = () => Math.random().toString(36).slice(2, 10)
-const DRAW_TOOLS = new Set(['highlight', 'whiteout', 'rect', 'ellipse', 'arrow', 'line', 'ink'])
+const DRAW_TOOLS = new Set(['highlight', 'whiteout', 'rect', 'ellipse', 'arrow', 'line', 'ink', 'link'])
 
 /** Merge pdf.js text items on the same baseline into editable runs. */
 function groupText(items, styles, commonObjs) {
@@ -249,7 +268,7 @@ function SignatureModal({ onDone, onClose }) {
 
 /* ───────── One page ───────── */
 
-function PageView({ pdf, src, info, zoom, plan, anns, tool, style, selected, editingId, onSelect, onCommit, onLive, onEditText, onFinishEdit, registerEditor, textRuns, loadText, placing, onPlace }) {
+function PageView({ source, src, info, zoom, plan, anns, tool, style, selected, editingId, onSelect, onCommit, onLive, onEditText, onFinishEdit, registerEditor, textRuns, loadText, placing, onPlace, hits }) {
   const canvas = useRef(null)
   const wrap = useRef(null)
   const [visible, setVisible] = useState(false)
@@ -267,23 +286,10 @@ function PageView({ pdf, src, info, zoom, plan, anns, tool, style, selected, edi
 
   useEffect(() => {
     if (!visible) return
-    let task
-    let dead = false
-    pdf.getPage(src + 1).then((page) => {
-      if (dead) return
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
-      const vp = page.getViewport({ scale: zoom * dpr })
-      const c = canvas.current
-      c.width = Math.round(vp.width)
-      c.height = Math.round(vp.height)
-      task = page.render({ canvasContext: c.getContext('2d'), viewport: vp, canvas: c })
-      task.promise.catch(() => {})
-    })
-    return () => {
-      dead = true
-      task?.cancel()
-    }
-  }, [pdf, src, zoom, visible])
+    const dpr = Math.min(window.devicePixelRatio || 1, 2)
+    const job = renderSource(source, canvas.current, zoom * dpr, info)
+    return () => job.cancel()
+  }, [source, info, zoom, visible])
 
   useEffect(() => {
     if (visible && tool === 'edit') loadText(src)
@@ -295,14 +301,23 @@ function PageView({ pdf, src, info, zoom, plan, anns, tool, style, selected, edi
   }
 
   function down(e) {
-    if (e.button !== 0) return
+    if (e.button !== 0 || tool === 'hand') return
     const [x, y] = pt(e)
     if (placing) {
       onPlace(src, x, y)
       return
     }
     if (tool === 'text') {
-      onCommit(src, (list) => [...list, { id: uid(), type: 'text', x, y: y - style.size * 0.6, text: '', size: style.size, color: style.color, font: style.font, bold: style.bold, italic: style.italic, isNew: true }], { editLast: true })
+      e.preventDefault()
+      onCommit(src, (list) => [...list, { id: uid(), type: 'text', x, y: y - style.size * 0.6, text: '', size: style.size, color: style.color, font: style.font, bold: style.bold, italic: style.italic, align: style.align, opacity: style.opacity, isNew: true }], { editLast: true })
+      return
+    }
+    if (tool === 'note') {
+      // the new note's box takes focus now; without this the compatibility mousedown that
+      // follows would move focus back to the page
+      e.preventDefault()
+      e.stopPropagation()
+      onCommit(src, (list) => [...list, { id: uid(), type: 'note', x: x - 11, y: y - 11, text: '', color: style.note }], { editLast: true })
       return
     }
     if (DRAW_TOOLS.has(tool)) {
@@ -343,32 +358,35 @@ function PageView({ pdf, src, info, zoom, plan, anns, tool, style, selected, edi
     if (d.kind === 'draw' && draft) {
       let a = null
       if (draft.type === 'ink') {
-        if (draft.points.length > 1) a = { type: 'ink', points: draft.points, color: style.color, width: style.stroke }
+        if (draft.points.length > 1) a = { type: 'ink', points: draft.points, color: style.color, width: style.stroke, opacity: style.opacity }
       } else {
         const x = Math.min(draft.x0, draft.x1)
         const y = Math.min(draft.y0, draft.y1)
         const w = Math.abs(draft.x1 - draft.x0)
         const h = Math.abs(draft.y1 - draft.y0)
         if (draft.type === 'line' || draft.type === 'arrow') {
-          if (Math.hypot(w, h) > 4) a = { type: draft.type, x1: draft.x0, y1: draft.y0, x2: draft.x1, y2: draft.y1, color: style.color, width: style.stroke }
+          if (Math.hypot(w, h) > 4) a = { type: draft.type, x1: draft.x0, y1: draft.y0, x2: draft.x1, y2: draft.y1, color: style.color, width: style.stroke, opacity: style.opacity }
         } else if (w > 3 && h > 3) {
           a =
             draft.type === 'highlight'
               ? { type: 'highlight', x, y, w, h, color: style.hl }
               : draft.type === 'whiteout'
                 ? { type: 'whiteout', x, y, w, h, color: '#ffffff' }
-                : { type: draft.type, x, y, w, h, stroke: style.color, fill: style.fill ? style.color : null, width: style.stroke }
+                : draft.type === 'link'
+                  ? { type: 'link', x, y, w, h, url: '' }
+                  : { type: draft.type, x, y, w, h, stroke: style.color, fill: style.fill ? style.color : null, width: style.stroke, opacity: style.opacity }
         }
       }
       setDraft(null)
-      if (a) onCommit(src, (list) => [...list, { id: uid(), ...a }])
+      if (a) onCommit(src, (list) => [...list, { id: uid(), ...a }], { editLast: a.type === 'link' })
     } else if (d.kind === 'move' || d.kind === 'resize') onCommit(src, (list) => list, { snapshotFrom: d.before })
   }
 
   function startMove(e, a, kind = 'move') {
     if (tool !== 'select') {
       // clicking existing text with the text/edit tool re-opens it instead of adding a new box
-      if ((tool === 'text' && a.type === 'text') || (tool === 'edit' && a.type === 'replace')) e.stopPropagation()
+      if ((tool === 'text' && a.type === 'text') || (tool === 'edit' && a.type === 'replace') || a.type === 'note') e.stopPropagation()
+      if (a.type === 'note' && tool !== 'hand') onSelect({ page: src, id: a.id })
       return
     }
     e.stopPropagation()
@@ -418,6 +436,8 @@ function PageView({ pdf, src, info, zoom, plan, anns, tool, style, selected, edi
                   fontFamily: a.font === 'serif' ? "'Noto Serif', 'Times New Roman', serif" : "'Inter', 'Noto Sans', Arial, sans-serif",
                   fontWeight: a.bold ? 700 : 400,
                   fontStyle: a.italic ? 'italic' : 'normal',
+                  textAlign: a.align ?? 'left',
+                  opacity: a.opacity ?? 1,
                   background: a.type === 'replace' ? a.cover : undefined,
                   minWidth: a.type === 'replace' ? z(a.vw) : undefined,
                   minHeight: a.type === 'replace' ? z(a.vh) : undefined,
@@ -469,7 +489,7 @@ function PageView({ pdf, src, info, zoom, plan, anns, tool, style, selected, edi
                   <div
                     key={a.id}
                     className="pe-ann pe-shape"
-                    style={{ left: z(a.x), top: z(a.y), width: z(a.w), height: z(a.h), border: `${z(a.width)}px solid ${a.stroke}`, background: a.fill ?? 'transparent', borderRadius: a.type === 'ellipse' ? '50%' : 0 }}
+                    style={{ left: z(a.x), top: z(a.y), width: z(a.w), height: z(a.h), border: `${z(a.width)}px solid ${a.stroke}`, background: a.fill ?? 'transparent', borderRadius: a.type === 'ellipse' ? '50%' : 0, opacity: a.opacity ?? 1 }}
                     {...common}
                   >
                     {sel(a) && <span className="pe-resize" onPointerDown={(e) => startMove(e, a, 'resize')} />}
@@ -477,11 +497,72 @@ function PageView({ pdf, src, info, zoom, plan, anns, tool, style, selected, edi
                 )
               case 'image':
                 return (
-                  <div key={a.id} className="pe-ann pe-img" style={{ left: z(a.x), top: z(a.y), width: z(a.w), height: z(a.h) }} {...common}>
+                  <div key={a.id} className="pe-ann pe-img" style={{ left: z(a.x), top: z(a.y), width: z(a.w), height: z(a.h), opacity: a.opacity ?? 1 }} {...common}>
                     <img src={a.src} alt="" draggable={false} />
                     {sel(a) && <span className="pe-resize" onPointerDown={(e) => startMove(e, a, 'resize')} />}
                   </div>
                 )
+              case 'link': {
+                const open = sel(a) || editingId === a.id
+                return (
+                  <div key={a.id} className={`pe-ann pe-link ${a.url ? '' : 'empty'}`} style={{ left: z(a.x), top: z(a.y), width: z(a.w), height: z(a.h) }} {...common}>
+                    <span className="pe-link-chip">
+                      <LinkSimple size={11} weight="bold" /> {a.url ? a.url.replace(/^(https?:\/\/|mailto:|tel:)/i, '') : t('pe.linkEmpty')}
+                    </span>
+                    {sel(a) && <span className="pe-resize" onPointerDown={(e) => startMove(e, a, 'resize')} />}
+                    {open && (
+                      <div className="pe-pop" onPointerDown={(e) => e.stopPropagation()}>
+                        <input
+                          autoFocus={!a.url}
+                          value={a.url}
+                          placeholder={t('pe.linkPh')}
+                          onChange={(e) => onLive(src, a.id, (x) => ({ ...x, url: e.target.value }))}
+                          onBlur={(e) => {
+                            onLive(src, a.id, (x) => ({ ...x, url: normUrl(e.target.value) }))
+                            onCommit(src, (l) => l, { snapshotFrom: true })
+                          }}
+                          onKeyDown={(e) => {
+                            e.stopPropagation()
+                            if (e.key === 'Enter' || e.key === 'Escape') e.currentTarget.blur()
+                          }}
+                        />
+                        {a.url && (
+                          <a href={normUrl(a.url)} target="_blank" rel="noreferrer noopener" title={t('pe.linkOpen')}>
+                            <ArrowSquareOut size={15} />
+                          </a>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )
+              }
+              case 'note': {
+                const open = sel(a) || editingId === a.id
+                return (
+                  <div key={a.id} className={`pe-ann pe-note ${open ? 'open' : ''}`} style={{ left: z(a.x), top: z(a.y), '--note': a.color }} {...common}>
+                    <span className="pe-note-ic">
+                      <ChatCenteredText size={14} weight="fill" />
+                    </span>
+                    {open && (
+                      <div className="pe-pop note" onPointerDown={(e) => e.stopPropagation()}>
+                        <textarea
+                          autoFocus={!a.text}
+                          rows={3}
+                          value={a.text}
+                          placeholder={t('pe.notePh')}
+                          onChange={(e) => onLive(src, a.id, (x) => ({ ...x, text: e.target.value }))}
+                          onBlur={() => onCommit(src, (l) => l, { snapshotFrom: true })}
+                          onKeyDown={(e) => {
+                            e.stopPropagation()
+                            if (e.key === 'Escape') e.currentTarget.blur()
+                          }}
+                        />
+                      </div>
+                    )}
+                    {!open && a.text && <span className="pe-note-peek">{a.text}</span>}
+                  </div>
+                )
+              }
               default:
                 return null
             }
@@ -498,9 +579,9 @@ function PageView({ pdf, src, info, zoom, plan, anns, tool, style, selected, edi
               .filter((a) => a.type === 'line' || a.type === 'arrow' || a.type === 'ink')
               .map((a) =>
                 a.type === 'ink' ? (
-                  <polyline key={a.id} points={a.points.map(([x, y]) => `${z(x)},${z(y)}`).join(' ')} stroke={a.color} strokeWidth={z(a.width)} className={`pe-vec ${sel(a) ? 'sel' : ''}`} onPointerDown={(e) => startMove(e, a)} />
+                  <polyline key={a.id} points={a.points.map(([x, y]) => `${z(x)},${z(y)}`).join(' ')} stroke={a.color} strokeWidth={z(a.width)} opacity={a.opacity ?? 1} className={`pe-vec ${sel(a) ? 'sel' : ''}`} onPointerDown={(e) => startMove(e, a)} />
                 ) : (
-                  <line key={a.id} x1={z(a.x1)} y1={z(a.y1)} x2={z(a.x2)} y2={z(a.y2)} stroke={a.color} strokeWidth={z(a.width)} markerEnd={a.type === 'arrow' ? `url(#ah-${src})` : undefined} className={`pe-vec ${sel(a) ? 'sel' : ''}`} onPointerDown={(e) => startMove(e, a)} />
+                  <line key={a.id} x1={z(a.x1)} y1={z(a.y1)} x2={z(a.x2)} y2={z(a.y2)} stroke={a.color} strokeWidth={z(a.width)} opacity={a.opacity ?? 1} markerEnd={a.type === 'arrow' ? `url(#ah-${src})` : undefined} className={`pe-vec ${sel(a) ? 'sel' : ''}`} onPointerDown={(e) => startMove(e, a)} />
                 ),
               )}
             {draft &&
@@ -516,36 +597,48 @@ function PageView({ pdf, src, info, zoom, plan, anns, tool, style, selected, edi
                   height={z(Math.abs(draft.y1 - draft.y0))}
                   rx={draft.type === 'ellipse' ? z(Math.abs(draft.x1 - draft.x0)) / 2 : 0}
                   className={`pe-draft ${draft.type}`}
-                  style={draft.type === 'highlight' ? { fill: style.hl } : draft.type === 'whiteout' ? { fill: '#fff' } : { stroke: style.color }}
+                  style={draft.type === 'highlight' ? { fill: style.hl } : draft.type === 'whiteout' ? { fill: '#fff' } : draft.type === 'link' ? { stroke: '#2563eb', fill: 'rgba(37,99,235,.08)', strokeDasharray: '5 4' } : { stroke: style.color }}
                 />
               ))}
           </svg>
+
+          {/* search matches */}
+          {hits?.map((h) => (
+            <span key={h.i} className={`pe-hit ${h.on ? 'on' : ''}`} style={{ left: z(h.x), top: z(h.y), width: z(h.w), height: z(h.h) }} />
+          ))}
         </div>
       </div>
-      <span className="pe-page-no">{src + 1}</span>
+      <span className="pe-page-no">{plan.n}</span>
     </div>
   )
 }
 
 /* ───────── Thumbnail ───────── */
 
-function PageThumb({ pdf, src }) {
+function PageThumb({ source, info, width = 140 }) {
   const [url, setUrl] = useState(null)
   useEffect(() => {
+    if (!source || !info) return
     let dead = false
-    pdf.getPage(src + 1).then(async (page) => {
-      const vp = page.getViewport({ scale: 140 / page.getViewport({ scale: 1 }).width })
-      const c = document.createElement('canvas')
-      c.width = vp.width
-      c.height = vp.height
-      await page.render({ canvasContext: c.getContext('2d'), viewport: vp, canvas: c }).promise.catch(() => {})
-      if (!dead) setUrl(c.toDataURL('image/jpeg', 0.8))
-    })
+    const c = document.createElement('canvas')
+    const job = renderSource(source, c, width / info.width, info)
+    job.promise.then(() => !dead && setUrl(c.toDataURL('image/jpeg', 0.8)))
     return () => {
       dead = true
+      job.cancel()
     }
-  }, [pdf, src])
-  return url ? <img src={url} alt="" draggable={false} /> : <span className="pe-thumb-ph" />
+  }, [source, info, width])
+  return url ? <img src={url} alt="" draggable={false} /> : <span className="pe-thumb-ph" style={info ? { aspectRatio: `${info.width} / ${info.height}` } : undefined} />
+}
+
+/** A labelled ribbon button: a tool (picked through onPick) or an action (onClick). */
+function RibbonButton({ id, label, icon: Icon, onClick, onPick, on, disabled }) {
+  return (
+    <button className={`pe-rb ${on ? 'on' : ''}`} onClick={onClick ?? (() => onPick(id))} disabled={disabled} title={id ? tool$(id)?.label : label} aria-pressed={on ?? undefined}>
+      <Icon size={21} weight={on ? 'duotone' : 'regular'} className={Icon === CircleNotch ? 'spin' : undefined} />
+      <span>{label}</span>
+    </button>
+  )
 }
 
 /* ───────── Editor ───────── */
@@ -557,7 +650,8 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
   const [pages, setPages] = useState([])
   const [anns, setAnns] = useState({})
   const [tool, setTool] = useState('select')
-  const [style, setStyle] = useState({ color: '#111111', size: 14, font: 'sans', bold: false, italic: false, stroke: 2, fill: false, hl: '#fde047' })
+  const [style, setStyle] = useState({ color: '#111111', size: 14, font: 'sans', bold: false, italic: false, stroke: 2, fill: false, hl: '#fde047', opacity: 1, align: 'left', note: '#facc15' })
+  const [shape, setShape] = useState('rect') // the Shapes button remembers the last shape
   const [selected, setSelected] = useState(null)
   const [editingId, setEditingId] = useState(null)
   const [zoom, setZoom] = useState(1)
@@ -570,11 +664,23 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
   const [saved, setSaved] = useState(null)
   const [attempt, setAttempt] = useState(0) // bumps to open the PDF again after a failure
   const [current, setCurrent] = useState(0) // index in `pages` of the page in view
+  const [managing, setManaging] = useState(false)
+  const [busy, setBusy] = useState(null) // 'insert' | 'print' while a side task runs
+  const [search, setSearch] = useState({ open: false, q: '', hits: [], at: 0, scanning: false })
+  const [stampText, setStampText] = useState('')
+  const [stampDate, setStampDate] = useState(true)
   const scroller = useRef(null)
+  // page sources by src index: 0…n-1 are the document's own pages; later ones are inserted
+  const sources = useRef([])
+  const appended = useRef([]) // server `append` entries for src ≥ the document's page count
+  const extraFiles = useRef([]) // ids of the files inserted pages come from (fileIds[1…])
+  const insertAt = useRef(null)
+  const insertInput = useRef(null)
+  const pan = useRef(null)
   const imgInput = useRef(null)
   const dragFrom = useRef(null)
   const viewports = useRef({})
-  const textLoading = useRef(new Set())
+  const textLoading = useRef(new Map())
   const editor = useRef(null) // { el, src, id } of the in-place text being edited
 
   // load document
@@ -593,6 +699,9 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
           viewports.current[i - 1] = vp
           list.push({ width: vp.width, height: vp.height })
         }
+        sources.current = list.map((_, i) => ({ type: 'pdf', doc, n: i + 1 }))
+        appended.current = []
+        extraFiles.current = []
         setInfos(list)
         setPages(list.map((_, i) => ({ key: uid(), src: i, rotate: 0 })))
         setPdf(doc)
@@ -698,21 +807,29 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
     setPages(n.pages)
   }
 
+  /** Text runs of a page (for "edit text" and search). Cached per page; [] for blank / image pages. */
   const loadText = useCallback(
-    async (src) => {
-      if (!pdf || textLoading.current.has(src)) return
-      textLoading.current.add(src)
-      const page = await pdf.getPage(src + 1)
-      await page.getOperatorList() // loads fonts → real names for bold/italic
-      const tc = await page.getTextContent()
-      const vp = viewports.current[src]
-      const runs = groupText(tc.items, tc.styles, page.commonObjs).map((r) => {
-        // viewport rect of the run: baseline box from slightly below baseline to the ascent
-        const [x1, y1] = vp.convertToViewportPoint(r.x, r.y - r.size * 0.26)
-        const [x2, y2] = vp.convertToViewportPoint(r.x + r.w, r.y + r.size * 0.96)
-        return { ...r, vx: Math.min(x1, x2), vy: Math.min(y1, y2), vw: Math.abs(x2 - x1), vh: Math.abs(y2 - y1) }
-      })
-      setTexts((prev) => ({ ...prev, [src]: runs }))
+    (src) => {
+      const source = sources.current[src]
+      if (!pdf || !source) return Promise.resolve([])
+      if (textLoading.current.has(src)) return textLoading.current.get(src)
+      const job = (async () => {
+        if (source.type !== 'pdf') return []
+        const page = await source.doc.getPage(source.n)
+        await page.getOperatorList() // loads fonts → real names for bold/italic
+        const tc = await page.getTextContent()
+        const vp = viewports.current[src]
+        const runs = groupText(tc.items, tc.styles, page.commonObjs).map((r) => {
+          // viewport rect of the run: baseline box from slightly below baseline to the ascent
+          const [x1, y1] = vp.convertToViewportPoint(r.x, r.y - r.size * 0.26)
+          const [x2, y2] = vp.convertToViewportPoint(r.x + r.w, r.y + r.size * 0.96)
+          return { ...r, vx: Math.min(x1, x2), vy: Math.min(y1, y2), vw: Math.abs(x2 - x1), vh: Math.abs(y2 - y1) }
+        })
+        setTexts((prev) => ({ ...prev, [src]: runs }))
+        return runs
+      })().catch(() => [])
+      textLoading.current.set(src, job)
+      return job
     },
     [pdf],
   )
@@ -770,6 +887,15 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
       } else if (mod && e.key.toLowerCase() === 'y') {
         e.preventDefault()
         redo()
+      } else if (mod && e.key.toLowerCase() === 'f') {
+        e.preventDefault()
+        setSearch((s) => ({ ...s, open: true }))
+      } else if (mod && e.key.toLowerCase() === 'd' && selected) {
+        e.preventDefault()
+        duplicateSelected()
+      } else if (mod && e.key.toLowerCase() === 'p') {
+        e.preventDefault()
+        print()
       } else if ((e.key === 'Delete' || e.key === 'Backspace') && selected) {
         e.preventDefault()
         commit(selected.page, (list) => list.filter((a) => a.id !== selected.id))
@@ -792,9 +918,161 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
     finishEditing()
     if (id === 'image') return imgInput.current?.click()
     if (id === 'sign') return setSigning(true)
+    if (id === 'stamp') return placeStamp(STAMPS[0])
+    if (SHAPES.includes(id)) setShape(id)
     setPlacing(null)
     setTool(id)
   }
+
+  /** Pick a stamp: the next click on a page puts it there. */
+  function placeStamp(preset) {
+    const text = (preset ? t(`pe.stamp.${preset.id}`) : stampText.trim()).toUpperCase()
+    if (!text) return
+    const sub = stampDate ? formatDate(new Date(), { day: 'numeric', month: 'long', year: 'numeric' }) : ''
+    setPlacing({ ...stampImage(text, preset?.color ?? style.color, sub), kind: 'stamp' })
+    setTool('select')
+    notify(t('pe.clickStamp'))
+  }
+
+  function duplicateSelected() {
+    if (!selected) return
+    const a = anns[selected.page]?.find((x) => x.id === selected.id)
+    if (!a || a.type === 'replace') return
+    const d = 14
+    const copy = structuredClone(a)
+    copy.id = uid()
+    if ('x' in copy) {
+      copy.x += d
+      copy.y += d
+    }
+    if (copy.type === 'line' || copy.type === 'arrow') Object.assign(copy, { x1: a.x1 + d, y1: a.y1 + d, x2: a.x2 + d, y2: a.y2 + d })
+    if (copy.type === 'ink') copy.points = a.points.map(([x, y]) => [x + d, y + d])
+    commit(selected.page, (list) => [...list, copy])
+    setSelected({ page: selected.page, id: copy.id })
+  }
+
+  /* ───── inserting pages ───── */
+
+  /** Add page sources after the existing ones and put them into the plan at `at`. */
+  function addSources(items, at) {
+    if (!items.length) return
+    pushHistory()
+    const base = sources.current.length
+    items.forEach((it, i) => {
+      sources.current[base + i] = it.source
+      viewports.current[base + i] = it.vp
+      appended.current.push(it.append)
+    })
+    setInfos((prev) => {
+      const next = [...prev]
+      items.forEach((it, i) => (next[base + i] = it.info))
+      return next
+    })
+    const fresh = items.map((_, i) => ({ key: uid(), src: base + i, rotate: 0 }))
+    setPages((ps) => {
+      const c = [...ps]
+      c.splice(Math.min(at ?? c.length, c.length), 0, ...fresh)
+      return c
+    })
+    setTimeout(() => document.getElementById(`pe-p-${fresh[0].key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120)
+  }
+
+  function addBlank(at) {
+    const near = pages[Math.max(0, (at ?? pages.length) - 1)]
+    const size = near ? infos[near.src] : null
+    const [w, h] = size ? [size.width, size.height] : A4
+    addSources([{ source: { type: 'blank' }, info: { width: w, height: h }, vp: flatViewport(w, h), append: { type: 'blank', width: w, height: h } }], at)
+  }
+
+  function askFile(at) {
+    insertAt.current = at
+    insertInput.current?.click()
+  }
+
+  async function insertFiles(list) {
+    const picked = [...list]
+    if (!picked.length) return
+    if (extraFiles.current.length + picked.length > 19) return notify(t('pe.tooManyFiles'))
+    setBusy('insert')
+    try {
+      const records = await uploadFiles(picked)
+      const items = []
+      for (const [k, rec] of records.entries()) {
+        const fileIdx = extraFiles.current.push(rec.id) // fileIds[0] is the document itself
+        if (rec.kind === 'pdf') {
+          const lib = await loadPdfjs()
+          const doc = await lib.getDocument({ url: apiUrl(rec.url), cMapUrl: '/pdfjs/cmaps/', cMapPacked: true, standardFontDataUrl: '/pdfjs/standard_fonts/' }).promise
+          for (let n = 1; n <= doc.numPages; n++) {
+            const vp = (await doc.getPage(n)).getViewport({ scale: 1 })
+            items.push({ source: { type: 'pdf', doc, n }, info: { width: vp.width, height: vp.height }, vp, append: { type: 'file', file: fileIdx, page: n - 1 } })
+          }
+        } else if (rec.kind === 'image') {
+          const img = await loadImage(picked[k])
+          const [w, h] = imagePageSize(img.naturalWidth, img.naturalHeight)
+          items.push({ source: { type: 'image', img, box: imageBox(img.naturalWidth, img.naturalHeight, w, h) }, info: { width: w, height: h }, vp: flatViewport(w, h), append: { type: 'file', file: fileIdx, page: 0 } })
+        } else {
+          extraFiles.current.pop()
+          notify(t('pe.insertFailed'))
+        }
+      }
+      addSources(items, insertAt.current)
+      if (items.length) notify(t('pe.inserted', { n: items.length }))
+    } catch (err) {
+      notify(err?.name === 'PasswordException' ? t('pe.locked') : err?.message || t('pe.insertFailed'))
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  /* ───── search ───── */
+
+  useEffect(() => {
+    const q = search.q.trim().toLowerCase()
+    if (!search.open || !pdf || q.length < 2) {
+      setSearch((s) => (s.hits.length || s.scanning ? { ...s, hits: [], at: 0, scanning: false } : s))
+      return
+    }
+    let dead = false
+    const timer = setTimeout(async () => {
+      setSearch((s) => ({ ...s, scanning: true }))
+      const hits = []
+      const seen = new Set()
+      for (const p of pages) {
+        if (seen.has(p.src)) continue
+        seen.add(p.src)
+        const runs = await loadText(p.src)
+        for (const r of runs) {
+          const low = r.str.toLowerCase()
+          for (let i = low.indexOf(q); i !== -1; i = low.indexOf(q, i + q.length)) {
+            hits.push({ i: hits.length, src: p.src, x: r.vx + (r.vw * i) / r.str.length, y: r.vy, w: Math.max(4, (r.vw * q.length) / r.str.length), h: r.vh })
+          }
+        }
+      }
+      if (!dead) setSearch((s) => ({ ...s, hits, at: 0, scanning: false }))
+    }, 250)
+    return () => {
+      dead = true
+      clearTimeout(timer)
+    }
+  }, [search.q, search.open, pdf, pages, loadText])
+
+  const showHit = (k) => {
+    const hit = search.hits[k]
+    if (!hit) return
+    setSearch((s) => ({ ...s, at: k }))
+    const p = pages.find((x) => x.src === hit.src)
+    const el = p && document.getElementById(`pe-p-${p.key}`)
+    if (el && scroller.current) scroller.current.scrollTo({ top: el.offsetTop + hit.y * zoom - scroller.current.clientHeight / 3, behavior: 'smooth' })
+  }
+  useEffect(() => {
+    if (search.hits.length) showHit(0)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search.hits])
+  const hitsBySrc = useMemo(() => {
+    const m = {}
+    search.hits.forEach((h, k) => (m[h.src] ??= []).push({ ...h, on: k === search.at }))
+    return m
+  }, [search.hits, search.at])
 
   async function chooseImage(fileObj) {
     if (!fileObj) return
@@ -818,7 +1096,7 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
   function place(src, x, y) {
     const w = Math.min(220, placing.w * 0.5)
     const h = w * (placing.h / placing.w)
-    commit(src, (list) => [...list, { id: uid(), type: 'image', x: x - w / 2, y: y - h / 2, w, h, src: placing.src }])
+    commit(src, (list) => [...list, { id: uid(), type: 'image', x: x - w / 2, y: y - h / 2, w, h, src: placing.src, opacity: placing.kind === 'stamp' ? 0.92 : style.opacity }])
     setPlacing(null)
   }
 
@@ -841,6 +1119,9 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
         for (const k of ['font', 'bold', 'italic']) if (k in patch && (a.type === 'text' || a.type === 'replace')) n[k] = patch[k]
         if ('stroke' in patch && 'width' in a) n.width = patch.stroke
         if ('fill' in patch && (a.type === 'rect' || a.type === 'ellipse')) n.fill = patch.fill ? (a.stroke ?? style.color) : null
+        if ('opacity' in patch && !['highlight', 'whiteout', 'link', 'note', 'replace'].includes(a.type)) n.opacity = patch.opacity
+        if ('align' in patch && a.type === 'text') n.align = patch.align
+        if ('note' in patch && a.type === 'note') n.color = patch.note
         return n
       }),
     )
@@ -855,6 +1136,25 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
     if (pages.length === 1) return notify(t('pe.lastPage'))
     pushHistory()
     setPages((ps) => ps.filter((p) => p.key !== key))
+  }
+  const duplicatePage = (key) => {
+    pushHistory()
+    setPages((ps) => {
+      const i = ps.findIndex((p) => p.key === key)
+      const c = [...ps]
+      c.splice(i + 1, 0, { ...ps[i], key: uid() })
+      return c
+    })
+  }
+  const movePage = (from, to) => {
+    if (from === null || from === to) return
+    pushHistory()
+    setPages((ps) => {
+      const c = [...ps]
+      const [m] = c.splice(from, 1)
+      c.splice(to, 0, m)
+      return c
+    })
   }
 
   /* save */
@@ -879,7 +1179,7 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
           case 'text': {
             if (!a.text.trim()) break
             const [x, y] = P(a.x, a.y + a.size * 0.99)
-            ops.push({ type: 'text', page: src, x, y, text: a.text, size: a.size, font: a.font, bold: a.bold, italic: a.italic, color: a.color, lineHeight: 1.2 })
+            ops.push({ type: 'text', page: src, x, y, text: a.text, size: a.size, font: a.font, bold: a.bold, italic: a.italic, color: a.color, lineHeight: 1.2, align: a.align ?? 'left', opacity: a.opacity ?? 1 })
             break
           }
           case 'highlight':
@@ -890,33 +1190,59 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
             break
           case 'rect':
           case 'ellipse':
-            ops.push({ type: a.type, page: src, rect: R(a.x, a.y, a.w, a.h), stroke: a.stroke, fill: a.fill, strokeWidth: a.width })
+            ops.push({ type: a.type, page: src, rect: R(a.x, a.y, a.w, a.h), stroke: a.stroke, fill: a.fill, strokeWidth: a.width, opacity: a.opacity ?? 1 })
             break
           case 'line':
           case 'arrow':
-            ops.push({ type: 'line', page: src, from: P(a.x1, a.y1), to: P(a.x2, a.y2), color: a.color, width: a.width, arrow: a.type === 'arrow' })
+            ops.push({ type: 'line', page: src, from: P(a.x1, a.y1), to: P(a.x2, a.y2), color: a.color, width: a.width, arrow: a.type === 'arrow', opacity: a.opacity ?? 1 })
             break
           case 'ink':
-            ops.push({ type: 'ink', page: src, points: a.points.map(([x, y]) => P(x, y)), color: a.color, width: a.width })
+            ops.push({ type: 'ink', page: src, points: a.points.map(([x, y]) => P(x, y)), color: a.color, width: a.width, opacity: a.opacity ?? 1 })
             break
           case 'image':
-            ops.push({ type: 'image', page: src, rect: R(a.x, a.y, a.w, a.h), src: a.src })
+            ops.push({ type: 'image', page: src, rect: R(a.x, a.y, a.w, a.h), src: a.src, opacity: a.opacity ?? 1 })
             break
+          case 'link': {
+            const url = normUrl(a.url ?? '')
+            if (url) ops.push({ type: 'link', page: src, rect: R(a.x, a.y, a.w, a.h), url })
+            break
+          }
+          case 'note': {
+            if (!a.text.trim()) break
+            const [x, y] = P(a.x, a.y)
+            ops.push({ type: 'note', page: src, x, y, text: a.text, color: a.color })
+            break
+          }
         }
       }
     }
     return ops
   }
 
-  async function save() {
+  /** The pdf-edit job for the current state, or null when nothing changed. */
+  function payload() {
     const latest = finishEditing(anns) ?? anns
     const operations = toOps(latest)
-    const planChanged = pages.length !== infos.length || pages.some((p, i) => p.src !== i || p.rotate)
-    if (!operations.length && !planChanged) return notify(t('pe.noChanges'))
-    setSaving({ progress: 0, stage: 'Yuborilmoqda' })
+    const own = sources.current.length - appended.current.length
+    const planChanged = appended.current.length > 0 || pages.length !== own || pages.some((p, i) => p.src !== i || p.rotate)
+    if (!operations.length && !planChanged) return null
+    return {
+      fileIds: [file.id, ...extraFiles.current],
+      options: {
+        operations,
+        ...(appended.current.length ? { append: appended.current } : {}),
+        ...(planChanged ? { pages: pages.map((p) => ({ src: p.src, rotate: p.rotate })) } : {}),
+      },
+    }
+  }
+
+  async function save() {
+    const job = payload()
+    if (!job) return notify(t('pe.noChanges'))
+    setSaving({ progress: 0, stage: t('pe.sending') })
     try {
-      const job = await runTool('pdf-edit', [file.id], { operations, ...(planChanged ? { pages: pages.map((p) => ({ src: p.src, rotate: p.rotate })) } : {}) }, { onUpdate: (j) => setSaving({ progress: j.progress, stage: j.stage }) })
-      const out = job.outputs[0]
+      const done = await runTool('pdf-edit', job.fileIds, job.options, { onUpdate: (j) => setSaving({ progress: j.progress, stage: j.stage }) })
+      const out = done.outputs[0]
       setSaved(out)
       downloadFile(out)
     } catch (err) {
@@ -926,66 +1252,153 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
     }
   }
 
-  const count = useMemo(() => Object.values(anns).reduce((n, l) => n + l.filter((a) => !(a.type === 'replace' && a.text === a.original)).length, 0), [anns])
+  /** Print what you see: the original when nothing changed, otherwise a freshly built copy. */
+  async function print() {
+    if (!pdf || busy) return
+    setBusy('print')
+    try {
+      const job = payload()
+      const target = job ? (await runTool('pdf-edit', job.fileIds, job.options)).outputs[0] : file
+      printBlob(await fetchFile(target))
+    } catch (err) {
+      notify(err.message)
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  /* hand tool: drag the page area to scroll */
+  const panDown = (e) => {
+    if (tool !== 'hand' || e.button !== 0) return
+    const el = scroller.current
+    pan.current = { x: e.clientX, y: e.clientY, left: el.scrollLeft, top: el.scrollTop }
+    el.setPointerCapture(e.pointerId)
+    el.classList.add('panning')
+  }
+  const panMove = (e) => {
+    const p = pan.current
+    if (!p) return
+    scroller.current.scrollTo({ left: p.left - (e.clientX - p.x), top: p.top - (e.clientY - p.y), behavior: 'instant' })
+  }
+  const panUp = () => {
+    pan.current = null
+    scroller.current?.classList.remove('panning')
+  }
+
+  const count = useMemo(() => Object.values(anns).reduce((n, l) => n + l.filter((a) => !(a.type === 'replace' && a.text === a.original)).length, 0), [anns]) + appended.current.length
   const selAnn = selected ? anns[selected.page]?.find((a) => a.id === selected.id) : null
   const textual = tool === 'text' || selAnn?.type === 'text' || selAnn?.type === 'replace'
   const drawing = ['rect', 'ellipse', 'arrow', 'line', 'ink'].includes(tool) || ['rect', 'ellipse', 'line', 'arrow', 'ink'].includes(selAnn?.type)
+  const fadable = textual || drawing || selAnn?.type === 'image' || selAnn?.type === 'text'
+  const noting = tool === 'note' || selAnn?.type === 'note'
+  const activeId = placing ? (placing.kind === 'stamp' ? 'stamp' : placing.kind === 'sign' ? 'sign' : 'image') : tool
+
+  const ShapeIcon = tool$(shape).icon
+  const ADD_MENU = (at) => (close) => (
+    <>
+      <button className="menu-item" onClick={() => { close(); addBlank(at) }}>
+        <span><FilePlus size={17} weight="duotone" /> {t('pe.addBlank')}</span>
+      </button>
+      <button className="menu-item" onClick={() => { close(); askFile(at) }}>
+        <span><FileIcon size={17} weight="duotone" /> {t('pe.addFile')}</span>
+      </button>
+    </>
+  )
 
   return (
-    <div className="pe" role="dialog" aria-modal="true" aria-label={t('pe.title')}>
-      <header className="pe-top">
-        <button className="fs-ibtn" onClick={() => (count && !saved ? window.confirm(t('pe.unsaved')) && onClose() : onClose())} aria-label={t('ui.close')}>
+    <div className={`pe tool-is-${tool}`} role="dialog" aria-modal="true" aria-label={t('pe.title')}>
+      {/* ───── ribbon ───── */}
+      <header className="pe-ribbon">
+        <button className="pe-close" onClick={() => (count && !saved ? window.confirm(t('pe.unsaved')) && onClose() : onClose())} aria-label={t('ui.close')} title={t('ui.close')}>
           <X size={18} />
         </button>
-        <div className="pe-name">
-          <NotePencil size={18} weight="duotone" />
-          <b title={file.name}>{file.name}</b>
-          {count > 0 && <span className="pe-count">{t('pe.changes', { n: count })}</span>}
+        <div className="pe-rb-group">
+          <RibbonButton onPick={pickTool} label={t('pe.rb.undo')} icon={ArrowUUpLeft} onClick={undo} disabled={!past.length} />
+          <RibbonButton onPick={pickTool} label={t('pe.rb.redo')} icon={ArrowUUpRight} onClick={redo} disabled={!future.length} />
         </div>
-        <div className="pe-top-mid">
-          {pages.length > 0 && (
-            <>
-              <span className="pe-pager" title={t('pe.pageOf', { n: current + 1, total: pages.length })}>
-                <input
-                  type="number"
-                  min={1}
-                  max={pages.length}
-                  value={current + 1}
-                  onChange={(e) => goTo(Math.min(pages.length, Math.max(1, Number(e.target.value) || 1)) - 1)}
-                  aria-label={t('pe.page')}
-                />
-                <span>/ {pages.length}</span>
-              </span>
-              <span className="pe-sep" />
-            </>
-          )}
-          <button className="fs-ibtn" onClick={undo} disabled={!past.length} title={t('pe.undo')}>
-            <ArrowUUpLeft size={18} />
-          </button>
-          <button className="fs-ibtn" onClick={redo} disabled={!future.length} title={t('pe.redo')}>
-            <ArrowUUpRight size={18} />
-          </button>
-          <span className="pe-sep" />
-          <button className="fs-ibtn" onClick={() => setZoom((z) => Math.max(0.4, +(z - 0.1).toFixed(2)))} title={t('pe.zoomOut')}>
-            <MagnifyingGlassMinus size={18} />
-          </button>
-          <span className="pe-zoom">{Math.round(zoom * 100)}%</span>
-          <button className="fs-ibtn" onClick={() => setZoom((z) => Math.min(3, +(z + 0.1).toFixed(2)))} title={t('pe.zoomIn')}>
-            <MagnifyingGlassPlus size={18} />
-          </button>
-          <button className="fs-ibtn" onClick={fitWidth} disabled={!pdf} title={t('pe.fitWidth')}>
-            <ArrowsOutLineHorizontal size={18} />
+        <div className="pe-rb-group">
+          <RibbonButton onPick={pickTool} id="select" label={t('pe.rb.select')} icon={Cursor} on={activeId === 'select'} />
+          <RibbonButton onPick={pickTool} id="hand" label={t('pe.rb.hand')} icon={Hand} on={activeId === 'hand'} />
+        </div>
+        <div className="pe-rb-group">
+          <RibbonButton onPick={pickTool} id="text" label={t('pe.rb.text')} icon={TextT} on={activeId === 'text'} />
+          <RibbonButton onPick={pickTool} id="edit" label={t('pe.rb.edit')} icon={CursorText} on={activeId === 'edit'} />
+          <RibbonButton onPick={pickTool} id="highlight" label={t('pe.rb.highlight')} icon={HighlighterCircle} on={activeId === 'highlight'} />
+          <RibbonButton onPick={pickTool} id="whiteout" label={t('pe.rb.whiteout')} icon={Eraser} on={activeId === 'whiteout'} />
+        </div>
+        <div className="pe-rb-group">
+          <RibbonButton onPick={pickTool} id="ink" label={t('pe.rb.draw')} icon={PenNib} on={activeId === 'ink'} />
+          <div className="pe-rb-split">
+            <RibbonButton onPick={pickTool} id={shape} label={t('pe.rb.shapes')} icon={ShapeIcon} on={SHAPES.includes(activeId)} />
+            <Dropdown
+              className="pe-menu"
+              button={({ toggle, open }) => (
+                <button className={`pe-rb-caret ${open ? 'open' : ''}`} onClick={toggle} aria-label={t('pe.rb.shapes')}>
+                  <CaretDown size={11} weight="bold" />
+                </button>
+              )}
+            >
+              {(close) =>
+                SHAPES.map((id) => {
+                  const tl = tool$(id)
+                  return (
+                    <button key={id} className={`menu-item ${tool === id ? 'on' : ''}`} onClick={() => { close(); pickTool(id) }}>
+                      <span><tl.icon size={17} /> {toolName(tl)}</span>
+                      <kbd className="pe-kbd">{tl.key.toUpperCase()}</kbd>
+                    </button>
+                  )
+                })
+              }
+            </Dropdown>
+          </div>
+        </div>
+        <div className="pe-rb-group">
+          <RibbonButton onPick={pickTool} id="image" label={t('pe.rb.image')} icon={ImageIcon} on={activeId === 'image'} />
+          <RibbonButton onPick={pickTool} id="sign" label={t('pe.rb.sign')} icon={Signature} on={activeId === 'sign'} />
+          <Dropdown
+            className="pe-menu pe-stamps"
+            button={({ toggle }) => <RibbonButton onPick={pickTool} label={t('pe.rb.stamp')} icon={Stamp} on={activeId === 'stamp'} onClick={toggle} />}
+          >
+            {(close) => (
+              <>
+                <div className="pop-label">{t('pe.stamps')}</div>
+                <div className="pe-stamp-grid">
+                  {STAMPS.map((st) => (
+                    <button key={st.id} className="pe-stamp-btn" style={{ '--c': st.color }} onClick={() => { close(); placeStamp(st) }}>
+                      {t(`pe.stamp.${st.id}`)}
+                    </button>
+                  ))}
+                </div>
+                <form className="pe-stamp-own" onSubmit={(e) => { e.preventDefault(); close(); placeStamp(null) }}>
+                  <input value={stampText} onChange={(e) => setStampText(e.target.value)} placeholder={t('pe.stampOwn')} maxLength={28} />
+                  <button className="fs-btn dark" disabled={!stampText.trim()}>{t('pe.stampPut')}</button>
+                </form>
+                <label className="pe-check">
+                  <input type="checkbox" checked={stampDate} onChange={(e) => setStampDate(e.target.checked)} /> {t('pe.stampDate')}
+                </label>
+              </>
+            )}
+          </Dropdown>
+        </div>
+        <div className="pe-rb-group">
+          <RibbonButton onPick={pickTool} id="link" label={t('pe.rb.link')} icon={LinkSimple} on={activeId === 'link'} />
+          <RibbonButton onPick={pickTool} id="note" label={t('pe.rb.note')} icon={ChatCenteredText} on={activeId === 'note'} />
+        </div>
+
+        <div className="pe-rb-right">
+          <RibbonButton onPick={pickTool} label={t('pe.rb.pages')} icon={SquaresFour} onClick={() => setManaging(true)} disabled={!pdf} />
+          <RibbonButton onPick={pickTool} label={t('pe.rb.search')} icon={MagnifyingGlass} on={search.open} onClick={() => setSearch((s) => ({ ...s, open: !s.open }))} disabled={!pdf} />
+          <RibbonButton onPick={pickTool} label={t('pe.rb.print')} icon={busy === 'print' ? CircleNotch : Printer} onClick={print} disabled={!pdf || Boolean(busy)} />
+          <button className={`fs-btn dark pe-save ${count > 0 ? 'ready' : ''}`} onClick={save} disabled={!pdf || saving}>
+            {saving ? <CircleNotch size={16} className="spin" /> : <FloppyDisk size={16} weight="bold" />} {saving ? `${saving.progress ?? 0}%` : t('pe.save')}
           </button>
         </div>
-        <button className={`fs-btn dark pe-save ${count > 0 ? 'ready' : ''}`} onClick={save} disabled={!pdf || saving}>
-          {saving ? <CircleNotch size={16} className="spin" /> : <FloppyDisk size={16} weight="bold" />} {saving ? `${saving.progress ?? 0}%` : t('pe.save')}
-        </button>
       </header>
 
-      {/* contextual style bar */}
+      {/* ───── contextual properties ───── */}
       <div className="pe-props">
         {(() => {
-          const cur = TOOLS.find((x) => x.id === (placing ? (placing.kind === 'sign' ? 'sign' : 'image') : tool)) ?? TOOLS[0]
+          const cur = tool$(activeId) ?? TOOLS[0]
           return (
             <span className="pe-current">
               <cur.icon size={15} weight="bold" /> {toolName(cur)}
@@ -997,6 +1410,12 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
           <div className="pe-swatches">
             {HL_COLORS.map((c) => (
               <button key={c} className={`pe-swatch ${style.hl === c ? 'on' : ''}`} style={{ background: c }} onClick={() => setStyleProp({ hl: c })} aria-label={c} />
+            ))}
+          </div>
+        ) : noting ? (
+          <div className="pe-swatches">
+            {NOTE_COLORS.map((c) => (
+              <button key={c} className={`pe-swatch ${(selAnn?.color ?? style.note) === c ? 'on' : ''}`} style={{ background: c }} onClick={() => setStyleProp({ note: c })} aria-label={c} />
             ))}
           </div>
         ) : (
@@ -1012,7 +1431,7 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
         {textual && (
           <>
             <span className="pe-sep" />
-            <select className="pe-select" value={style.font} onChange={(e) => setStyleProp({ font: e.target.value })}>
+            <select className="pe-select" value={selAnn?.font ?? style.font} onChange={(e) => setStyleProp({ font: e.target.value })} aria-label={t('pe.font')}>
               <option value="sans">Sans</option>
               <option value="serif">Serif (Times)</option>
             </select>
@@ -1023,6 +1442,16 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
             <button className={`fs-ibtn ${(selAnn?.italic ?? style.italic) ? 'on' : ''}`} onClick={() => setStyleProp({ italic: !(selAnn?.italic ?? style.italic) })} title={t('pe.italic')}>
               <TextItalic size={17} />
             </button>
+            {selAnn?.type !== 'replace' && (
+              <>
+                <span className="pe-sep" />
+                {[['left', TextAlignLeft], ['center', TextAlignCenter], ['right', TextAlignRight]].map(([al, Icon]) => (
+                  <button key={al} className={`fs-ibtn ${(selAnn?.align ?? style.align) === al ? 'on' : ''}`} onClick={() => setStyleProp({ align: al })} title={t(`pe.align.${al}`)}>
+                    <Icon size={17} />
+                  </button>
+                ))}
+              </>
+            )}
           </>
         )}
         {drawing && (
@@ -1039,9 +1468,24 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
             )}
           </>
         )}
+        {fadable && (
+          <>
+            <span className="pe-sep" />
+            <label className="pe-stroke">
+              {t('pe.opacity')}
+              <input type="range" min={0.1} max={1} step={0.05} value={selAnn?.opacity ?? style.opacity} onChange={(e) => setStyleProp({ opacity: Number(e.target.value) })} />
+              <em>{Math.round((selAnn?.opacity ?? style.opacity) * 100)}%</em>
+            </label>
+          </>
+        )}
         {selAnn && (
           <>
             <span className="pe-sep" />
+            {selAnn.type !== 'replace' && (
+              <button className="fs-ibtn" onClick={duplicateSelected} title={t('pe.duplicate')}>
+                <Copy size={17} />
+              </button>
+            )}
             <button
               className="fs-btn ghost danger"
               onClick={() => {
@@ -1055,76 +1499,91 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
         )}
         <span className="pe-props-hint">
           {placing
-            ? t('pe.hintImage')
-            : tool === 'edit'
-              ? t('pe.hintEdit')
-              : tool === 'text'
-                ? t('pe.hintText')
-                : tool === 'select'
-                  ? t('pe.hintSelect')
-                  : t('pe.hintDraw')}
+            ? placing.kind === 'stamp'
+              ? t('pe.clickStamp')
+              : t('pe.hintImage')
+            : ({ edit: t('pe.hintEdit'), text: t('pe.hintText'), select: t('pe.hintSelect'), hand: t('pe.hintHand'), link: t('pe.hintLink'), note: t('pe.hintNote') }[tool] ?? t('pe.hintDraw'))}
         </span>
       </div>
 
       <div className="pe-body">
+        {/* ───── pages ───── */}
         <aside className="pe-thumbs">
-          {pages.length > 0 && <div className="pe-thumbs-head">{t('pe.pagesCount', { n: pages.length })}</div>}
+          <div className="pe-doc">
+            <b title={file.name}>{file.name}</b>
+            <span>
+              {t('pe.pagesCount', { n: pages.length })}
+              {count > 0 && <em className="pe-count">{t('pe.changes', { n: count })}</em>}
+            </span>
+          </div>
+          <Dropdown
+            className="pe-menu"
+            button={({ toggle }) => (
+              <button className="pe-add" onClick={toggle} disabled={!pdf || busy === 'insert'}>
+                {busy === 'insert' ? <CircleNotch size={16} className="spin" /> : <Plus size={16} weight="bold" />} {busy === 'insert' ? t('pe.inserting') : t('pe.addPages')}
+                <CaretDown size={12} weight="bold" />
+              </button>
+            )}
+          >
+            {ADD_MENU(pages.length)}
+          </Dropdown>
           {pages.map((p, i) => (
-            <div
-              key={p.key}
-              className={`pe-thumb ${i === current ? 'on' : ''}`}
-              draggable
-              onDragStart={() => (dragFrom.current = i)}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={() => {
-                const from = dragFrom.current
-                if (from === null || from === i) return
-                pushHistory()
-                setPages((ps) => {
-                  const c = [...ps]
-                  const [m] = c.splice(from, 1)
-                  c.splice(i, 0, m)
-                  return c
-                })
-                dragFrom.current = null
-              }}
-              onClick={() => document.getElementById(`pe-p-${p.key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-            >
-              <div className="pe-thumb-img" style={{ transform: `rotate(${p.rotate}deg)` }}>
-                {pdf && <PageThumb pdf={pdf} src={p.src} />}
+            <div key={p.key} className="pe-thumb-slot">
+              <div
+                className={`pe-thumb ${i === current ? 'on' : ''}`}
+                draggable
+                onDragStart={() => (dragFrom.current = i)}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={() => {
+                  movePage(dragFrom.current, i)
+                  dragFrom.current = null
+                }}
+                onClick={() => goTo(i)}
+              >
+                <div className="pe-thumb-img" style={{ transform: `rotate(${p.rotate}deg)` }}>
+                  <PageThumb source={sources.current[p.src]} info={infos[p.src]} />
+                </div>
+                <span className="pe-thumb-no">{i + 1}</span>
+                <div className="pe-thumb-tools" onClick={(e) => e.stopPropagation()}>
+                  <button title={t('pe.rotL')} onClick={() => rotatePage(p.key, -90)}>
+                    <ArrowCounterClockwise size={13} weight="bold" />
+                  </button>
+                  <button title={t('pe.rotR')} onClick={() => rotatePage(p.key, 90)}>
+                    <ArrowClockwise size={13} weight="bold" />
+                  </button>
+                  <button title={t('pe.dupPage')} onClick={() => duplicatePage(p.key)}>
+                    <Copy size={13} weight="bold" />
+                  </button>
+                  <button title={t('pe.delPage')} className="danger" onClick={() => deletePage(p.key)}>
+                    <Trash size={13} weight="bold" />
+                  </button>
+                </div>
               </div>
-              <span className="pe-thumb-no">{i + 1}</span>
-              <div className="pe-thumb-tools" onClick={(e) => e.stopPropagation()}>
-                <button title={t('pe.rotL')} onClick={() => rotatePage(p.key, -90)}>
-                  <ArrowCounterClockwise size={13} weight="bold" />
-                </button>
-                <button title={t('pe.rotR')} onClick={() => rotatePage(p.key, 90)}>
-                  <ArrowClockwise size={13} weight="bold" />
-                </button>
-                <button title={t('pe.delPage')} className="danger" onClick={() => deletePage(p.key)}>
-                  <Trash size={13} weight="bold" />
-                </button>
-              </div>
+              <Dropdown
+                className="pe-menu"
+                button={({ toggle, open }) => (
+                  <button className={`pe-gap ${open ? 'open' : ''}`} onClick={toggle} title={t('pe.insertHere')} aria-label={t('pe.insertHere')}>
+                    <Plus size={12} weight="bold" />
+                  </button>
+                )}
+              >
+                {ADD_MENU(i + 1)}
+              </Dropdown>
             </div>
           ))}
         </aside>
 
-        <nav className="pe-tools" aria-label={t('pe.tools')}>
-          {TOOLS.map((tl, i) => (
-            <span key={tl.id} className="pe-tool-slot">
-              {i > 0 && TOOLS[i - 1].group !== tl.group && <i className="pe-tools-sep" aria-hidden="true" />}
-              <button className={tool === tl.id && !placing ? 'on' : ''} onClick={() => pickTool(tl.id)} aria-label={`${toolName(tl)} (${tl.key.toUpperCase()})`}>
-                <tl.icon size={20} weight={tool === tl.id ? 'duotone' : 'regular'} />
-                <span className="pe-tip" aria-hidden="true">
-                  {toolName(tl)}
-                  <kbd>{tl.key.toUpperCase()}</kbd>
-                </span>
-              </button>
-            </span>
-          ))}
-        </nav>
-
-        <main className="pe-scroll" ref={scroller} onPointerDown={(e) => e.target === e.currentTarget && setSelected(null)}>
+        <main
+          className={`pe-scroll ${tool === 'hand' ? 'hand' : ''}`}
+          ref={scroller}
+          onPointerDown={(e) => {
+            panDown(e)
+            if (e.target === e.currentTarget) setSelected(null)
+          }}
+          onPointerMove={panMove}
+          onPointerUp={panUp}
+          onPointerCancel={panUp}
+        >
           {error ? (
             <div className="pe-state error">
               <span className="pe-state-ic">
@@ -1152,17 +1611,20 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
             pages.map((p, i) => (
               <div key={p.key} id={`pe-p-${p.key}`} data-index={i}>
                 <PageView
-                  pdf={pdf}
+                  source={sources.current[p.src]}
                   src={p.src}
                   info={infos[p.src]}
-                  plan={p}
+                  plan={{ ...p, n: i + 1 }}
                   zoom={zoom}
                   anns={anns[p.src] ?? []}
                   tool={tool}
                   style={style}
                   selected={selected}
                   editingId={editingId}
-                  onSelect={setSelected}
+                  onSelect={(v) => {
+                    setSelected(v)
+                    if (!v || v.id !== editingId) setEditingId((id) => (editor.current ? id : null))
+                  }}
                   onCommit={onCommit}
                   onLive={onLive}
                   onEditText={onEditText}
@@ -1172,14 +1634,144 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
                   loadText={loadText}
                   placing={placing}
                   onPlace={place}
+                  hits={hitsBySrc[p.src]}
                 />
               </div>
             ))
           )}
         </main>
+
+        {/* ───── search ───── */}
+        {search.open && (
+          <div className="pe-search">
+            <MagnifyingGlass size={16} />
+            <input
+              autoFocus
+              value={search.q}
+              placeholder={t('pe.searchPh')}
+              onChange={(e) => setSearch((s) => ({ ...s, q: e.target.value }))}
+              onKeyDown={(e) => {
+                e.stopPropagation()
+                if (e.key === 'Enter' && search.hits.length) showHit((search.at + (e.shiftKey ? -1 : 1) + search.hits.length) % search.hits.length)
+                if (e.key === 'Escape') setSearch((s) => ({ ...s, open: false }))
+              }}
+            />
+            <span className="pe-search-count">
+              {search.scanning ? <CircleNotch size={14} className="spin" /> : search.q.trim().length >= 2 ? (search.hits.length ? t('pe.searchCount', { n: search.at + 1, total: search.hits.length }) : t('pe.searchNone')) : ''}
+            </span>
+            <button className="fs-ibtn" disabled={!search.hits.length} onClick={() => showHit((search.at - 1 + search.hits.length) % search.hits.length)} title={t('pe.prev')}>
+              <CaretUp size={15} weight="bold" />
+            </button>
+            <button className="fs-ibtn" disabled={!search.hits.length} onClick={() => showHit((search.at + 1) % search.hits.length)} title={t('pe.next')}>
+              <CaretDown size={15} weight="bold" />
+            </button>
+            <button className="fs-ibtn" onClick={() => setSearch((s) => ({ ...s, open: false }))} aria-label={t('ui.close')}>
+              <X size={15} />
+            </button>
+          </div>
+        )}
+
+        {/* ───── floating page / zoom bar ───── */}
+        {pdf && (
+          <div className="pe-float">
+            <button onClick={() => goTo(Math.max(0, current - 1))} disabled={current === 0} title={t('pe.prevPage')}>
+              <CaretUp size={16} weight="bold" />
+            </button>
+            <span className="pe-float-page">
+              <input
+                type="number"
+                min={1}
+                max={pages.length}
+                value={current + 1}
+                onChange={(e) => goTo(Math.min(pages.length, Math.max(1, Number(e.target.value) || 1)) - 1)}
+                aria-label={t('pe.page')}
+              />
+              <span>/ {pages.length}</span>
+            </span>
+            <button onClick={() => goTo(Math.min(pages.length - 1, current + 1))} disabled={current >= pages.length - 1} title={t('pe.nextPage')}>
+              <CaretDown size={16} weight="bold" />
+            </button>
+            <i />
+            <button onClick={() => setZoom((z) => Math.max(0.4, +(z - 0.1).toFixed(2)))} title={t('pe.zoomOut')}>
+              <MagnifyingGlassMinus size={17} />
+            </button>
+            <span className="pe-float-zoom">{Math.round(zoom * 100)}%</span>
+            <button onClick={() => setZoom((z) => Math.min(3, +(z + 0.1).toFixed(2)))} title={t('pe.zoomIn')}>
+              <MagnifyingGlassPlus size={17} />
+            </button>
+            <i />
+            <button className={tool === 'hand' ? 'on' : ''} onClick={() => pickTool(tool === 'hand' ? 'select' : 'hand')} title={tool$('hand').label}>
+              <Hand size={17} />
+            </button>
+            <button onClick={fitWidth} title={t('pe.fitWidth')}>
+              <ArrowsOutLineHorizontal size={17} />
+            </button>
+          </div>
+        )}
       </div>
 
+      {/* ───── manage pages ───── */}
+      {managing && (
+        <div className="pe-manage">
+          <header>
+            <div>
+              <b>{t('pe.managePages')}</b>
+              <span>{t('pe.manageHint')}</span>
+            </div>
+            <Dropdown
+              align="right"
+              className="pe-menu"
+              button={({ toggle }) => (
+                <button className="fs-btn" onClick={toggle} disabled={busy === 'insert'}>
+                  {busy === 'insert' ? <CircleNotch size={15} className="spin" /> : <Plus size={15} weight="bold" />} {t('pe.addPages')}
+                </button>
+              )}
+            >
+              {ADD_MENU(pages.length)}
+            </Dropdown>
+            <button className="fs-btn dark" onClick={() => setManaging(false)}>
+              {t('pe.done')}
+            </button>
+          </header>
+          <div className="pe-manage-grid">
+            {pages.map((p, i) => (
+              <div
+                key={p.key}
+                className="pe-mcard"
+                draggable
+                onDragStart={() => (dragFrom.current = i)}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={() => {
+                  movePage(dragFrom.current, i)
+                  dragFrom.current = null
+                }}
+              >
+                <div className="pe-mcard-img" style={{ transform: `rotate(${p.rotate}deg)` }}>
+                  <PageThumb source={sources.current[p.src]} info={infos[p.src]} width={220} />
+                </div>
+                <div className="pe-mcard-bar">
+                  <span>{i + 1}</span>
+                  <button title={t('pe.rotL')} onClick={() => rotatePage(p.key, -90)}>
+                    <ArrowCounterClockwise size={15} weight="bold" />
+                  </button>
+                  <button title={t('pe.rotR')} onClick={() => rotatePage(p.key, 90)}>
+                    <ArrowClockwise size={15} weight="bold" />
+                  </button>
+                  <button title={t('pe.dupPage')} onClick={() => duplicatePage(p.key)}>
+                    <Copy size={15} weight="bold" />
+                  </button>
+                  <button title={t('pe.delPage')} className="danger" onClick={() => deletePage(p.key)}>
+                    <Trash size={15} weight="bold" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <input ref={imgInput} type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" hidden onChange={(e) => { chooseImage(e.target.files[0]); e.target.value = '' }} />
+      <input ref={insertInput} type="file" accept=".pdf,image/png,image/jpeg,image/webp" multiple hidden onChange={(e) => { insertFiles(e.target.files); e.target.value = '' }} />
       {signing && (
         <SignatureModal
           onClose={() => setSigning(false)}
@@ -1191,9 +1783,9 @@ export default function PdfEditor({ file, notify, onClose, onReopen }) {
           }}
         />
       )}
-      {saving && (
+      {(saving || busy === 'print') && (
         <div className="pe-saving">
-          <CircleNotch size={22} className="spin" /> {saving.stage ?? t('pe.saving')} · {saving.progress ?? 0}%
+          <CircleNotch size={22} className="spin" /> {saving ? `${saving.stage ?? t('pe.saving')} · ${saving.progress ?? 0}%` : t('pe.printPrep')}
         </div>
       )}
       {saved && (

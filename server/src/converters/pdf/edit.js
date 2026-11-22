@@ -3,10 +3,11 @@
 // Coordinates arrive in PDF user space (the editor converts with pdf.js
 // viewport.convertToPdfPoint), so they are correct for any page box or rotation.
 import { readFile } from 'node:fs/promises'
-import { BlendMode, LineCapStyle, PDFDocument, degrees, rgb } from 'pdf-lib'
+import { BlendMode, LineCapStyle, PDFDocument, PDFHexString, PDFString, degrees, rgb } from 'pdf-lib'
 import { ToolError } from '../../lib/errors.js'
 import { fontSet, printable } from '../lib/fonts.js'
 import { emit, hexToRgb01, renameExt } from '../lib/util.js'
+import { addImagePage } from '../image/to-pdf.js'
 
 const color = (hex) => {
   const { r, g, b } = hexToRgb01(hex)
@@ -42,6 +43,30 @@ async function drawTextOp(page, op, font) {
   const rotation = op.angle ?? page.getRotation().angle
   const f = await font({ family: op.font, bold: op.bold, italic: op.italic })
   const text = printable(f, op.text)
+  if (op.align && op.align !== 'left' && text.includes('\n')) {
+    // pdf-lib only left-aligns: place each line by hand against the longest one
+    const lines = text.split('\n')
+    const widths = lines.map((l) => f.widthOfTextAtSize(l, op.size))
+    const block = Math.max(...widths)
+    const lh = op.size * (op.lineHeight ?? 1.2)
+    const rad = (rotation * Math.PI) / 180
+    const [cos, sin] = [Math.cos(rad), Math.sin(rad)]
+    lines.forEach((line, i) => {
+      if (!line) return
+      const dx = (block - widths[i]) * (op.align === 'center' ? 0.5 : 1)
+      const dy = -i * lh
+      page.drawText(line, {
+        x: op.x + dx * cos - dy * sin,
+        y: op.y + dx * sin + dy * cos,
+        size: op.size,
+        font: f,
+        color: color(op.color),
+        opacity: op.opacity,
+        rotate: degrees(rotation),
+      })
+    })
+    return
+  }
   page.drawText(text, {
     x: op.x,
     y: op.y,
@@ -127,6 +152,35 @@ export async function applyOperations(doc, operations, progress) {
         page.drawImage(img, { ...uprightBox(norm(op.rect), rotation), opacity: op.opacity })
         break
       }
+      case 'link': {
+        const [x, y, w, h] = norm(op.rect)
+        const annot = doc.context.obj({
+          Type: 'Annot',
+          Subtype: 'Link',
+          Rect: [x, y, x + w, y + h],
+          Border: [0, 0, 0],
+          A: { Type: 'Action', S: 'URI', URI: PDFString.of(encodeURI(decodeURI(op.url))) },
+        })
+        page.node.addAnnot(doc.context.register(annot))
+        break
+      }
+      case 'note': {
+        const { r, g, b } = hexToRgb01(op.color)
+        const annot = doc.context.obj({
+          Type: 'Annot',
+          Subtype: 'Text',
+          Rect: [op.x, op.y - 22, op.x + 22, op.y],
+          Contents: PDFHexString.fromText(op.text),
+          T: PDFHexString.fromText('QalamAI'),
+          Name: 'Comment',
+          C: [r, g, b],
+          Open: false,
+          F: 4, // print
+          M: PDFString.fromDate(new Date()),
+        })
+        page.node.addAnnot(doc.context.register(annot))
+        break
+      }
       default:
         throw new ToolError('BAD_OPERATION', `Nomaʼlum amal: ${op.type}`)
     }
@@ -152,9 +206,34 @@ export async function arrangePages(doc, plan) {
   return out
 }
 
-export async function run({ inputs: [input], options, outDir }, { progress }) {
+/** Pages added after the document's own: blank ones, or a page of another input (PDF or image). */
+export async function appendPages(doc, append, inputs) {
+  const others = new Map()
+  for (const a of append) {
+    if (a.type === 'blank') {
+      doc.addPage([a.width, a.height])
+      continue
+    }
+    const input = inputs[a.file]
+    if (!input) throw new ToolError('BAD_OPERATION', 'Qöşiladigan fayl topilmadi')
+    if (input.kind === 'image') {
+      await addImagePage(doc, input.path, { pageSize: 'a4', orientation: 'auto', margin: 'small' })
+      continue
+    }
+    if (!others.has(a.file)) others.set(a.file, await loadPdf(input.path))
+    const other = others.get(a.file)
+    if (a.page >= other.getPageCount()) throw new ToolError('BAD_OPERATION', `${a.page + 1}-sahifa mavjud emas`)
+    const [copied] = await doc.copyPages(other, [a.page])
+    doc.addPage(copied)
+  }
+}
+
+export async function run({ inputs, options, outDir }, { progress }) {
+  const [input] = inputs
+  if (input.kind !== 'pdf') throw new ToolError('BAD_OPTIONS', 'Birinçi fayl PDF bölişi kerak')
   progress(5, 'PDF oçilmoqda')
   let doc = await loadPdf(input.path)
+  if (options.append?.length) await appendPages(doc, options.append, inputs)
   if (options.operations.length) await applyOperations(doc, options.operations, progress)
   if (options.pages) {
     progress(85, 'Sahifalar tartiblanmoqda')

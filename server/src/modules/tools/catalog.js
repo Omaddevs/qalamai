@@ -35,6 +35,8 @@ export const editOperation = z.discriminatedUnion('type', [
     angle: num.optional(),
     text: z.string().min(1).max(10_000),
     lineHeight: z.number().min(0.8).max(3).default(1.25),
+    // lines line up against the block's longest line; x stays the block's left edge
+    align: z.enum(['left', 'center', 'right']).default('left'),
     ...textStyle,
   }),
   // edit existing text: paint `cover` over `rect`, then draw the new text at the original baseline
@@ -63,6 +65,10 @@ export const editOperation = z.discriminatedUnion('type', [
   }),
   z.object({ type: z.literal('line'), page: pageIdx, from: point, to: point, color: hex.default('#111111'), width: z.number().min(0.2).max(40).default(1.5), opacity: opacity.default(1), arrow: z.boolean().default(false) }),
   z.object({ type: z.literal('ink'), page: pageIdx, points: z.array(point).min(2).max(10_000), color: hex.default('#111111'), width: z.number().min(0.2).max(40).default(2), opacity: opacity.default(1) }),
+  // a clickable area that opens a web address (or mail / phone)
+  z.object({ type: z.literal('link'), page: pageIdx, rect, url: z.string().trim().max(2000).regex(/^(https?:\/\/|mailto:|tel:)\S+$/i, 'Havola https://, mailto: yoki tel: bilan boşlanişi kerak') }),
+  // a sticky-note comment (PDF text annotation) whose corner sits at x, y
+  z.object({ type: z.literal('note'), page: pageIdx, x: num, y: num, text: z.string().max(5000), color: hex.default('#facc15') }),
   z.object({
     type: z.literal('image'),
     page: pageIdx,
@@ -135,11 +141,23 @@ const TOOLS = [
     category: 'edit',
     title: 'PDF muharriri',
     description: 'Mavjud matnni tahrirlang, matn, rasm, imzo, şakl qöşing; sahifalarni aylantiring va tartiblang.',
-    accepts: ['pdf'],
-    maxFiles: 1,
+    // the first file is the PDF being edited; more PDFs / images can supply pages to insert
+    accepts: ['pdf', 'image'],
+    maxFiles: 20,
     output: 'pdf',
     editor: true,
     options: z.object({
+      // pages added after the document's own (their indices go on from its page count), so
+      // operations and the page plan can use them: blank pages, or a page of another input file
+      append: z
+        .array(
+          z.discriminatedUnion('type', [
+            z.object({ type: z.literal('blank'), width: z.number().min(72).max(5000), height: z.number().min(72).max(5000) }),
+            z.object({ type: z.literal('file'), file: z.number().int().min(1).max(19), page: z.number().int().min(0).max(9999).default(0) }),
+          ]),
+        )
+        .max(2000)
+        .default([]),
       pages: z.array(z.object({ src: pageIdx, rotate: z.union([z.literal(0), z.literal(90), z.literal(180), z.literal(270)]).default(0) })).min(1).max(10_000).optional(),
       operations: z.array(editOperation).max(5000).default([]),
     }),

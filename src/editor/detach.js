@@ -7,32 +7,80 @@ import { newId } from './templates.js'
 
 const TRANSPARENT = /^(transparent|rgba\([^)]*,\s*0\))$/
 
-function angleOf(transform) {
+/** A CSS transform → { rotate } for a plain rotation, or { tf } (flips, skews, scales) drawn as is. */
+function transformOf(transform) {
   const m = /^matrix\(([^)]+)\)/.exec(transform || '')
-  if (!m) return 0
-  const [a, b] = m[1].split(',').map(Number)
-  return Math.round((Math.atan2(b, a) * 180) / Math.PI * 10) / 10
+  if (!m) return {}
+  const [a, b, c, d] = m[1].split(',').map(Number)
+  const r = (v) => Math.round(v * 10000) / 10000
+  const len = Math.hypot(a, b)
+  // a rotation: orthonormal and not mirrored
+  if (Math.abs(len - 1) < 1e-3 && Math.abs(Math.hypot(c, d) - 1) < 1e-3 && Math.abs(a * c + b * d) < 1e-3 && a * d - b * c > 0) {
+    const rotate = Math.round(((Math.atan2(b, a) * 180) / Math.PI) * 10) / 10
+    return rotate ? { rotate } : {}
+  }
+  return { tf: `matrix(${r(a)}, ${r(b)}, ${r(c)}, ${r(d)}, 0, 0)` }
 }
 
+const COLOR_ATTRS = ['fill', 'stroke', 'stop-color', 'flood-color', 'color']
+const NOT_COLOR = /^(none|transparent|inherit|currentcolor|url\(|context-)/i
+
 /**
- * @param {HTMLElement} slideEl  the rendered `.slide` of the page (in the editor canvas)
- * @returns {object[] | null}   elements, in paint order; null when the page has no layout
+ * An inline SVG → { svg (standalone markup), colors (the distinct colours it paints with) }.
+ * It is drawn as an <img> later, so nothing in it can run.
  */
-export function detachPage(slideEl) {
-  const area = slideEl.querySelector('.ly-area')
-  if (!area) return null
+function vectorOf(node, cs) {
+  const clone = node.cloneNode(true)
+  const w = parseFloat(cs.width)
+  const h = parseFloat(cs.height)
+  if (!(w > 0) || !(h > 0)) return null
+  clone.removeAttribute('style')
+  clone.removeAttribute('class')
+  clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
+  // sized by the element's frame; without a viewBox the drawing is in the page's CSS pixels
+  if (!clone.getAttribute('viewBox')) {
+    clone.setAttribute('viewBox', `0 0 ${Math.round(w * 100) / 100} ${Math.round(h * 100) / 100}`)
+    clone.setAttribute('preserveAspectRatio', 'none')
+  }
+  clone.setAttribute('width', '100%')
+  clone.setAttribute('height', '100%')
+  const colors = []
+  const note = (v) => {
+    const c = v?.trim()
+    if (c && !NOT_COLOR.test(c) && !colors.includes(c)) colors.push(c)
+  }
+  for (const n of [clone, ...clone.querySelectorAll('*')]) {
+    for (const a of COLOR_ATTRS) {
+      const v = n.getAttribute(a)
+      if (v && /currentcolor/i.test(v)) n.setAttribute(a, cs.color)
+      note(n.getAttribute(a))
+    }
+  }
+  // a drawing that paints with the inherited fill (no attribute at all): make it explicit
+  if (!clone.getAttribute('fill') && ![...clone.querySelectorAll('[fill]')].length) {
+    clone.setAttribute('fill', cs.fill && !/^url/.test(cs.fill) ? cs.fill : cs.color)
+    note(clone.getAttribute('fill'))
+  }
+  const svg = clone.outerHTML.replace(/currentColor/g, cs.color)
+  return { svg, colors }
+}
+
+/** Measures and converts a rendered page's nodes into free elements (positions relative to the page). */
+function makeWalker(slideEl, out, extra = {}) {
   const root = slideEl.getBoundingClientRect()
   const W = slideEl.offsetWidth || root.width
   const scale = root.width / W // CSS px → screen px (1 unless the canvas is transformed)
   const cq = (px) => Math.round((px / W) * 100 * 1000) / 1000
   const pxToCq = (str) => (!str || str === 'none' ? undefined : str.replace(/(-?\d*\.?\d+)px/g, (_, n) => `${cq(Number(n))}cqw`))
-  const out = []
 
   // frame in % of the page: unrotated size around the drawn centre
-  const frame = (node) => {
+  const frame = (node, cs) => {
     const r = node.getBoundingClientRect()
-    const w = node.offsetWidth * scale || r.width
-    const h = node.offsetHeight * scale || r.height
+    // SVG elements have no offsetWidth: their own (untransformed) CSS size
+    const ow = node.offsetWidth ?? parseFloat(cs?.width)
+    const oh = node.offsetHeight ?? parseFloat(cs?.height)
+    const w = ow * scale || r.width
+    const h = oh * scale || r.height
     const cx = r.left + r.width / 2 - root.left
     const cy = r.top + r.height / 2 - root.top
     return {
@@ -47,15 +95,36 @@ export function detachPage(slideEl) {
     const p = {}
     if (!TRANSPARENT.test(cs.backgroundColor)) p.bgc = cs.backgroundColor
     if (cs.backgroundImage !== 'none' && cs.webkitBackgroundClip !== 'text' && cs.backgroundClip !== 'text') p.bgi = cs.backgroundImage
-    const bw = parseFloat(cs.borderTopWidth)
-    if (bw > 0 && cs.borderTopStyle !== 'none' && !TRANSPARENT.test(cs.borderTopColor)) p.border = `${cq(bw)}cqw ${cs.borderTopStyle} ${cs.borderTopColor}`
     if (cs.borderRadius && cs.borderRadius !== '0px') p.radius = pxToCq(cs.borderRadius)
     if (cs.boxShadow !== 'none') p.shadow = pxToCq(cs.boxShadow)
     if (cs.clipPath && cs.clipPath !== 'none') p.clip = cs.clipPath
     if (cs.backdropFilter && cs.backdropFilter !== 'none') p.backdrop = pxToCq(cs.backdropFilter)
+    if (cs.filter && cs.filter !== 'none') p.filter = pxToCq(cs.filter)
+    if (cs.mixBlendMode && cs.mixBlendMode !== 'normal') p.blend = cs.mixBlendMode
+    const mask = cs.maskImage && cs.maskImage !== 'none' ? cs.maskImage : cs.webkitMaskImage && cs.webkitMaskImage !== 'none' ? cs.webkitMaskImage : null
+    if (mask) p.mask = mask
+    if (p.bgi) {
+      if (cs.backgroundSize && !/^auto( auto)?$/.test(cs.backgroundSize)) p.bgs = pxToCq(cs.backgroundSize)
+      if (cs.backgroundPosition && cs.backgroundPosition !== '0% 0%') p.bgp = pxToCq(cs.backgroundPosition)
+      if (cs.backgroundRepeat && cs.backgroundRepeat !== 'repeat') p.bgr = cs.backgroundRepeat
+    }
+    // borders: one for all sides, or each side its own (a rule drawn by one side only)
+    const side = (k) => {
+      const w = parseFloat(cs[`border${k}Width`])
+      const st = cs[`border${k}Style`]
+      const c = cs[`border${k}Color`]
+      return w > 0 && st !== 'none' && !TRANSPARENT.test(c) ? `${cq(w)}cqw ${st} ${c}` : null
+    }
+    const sides = ['Top', 'Right', 'Bottom', 'Left'].map(side)
+    delete p.border
+    if (sides.every((x) => x === sides[0])) {
+      if (sides[0]) p.border = sides[0]
+    } else if (sides.some(Boolean)) {
+      p.borders = sides.map((x) => x ?? 'none')
+    }
     return p
   }
-  const isPainted = (p) => Boolean(p.bgc || p.bgi || p.border || p.shadow)
+  const isPainted = (p) => Boolean(p.bgc || p.bgi || p.border || p.borders || p.shadow)
 
   const isLeaf = (n) =>
     n.childNodes.length > 0 &&
@@ -63,10 +132,9 @@ export function detachPage(slideEl) {
     n.textContent.trim().length > 0
 
   const common = (node, cs) => {
-    const f = frame(node)
-    const rotate = angleOf(cs.transform)
+    const f = frame(node, cs)
     const opacity = Number(cs.opacity)
-    return { id: newId('el'), ...f, ...(rotate ? { rotate } : {}), ...(opacity < 1 ? { opacity } : {}), fromLayout: true }
+    return { id: newId('el'), ...f, ...transformOf(cs.transform), ...(opacity < 1 ? { opacity } : {}), fromLayout: true, ...extra }
   }
 
   const textEl = (n, cs) => {
@@ -127,13 +195,10 @@ export function detachPage(slideEl) {
         })
         continue
       }
-      // icon → a picture of itself, in its own colour
+      // drawing / icon → a vector element whose colours can be changed one by one
       if (c.tagName.toLowerCase() === 'svg') {
-        const clone = c.cloneNode(true)
-        clone.setAttribute('color', cs.color)
-        clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
-        const src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(clone.outerHTML.replace(/currentColor/g, cs.color))}`
-        out.push({ kind: 'image', ...common(c, cs), src, fit: 'contain' })
+        const v = vectorOf(c, cs)
+        if (v) out.push({ kind: 'vector', ...common(c, cs), ...v })
         continue
       }
       if (isLeaf(c)) {
@@ -145,6 +210,55 @@ export function detachPage(slideEl) {
       walk(c)
     }
   }
-  walk(area)
+  return { walk, paint, isPainted, common, frame, root }
+}
+
+/**
+ * The template's own page content (`.ly-area`).
+ * @param {HTMLElement} slideEl  the rendered `.slide` of the page (in the editor canvas)
+ * @returns {object[] | null}   elements, in paint order; null when the page has no layout
+ */
+export function detachPage(slideEl) {
+  // structured layouts draw into .ly-area; the classic cover / text page into .s-classic
+  const area = slideEl.querySelector('.ly-area') ?? slideEl.querySelector('.s-classic')
+  if (!area) return null
+  const out = []
+  makeWalker(slideEl, out).walk(area)
   return out
+}
+
+const near = (a, b, tol) => Math.abs(a - b) <= tol
+
+/**
+ * The page's background artwork (`.s-decor`): every card, ring, blob, doodle and frame becomes an
+ * element. Layers that fill (nearly) the whole page are background layers (`bg`): they don't catch
+ * clicks on the canvas — they are picked from the page background menu or by double-clicking an
+ * empty spot. A plain colour that covers the whole page becomes the page colour.
+ * @returns {{ bg: string, elements: object[] }}
+ */
+export function detachDecor(slideEl) {
+  const cs0 = getComputedStyle(slideEl)
+  let bg = cs0.backgroundImage !== 'none' ? `${cs0.backgroundImage}, ${cs0.backgroundColor}` : cs0.backgroundColor
+  const decor = slideEl.querySelector('.s-decor')
+  const out = []
+  if (!decor) return { bg, elements: out }
+  const w = makeWalker(slideEl, out, { decor: true })
+  const before = out.length
+  w.walk(decor)
+  // the decor's root wrappers are walked too: a full-page paint on them is caught below
+  const els = out.slice(before)
+  const final = []
+  for (const el of els) {
+    const full = near(el.x, 0, 1) && near(el.y, 0, 1) && el.w >= 98 && el.h >= 98
+    const plain = el.kind === 'box' && el.bgc && !el.bgi && !el.border && !el.borders && !el.shadow && !el.filter && !el.radius && !el.tf && el.opacity == null && !/rgba\([^)]*,\s*0?\.\d+\)/.test(el.bgc)
+    // an opaque colour across the whole page, under everything drawn so far: the page colour
+    if (full && plain && final.every((x) => x.bg)) {
+      bg = el.bgc
+      final.length = 0
+      continue
+    }
+    const huge = el.w * el.h >= 80 * 80 && el.w >= 85 && el.h >= 80
+    final.push(huge ? { ...el, bg: true, locked: true } : el)
+  }
+  return { bg, elements: final }
 }

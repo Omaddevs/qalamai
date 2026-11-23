@@ -9,6 +9,7 @@ import {
 import { FONTS2 } from '../../shared/bio2.js'
 import { useFonts } from '../creators/BioPhone.jsx'
 import ElementTools, { kindLabel } from './elements/tools.jsx'
+import { t } from '../i18n/index.js'
 
 /* ───── helpers ───── */
 
@@ -199,11 +200,12 @@ export default function Toolbar({ sel, all, theme, act }) {
         <>
           <ColorPop
             value={first.bgc ?? first.color ?? theme.accent}
-            onChange={(c) => act.patch((e) => (e.kind === 'box' ? { bgc: c, bgi: undefined } : { color: c }))}
+            // a box's gradient fill gives way to the colour; a repeating texture (graph paper) stays on top
+            onChange={(c) => act.patch((e) => (e.kind === 'box' ? { bgc: c, ...(e.bgs ? {} : { bgi: undefined }) } : { color: c }))}
             title="Rang"
             theme={theme}
           >
-            <span className="tb-fill" style={{ background: first.bgi ?? first.bgc ?? first.color ?? theme.accent }} />
+            <span className="tb-fill" style={{ background: (first.bgs ? null : first.bgi) ?? first.bgc ?? first.color ?? theme.accent }} />
           </ColorPop>
           <Pop title="Çegara va burçaklar" button={<Square size={16} />}>
             <div className="tb-col">
@@ -354,7 +356,7 @@ export default function Toolbar({ sel, all, theme, act }) {
             {[...all].reverse().map((e) => (
               <button key={e.id} type="button" className={sel.some((s) => s.id === e.id) ? 'on' : ''} onClick={(ev) => act.select(ev.shiftKey ? [...sel.map((s) => s.id), e.id] : [e.id])}>
                 <span className="tb-layer-ic">{e.kind === 'text' ? <Type size={13} /> : e.kind === 'image' ? <ImageIcon size={13} /> : <Square size={13} />}</span>
-                <span className="tb-layer-name">{e.kind === 'text' ? e.text.slice(0, 40) : kindLabel(e.kind) ?? KIND_LABEL[e.kind] ?? e.kind}</span>
+                <span className="tb-layer-name">{e.kind === 'text' ? e.text.slice(0, 40) : e.bg ? t('el.kind.bg') : kindLabel(e.kind) ?? KIND_LABEL[e.kind] ?? e.kind}</span>
                 {e.locked && <Lock size={12} />}
               </button>
             ))}

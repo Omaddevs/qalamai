@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   LayoutTemplate, Shapes, Type, Briefcase, CloudUpload, CaseSensitive, Folder, LayoutGrid,
   Undo2, Redo2, Download, Share2, Plus, Minus, Trash2, Copy, ChevronLeft, Crown, BringToFront,
-  MousePointerClick, Play, Presentation, Loader2,
+  MousePointerClick, Play, Presentation, Loader2, Layers, PaintBucket, ChevronDown,
 } from 'lucide-react'
 import { Dropdown, QalamNib, Wordmark } from '../components/ui.jsx'
 import { AppModal } from '../components/Modals.jsx'
@@ -13,12 +13,13 @@ import { convert, detectScript } from '../lib/alifbo.js'
 import Slide from './Slide.jsx'
 import { BRAND_COLORS, generateSlides, getTemplate, newId, templatePages } from './templates.js'
 import { downscale, patchAt, samplePage } from './layouts.jsx'
-import Toolbar from './Toolbar.jsx'
-import { detachPage } from './detach.js'
+import Toolbar, { ColorPop, Pop } from './Toolbar.jsx'
+import { detachDecor, detachPage } from './detach.js'
 import { Present, PrintDeck } from './Present.jsx'
 import ShareDialog from './ShareDialog.jsx'
 import ProBadge from '../components/ProBadge.jsx'
 import LayoutPicker from './LayoutPicker.jsx'
+import { ElementBar, ElementContextMenu } from './ElementMenu.jsx'
 import DownloadPanel from './DownloadPanel.jsx'
 import { t } from '../i18n/index.js'
 import {
@@ -94,6 +95,8 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
   const openApp = APPS.find((a) => a.id === openAppId)
   const history = useHistory(initialDeck)
   const { state: deck, set, checkpoint, undo, redo, canUndo, canRedo } = history
+  const deckRef = useRef(deck)
+  deckRef.current = deck
 
   /* ───── autosave (debounced; flushed on leave) ───── */
   const [saving, setSaving] = useState(false)
@@ -362,9 +365,38 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
     play,
   }
 
-  /* ───── a template page becomes free elements once it is on the canvas (Canva model) ───── */
+  /* ───── the bar above the selection and the "…" / right-click menu ───── */
+  const [menu, setMenu] = useState(null) // { x, y, onElement } while the menu is open
+  const closeMenu = useCallback(() => setMenu(null), [])
+  const selLocked = selectedEls.length > 0 && selectedEls.every((e) => e.locked)
+  const menuAct = {
+    copy: () => (clip.current = structuredClone(selectedEls)),
+    paste: () => clip.current?.length && pasteEls(clip.current, 3),
+    duplicate: duplicateSel,
+    remove: removeSel,
+    layer,
+    alignPage: toolbarAct.alignPage,
+    toggleLock: () => patchSel({ locked: !selLocked }),
+    selectAll: () => setSel(slide.elements.filter((x) => !x.bg).map((x) => x.id)),
+    addPage: () => addSlide('blank'),
+  }
+  const onCanvasMenu = (e) => {
+    if (e.target.closest('[contenteditable="true"]')) return // the browser's own menu while typing
+    e.preventDefault()
+    const hit = e.target.closest('[data-eid]')?.getAttribute('data-eid')
+    if (hit && !sel.includes(hit)) setSel([hit])
+    if (!hit) setSel([])
+    setMenu({ x: e.clientX, y: e.clientY, onElement: Boolean(hit) })
+  }
+  useEffect(() => setMenu(null), [slideIdx])
+
+  /* ───── a template page becomes free elements once it is on the canvas (Canva model) ─────
+   * Its content (texts, cards, pictures) and its background artwork (cards, rings, blobs,
+   * doodles, frames) both become elements, so everything on the page can be edited. Pages made
+   * free before the artwork was detached get just the artwork now. */
+  const pageDone = slide.free && slide.decorFree
   useEffect(() => {
-    if (slide.free) return
+    if (pageDone) return
     let alive = true
     ;(async () => {
       // let the page lay out and its fonts load (timers, not rAF: rAF stalls in background tabs)
@@ -373,12 +405,26 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
       await new Promise((r) => setTimeout(r, 30))
       const el = alive && canvasRef.current?.querySelector('.slide')
       if (!el) return
-      const parts = detachPage(el)
+      const s0 = deckRef.current?.slides?.find((s) => s.id === slide.id)
+      if (!s0 || (s0.free && s0.decorFree)) return
+      const parts = s0.free ? [] : detachPage(el)
       if (!parts || !alive) return
+      const decor = detachDecor(el)
       set(
         (d) => ({
           ...d,
-          slides: d.slides.map((s) => (s.id === slide.id && !s.free ? { ...s, free: true, themeIndex: slideIdx, elements: [...parts, ...s.elements] } : s)),
+          slides: d.slides.map((s) =>
+            s.id === slide.id && !(s.free && s.decorFree)
+              ? {
+                  ...s,
+                  free: true,
+                  decorFree: true,
+                  bg: decor.bg,
+                  themeIndex: s.themeIndex ?? slideIdx,
+                  elements: [...decor.elements, ...(s.free ? s.elements : [...parts, ...s.elements])],
+                }
+              : s,
+          ),
         }),
         true,
       )
@@ -386,7 +432,7 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
     return () => {
       alive = false
     }
-  }, [slide.id, slide.free, slideIdx, set, tpl.id])
+  }, [slide.id, pageDone, slideIdx, set, tpl.id])
 
   const applyTemplate = (id) => {
     // pages go back to the template's layout in the new look; texts were kept in the page data,
@@ -396,8 +442,9 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
       templateId: id,
       // a blank design (no template yet) gets the template's own pages; what the user added stays
       slides: d.templateId === 'blank' ? fillBlank(d.slides, getTemplate(id)) : d.slides.map((s) => {
-        if (!s.free) return s
-        const { free: _f, themeIndex: _t, ...rest } = s
+        // a page drawn from scratch has no template layout to go back to
+        if (!s.free || s.blank) return s
+        const { free: _f, themeIndex: _t, decorFree: _d, bg: _b, ...rest } = s
         return { ...rest, elements: s.elements.filter((e) => !e.fromLayout) }
       }),
     }))
@@ -531,7 +578,7 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
       if (mod && k === 'c' && sel.length) return (clip.current = structuredClone(selectedEls))
       if (mod && k === 'x' && sel.length) return (clip.current = structuredClone(selectedEls)), removeSel()
       if (mod && k === 'v' && clip.current?.length) return e.preventDefault(), pasteEls(clip.current, 3)
-      if (mod && k === 'a') return e.preventDefault(), setSel(slide.elements.map((x) => x.id))
+      if (mod && k === 'a') return e.preventDefault(), setSel(slide.elements.filter((x) => !x.bg).map((x) => x.id))
       if (mod && (e.key === ']' || e.key === '[') && sel.length) return e.preventDefault(), layer(e.key === ']' ? (e.shiftKey ? 'front' : 'up') : e.shiftKey ? 'back' : 'down')
       if (mod && selectedEl?.kind === 'text' && ['b', 'i', 'u'].includes(k)) {
         e.preventDefault()
@@ -712,6 +759,38 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
               <Toolbar sel={selectedEls} all={slide.elements} theme={theme} act={toolbarAct} />
             ) : (
               <span className="ed-hint">
+                {slide.free && (
+                  <>
+                    <ColorPop value={slide.bg ?? theme.bg} onChange={(c) => updateSlide({ bg: c })} title={t('el.page.bg')} theme={theme}>
+                      <span className="ed-pagebg" style={{ background: slide.bg ?? theme.bg }}>
+                        <PaintBucket size={13} />
+                      </span>
+                    </ColorPop>
+                    <Pop title={t('el.page.layers')} button={<Layers size={16} />}>
+                      {(close) => (
+                        <div className="tb-col ed-bglayers">
+                          <span className="tb-label">{t('el.page.layers')}</span>
+                          {slide.elements.some((e) => e.bg) ? (
+                            <>
+                              <div className="tb-layers">
+                                {[...slide.elements].reverse().filter((e) => e.bg).map((e) => (
+                                  <button key={e.id} type="button" onClick={() => { setSel([e.id]); close() }}>
+                                    <span className="tb-layer-ic" style={{ background: e.bgc ?? e.bgi ?? e.color ?? 'transparent' }} />
+                                    <span className="tb-layer-name">{t('el.kind.bg')}</span>
+                                  </button>
+                                ))}
+                              </div>
+                              <small className="ed-bglayers-hint">{t('el.page.layersHint')}</small>
+                            </>
+                          ) : (
+                            <small className="ed-bglayers-hint">{t('el.page.noLayers')}</small>
+                          )}
+                        </div>
+                      )}
+                    </Pop>
+                    <span className="ed-sep" />
+                  </>
+                )}
                 <MousePointerClick size={15} /> Bosing — tanlaş · ikki marta — matnni tahrirlaş · Shift yoki ramka — bir neçtasini tanlaş
                 <span className="ed-sep" />
                 <button className="ed-ibtn wide" onClick={preview} title="Sahifa animatsiyasini körish">
@@ -727,7 +806,7 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
                 <Loader2 size={26} />
               </div>
             )}
-            <div className="ed-canvas" style={{ '--z': zoom }} ref={canvasRef}>
+            <div className="ed-canvas" style={{ '--z': zoom }} ref={canvasRef} onContextMenu={onCanvasMenu}>
               <Slide
                 key={`${slide.id}-${playKey}`}
                 slide={slide}
@@ -751,6 +830,19 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
                 autoAnim={autoAnim}
               />
             </div>
+            {!editingId && (
+              <ElementBar canvasRef={canvasRef} ids={sel} locked={selLocked} act={menuAct} hidden={Boolean(menu)} onMore={(at) => setMenu({ ...at, onElement: true })} />
+            )}
+            {menu && (
+              <ElementContextMenu
+                at={menu}
+                onElement={menu.onElement && selectedEls.length > 0}
+                locked={selLocked}
+                canPaste={Boolean(clip.current?.length)}
+                act={menuAct}
+                onClose={closeMenu}
+              />
+            )}
             <input
               ref={imgInput}
               type="file"
@@ -782,15 +874,21 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
                 </span>
               </div>
             ))}
-            <button
-              className={`ed-add ${picker ? 'on' : ''}`}
-              onClick={(e) => setPicker(picker ? null : e.currentTarget)}
-              title="Slayd qöşiş"
-              aria-haspopup="menu"
-              aria-expanded={Boolean(picker)}
-            >
-              <Plus size={20} />
-            </button>
+            {/* "+" adds an empty white page; the arrow next to it offers the template's page layouts */}
+            <span className="ed-add-group">
+              <button className="ed-add" onClick={() => addSlide('blank')} title={t('ed.page.add')}>
+                <Plus size={20} />
+              </button>
+              <button
+                className={`ed-add ed-add-more ${picker ? 'on' : ''}`}
+                onClick={(e) => setPicker(picker ? null : e.currentTarget)}
+                title={t('ed.page.layouts')}
+                aria-haspopup="menu"
+                aria-expanded={Boolean(picker)}
+              >
+                <ChevronDown size={16} />
+              </button>
+            </span>
             {picker && <LayoutPicker anchor={picker} theme={theme} onPick={addSlide} onClose={() => setPicker(null)} />}
           </div>
         </main>

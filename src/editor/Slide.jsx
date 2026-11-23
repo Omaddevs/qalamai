@@ -50,15 +50,21 @@ export default function Slide({
       ref={root}
       className={`slide ${playing ? 'playing' : ''} ${className}`}
       data-skin={theme.skin}
-      style={{ background: theme.bg, color: theme.text, fontFamily: theme.bodyFont, ...themeVars(theme) }}
+      style={{ background: slide.bg ?? theme.bg, color: theme.text, fontFamily: theme.bodyFont, ...themeVars(theme) }}
     >
       <div className="slide-inner">
-        <NewDecor kind={theme.decor} cover={isTitle || slide.type === 'end'} theme={theme} index={at} />
+        {/* the template's background artwork; once on the canvas it becomes elements (decorFree) */}
+        {!slide.decorFree && (
+          <div className="s-decor">
+            <NewDecor kind={theme.decor} cover={isTitle || slide.type === 'end'} theme={theme} index={at} />
+          </div>
+        )}
 
         {free ? null : structured ? (
           <LayoutBody slide={slide} theme={theme} index={index} editable={editable} onChange={onChange} />
         ) : (
         <div
+          className="s-classic"
           style={{
             position: 'absolute',
             left: `${box.l}%`,

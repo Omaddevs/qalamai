@@ -86,3 +86,8 @@
 @keyframes an-spin { from { opacity: 0; transform: rotate(-120deg) scale(0.5); } }
 @keyframes an-breathe { 50% { transform: scale(1.05); } }
 @media (prefers-reduced-motion: reduce) { .slide.playing [data-anim] { animation: none !important; } }
+
+/* the template's background artwork, before it becomes elements */
+.s-decor { position: absolute; inset: 0; pointer-events: none; }
+/* background layers (the card, page textures): clicks pass through until one is selected */
+.fx-layer.editable .fx-el.bg.locked:not(.sel):hover { outline: none; }

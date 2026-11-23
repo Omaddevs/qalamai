@@ -12,11 +12,11 @@ import { ICON_WEIGHTS, ICONS } from './icons.js'
 import { CHART_TYPES, DEVICES, FINISHES, LINE_DASHES, LINE_ENDS, LOOPS, ONE_SERIES, TABLE_STYLES, chartData } from './render.jsx'
 import { maskCss } from './shapes.js'
 
-const KINDS = new Set(['shape', 'stroke', 'icon', 'graphic', 'table', 'chart', 'mockup', 'image'])
+const KINDS = new Set(['shape', 'stroke', 'icon', 'graphic', 'table', 'chart', 'mockup', 'image', 'vector'])
 
 /** Name of an element kind for the layers list (null for kinds the toolbar names itself). */
 export function kindLabel(kind) {
-  return ['shape', 'stroke', 'icon', 'graphic', 'table', 'chart', 'mockup'].includes(kind) ? t(`el.kind.${kind}`) : null
+  return ['shape', 'stroke', 'icon', 'graphic', 'table', 'chart', 'mockup', 'vector'].includes(kind) ? t(`el.kind.${kind}`) : null
 }
 
 /* ───────── small parts ───────── */
@@ -378,6 +378,33 @@ export default function ElementTools({ sel, theme, act }) {
             </div>
           )}
         </Pop>
+        <LoopPop first={first} set={set} />
+        <span className="tb-sep" />
+      </>
+    )
+  }
+
+  // a drawing from a template's artwork: each of its colours can be changed
+  if (kind === 'vector') {
+    const base = first.colors ?? []
+    const cur = base.map((c, i) => first.recolor?.[i] ?? c)
+    const setColor = (i, c) => act.patch((e) => {
+      const list = (e.colors ?? []).map((x, j) => e.recolor?.[j] ?? x)
+      if (e.colors?.[i] != null) list[i] = c
+      return { recolor: list }
+    })
+    return (
+      <>
+        {cur.slice(0, 8).map((c, i) => (
+          <ColorPop key={i} value={c} onChange={(v) => setColor(i, v === 'transparent' ? 'none' : v)} title={t('el.tb.color')} theme={theme}>
+            <span className="tb-fill" style={{ background: c === 'none' ? 'transparent' : c }} />
+          </ColorPop>
+        ))}
+        {first.recolor && (
+          <button type="button" className="tb-btn" onClick={() => set({ recolor: undefined })} title={t('el.tb.resetColors')}>
+            <X size={14} />
+          </button>
+        )}
         <LoopPop first={first} set={set} />
         <span className="tb-sep" />
       </>

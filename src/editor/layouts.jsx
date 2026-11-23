@@ -402,9 +402,9 @@ const pairs = (key, a, b) => {
 /** A filled page of the given layout, in the interface language. `v` picks a variant. */
 export function samplePage(type, v = 0) {
   switch (type) {
-    // an empty page: only the template's background, filled by hand with text, photos, elements
+    // an empty white page (Canva's new page): filled by hand with text, photos, elements
     case 'blank':
-      return { type: 'content', free: true, title: '', bullets: [] }
+      return { type: 'content', blank: true, free: true, decorFree: true, bg: '#ffffff', title: '', bullets: [] }
     case 'agenda':
       return { type, title: t('ly.agenda.title'), items: parts('ly.agenda.items') }
     case 'section': {

@@ -20,7 +20,28 @@ const paintStyle = (el) => ({
   ...(el.shadow ? { boxShadow: el.shadow } : {}),
   ...(el.clip ? { clipPath: el.clip } : {}),
   ...(el.backdrop ? { backdropFilter: el.backdrop, WebkitBackdropFilter: el.backdrop } : {}),
+  ...(el.bgi && el.bgs ? { backgroundSize: el.bgs } : {}),
+  ...(el.bgi && el.bgp ? { backgroundPosition: el.bgp } : {}),
+  ...(el.bgi && el.bgr ? { backgroundRepeat: el.bgr } : {}),
+  ...(el.borders ? { borderTop: el.borders[0], borderRight: el.borders[1], borderBottom: el.borders[2], borderLeft: el.borders[3] } : {}),
+  ...(el.filter && el.kind !== 'image' ? { filter: el.filter } : {}),
+  ...(el.blend ? { mixBlendMode: el.blend } : {}),
+  ...(el.mask ? { maskImage: el.mask, WebkitMaskImage: el.mask } : {}),
 })
+
+/** A vector drawing (from a template's artwork) with its colours swapped as the user chose. */
+export function vectorSrc(el) {
+  let svg = el.svg ?? ''
+  const to = el.recolor ?? []
+  ;(el.colors ?? []).forEach((c, i) => {
+    if (!to[i] || to[i] === c) return
+    const esc = c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    // through a placeholder, so a colour swapped to another original colour isn't swapped twice
+    svg = svg.replace(new RegExp(`(["':;\\s])${esc}(?=["';\\s)]|$)`, 'g'), `$1\u0000${i}\u0000`)
+  })
+  svg = svg.replace(/\u0000(\d+)\u0000/g, (_, i) => to[i])
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
+}
 
 export function textStyle(el, theme) {
   return {
@@ -52,6 +73,8 @@ export function ElementContent({ el, theme, editing, editable, onCommitText, onP
   switch (el.kind) {
     case 'text':
       return <Text value={el.text} editable={editing} autoFocus onCommit={(v) => onCommitText?.(el, v)} style={{ ...textStyle(el, theme), outline: 'none', cursor: editing ? 'text' : undefined }} />
+    case 'vector':
+      return <img className="fx-vector" src={vectorSrc(el)} alt="" draggable={false} style={{ display: 'block', width: '100%', height: '100%', ...(el.filter ? { filter: el.filter } : {}) }} />
     case 'box':
       return <div style={{ width: '100%', height: '100%', ...(el.color && !el.bgc && !el.bgi ? { background: el.color } : {}), ...paintStyle(el) }} />
     case 'image':
@@ -304,7 +327,8 @@ export default function FreeLayer({
     const r = pageRect()
     const x0 = ((e.clientX - r.left) / r.width) * 100
     const y0 = ((e.clientY - r.top) / r.height) * 100
-    const boxes = elements.map((x) => [x.id, boxOf(x.id, r)])
+    // background layers aren't caught by the marquee (they'd come along with everything)
+    const boxes = elements.filter((x) => !x.bg).map((x) => [x.id, boxOf(x.id, r)])
     let m = null
     const move = (ev) => {
       const x1 = ((ev.clientX - r.left) / r.width) * 100
@@ -323,6 +347,20 @@ export default function FreeLayer({
     window.addEventListener('pointerup', up)
   }
 
+  // double-click on an empty spot: the topmost background layer under the pointer
+  const onBgDouble = (e) => {
+    if (!editable || e.target.closest('[data-eid]')) return
+    const r = pageRect()
+    const x = ((e.clientX - r.left) / r.width) * 100
+    const y = ((e.clientY - r.top) / r.height) * 100
+    const hit = [...elements].reverse().find((el) => {
+      if (!el.bg) return false
+      const b = boxOf(el.id, r)
+      return b && x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h
+    })
+    if (hit) onSelect?.([hit.id])
+  }
+
   const onDouble = (el) => {
     if (el.kind === 'text' || el.kind === 'table') onEdit?.(el.id)
     else if (el.kind === 'image' || el.kind === 'mockup') onPickImage?.(el)
@@ -336,7 +374,7 @@ export default function FreeLayer({
     : null
 
   return (
-    <div ref={layer} className={`fx-layer ${editable ? 'editable' : ''}`} onPointerDown={editable ? onBgDown : undefined}>
+    <div ref={layer} className={`fx-layer ${editable ? 'editable' : ''}`} onPointerDown={editable ? onBgDown : undefined} onDoubleClick={editable ? onBgDouble : undefined}>
       {elements.map((el) => {
         const isSel = editable && selected.includes(el.id)
         const editing = editingId === el.id
@@ -346,7 +384,7 @@ export default function FreeLayer({
           <div
             key={el.id}
             data-eid={el.id}
-            className={`fx-el k-${el.kind} ${isSel ? 'sel' : ''} ${editing ? 'editing' : ''} ${el.locked ? 'locked' : ''}`}
+            className={`fx-el k-${el.kind} ${isSel ? 'sel' : ''} ${editing ? 'editing' : ''} ${el.locked ? 'locked' : ''} ${el.bg ? 'bg' : ''}`}
             style={{
               left: `${el.x}%`,
               top: `${el.y}%`,
@@ -354,13 +392,21 @@ export default function FreeLayer({
               height: el.kind === 'text' && el.h == null ? 'auto' : `${el.h}%`,
               ...(el.rotate ? { transform: `rotate(${el.rotate}deg)` } : {}),
               ...(el.opacity != null && el.opacity < 1 ? { opacity: el.opacity } : {}),
+              // a locked background layer lets clicks through (unlocked, it is an ordinary element)
+              ...(el.bg && el.locked && !isSel ? { pointerEvents: 'none' } : {}),
             }}
             onPointerDown={editable ? (e) => onElDown(e, el) : undefined}
             onDoubleClick={editable ? () => onDouble(el) : undefined}
           >
             <div className="fx-anim" data-anim={anim || undefined} style={anim ? { '--ad': `${a.delay ?? 0}s`, '--adur': `${a.dur ?? 0.7}s` } : undefined}>
               <Loop type={el.loop}>
-                <ElementContent el={el} theme={theme} editing={editing} editable={editable} onCommitText={onCommitText} onPatch={(p) => onChange?.(el.id, p)} />
+                {el.tf ? (
+                  <div className="fx-tf" style={{ width: '100%', height: '100%', transform: el.tf }}>
+                    <ElementContent el={el} theme={theme} editing={editing} editable={editable} onCommitText={onCommitText} onPatch={(p) => onChange?.(el.id, p)} />
+                  </div>
+                ) : (
+                  <ElementContent el={el} theme={theme} editing={editing} editable={editable} onCommitText={onCommitText} onPatch={(p) => onChange?.(el.id, p)} />
+                )}
               </Loop>
             </div>
             {single?.id === el.id && !editing && !el.locked && (

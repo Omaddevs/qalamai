@@ -26,6 +26,7 @@ export default {
   // page layouts (src/editor/layouts.jsx): names in the "add page" menu and sample texts
   'ly.pick': { uz: 'Sahifa turini tanlang', ru: 'Выберите макет страницы', en: 'Choose a page layout', kk: 'Бет макетін таңдаңыз', ky: 'Барак макетин тандаңыз', tg: 'Тарҳи саҳифаро интихоб кунед' },
   'ly.addImage': { uz: 'Rasm qöşiş', ru: 'Добавить фото', en: 'Add image', kk: 'Сурет қосу', ky: 'Сүрөт кошуу', tg: 'Илова кардани расм' },
+  'ly.name.blank': { uz: 'Böş sahifa', ru: 'Пустая страница', en: 'Blank page', kk: 'Бос бет', ky: 'Бош барак', tg: 'Саҳифаи холӣ' },
   'ly.name.title': { uz: 'Muqova', ru: 'Обложка', en: 'Cover', kk: 'Мұқаба', ky: 'Мукаба', tg: 'Муқова' },
   'ly.name.content': { uz: 'Matn va röyxat', ru: 'Текст и список', en: 'Text and list', kk: 'Мәтін және тізім', ky: 'Текст жана тизме', tg: 'Матн ва рӯйхат' },
   'ly.name.agenda': { uz: 'Reja', ru: 'План', en: 'Agenda', kk: 'Жоспар', ky: 'План', tg: 'Нақша' },

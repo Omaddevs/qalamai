@@ -12,7 +12,7 @@ import './layout-picker.css'
 export default function LayoutPicker({ anchor, theme, onPick, onClose }) {
   const panel = useRef(null)
   const [pos, setPos] = useState(null)
-  const pages = useMemo(() => LAYOUTS.map((type) => ({ type, slide: { ...samplePage(type), id: `pick-${type}`, elements: [] } })), [])
+  const pages = useMemo(() => ['blank', ...LAYOUTS].map((type) => ({ type, slide: { ...samplePage(type), id: `pick-${type}`, elements: [] } })), [])
 
   useLayoutEffect(() => {
     const r = anchor.getBoundingClientRect()

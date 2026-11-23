@@ -13,6 +13,8 @@ import KitThumb, { Scaled } from '../creators/KitThumb.jsx'
 import { BioPage } from '../creators/BioPhone.jsx'
 import CvPage from '../creators/CvPage.jsx'
 import { KIT_TEMPLATES, KIT_TYPES, templateData } from '../creators/kits.js'
+// shared page header, chips and empty state (pj-*) — see AlifboView
+import './projects.css'
 import './templates.css'
 import { t } from '../i18n/index.js'
 

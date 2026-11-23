@@ -1,5 +1,12 @@
 // Shared words: language picker, document kinds, generic buttons, client-side errors, units.
 export default {
+  // AppErrorBoundary (a screen failed, or a new version is out)
+  "eb.newTitle": { uz: "Yangi versiya çiqdi", ru: "Вышла новая версия", en: "A new version is out", kk: "Жаңа нұсқа шықты", ky: "Жаңы версия чыкты", tg: "Версияи нав баромад" },
+  "eb.newText": { uz: "Davom etiş uçun sahifani yangilang — işingiz saqlangan.", ru: "Обновите страницу, чтобы продолжить, — ваша работа сохранена.", en: "Reload the page to continue — your work is saved.", kk: "Жалғастыру үшін бетті жаңартыңыз — жұмысыңыз сақталған.", ky: "Улантуу үчүн баракты жаңыртыңыз — ишиңиз сакталган.", tg: "Барои идома саҳифаро нав кунед — кори шумо нигоҳ дошта шуд." },
+  "eb.title": { uz: "Nimadir xato ketdi", ru: "Что-то пошло не так", en: "Something went wrong", kk: "Бірдеңе дұрыс болмады", ky: "Бир нерсе туура эмес болду", tg: "Чизе нодуруст шуд" },
+  "eb.text": { uz: "Bu ekranda xatolik yuz berdi. Qayta urinib köring yoki sahifani yangilang — işingiz saqlangan.", ru: "На этом экране произошла ошибка. Попробуйте ещё раз или обновите страницу — работа сохранена.", en: "This screen hit an error. Try again or reload the page — your work is saved.", kk: "Бұл экранда қате шықты. Қайталап көріңіз не бетті жаңартыңыз — жұмысыңыз сақталған.", ky: "Бул экранда ката чыкты. Кайра аракет кылыңыз же баракты жаңыртыңыз — ишиңиз сакталган.", tg: "Дар ин экран хато рӯй дод. Бори дигар кӯшиш кунед ё саҳифаро нав кунед — кори шумо нигоҳ дошта шуд." },
+  "eb.retry": { uz: "Qayta urinib köriş", ru: "Попробовать снова", en: "Try again", kk: "Қайталау", ky: "Кайра аракет кылуу", tg: "Бори дигар" },
+  "eb.reload": { uz: "Sahifani yangilaş", ru: "Обновить страницу", en: "Reload", kk: "Бетті жаңарту", ky: "Баракты жаңыртуу", tg: "Навсозии саҳифа" },
   'lang.menu': { uz: 'Interfeys tili', ru: 'Язык интерфейса', en: 'Interface language', kk: 'Интерфейс тілі', ky: 'Интерфейс тили', tg: 'Забони интерфейс' },
   'lang.current': { uz: 'Til: {name}', ru: 'Язык: {name}', en: 'Language: {name}', kk: 'Тіл: {name}', ky: 'Тил: {name}', tg: 'Забон: {name}' },
   'lang.label': { uz: 'Til', ru: 'Язык', en: 'Language', kk: 'Тіл', ky: 'Тил', tg: 'Забон' },

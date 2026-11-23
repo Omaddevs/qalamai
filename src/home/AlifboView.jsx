@@ -2,6 +2,10 @@ import { HouseSimple, Layout, FolderSimple, TextAa } from '@phosphor-icons/react
 import { CoinChip } from '../components/Coins.jsx'
 import AlifboConverter from '../components/AlifboConverter.jsx'
 import { APPS } from '../data.js'
+// the page header (pj-*, tv-bg) is shared with Loyihalar / Şablonlar: their styles come along, so this page
+// looks right even when it is the first one opened
+import './projects.css'
+import './templates.css'
 import './alifbo.css'
 import { t } from '../i18n/index.js'
 

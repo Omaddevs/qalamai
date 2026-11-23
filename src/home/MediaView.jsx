@@ -7,6 +7,9 @@ import { QalamNib } from '../components/ui.jsx'
 import {
   ASPECTS, MAX_UPLOAD, STYLES, deleteMedia, fromFile, generateImages, listMedia, putMedia,
 } from '../media.js'
+// shared page header (pj-*, tv-bg, tv-spark) — see AlifboView
+import './projects.css'
+import './templates.css'
 import './media.css'
 
 const MONTHS = ['Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'Iyun', 'Iyul', 'Avgust', 'Sentabr', 'Oktabr', 'Noyabr', 'Dekabr']

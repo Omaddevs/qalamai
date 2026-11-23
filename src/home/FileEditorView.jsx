@@ -9,6 +9,8 @@ import { Dropdown } from '../components/ui.jsx'
 import { SCRIPTS, convert, detectScript } from '../lib/alifbo.js'
 import { onSynced } from '../changes.js'
 import { IMPORT_ACCEPT, blankDoc, exportDoc, importFile, loadDocs, sanitize, saveDocs } from '../docs.js'
+// the drop area (md-drop) is Media's — see AlifboView
+import './media.css'
 import './fileeditor.css'
 import { formatDate, t } from '../i18n/index.js'
 

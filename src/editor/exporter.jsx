@@ -6,6 +6,7 @@
 import { flushSync } from 'react-dom'
 import { createRoot } from 'react-dom/client'
 import Slide from './Slide.jsx'
+import { fontSheetsReady, fontsOfSlides, loadFonts } from './fonts.js'
 
 export const W = 1920
 export const H = 1080
@@ -49,6 +50,9 @@ async function mount(slides, theme, indexes, watermark) {
     ),
   )
   for (const img of host.querySelectorAll('img')) img.loading = 'eager'
+  // fonts from the catalog: their stylesheets first, or the faces below can't be asked for
+  loadFonts(fontsOfSlides(indexes.map((i) => slides[i])))
+  await fontSheetsReady()
   // document.fonts.ready doesn't wait for faces nobody has asked for yet: ask for each one in use
   if (document.fonts?.load) {
     const wanted = new Set()
@@ -86,9 +90,17 @@ let sheetText = null
 
 const SUBSETS = /\/\*\s*(latin|latin-ext|cyrillic|cyrillic-ext)\s*\*\//
 
+let sheetKey = ''
 function sheets() {
+  // fetched again when fonts were added since (a font picked from the catalog adds a stylesheet)
+  const links = [...document.querySelectorAll('link[rel="stylesheet"][href*="fonts.googleapis.com"]')]
+  const key = links.map((l) => l.href).join('\n')
+  if (key !== sheetKey) {
+    sheetKey = key
+    sheetText = null
+  }
   sheetText ??= Promise.all(
-    [...document.querySelectorAll('link[rel="stylesheet"][href*="fonts.googleapis.com"]')].map((l) =>
+    links.map((l) =>
       fetch(l.href)
         .then((r) => (r.ok ? r.text() : ''))
         .catch(() => ''),

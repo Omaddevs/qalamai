@@ -6,8 +6,7 @@ import {
   AlignStartHorizontal, AlignCenterHorizontal, AlignEndHorizontal, AlignHorizontalDistributeCenter, AlignVerticalDistributeCenter,
   ImagePlus, Type, Square, Image as ImageIcon, Play, LetterText,
 } from 'lucide-react'
-import { FONTS2 } from '../../shared/bio2.js'
-import { useFonts } from '../creators/BioPhone.jsx'
+import FontPicker from './FontPicker.jsx'
 import ElementTools, { kindLabel } from './elements/tools.jsx'
 import { t } from '../i18n/index.js'
 
@@ -108,8 +107,6 @@ export default function Toolbar({ sel, all, theme, act }) {
   const onlyImage = kinds.size === 1 && kinds.has('image')
   const shapey = [...kinds].every((k) => LEGACY_SHAPES.has(k))
   const file = useRef(null)
-  const [fontsOpen, setFontsOpen] = useState(false)
-  useFonts(fontsOpen ? Object.values(FONTS2).map((f) => f.g) : [])
   const locked = sel.every((e) => e.locked)
   const set = (patch) => act.patch(patch)
 
@@ -121,25 +118,20 @@ export default function Toolbar({ sel, all, theme, act }) {
             title="Şrift"
             wide
             button={
-              <span className="tb-font" style={{ fontFamily: first.font ?? theme.bodyFont }} onClick={() => setFontsOpen(true)}>
+              <span className="tb-font" style={{ fontFamily: first.font ?? theme.bodyFont }}>
                 {familyName(first.font ?? theme.bodyFont)}
               </span>
             }
           >
             {(close) => (
-              <div className="tb-fonts">
-                {[[theme.titleFont, 'Sarlavha şrifti'], [theme.bodyFont, 'Matn şrifti']].map(([css, l]) => (
-                  <button key={l} type="button" style={{ fontFamily: css }} onClick={() => { set({ font: css }); close() }}>
-                    {familyName(css)} <small>{l}</small>
-                  </button>
-                ))}
-                <span className="tb-label">Barça şriftlar</span>
-                {Object.values(FONTS2).map((f) => (
-                  <button key={f.label} type="button" className={first.font === f.css ? 'on' : ''} style={{ fontFamily: f.css }} onClick={() => { set({ font: f.css }); close() }}>
-                    {f.label}
-                  </button>
-                ))}
-              </div>
+              <FontPicker
+                value={first.font ?? ((first.weight ?? 400) >= 600 ? theme.titleFont : theme.bodyFont)}
+                theme={theme}
+                onPick={(css) => {
+                  set({ font: css })
+                  close()
+                }}
+              />
             )}
           </Pop>
           <span className="tb-size">

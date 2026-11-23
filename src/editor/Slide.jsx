@@ -1,4 +1,5 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
+import { loadFonts } from './fonts.js'
 import { Text } from './Text.jsx'
 import { LayoutBody, themeVars } from './layouts.jsx'
 import { NewDecor } from './decors.jsx'
@@ -33,6 +34,11 @@ export default function Slide({
   className = '',
 }) {
   const root = useRef(null)
+  // fonts picked for this page's texts (from the large catalog) load when the page is shown
+  const fontKey = slide.elements?.map((e) => e.font ?? '').join('|') ?? ''
+  useEffect(() => {
+    if (fontKey) loadFonts(fontKey.split('|'))
+  }, [fontKey])
   // A detached page keeps the look (light/dark alternation) of the position it was made at.
   const at = slide.themeIndex ?? index ?? 0
   const th = theme.alt && at % 2 === 1 ? { ...theme, ...theme.alt } : theme

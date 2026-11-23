@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import ProBadge from '../components/ProBadge.jsx'
 import { Search, SlidersHorizontal, Play, CloudUpload, Wand2, X, Check } from 'lucide-react'
 import { CoinPrice } from '../components/Coins.jsx'
@@ -9,6 +9,9 @@ import { SCRIPTS } from '../lib/alifbo.js'
 import Slide from './Slide.jsx'
 import { BRAND_COLORS, CATEGORIES, TEMPLATES, deckTheme, getTemplate } from './templates.js'
 import { loadDesigns, timeAgo } from '../store.js'
+import { t } from '../i18n/index.js'
+import { fontCss, loadFonts } from './fonts.js'
+import { COMBOS } from './fontCombos.js'
 
 const sampleSlide = (tpl) => ({ id: tpl.id, type: 'title', ...tpl.sample, elements: [] })
 
@@ -197,7 +200,58 @@ const TEXT_PRESETS = [
 ]
 const QUICK = ['Eʼtiboringiz uçun rahmat!', 'Savollar?', '1-bob', 'Xulosa', 'Manba: stat.uz']
 
-export function TextPanel({ onAdd }) {
+/** One font pairing: its two fonts load when the card comes into view. */
+function ComboCard({ combo, onAdd }) {
+  const ref = useRef(null)
+  const { head, sub } = combo
+  useEffect(() => {
+    const n = ref.current
+    if (!n) return undefined
+    const io = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return
+      loadFonts([head.family, sub.family])
+      io.disconnect()
+    }, { rootMargin: '150px 0px' })
+    io.observe(n)
+    return () => io.disconnect()
+  }, [head.family, sub.family])
+  const style = (p) => ({
+    fontFamily: fontCss(p.family),
+    fontWeight: p.weight,
+    fontStyle: p.italic ? 'italic' : 'normal',
+    textTransform: p.upper ? 'uppercase' : 'none',
+    letterSpacing: `${p.ls ?? 0}em`,
+  })
+  const h = t(`fp.c.h${combo.h}`)
+  const s = t(`fp.c.s${combo.s}`)
+  return (
+    <button ref={ref} type="button" className="combo" onClick={() => onAdd(combo, h, s)} title={`${head.family} + ${sub.family}`}>
+      <span className="combo-h" style={style(head)}>{h}</span>
+      <span className="combo-s" style={style(sub)}>{s}</span>
+    </button>
+  )
+}
+
+/** A pairing → two centred text elements, the line under the heading. */
+function comboEls({ head, sub }, h, s) {
+  const el = (p, text, size, y) => ({
+    kind: 'text',
+    text,
+    font: fontCss(p.family),
+    weight: p.weight,
+    size,
+    align: 'center',
+    x: 15,
+    y,
+    w: 70,
+    ...(p.italic ? { italic: true } : {}),
+    ...(p.upper ? { upper: true } : {}),
+    ...(p.ls ? { ls: p.ls } : {}),
+  })
+  return [el(head, h, 5.2, 36), el(sub, s, 1.9, 54)]
+}
+
+export function TextPanel({ onAdd, onAddMany }) {
   return (
     <div className="pn-scroll">
       <div className="text-presets">
@@ -205,6 +259,12 @@ export function TextPanel({ onAdd }) {
           <button key={p.cls} className={`text-preset ${p.cls}`} onClick={() => onAdd({ text: p.text.replace(' qöşiş', ''), size: p.size, weight: p.weight })}>
             {p.text}
           </button>
+        ))}
+      </div>
+      <PanelHead title={t('fp.combos')} />
+      <div className="combos">
+        {COMBOS.map((c, i) => (
+          <ComboCard key={i} combo={c} onAdd={(combo, h, s) => onAddMany(comboEls(combo, h, s))} />
         ))}
       </div>
       <PanelHead title="Tezkor matnlar" />

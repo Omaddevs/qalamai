@@ -1,0 +1,40 @@
+// Font pairings for the Text panel (Canva's "font combinations"): a heading and a line under it,
+// each in its own font from the catalog (fonts.js). Click adds both, centred on the page.
+// [heading font, weight, extra] · [line font, weight, extra] · sample text (fp.c.h* / fp.c.s*)
+const C = (hf, hw, hx, sf, sw, sx, h, s) => ({ head: { family: hf, weight: hw, ...hx }, sub: { family: sf, weight: sw, ...sx }, h, s })
+const UP = (ls = 0.06) => ({ upper: true, ls })
+
+export const COMBOS = [
+  C('Playfair Display', 700, {}, 'Lato', 400, {}, 0, 0),
+  C('Montserrat', 800, UP(), 'Lora', 400, { italic: true }, 1, 1),
+  C('Bebas Neue', 400, { ls: 0.04 }, 'Open Sans', 400, {}, 2, 2),
+  C('Great Vibes', 400, {}, 'Cormorant Garamond', 600, UP(0.2), 3, 3),
+  C('Anton', 400, UP(0.02), 'Roboto', 400, {}, 4, 0),
+  C('Cinzel', 700, {}, 'EB Garamond', 400, { italic: true }, 5, 1),
+  C('Unbounded', 800, {}, 'Inter', 400, {}, 6, 2),
+  C('Abril Fatface', 400, {}, 'Poppins', 400, {}, 0, 3),
+  C('Pacifico', 400, {}, 'Nunito', 600, {}, 7, 0),
+  C('Oswald', 700, UP(0.03), 'Merriweather', 400, {}, 1, 1),
+  C('DM Serif Display', 400, {}, 'DM Sans', 400, {}, 2, 2),
+  C('Syne', 800, {}, 'Space Grotesk', 400, {}, 6, 3),
+  C('Fraunces', 700, { italic: true }, 'Manrope', 400, {}, 3, 0),
+  C('Lobster', 400, {}, 'Quicksand', 500, {}, 7, 1),
+  C('Bodoni Moda', 700, {}, 'Raleway', 500, UP(0.18), 5, 2),
+  C('Russo One', 400, {}, 'Exo 2', 400, {}, 4, 3),
+  C('Caveat', 700, {}, 'Nunito', 400, {}, 7, 0),
+  C('Alfa Slab One', 400, {}, 'Barlow', 400, {}, 1, 1),
+  C('Yeseva One', 400, {}, 'Montserrat', 400, UP(0.12), 0, 2),
+  C('Press Start 2P', 400, {}, 'Space Mono', 400, {}, 6, 3),
+  C('Comfortaa', 700, {}, 'Rubik', 400, {}, 7, 0),
+  C('Dancing Script', 700, {}, 'Josefin Sans', 400, UP(0.2), 3, 1),
+  C('Marcellus', 400, UP(0.08), 'Tenor Sans', 400, {}, 5, 2),
+  C('Rubik Mono One', 400, {}, 'Golos Text', 400, {}, 4, 3),
+  C('Shrikhand', 400, {}, 'Outfit', 400, {}, 2, 0),
+  C('Bungee', 400, {}, 'Figtree', 400, {}, 6, 1),
+  C('Tilt Warp', 400, {}, 'Plus Jakarta Sans', 400, {}, 4, 2),
+  C('Allura', 400, {}, 'Cormorant', 500, UP(0.22), 3, 3),
+  C('Archivo Black', 400, UP(0.01), 'Work Sans', 400, {}, 1, 0),
+  C('Gloock', 400, {}, 'Mulish', 400, {}, 0, 1),
+  C('Kaushan Script', 400, {}, 'Barlow Condensed', 500, UP(0.14), 7, 2),
+  C('Righteous', 400, {}, 'Commissioner', 400, {}, 6, 3),
+]

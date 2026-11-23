@@ -625,7 +625,7 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
     templates: <TemplatesPanel currentId={deck.templateId} recent={recent} onApply={applyTemplate} />,
     ai: <AiPanel onGenerate={generate} />,
     elements: <ElementsPanel theme={theme} selected={selectedEls.length === 1 ? selectedEl : null} onAdd={insertEls} onFill={fillEl} />,
-    text: <TextPanel onAdd={(t) => addEl({ kind: 'text', w: 40, h: 10, x: 30, y: 40, ...t })} />,
+    text: <TextPanel onAdd={(t) => addEl({ kind: 'text', w: 40, h: 10, x: 30, y: 40, ...t })} onAddMany={(els) => insertEls(els)} />,
     brand: <BrandPanel accent={deck.accent} defaultAccent={tpl.theme.accent} onAccent={(c) => set((d) => ({ ...d, accent: c }))} />,
     uploads: (
       <UploadsPanel

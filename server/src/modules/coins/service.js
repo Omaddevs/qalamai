@@ -59,7 +59,7 @@ export function createCoinService({ db, notifier = null }) {
 
     /** Charge for an AI action. `ref` (e.g. a client request id) makes retries free. */
     async spend(user, action, { qty = 1, ref = null, meta = {} } = {}) {
-      if (user.isGuest) throw new AppError(403, 'REGISTER_REQUIRED', 'AI imkoniyatlari uçun röyxatdan öting — sovğa sifatida 50 coin beriladi.')
+      if (user.isGuest) throw new AppError(403, 'REGISTER_REQUIRED', `AI imkoniyatlari uçun röyxatdan öting — sovğa sifatida ${SIGNUP_BONUS} coin beriladi.`)
       const cost = costOf(action, qty)
       if (cost == null) throw badRequest('Bunday amal yöq', { action })
       const r = await moveOnce(user.id, -cost, 'spend', { item: action, ref, meta: { ...meta, qty } })
@@ -97,6 +97,16 @@ export function createCoinService({ db, notifier = null }) {
       if (!pack) throw badRequest('Bunday paket yöq', { pack: packId })
       const res = await moveOnce(userId, pack.coins, 'purchase', { item: pack.id, ref, meta: { ...meta, price: pack.price }, purchased: true })
       if (!res.repeated) await notifier?.send(userId, 'coins.purchase', { coins: pack.coins, balance: res.balance })
+      return res
+    },
+
+    /**
+     * Credit coins that were paid for by any other way than a pack id (a checked card transfer).
+     * `ref` (the payment's id) makes it one-time: approving the same payment twice adds nothing.
+     */
+    async credit(userId, amount, { item, ref, meta = {} }) {
+      const res = await moveOnce(userId, amount, 'purchase', { item, ref, meta, purchased: true })
+      if (!res.repeated) await notifier?.send(userId, 'coins.purchase', { coins: amount, balance: res.balance })
       return res
     },
 

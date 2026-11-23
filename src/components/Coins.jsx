@@ -1,9 +1,10 @@
-import { useEffect, useId, useState } from 'react'
-import { Check, Gift, Sparkles } from 'lucide-react'
-import { Modal } from './ui.jsx'
-import { COIN_COSTS, COIN_PACKS, SIGNUP_BONUS, buyPack, freeFeatures, onCoinShop, premiumPerks, som, useWallet } from '../coins.js'
-import { t, tr } from '../i18n/index.js'
+import { Suspense, lazy, useEffect, useId, useState } from 'react'
+import { onCoinShop, som, takePurchase, useWallet } from '../coins.js'
+import { t } from '../i18n/index.js'
 import './pricing.css'
+
+// the checkout (cards, receipt upload) loads when the shop is first opened
+const CoinCheckout = lazy(() => import('./CoinCheckout.jsx'))
 
 /** QalamCoin: silver rim, black face, the smiling white nib. */
 export function CoinIcon({ size = 18 }) {
@@ -59,155 +60,20 @@ export function CoinChip({ onClick, className = '' }) {
   )
 }
 
-const covers = (coins) => {
-  const fits = (id) => Math.floor(coins / COIN_COSTS[id].cost)
-  return t('coin.covers', { p: fits('prezentatsiya'), r: fits('referat') })
-}
-
-export function CoinShop({ reason, onClose, notify }) {
-  const { coins, premium, guest } = useWallet()
-  const [busy, setBusy] = useState(null)
-  const short = reason?.code === 'NOT_ENOUGH_COINS'
-
-  const buy = async (pack) => {
-    if (guest) {
-      onClose()
-      window.location.hash = '#/auth'
-      return
-    }
-    setBusy(pack.id)
-    try {
-      const r = await buyPack(pack.id)
-      notify?.(t('coin.added', { n: pack.coins, balance: r.balance }))
-      onClose()
-    } catch (err) {
-      notify?.(err.message)
-    } finally {
-      setBusy(null)
-    }
-  }
-
-  return (
-    <Modal
-      title="QalamCoin"
-      onClose={onClose}
-      className="pricing"
-      header={
-        <div className="pm-hero">
-          <CoinIcon size={54} />
-          <h2>QalamCoin</h2>
-          <p>{t('coin.heroText')}</p>
-        </div>
-      }
-    >
-      {guest ? (
-        <div className="cs-alert gift">
-          <Gift size={18} />
-          <span>
-            {t('coin.guest1')} <b>{t('coin.guestGift', { n: SIGNUP_BONUS })}</b>{t('coin.guest2') === '.' ? '.' : ` ${t('coin.guest2')}`}
-          </span>
-          <button
-            className="cs-alert-btn"
-            onClick={() => {
-              onClose()
-              window.location.hash = '#/auth'
-            }}
-          >
-            {t('coin.signup')}
-          </button>
-        </div>
-      ) : (
-        <div className={`cs-alert ${short ? 'warn' : ''}`}>
-          <CoinIcon size={22} />
-          <span>
-            {short ? (
-              tr('coin.short', { need: reason.need, have: som(coins) })
-            ) : (
-              tr('coin.balance', { n: som(coins) })
-            )}
-          </span>
-          {premium && (
-            <span className="cs-premium">
-              <Sparkles size={12} /> Premium
-            </span>
-          )}
-        </div>
-      )}
-
-      <div className="cs-packs">
-        {COIN_PACKS.map((p) => (
-          <article key={p.id} className={`cs-pack ${p.featured ? 'featured' : ''}`}>
-            {p.featured && <span className="cs-tag">{t('coin.featured')}</span>}
-            <span className="cs-pack-label">{p.label}</span>
-            <div className="cs-pack-coins">
-              <CoinIcon size={30} />
-              <b>{som(p.coins)}</b>
-              <span>{t('coin.unit', { n: p.coins })}</span>
-            </div>
-            <div className="cs-pack-price">
-              <b>{som(p.price)}</b> {t('lp.pr.som')}
-            </div>
-            <p className="cs-pack-note">
-              {t('coin.perCoin', { price: Math.round(p.price / p.coins) })} · {covers(p.coins)}
-            </p>
-            <button className={`cs-buy ${p.featured ? 'dark' : ''}`} disabled={Boolean(busy)} onClick={() => buy(p)}>
-              {busy === p.id ? t('ui.wait') : t('coin.buy')}
-            </button>
-          </article>
-        ))}
-      </div>
-
-      <div className="cs-info">
-        <section>
-          <h4>{t('coin.costs')}</h4>
-          <ul className="cs-costs">
-            {Object.entries(COIN_COSTS).map(([id, c]) => (
-              <li key={id}>
-                <span>
-                  {c.label}
-                  <small>{c.per ?? c.note}</small>
-                </span>
-                <CoinPrice cost={c.cost} size={13} />
-              </li>
-            ))}
-          </ul>
-        </section>
-        <section>
-          <h4>{t('coin.oncePerks')}</h4>
-          <ul className="cs-perks">
-            {premiumPerks().map((x) => (
-              <li key={x}>
-                <Check size={14} strokeWidth={2.6} /> {x}
-              </li>
-            ))}
-          </ul>
-          <h4>{t('coin.alwaysFree')}</h4>
-          <ul className="cs-perks free">
-            {freeFeatures().map((x) => (
-              <li key={x}>
-                <Check size={14} strokeWidth={2.6} /> {x}
-              </li>
-            ))}
-          </ul>
-        </section>
-      </div>
-
-      <footer className="pm-foot">
-        <span className="pm-pay">
-          {t('coin.payment')}
-          <b>Click</b>
-          <b>Payme</b>
-          <b>Uzum</b>
-        </span>
-        <span className="muted">{t('coin.refund')}</span>
-      </footer>
-    </Modal>
-  )
-}
-
 /** Mount once per screen: opens the shop whenever openCoinShop() is called. */
-export function CoinShopHost({ notify }) {
+export function CoinShopHost() {
   const [state, setState] = useState(null)
-  useEffect(() => onCoinShop((detail) => setState({ reason: detail.reason ?? null })), [])
-  return state ? <CoinShop reason={state.reason} onClose={() => setState(null)} notify={notify} /> : null
+  const { ready, guest } = useWallet()
+  useEffect(() => onCoinShop((detail) => setState({ reason: detail.reason ?? null, intent: detail.intent ?? null })), [])
+  // a pack / amount picked on the landing page before signing in
+  useEffect(() => {
+    if (!ready || guest) return
+    const intent = takePurchase()
+    if (intent) setState({ reason: null, intent })
+  }, [ready, guest])
+  return state ? (
+    <Suspense fallback={null}>
+      <CoinCheckout reason={state.reason} intent={state.intent} onClose={() => setState(null)} />
+    </Suspense>
+  ) : null
 }

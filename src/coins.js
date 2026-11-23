@@ -1,12 +1,12 @@
 // QalamCoin on the client: the balance (kept on the API user), spending before an AI action,
 // and one global "coin shop" that any screen can open.
 import { useEffect, useState } from 'react'
-import { ApiError, api, currentUser, ensureSession, onUser, updateUser } from './api.js'
-import { ACTION_BY_APP, ACTION_BY_TYPE, COIN_COSTS, COIN_PACKS, SIGNUP_BONUS, costOf } from '../shared/coins.js'
+import { ApiError, api, currentUser, ensureSession, onUser, request, updateUser } from './api.js'
+import { ACTION_BY_APP, ACTION_BY_TYPE, COIN_COSTS, COIN_PACKS, CUSTOM_COINS, RECEIPT_MAX_MB, SIGNUP_BONUS, coinRate, costOf, priceFor } from '../shared/coins.js'
 import { FREE_FEATURES as FREE, PREMIUM_PERKS as PREMIUM } from '../shared/coins.js'
 import { formatNumber, t } from './i18n/index.js'
 
-export { ACTION_BY_APP, ACTION_BY_TYPE, COIN_COSTS, COIN_PACKS, SIGNUP_BONUS, costOf }
+export { ACTION_BY_APP, ACTION_BY_TYPE, COIN_COSTS, COIN_PACKS, CUSTOM_COINS, RECEIPT_MAX_MB, SIGNUP_BONUS, coinRate, costOf, priceFor }
 
 // Display texts follow the interface language (src/i18n/msg/coins.js); ids and prices stay in shared/coins.js.
 const ACTION_KIND = {
@@ -49,8 +49,8 @@ export function useWallet() {
 const SHOP_EVENT = 'qalam:coin-shop'
 
 /** Open the coin shop from anywhere. `reason` explains why (e.g. not enough coins). */
-export function openCoinShop(reason = null) {
-  window.dispatchEvent(new CustomEvent(SHOP_EVENT, { detail: { reason } }))
+export function openCoinShop(reason = null, intent = null) {
+  window.dispatchEvent(new CustomEvent(SHOP_EVENT, { detail: { reason, intent } }))
 }
 
 export function onCoinShop(fn) {
@@ -95,3 +95,39 @@ export async function buyPack(pack) {
 }
 
 export const getWallet = () => api.get('/coins')
+
+/* ───────── card payments (HUMO / UZCARD / VISA, checked by the team) ───────── */
+
+/** The cards to pay to and the limits: { methods: [{ id, number, holder }], custom, receiptMaxMb }. */
+export const getPayMethods = () => api.get('/payments/methods')
+/** The signed-in user's payments, newest first. */
+export const myPayments = () => api.get('/payments/orders').then((r) => r.orders)
+/** Send a receipt: { coins } or { pack }, method, note, receipt (File). */
+export function sendPayment({ coins, pack, method, note, receipt }) {
+  const form = new FormData()
+  if (pack) form.append('pack', pack)
+  else form.append('coins', String(coins))
+  form.append('method', method)
+  if (note?.trim()) form.append('note', note.trim())
+  form.append('receipt', receipt, receipt.name || 'chek')
+  return request('POST', '/payments/orders', { form }).then((r) => r.order)
+}
+
+// A purchase picked on the landing page before signing in: the shop opens with it in the app.
+const INTENT_KEY = 'qalam.buy.intent'
+export function rememberPurchase(intent) {
+  try {
+    sessionStorage.setItem(INTENT_KEY, JSON.stringify({ ...intent, at: Date.now() }))
+  } catch {
+    /* storage unavailable */
+  }
+}
+export function takePurchase() {
+  try {
+    const v = JSON.parse(sessionStorage.getItem(INTENT_KEY) ?? 'null')
+    sessionStorage.removeItem(INTENT_KEY)
+    return v && Date.now() - v.at < 3600_000 ? v : null
+  } catch {
+    return null
+  }
+}

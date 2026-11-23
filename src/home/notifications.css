@@ -239,6 +239,7 @@
 .tone-violet { --tone: #9a6af5; --tone-bg: #f1ebfe; }
 .tone-green { --tone: #2bb069; --tone-bg: #ddf4e6; }
 .tone-blue { --tone: #2f5bff; --tone-bg: #e3ebfd; }
+.tone-red { --tone: #e5484d; --tone-bg: #fde8e8; }
 
 .nt-tile {
   display: grid;

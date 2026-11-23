@@ -49,6 +49,11 @@ export const admin = {
   notifications: () => request('GET', '/notifications'),
   announce: (body) => request('POST', '/notifications', body),
   deleteAnnouncement: (id) => request('DELETE', `/notifications/${encodeURIComponent(id)}`),
+  payments: (params) => request('GET', `/payments?${new URLSearchParams(Object.entries(params).filter(([, v]) => v !== '' && v != null))}`),
+  approvePayment: (id) => request('POST', `/payments/${encodeURIComponent(id)}/approve`),
+  rejectPayment: (id, reason) => request('POST', `/payments/${encodeURIComponent(id)}/reject`, { reason }),
+  paymentCards: () => request('GET', '/payment-cards'),
+  savePaymentCards: (cards) => request('PUT', '/payment-cards', cards),
   settings: () => request('GET', '/settings'),
   saveSettings: (patch) => request('PATCH', '/settings', patch),
 }

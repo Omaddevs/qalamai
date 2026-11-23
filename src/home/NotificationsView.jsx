@@ -1,7 +1,7 @@
 // Bildirişnomalar: the user's notices as a day-by-day timeline. System notices come as kind +
 // data and are worded in the interface language; announcements carry the team's own text.
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Bell, Checks, Check, Gift, Coins, ChatCircleText, Megaphone, ArrowRight, ArrowsClockwise } from '@phosphor-icons/react'
+import { Bell, Checks, Check, Gift, Coins, ChatCircleText, Megaphone, ArrowRight, ArrowsClockwise, XCircle } from '@phosphor-icons/react'
 import { listNotifications, markAllRead, markRead, onUnread } from '../notifications.js'
 import { formatDate, t } from '../i18n/index.js'
 import { timeAgo } from '../store.js'
@@ -12,6 +12,7 @@ const KIND = {
   welcome: { icon: Gift, tone: 'teal' },
   'coins.purchase': { icon: Coins, tone: 'amber' },
   'coins.grant': { icon: Gift, tone: 'violet' },
+  'payment.rejected': { icon: XCircle, tone: 'red' },
   'support.done': { icon: ChatCircleText, tone: 'green' },
   announce: { icon: Megaphone, tone: 'blue' },
 }
@@ -28,6 +29,12 @@ function words(n, { onCreate, onOpenPricing }) {
         title: t(`nt.${n.kind}.title`, { coins: d.coins }),
         body: t(`nt.${n.kind}.body`, { balance: d.balance }),
         action: { label: t('nt.coins.action'), run: onOpenPricing },
+      }
+    case 'payment.rejected':
+      return {
+        title: t('nt.payment.rejected.title'),
+        body: t('nt.payment.rejected.body', { coins: d.coins, reason: d.reason ?? '' }),
+        action: { label: t('nt.payment.rejected.action'), run: onOpenPricing },
       }
     case 'support.done':
       return { title: t('nt.support.done.title'), body: t('nt.support.done.body', { topic: d.topic ? t(`chat.topic.${d.topic}`) : '' }) }

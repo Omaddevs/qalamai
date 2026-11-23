@@ -267,6 +267,38 @@ export const adminSettings = pgTable('admin_settings', {
   updatedAt: ts('updated_at').notNull().defaultNow(),
 })
 
+/**
+ * Coin purchases paid by card transfer (HUMO / UZCARD / VISA) until Click / Payme are connected.
+ * The buyer sends the receipt; an admin checks it and approves (the coins are credited then) or
+ * rejects with a reason. The card shown to the buyer is kept with the order.
+ */
+export const paymentOrders = pgTable(
+  'payment_orders',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    coins: integer('coins').notNull(),
+    /** Söm to pay (shared/coins.js priceFor). */
+    amount: integer('amount').notNull(),
+    /** The pack bought, or null for a custom amount. */
+    pack: text('pack'),
+    method: text('method', { enum: ['humo', 'uzcard', 'visa'] }).notNull(),
+    /** { number, holder } as shown to the buyer. */
+    card: jsonb('card').notNull().default({}),
+    /** Storage key of the receipt (receipts/<id>.<ext>) and its type. */
+    receiptKey: text('receipt_key').notNull(),
+    receiptMime: text('receipt_mime').notNull(),
+    receiptSize: integer('receipt_size').notNull(),
+    note: text('note'),
+    status: text('status', { enum: ['pending', 'approved', 'rejected'] }).notNull().default('pending'),
+    /** Why it was rejected (shown to the buyer). */
+    reason: text('reason'),
+    reviewedAt: ts('reviewed_at'),
+    createdAt: createdAt(),
+  },
+  (t) => [index('payment_orders_user_idx').on(t.userId, t.createdAt), index('payment_orders_status_idx').on(t.status, t.createdAt)],
+)
+
 /** QalamChat: messages a registered user sends to the team (partnership, complaint …). Forwarded to CONTACT_CHAT_ID in Telegram. */
 export const supportMessages = pgTable(
   'support_messages',

@@ -13,6 +13,7 @@ import { hashPassword, verifyPassword } from '../../lib/crypto.js'
 import { avatarUrlOf } from '../../lib/avatars.js'
 import { createAnalytics, VISITOR_COOKIE } from './analytics.js'
 import { parseUa } from './detect.js'
+import { paymentAdminRoutes } from '../payments/admin.js'
 
 const { users, sessions, adminSettings, designs, documents, files, jobs, coinLedger, bioPages, supportMessages, notifications, notificationReads } = schema
 
@@ -139,6 +140,9 @@ export async function adminRoutes(app) {
         return { ok: true }
       },
     )
+
+    /* ───────── card payments (receipts to check, the cards buyers pay to) ───────── */
+    await paymentAdminRoutes(admin)
 
     /* ───────── statistics ───────── */
 

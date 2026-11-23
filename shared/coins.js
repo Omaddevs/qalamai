@@ -2,7 +2,7 @@
 // 1 coin ≈ 100 söm. Har bir amal narxi AI xarajatidan taxminan 2–3 baravar köp qilib tanlangan.
 
 /** Röyxatdan ötganda bir marta beriladi. */
-export const SIGNUP_BONUS = 50
+export const SIGNUP_BONUS = 30
 
 /** AI amallari. `per` bölsa, narx şu birlik uçun (masalan, 1 bet yoki 1 000 söz). */
 export const COIN_COSTS = {
@@ -50,6 +50,37 @@ export const COIN_PACKS = [
   { id: 'c300', coins: 300, price: 34_900, label: 'Ommabop', tier: 'Pro', featured: true },
   { id: 'c1000', coins: 1000, price: 99_000, label: 'Katta paket', tier: 'Max' },
 ]
+
+/**
+ * Any number of coins (not only a pack): at least `min`. The price per coin falls with the amount,
+ * at the same steps as the packs; a count equal to a pack costs exactly that pack, and no count
+ * costs more than a bigger pack.
+ */
+export const CUSTOM_COINS = { min: 10, max: 100_000 }
+const RATES = [
+  { from: 1000, rate: 99 },
+  { from: 300, rate: 116 },
+  { from: 0, rate: 129 },
+]
+/** Söm per coin for an amount of coins. */
+export const coinRate = (coins) => RATES.find((r) => coins >= r.from).rate
+/** What `coins` coins cost in söm (rounded up to 100 söm, so it is easy to transfer). */
+export function priceFor(coins) {
+  const n = Math.floor(Number(coins))
+  if (!Number.isFinite(n) || n < CUSTOM_COINS.min || n > CUSTOM_COINS.max) return null
+  const pack = COIN_PACKS.find((p) => p.coins === n)
+  if (pack) return pack.price
+  const raw = Math.ceil((n * coinRate(n)) / 100) * 100
+  // never more than a bigger pack costs (299 coins are not dearer than the 300 pack)
+  return Math.min(raw, ...COIN_PACKS.filter((p) => p.coins >= n).map((p) => p.price))
+}
+
+/** Paid by card transfer until Click / Payme are connected: the team checks each receipt. */
+export const PAY_METHODS = ['humo', 'uzcard', 'visa']
+/** A receipt: a photo / screenshot or a PDF, up to this size. */
+export const RECEIPT_MAX_MB = 10
+/** How many payments one account may have waiting for a check at once. */
+export const MAX_PENDING_PAYMENTS = 3
 
 /** The account's tier: the biggest pack it has ever bought (Start → Pro → Max), or null. */
 export function tierOf(packIds) {

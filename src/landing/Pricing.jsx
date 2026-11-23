@@ -1,6 +1,7 @@
-import { Check, Lightning, ArrowRight, Gift } from '@phosphor-icons/react'
+import { useState } from 'react'
+import { Check, Lightning, ArrowRight, Gift, Minus, Plus, CreditCard } from '@phosphor-icons/react'
 import { CoinIcon } from '../components/Coins.jsx'
-import { COIN_COSTS, COIN_PACKS, SIGNUP_BONUS, freeFeatures, premiumPerks, som } from '../coins.js'
+import { COIN_COSTS, COIN_PACKS, CUSTOM_COINS, SIGNUP_BONUS, coinRate, freeFeatures, premiumPerks, priceFor, rememberPurchase, som } from '../coins.js'
 import { t } from '../i18n/index.js'
 import './plans.css'
 
@@ -28,7 +29,86 @@ function List({ title, items }) {
   )
 }
 
+/** Any amount of coins, priced live — the same rule as the checkout (shared/coins.js priceFor). */
+function CustomAmount({ onBuy }) {
+  const [n, setN] = useState(150)
+  const [text, setText] = useState('150')
+  const set = (v) => {
+    const x = Math.max(CUSTOM_COINS.min, Math.min(CUSTOM_COINS.max, Math.round(v) || CUSTOM_COINS.min))
+    setN(x)
+    setText(String(x))
+  }
+  const price = priceFor(n)
+  const step = n >= 100 ? 10 : 5
+  return (
+    <div className="pr-custom lp-reveal">
+      <div className="pr-custom-copy">
+        <span className="pr-custom-tag">
+          <Lightning size={13} weight="fill" /> {t('pay.custom')}
+        </span>
+        <h3>{t('lp.pr.customTitle')}</h3>
+        <p>{t('lp.pr.customText', { n: CUSTOM_COINS.min })}</p>
+        <span className="pr-custom-cards">
+          <CreditCard size={16} weight="duotone" /> {t('lp.pr.cards')}
+          <i className="pc humo">HUMO</i>
+          <i className="pc uzcard">UZCARD</i>
+          <i className="pc visa">VISA</i>
+        </span>
+      </div>
+      <div className="pr-custom-calc">
+        <div className="pr-custom-input">
+          <button type="button" onClick={() => set(n - step)} disabled={n <= CUSTOM_COINS.min} aria-label="−">
+            <Minus size={18} weight="bold" />
+          </button>
+          <label>
+            <CoinIcon size={28} />
+            <input
+              inputMode="numeric"
+              value={text}
+              onChange={(e) => {
+                const v = e.target.value.replace(/\D/g, '').slice(0, 6)
+                setText(v)
+                if (Number(v) >= CUSTOM_COINS.min) setN(Math.min(CUSTOM_COINS.max, Number(v)))
+              }}
+              onBlur={() => set(Number(text))}
+              aria-label={t('pay.coinsLabel')}
+            />
+            <span>coin</span>
+          </label>
+          <button type="button" onClick={() => set(n + step)} aria-label="+">
+            <Plus size={18} weight="bold" />
+          </button>
+        </div>
+        <div className="pr-custom-quick">
+          {[50, 150, 500, 2000].map((q) => (
+            <button key={q} type="button" className={n === q ? 'on' : ''} onClick={() => set(q)}>
+              {som(q)}
+            </button>
+          ))}
+        </div>
+        <div className="pr-custom-total">
+          <div>
+            <b key={price}>{som(price ?? 0)}</b> <span>{t('lp.pr.som')}</span>
+            <small>
+              {t('pay.perCoin', { price: Math.round((price ?? 0) / n) })}
+              {n * coinRate(CUSTOM_COINS.min) > price && <em> · −{Math.round((1 - price / (n * coinRate(CUSTOM_COINS.min))) * 100)}%</em>}
+            </small>
+          </div>
+          <button type="button" className="pr-btn light" onClick={() => onBuy({ coins: n })}>
+            {t('lp.pr.customBuy', { n: som(n) })} <ArrowRight size={15} weight="bold" />
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Pricing({ onStart }) {
+  // the pick is remembered: after signing in the app opens the checkout with it
+  const buy = (intent) => {
+    rememberPurchase(intent)
+    onStart?.()
+  }
   return (
     <section className="lp-section pr" id="narxlar">
       <div className="lp-head lp-reveal">
@@ -62,7 +142,7 @@ export default function Pricing({ onStart }) {
             <p className="pr-hint">
               {t('lp.pr.hint', { p: fits(p.coins, 'prezentatsiya'), r: fits(p.coins, 'referat'), k: fits(p.coins, 'kurs-ishi') })}
             </p>
-            <button type="button" className={`pr-btn ${p.featured ? 'light' : 'soft'}`} onClick={onStart}>
+            <button type="button" className={`pr-btn ${p.featured ? 'light' : 'soft'}`} onClick={() => buy({ pack: p.id })}>
               {t('lp.pr.buy')} {p.featured && <ArrowRight size={15} weight="bold" />}
             </button>
             {i === 0 && <List title={t('lp.pr.free')} items={freeFeatures()} />}
@@ -76,6 +156,8 @@ export default function Pricing({ onStart }) {
           </article>
         ))}
       </div>
+
+      <CustomAmount onBuy={buy} />
 
       <div className="pr-costs lp-reveal">
         <div className="pr-costs-head">

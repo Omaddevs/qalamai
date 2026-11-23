@@ -31,6 +31,7 @@ import coinRoutes from './modules/coins/routes.js'
 import supportRoutes from './modules/support/routes.js'
 import notificationRoutes from './modules/notifications/routes.js'
 import photoRoutes from './modules/photos/routes.js'
+import paymentRoutes from './modules/payments/routes.js'
 import { createNotifier } from './modules/notifications/service.js'
 import { createCoinService } from './modules/coins/service.js'
 import { adminRoutes, createAnalytics, trackRoutes, verificationRoutes } from './modules/admin/routes.js'
@@ -136,6 +137,7 @@ export async function buildApp(config) {
       await api.register(userRoutes, { prefix: '/me' })
       await api.register(avatarRoutes, { prefix: '/avatars' })
       await api.register(coinRoutes, { prefix: '/coins' })
+      await api.register(paymentRoutes, { prefix: '/payments' })
       await api.register(fileRoutes, { prefix: '/files' })
       await api.register(toolRoutes, { prefix: '/tools' })
       await api.register(localRunRoutes, { prefix: '/tools' })

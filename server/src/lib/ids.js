@@ -21,4 +21,5 @@ export const ID_PREFIX = {
   coin: 'cxn',
   support: 'msg',
   notification: 'ntf',
+  payment: 'pay',
 }

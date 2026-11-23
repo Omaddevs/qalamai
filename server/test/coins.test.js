@@ -61,15 +61,16 @@ describe('QalamCoin', () => {
 
   test('parallel spends never overdraw', async () => {
     const { c } = await member()
-    // 50 coins, 20 each → only two of five can succeed
+    // the welcome bonus pays for only so many presentations: the rest are refused, never overdrawn
+    const fits = Math.floor(SIGNUP_BONUS / COIN_COSTS.prezentatsiya.cost)
     const rs = await Promise.all([1, 2, 3, 4, 5].map((i) => c.req('POST', '/api/v1/coins/spend', { json: { action: 'prezentatsiya', ref: `par-${i}-xx` } })))
-    assert.equal(rs.filter((r) => r.status === 200).length, 2)
-    assert.equal((await c.req('GET', '/api/v1/coins')).body.balance, SIGNUP_BONUS - 2 * COIN_COSTS.prezentatsiya.cost)
+    assert.equal(rs.filter((r) => r.status === 200).length, fits)
+    assert.equal((await c.req('GET', '/api/v1/coins')).body.balance, SIGNUP_BONUS - fits * COIN_COSTS.prezentatsiya.cost)
   })
 
   test('refund gives coins back once', async () => {
     const { c } = await member()
-    await c.req('POST', '/api/v1/coins/spend', { json: { action: 'referat', ref: 'ref-fail-1' } })
+    await c.req('POST', '/api/v1/coins/spend', { json: { action: 'prezentatsiya', ref: 'ref-fail-1' } })
     const r1 = await c.req('POST', '/api/v1/coins/refund', { json: { ref: 'ref-fail-1' } })
     const r2 = await c.req('POST', '/api/v1/coins/refund', { json: { ref: 'ref-fail-1' } })
     assert.equal(r1.body.balance, SIGNUP_BONUS)

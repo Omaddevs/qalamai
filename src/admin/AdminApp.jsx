@@ -1,7 +1,7 @@
 // QalamAI admin panel — /admin. Its own small app: a password gate, then Statistika,
 // Foydalanuvçilar and Sozlamalar. Pages are picked by the hash (#users, #settings).
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
-import { ArrowUpRight, BarChart3, Bell, LogOut, Menu, MessageSquare, Moon, Settings, Sun, Users, X } from 'lucide-react'
+import { ArrowUpRight, BarChart3, Bell, CreditCard, LogOut, Menu, MessageSquare, Moon, Settings, Sun, Users, X } from 'lucide-react'
 import { Wordmark } from '../components/ui.jsx'
 import { admin, onSignedOut } from './api.js'
 import Login from './Login.jsx'
@@ -12,12 +12,15 @@ const UsersPage = lazy(() => import('./Users.jsx'))
 const SettingsPage = lazy(() => import('./Settings.jsx'))
 const ChatPage = lazy(() => import('./Chat.jsx'))
 const NotificationsPage = lazy(() => import('./Notifications.jsx'))
+const PaymentsPage = lazy(() => import('./Payments.jsx'))
 // same event name as Chat.jsx (kept here so the sidebar does not load that chunk)
 const CHAT_CHANGED = 'qalam-admin-chat'
+const PAYMENTS_CHANGED = 'qalam-admin-payments' // same as Payments.jsx
 
 const NAV = [
   { id: 'stats', label: 'Statistika', icon: BarChart3 },
   { id: 'users', label: 'Foydalanuvçilar', icon: Users },
+  { id: 'payments', label: 'Tölovlar', icon: CreditCard },
   { id: 'chat', label: 'ChatBot', icon: MessageSquare },
   { id: 'notifications', label: 'Bildirişnomalar', icon: Bell },
   { id: 'settings', label: 'Sozlamalar', icon: Settings },
@@ -62,6 +65,7 @@ function Shell({ theme, toggleTheme, onOut }) {
   const [page, setPage] = useState(pageFromHash)
   const [menu, setMenu] = useState(false)
   const unread = useUnreadChat()
+  const waiting = useWaitingPayments()
 
   useEffect(() => {
     const on = () => setPage(pageFromHash())
@@ -96,6 +100,7 @@ function Shell({ theme, toggleTheme, onOut }) {
               <Icon size={18} strokeWidth={1.9} />
               {label}
               {id === 'chat' && unread > 0 && <span className="ad-nav-count">{unread > 99 ? '99+' : unread}</span>}
+              {id === 'payments' && waiting > 0 && <span className="ad-nav-count">{waiting > 99 ? '99+' : waiting}</span>}
             </button>
           ))}
         </nav>
@@ -128,6 +133,7 @@ function Shell({ theme, toggleTheme, onOut }) {
           {page === 'users' && <UsersPage />}
           {page === 'chat' && <ChatPage />}
           {page === 'notifications' && <NotificationsPage />}
+          {page === 'payments' && <PaymentsPage />}
           {page === 'settings' && <SettingsPage onOut={onOut} />}
         </Suspense>
       </main>
@@ -148,6 +154,24 @@ function useUnreadChat() {
       live = false
       clearInterval(id)
       window.removeEventListener(CHAT_CHANGED, load)
+    }
+  }, [])
+  return n
+}
+
+/** Payments waiting for a check, for the sidebar badge: on load, every 30 s, and after a decision. */
+function useWaitingPayments() {
+  const [n, setN] = useState(0)
+  useEffect(() => {
+    let live = true
+    const load = () => admin.payments({ status: 'pending', limit: 1 }).then((r) => live && setN(r.counts.pending), () => {})
+    load()
+    const id = setInterval(load, 30_000)
+    window.addEventListener(PAYMENTS_CHANGED, load)
+    return () => {
+      live = false
+      clearInterval(id)
+      window.removeEventListener(PAYMENTS_CHANGED, load)
     }
   }, [])
   return n

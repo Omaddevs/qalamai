@@ -1,6 +1,6 @@
 // Free photos for the Elements panel: Unsplash (through our API, which holds the Access Key) and,
 // when Unsplash isn't set up or its hourly limit is spent, Openverse (openverse.org — openly
-// licensed media; only public-domain / CC0 images are asked for, so no credit is needed).
+// licensed photographs: public domain, CC0 and CC BY; CC BY photos carry their author's credit).
 import { api } from '../../api.js'
 import { downscale } from '../layouts.jsx'
 
@@ -35,7 +35,7 @@ async function searchUnsplash(q, page, signal) {
   }
 }
 
-/* ───────── Openverse (no key; public domain / CC0 only) ───────── */
+/* ───────── Openverse (no key; public domain, CC0, CC BY) ───────── */
 
 async function searchOpenverse(q, page, signal) {
   const url = new URL(API)
@@ -43,7 +43,8 @@ async function searchOpenverse(q, page, signal) {
     q: q.trim(),
     page: String(page),
     page_size: String(PAGE),
-    license: 'cc0,pdm',
+    license: 'cc0,pdm,by',
+    category: 'photograph',
     mature: 'false',
     extension: 'jpg,jpeg,png,webp',
   }).toString()
@@ -69,6 +70,10 @@ async function searchOpenverse(q, page, signal) {
         w: r.width || 4,
         h: r.height || 3,
         title: r.title ?? '',
+        // CC BY asks for the author's name and the licence; public domain / CC0 need nothing
+        ...(r.license === 'by' && r.creator
+          ? { author: r.creator, authorUrl: r.creator_url || r.foreign_landing_url, link: r.foreign_landing_url, license: `CC BY ${r.license_version ?? ''}`.trim() }
+          : {}),
       })),
     more: page < Math.min(json.page_count ?? 1, 20),
   }
@@ -104,9 +109,10 @@ export async function photoData(p) {
     api.post(`/photos/${encodeURIComponent(p.id)}/download`).catch(() => {})
     return { src: p.url, credit: { name: p.author, url: p.authorUrl, link: p.link, by: 'Unsplash' } }
   }
+  const extra = p.author ? { credit: { name: p.author, url: p.authorUrl, link: p.link, by: p.license ?? 'Openverse' } } : {}
   try {
-    return { src: await fetchImage(p.url) }
+    return { src: await fetchImage(p.url), ...extra }
   } catch {
-    return { src: await fetchImage(p.thumb) }
+    return { src: await fetchImage(p.thumb), ...extra }
   }
 }

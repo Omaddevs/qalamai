@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 import { after, before, test } from 'node:test'
 import { createTelegramLogin } from '../src/modules/telegram/login.js'
 import { client, startServer } from './helpers.js'
+import { SIGNUP_BONUS } from '../../shared/coins.js'
 
 let srv
 let sent
@@ -82,6 +83,7 @@ test('guest confirms their own number in the bot → code auto-fills → same ac
   assert.equal(ok.body.user.phoneVerified, true)
   assert.equal(ok.body.user.name, 'Jasur Karimov', 'name from Telegram')
   assert.equal(ok.body.user.telegramUsername, 'jasur_k')
+  assert.equal(ok.body.user.coins, SIGNUP_BONUS, 'a new Telegram account gets the welcome bonus, exactly')
   assert.equal(ok.body.user.linked.telegram, true)
 
   // the Telegram profile picture is the avatar now

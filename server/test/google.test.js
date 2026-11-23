@@ -5,6 +5,7 @@ import { after, before, test } from 'node:test'
 import { generateKeyPair, SignJWT } from 'jose'
 import { createGoogleClient, pkceChallenge } from '../src/modules/auth/google.js'
 import { client, startServer } from './helpers.js'
+import { SIGNUP_BONUS } from '../../shared/coins.js'
 
 const HOST = 'localhost:5173' // APP_URL default
 let srv
@@ -81,7 +82,7 @@ test('guest signs in with Google → same account, upgraded; second sign-in find
   assert.equal(u.isGuest, false)
   assert.equal(u.email, 'lola@gmail.com')
   assert.equal(u.name, 'Lola')
-  assert.ok(u.coins > 0, 'signup bonus')
+  assert.equal(u.coins, SIGNUP_BONUS, 'the welcome bonus, exactly')
 
   const old = await srv.app.inject({ method: 'POST', url: '/api/v1/auth/refresh', headers: { cookie: guestRt } })
   assert.equal(old.statusCode, 401, 'guest refresh token revoked')

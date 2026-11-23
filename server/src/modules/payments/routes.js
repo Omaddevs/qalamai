@@ -45,6 +45,7 @@ export const orderOut = (o) => ({
   note: o.note,
   createdAt: o.createdAt,
   reviewedAt: o.reviewedAt,
+  cancelledAt: o.cancelledAt,
 })
 
 /** @param {import('fastify').FastifyInstance} app */

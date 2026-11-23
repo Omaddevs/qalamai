@@ -85,6 +85,13 @@
       "when": 1795419516980,
       "tag": "0011_payments",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1795421128591,
+      "tag": "0012_payment_cancel",
+      "breakpoints": true
     }
   ]
 }

@@ -2411,3 +2411,20 @@
   .ad-pay-viewer-box { grid-template-columns: 1fr; grid-template-rows: 55% 45%; height: 100dvh; border-radius: 0; }
   .ad-pay-approve { min-width: 0; flex: 1; }
 }
+
+/* removing a payment («Öçirilgan») */
+.ad-pay-status.st-cancelled { background: var(--ad-surface-2); color: var(--ad-muted); box-shadow: inset 0 0 0 1px var(--ad-line); }
+.ad-pay-item.st-cancelled { opacity: 0.78; }
+.ad-pay-item.st-cancelled .ad-pay-sum { text-decoration: line-through; text-decoration-thickness: 2px; text-decoration-color: color-mix(in srgb, var(--ad-muted) 70%, transparent); }
+.ad-pay-reason.cancelled { background: var(--ad-surface-2); color: var(--ad-ink-2); box-shadow: inset 0 0 0 1px var(--ad-line); }
+.ad-pay-remove { color: var(--ad-muted); }
+.ad-pay-remove:hover:not(:disabled) { color: var(--ad-bad); border-color: color-mix(in srgb, var(--ad-bad) 40%, var(--ad-line)); }
+.ad-pay-remove.block { align-self: flex-start; height: 32px; padding: 0 10px; border-color: transparent; background: transparent; font-size: 12.5px; }
+.ad-pay-viewer-side .ad-pay-remove.block { align-self: stretch; height: 40px; border-color: var(--ad-line); }
+.ad-pay-removebox { border: 1px solid color-mix(in srgb, var(--ad-bad) 30%, var(--ad-line)); background: color-mix(in srgb, var(--ad-bad-bg) 55%, var(--ad-surface)); }
+.ad-pay-remove-title { display: flex; align-items: center; gap: 6px; color: var(--ad-bad); font-size: 14px; }
+.ad-pay-remove-warn { margin: 0; color: var(--ad-ink-2); font-size: 13px; line-height: 1.45; }
+.ad-pay-remove-warn.soft { color: var(--ad-muted); }
+.ad-pay-remove-notify { display: flex; align-items: center; gap: 8px; color: var(--ad-ink-2); font-size: 13px; }
+.ad-pay-foot > .ad-pay-actions { margin-left: auto; }
+.ad-pay-actions .ad-btn-danger { margin-top: 0; }

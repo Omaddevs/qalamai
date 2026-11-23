@@ -221,7 +221,7 @@ export const coinLedger = pgTable(
     userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
     delta: integer('delta').notNull(),
     balance: integer('balance').notNull(),
-    reason: text('reason', { enum: ['signup', 'purchase', 'spend', 'refund', 'grant'] }).notNull(),
+    reason: text('reason', { enum: ['signup', 'purchase', 'spend', 'refund', 'grant', 'reversal'] }).notNull(),
     /** spend: the action id (referat, kurs-ishi …); purchase: the pack id. */
     item: text('item'),
     ref: text('ref'),
@@ -290,10 +290,14 @@ export const paymentOrders = pgTable(
     receiptMime: text('receipt_mime').notNull(),
     receiptSize: integer('receipt_size').notNull(),
     note: text('note'),
-    status: text('status', { enum: ['pending', 'approved', 'rejected'] }).notNull().default('pending'),
-    /** Why it was rejected (shown to the buyer). */
+    /** cancelled: removed by an admin afterwards (a test, a mistake) — kept in the list, coins taken back. */
+    status: text('status', { enum: ['pending', 'approved', 'rejected', 'cancelled'] }).notNull().default('pending'),
+    /** Why it was rejected or cancelled (shown to the buyer). */
     reason: text('reason'),
     reviewedAt: ts('reviewed_at'),
+    /** Cancelling an approved payment: when, and how many of its coins could be taken back. */
+    cancelledAt: ts('cancelled_at'),
+    revertedCoins: integer('reverted_coins'),
     createdAt: createdAt(),
   },
   (t) => [index('payment_orders_user_idx').on(t.userId, t.createdAt), index('payment_orders_status_idx').on(t.status, t.createdAt)],

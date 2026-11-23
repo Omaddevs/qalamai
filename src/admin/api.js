@@ -52,6 +52,7 @@ export const admin = {
   payments: (params) => request('GET', `/payments?${new URLSearchParams(Object.entries(params).filter(([, v]) => v !== '' && v != null))}`),
   approvePayment: (id) => request('POST', `/payments/${encodeURIComponent(id)}/approve`),
   rejectPayment: (id, reason) => request('POST', `/payments/${encodeURIComponent(id)}/reject`, { reason }),
+  cancelPayment: (id, reason, notify) => request('POST', `/payments/${encodeURIComponent(id)}/cancel`, { reason, notify }),
   paymentCards: () => request('GET', '/payment-cards'),
   savePaymentCards: (cards) => request('PUT', '/payment-cards', cards),
   settings: () => request('GET', '/settings'),

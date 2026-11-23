@@ -13,6 +13,7 @@ const KIND = {
   'coins.purchase': { icon: Coins, tone: 'amber' },
   'coins.grant': { icon: Gift, tone: 'violet' },
   'payment.rejected': { icon: XCircle, tone: 'red' },
+  'payment.cancelled': { icon: XCircle, tone: 'red' },
   'support.done': { icon: ChatCircleText, tone: 'green' },
   announce: { icon: Megaphone, tone: 'blue' },
 }
@@ -35,6 +36,11 @@ function words(n, { onCreate, onOpenPricing }) {
         title: t('nt.payment.rejected.title'),
         body: t('nt.payment.rejected.body', { coins: d.coins, reason: d.reason ?? '' }),
         action: { label: t('nt.payment.rejected.action'), run: onOpenPricing },
+      }
+    case 'payment.cancelled':
+      return {
+        title: t('nt.payment.cancelled.title'),
+        body: t(d.taken ? 'nt.payment.cancelled.body' : 'nt.payment.cancelled.bodyNone', { coins: d.coins, taken: d.taken ?? 0, reason: d.reason ?? '' }),
       }
     case 'support.done':
       return { title: t('nt.support.done.title'), body: t('nt.support.done.body', { topic: d.topic ? t(`chat.topic.${d.topic}`) : '' }) }

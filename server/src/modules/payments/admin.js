@@ -3,6 +3,8 @@
 //   GET   /admin/payments/:id/receipt    — the receipt itself (image / PDF, shown inline)
 //   POST  /admin/payments/:id/approve    — credits the coins (once) and marks it approved
 //   POST  /admin/payments/:id/reject     — marks it rejected, the buyer is told why
+//   POST  /admin/payments/:id/cancel     — removes it with a comment (kept under «Öçirilgan»); an approved
+//                                          one's coins are taken back
 //   GET   /admin/payment-cards           — HUMO / UZCARD / VISA cards buyers pay to
 //   PUT   /admin/payment-cards
 import { and, count, desc, eq, gte, ilike, or, sql, sum } from 'drizzle-orm'
@@ -29,7 +31,7 @@ export async function paymentAdminRoutes(admin) {
         querystring: {
           type: 'object',
           properties: {
-            status: { type: 'string', enum: ['pending', 'approved', 'rejected', 'all'], default: 'pending' },
+            status: { type: 'string', enum: ['pending', 'approved', 'rejected', 'cancelled', 'all'], default: 'pending' },
             q: { type: 'string', maxLength: 100 },
             page: { type: 'integer', minimum: 1, default: 1 },
             limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
@@ -62,8 +64,8 @@ export async function paymentAdminRoutes(admin) {
         db.select({ n: count(), som: sum(po.amount), coins: sum(po.coins) }).from(po).where(and(eq(po.status, 'approved'), gte(po.reviewedAt, dayStart))),
         db.select({ coins: sum(po.coins) }).from(po).where(eq(po.status, 'approved')),
       ])
-      const counts = { pending: 0, approved: 0, rejected: 0 }
-      const amounts = { pending: 0, approved: 0, rejected: 0 }
+      const counts = { pending: 0, approved: 0, rejected: 0, cancelled: 0 }
+      const amounts = { pending: 0, approved: 0, rejected: 0, cancelled: 0 }
       byStatus.forEach((r) => {
         counts[r.status] = Number(r.n)
         amounts[r.status] = Number(r.som ?? 0)
@@ -72,7 +74,7 @@ export async function paymentAdminRoutes(admin) {
         total: Number(total),
         page,
         limit,
-        counts: { ...counts, all: counts.pending + counts.approved + counts.rejected },
+        counts: { ...counts, all: counts.pending + counts.approved + counts.rejected + counts.cancelled },
         amounts,
         today: { n: Number(today?.n ?? 0), som: Number(today?.som ?? 0), coins: Number(today?.coins ?? 0) },
         coinsSold: Number(all?.coins ?? 0),
@@ -89,6 +91,8 @@ export async function paymentAdminRoutes(admin) {
           receipt: { mime: o.receiptMime, size: o.receiptSize, url: `/api/v1/admin/payments/${o.id}/receipt` },
           createdAt: o.createdAt,
           reviewedAt: o.reviewedAt,
+          cancelledAt: o.cancelledAt,
+          revertedCoins: o.revertedCoins,
           user: u?.id
             ? { id: u.id, name: u.name, email: u.email, phone: u.phone, telegramUsername: u.telegramUsername, avatarUrl: avatarUrlOf(u.id, u.avatarKey, u.avatarAt), coins: u.coins }
             : null,
@@ -117,13 +121,15 @@ export async function paymentAdminRoutes(admin) {
       const [o] = await db.select().from(po).where(eq(po.id, req.params.id)).limit(1)
       if (!o) throw notFound('Tölov topilmadi')
       if (o.status === 'rejected') throw new AppError(409, 'ALREADY_REJECTED', 'Bu tölov rad etilgan')
+      if (o.status === 'cancelled') throw new AppError(409, 'ALREADY_CANCELLED', 'Bu tölov öçirilgan')
       // the credit is keyed by the payment id: a double click or a retry adds the coins once
       const res = await coins.credit(o.userId, o.coins, { item: o.pack ?? 'custom', ref: `pay:${o.id}`, meta: { payment: o.id, amount: o.amount, method: o.method } })
       const [row] = await db
         .update(po)
         .set({ status: 'approved', reviewedAt: sql`coalesce(${po.reviewedAt}, now())`, reason: null })
-        .where(eq(po.id, o.id))
+        .where(and(eq(po.id, o.id), sql`${po.status} <> 'cancelled'`))
         .returning()
+      if (!row) throw new AppError(409, 'ALREADY_CANCELLED', 'Bu tölov öçirilgan')
       return { id: row.id, status: row.status, reviewedAt: row.reviewedAt, balance: res.balance, repeated: res.repeated }
     },
   )
@@ -148,10 +154,45 @@ export async function paymentAdminRoutes(admin) {
       if (!row) {
         const [o] = await db.select({ status: po.status }).from(po).where(eq(po.id, req.params.id)).limit(1)
         if (!o) throw notFound('Tölov topilmadi')
-        throw new AppError(409, 'NOT_PENDING', o.status === 'approved' ? 'Bu tölov allaqaçon tasdiqlangan' : 'Bu tölov allaqaçon rad etilgan')
+        throw new AppError(409, 'NOT_PENDING', o.status === 'approved' ? 'Bu tölov allaqaçon tasdiqlangan' : o.status === 'cancelled' ? 'Bu tölov öçirilgan' : 'Bu tölov allaqaçon rad etilgan')
       }
       await notifier.send(row.userId, 'payment.rejected', { coins: row.coins, amount: row.amount, reason }, '#/')
       return { id: row.id, status: row.status, reason: row.reason, reviewedAt: row.reviewedAt }
+    },
+  )
+
+  admin.post(
+    '/payments/:id/cancel',
+    {
+      schema: {
+        hide: true,
+        params: idParams,
+        body: { type: 'object', required: ['reason'], additionalProperties: false, properties: { reason: { type: 'string', minLength: 2, maxLength: 300 }, notify: { type: 'boolean' } } },
+      },
+    },
+    async (req) => {
+      const reason = req.body.reason.trim()
+      if (reason.length < 2) throw badRequest('Izoh yozing')
+      const [o] = await db.select().from(po).where(eq(po.id, req.params.id)).limit(1)
+      if (!o) throw notFound('Tölov topilmadi')
+      if (o.status === 'cancelled') throw new AppError(409, 'ALREADY_CANCELLED', 'Bu tölov allaqaçon öçirilgan')
+      // claim it first, so two clicks can't both take the coins back
+      const [row] = await db
+        .update(po)
+        .set({ status: 'cancelled', reason, cancelledAt: new Date(), reviewedAt: sql`coalesce(${po.reviewedAt}, now())` })
+        .where(and(eq(po.id, o.id), eq(po.status, o.status)))
+        .returning()
+      if (!row) throw new AppError(409, 'CHANGED', 'Tölov holati özgardi — sahifani yangilang')
+      let taken = 0
+      let balance = null
+      if (o.status === 'approved') {
+        const r = await coins.reverse(o.userId, o.coins, { item: o.pack ?? 'custom', ref: `void:pay:${o.id}`, meta: { payment: o.id, reason } })
+        taken = r.taken
+        balance = r.balance
+        await db.update(po).set({ revertedCoins: taken }).where(eq(po.id, o.id))
+        if (req.body.notify !== false) await notifier.send(o.userId, 'payment.cancelled', { coins: o.coins, taken, reason, balance }, '#/')
+      }
+      return { id: row.id, status: 'cancelled', reason, cancelledAt: row.cancelledAt, revertedCoins: o.status === 'approved' ? taken : null, balance, was: o.status }
     },
   )
 

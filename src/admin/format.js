@@ -112,7 +112,7 @@ export function langName(code) {
 export const SOURCE = { direct: 'Töğridan-töğri', search: 'Qidiruv tizimlari', social: 'Ijtimoiy tarmoqlar', referral: 'Boşqa saytlar' }
 export const DEVICE = { desktop: 'Kompyuter', mobile: 'Telefon', tablet: 'Planşet' }
 export const METHOD = { password: 'Email / telefon', google: 'Google', telegram: 'Telegram' }
-export const REASON = { signup: 'Sovğa (röyxatdan ötiş)', purchase: 'Sotib oldi', spend: 'Sarfladi', refund: 'Qaytarildi', grant: 'Admin berdi' }
+export const REASON = { signup: 'Sovğa (röyxatdan ötiş)', purchase: 'Sotib oldi', spend: 'Sarfladi', refund: 'Qaytarildi', grant: 'Admin berdi', reversal: 'Tölov öçirildi (qaytarib olindi)' }
 
 const PAGE = {
   '/': 'Bosh sahifa (landing)',

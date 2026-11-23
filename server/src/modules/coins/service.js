@@ -1,6 +1,6 @@
 // QalamCoin wallet. The balance lives on users.coins; every change is one transaction that
 // moves the balance and appends a coin_ledger row, so the history always adds up.
-import { and, desc, eq, gte, sql } from 'drizzle-orm'
+import { and, desc, eq, gte, inArray, sql } from 'drizzle-orm'
 import { schema } from '../../db/index.js'
 import { AppError, badRequest } from '../../lib/errors.js'
 import { ID_PREFIX, newId } from '../../lib/ids.js'
@@ -79,11 +79,14 @@ export function createCoinService({ db, notifier = null }) {
 
     /** Start / Pro / Max — from the packs the account has bought; null when it bought none. */
     async tier(userId) {
+      // a cancelled purchase (reversal) no longer counts
       const rows = await db
-        .selectDistinct({ item: coinLedger.item })
+        .select({ item: coinLedger.item, reason: coinLedger.reason })
         .from(coinLedger)
-        .where(and(eq(coinLedger.userId, userId), eq(coinLedger.reason, 'purchase')))
-      return tierOf(rows.map((r) => r.item))
+        .where(and(eq(coinLedger.userId, userId), inArray(coinLedger.reason, ['purchase', 'reversal'])))
+      const n = {}
+      for (const r of rows) n[r.item] = (n[r.item] ?? 0) + (r.reason === 'purchase' ? 1 : -1)
+      return tierOf(Object.keys(n).filter((k) => n[k] > 0))
     },
     async signupBonus(userId) {
       const res = await moveOnce(userId, SIGNUP_BONUS, 'signup', { ref: 'signup' })
@@ -108,6 +111,26 @@ export function createCoinService({ db, notifier = null }) {
       const res = await moveOnce(userId, amount, 'purchase', { item, ref, meta, purchased: true })
       if (!res.repeated) await notifier?.send(userId, 'coins.purchase', { coins: amount, balance: res.balance })
       return res
+    },
+
+    /**
+     * Take back the coins of a purchase that is cancelled afterwards (a test or a mistaken approval).
+     * Takes what the balance still holds (never below zero) and, when no purchase is left, ends the
+     * premium the purchase opened. `ref` makes it one-time.
+     */
+    async reverse(userId, amount, { item, ref, meta = {} }) {
+      return db.transaction(async (tx) => {
+        const [seen] = await tx.select().from(coinLedger).where(and(eq(coinLedger.userId, userId), eq(coinLedger.ref, ref))).limit(1)
+        if (seen) return { taken: -seen.delta, balance: seen.balance, repeated: true }
+        const [cur] = await tx.select({ coins: users.coins }).from(users).where(eq(users.id, userId)).limit(1)
+        const take = Math.max(0, Math.min(amount, cur?.coins ?? 0))
+        const [u] = await tx.update(users).set({ coins: sql`${users.coins} - ${take}` }).where(eq(users.id, userId)).returning({ coins: users.coins })
+        await tx.insert(coinLedger).values({ id: newId(ID_PREFIX.coin), userId, delta: -take, balance: u.coins, reason: 'reversal', item, ref, meta: { ...meta, wanted: amount } })
+        const rows = await tx.select({ reason: coinLedger.reason }).from(coinLedger).where(and(eq(coinLedger.userId, userId), inArray(coinLedger.reason, ['purchase', 'reversal'])))
+        const left = rows.filter((r) => r.reason === 'purchase').length - rows.filter((r) => r.reason === 'reversal').length
+        if (left <= 0) await tx.update(users).set({ coinsPurchasedAt: null }).where(eq(users.id, userId))
+        return { taken: take, balance: u.coins, repeated: false }
+      })
     },
 
     async grant(userId, amount, by, note) {

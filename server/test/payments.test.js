@@ -124,6 +124,64 @@ test('payments: cards, receipt, approve once, reject with a reason', async () =>
   assert.equal(all.today.coins, 150)
 })
 
+test('payments: an approved payment can be removed with a comment — coins and premium go back, the row stays', async () => {
+  const a = adminClient()
+  await a('POST', '/api/v1/admin/login', { password: 'Boshlangich-123' })
+  await a('PUT', '/api/v1/admin/payment-cards', { humo: { number: '9860123456789012', holder: 'Qalam', enabled: true } })
+  const png = { data: await samplePng(), type: 'image/png', name: 'chek.png' }
+  const { c } = await member()
+  const o = (await order(c, { pack: 'c300', method: 'humo' }, png)).body.order
+  const p2 = (await order(c, { coins: 20, method: 'humo' }, png)).body.order
+  await a('POST', `/api/v1/admin/payments/${o.id}/approve`)
+  let me = (await c.req('GET', '/api/v1/me')).body
+  assert.equal(me.coins, SIGNUP_BONUS + 300)
+  assert.equal(me.premium, true)
+  assert.equal(me.tier, 'Pro')
+
+  // a comment is required
+  assert.equal((await a('POST', `/api/v1/admin/payments/${o.id}/cancel`, { reason: '' })).status, 400)
+  const x = await a('POST', `/api/v1/admin/payments/${o.id}/cancel`, { reason: 'Test tölovi' })
+  assert.equal(x.status, 200, JSON.stringify(x.body))
+  assert.equal(x.body.revertedCoins, 300)
+  me = (await c.req('GET', '/api/v1/me')).body
+  assert.equal(me.coins, SIGNUP_BONUS)
+  assert.equal(me.premium, false, 'premium ends with the only purchase')
+  assert.equal(me.tier, null)
+
+  // twice: nothing more is taken; it can't be approved again
+  assert.equal((await a('POST', `/api/v1/admin/payments/${o.id}/cancel`, { reason: 'yana' })).status, 409)
+  assert.equal((await a('POST', `/api/v1/admin/payments/${o.id}/approve`)).status, 409)
+  assert.equal((await c.req('GET', '/api/v1/me')).body.coins, SIGNUP_BONUS)
+
+  // a waiting one is removed without touching coins
+  const y = await a('POST', `/api/v1/admin/payments/${p2.id}/cancel`, { reason: 'Dublikat' })
+  assert.equal(y.body.revertedCoins, null)
+  assert.equal((await c.req('GET', '/api/v1/me')).body.coins, SIGNUP_BONUS)
+
+  // both stay in the list under «cancelled», with the comment; the buyer sees it and gets a notice
+  const list = (await a('GET', '/api/v1/admin/payments?status=cancelled')).body
+  assert.ok(list.counts.cancelled >= 2)
+  assert.equal(list.items.find((i) => i.id === o.id).reason, 'Test tölovi')
+  const mine = (await c.req('GET', '/api/v1/payments/orders')).body.orders
+  assert.deepEqual(mine.map((m) => m.status), ['cancelled', 'cancelled'])
+  const notes = (await c.req('GET', '/api/v1/notifications')).body
+  assert.ok((notes.items ?? notes.notifications ?? []).some((n) => n.kind === 'payment.cancelled'))
+})
+
+test('payments: removing takes back only what is left when the coins were already spent', async () => {
+  const a = adminClient()
+  await a('POST', '/api/v1/admin/login', { password: 'Boshlangich-123' })
+  const png = { data: await samplePng(), type: 'image/png', name: 'chek.png' }
+  const { c } = await member()
+  const o = (await order(c, { coins: 100, method: 'humo' }, png)).body.order
+  await a('POST', `/api/v1/admin/payments/${o.id}/approve`)
+  await c.req('POST', '/api/v1/coins/spend', { json: { action: 'kurs-ishi', ref: 'spent-before-cancel' } }) // 150 of 130
+  const before = (await c.req('GET', '/api/v1/me')).body.coins
+  const x = await a('POST', `/api/v1/admin/payments/${o.id}/cancel`, { reason: 'Xato' })
+  assert.equal(x.body.revertedCoins, Math.min(100, before))
+  assert.equal((await c.req('GET', '/api/v1/me')).body.coins, before - Math.min(100, before))
+})
+
 test('payments: guests can not buy, and pending payments are capped', async () => {
   const g = client(srv.base)
   await g.req('POST', '/api/v1/auth/guest')

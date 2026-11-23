@@ -3,7 +3,7 @@
 // reason the buyer sees. On top: the HUMO / UZCARD / VISA cards buyers are shown.
 import { useEffect, useMemo, useState } from 'react'
 import {
-  Banknote, Check, CheckCircle2, ChevronLeft, ChevronRight, Clock, Coins, CreditCard, ExternalLink, FileText, Inbox, Pencil, Search, Send, X, XCircle,
+  Ban, Banknote, Check, CheckCircle2, ChevronLeft, ChevronRight, Clock, Coins, CreditCard, ExternalLink, FileText, Inbox, Pencil, Search, Send, Trash2, X, XCircle,
 } from 'lucide-react'
 import { admin, apiUrl } from './api.js'
 import { ago, dateOnly, fmt, timeOnly } from './format.js'
@@ -12,7 +12,8 @@ import UserDrawer from './UserDrawer.jsx'
 
 const LIMIT = 20
 const METHODS = ['humo', 'uzcard', 'visa']
-const STATUS = { pending: 'Kutilmoqda', approved: 'Tasdiqlangan', rejected: 'Rad etilgan' }
+const STATUS = { pending: 'Kutilmoqda', approved: 'Tasdiqlangan', rejected: 'Rad etilgan', cancelled: 'Öçirilgan' }
+const STATUS_ICON = { pending: Clock, approved: CheckCircle2, rejected: XCircle, cancelled: Ban }
 const REASONS = ['Pul tuşmagan', 'Çekdagi summa mos emas', 'Çek önqib bölmaydi yoki notöğri', 'Bu çek avval işlatilgan']
 const groups = (n) => (n ?? '').replace(/(\d{4})(?=\d)/g, '$1 ')
 
@@ -38,9 +39,10 @@ export default function PaymentsPage() {
   const pages = data ? Math.max(1, Math.ceil(data.total / LIMIT)) : 1
   const decided = Object.keys(local).length
 
-  const decide = async (p, action, reason) => {
-    const res = action === 'approve' ? await admin.approvePayment(p.id) : await admin.rejectPayment(p.id, reason)
-    setLocal((x) => ({ ...x, [p.id]: { status: res.status, reason: res.reason ?? null, balance: res.balance } }))
+  const decide = async (p, action, reason, notify) => {
+    const res =
+      action === 'approve' ? await admin.approvePayment(p.id) : action === 'cancel' ? await admin.cancelPayment(p.id, reason, notify) : await admin.rejectPayment(p.id, reason)
+    setLocal((x) => ({ ...x, [p.id]: { status: res.status, reason: res.reason ?? null, balance: res.balance, ...(action === 'cancel' ? { revertedCoins: res.revertedCoins } : {}) } }))
     window.dispatchEvent(new Event(PAYMENTS_CHANGED))
     return res
   }
@@ -82,6 +84,7 @@ export default function PaymentsPage() {
               { value: 'pending', label: `Kutilmoqda${data ? ` · ${fmt(data.counts.pending)}` : ''}` },
               { value: 'approved', label: `Tasdiqlangan${data ? ` · ${fmt(data.counts.approved)}` : ''}` },
               { value: 'rejected', label: `Rad etilgan${data ? ` · ${fmt(data.counts.rejected)}` : ''}` },
+              { value: 'cancelled', label: `Öçirilgan${data ? ` · ${fmt(data.counts.cancelled ?? 0)}` : ''}` },
               { value: 'all', label: 'Hammasi' },
             ]}
           />
@@ -129,6 +132,11 @@ export default function PaymentsPage() {
 }
 
 /* ───────── one payment ───────── */
+
+function StatusIcon({ s, size }) {
+  const Icon = STATUS_ICON[s] ?? Clock
+  return <Icon size={size} />
+}
 
 function Receipt({ p, onView }) {
   const url = apiUrl(p.receipt.url)
@@ -202,6 +210,67 @@ function Decision({ p, onDecide, compact = false }) {
   )
 }
 
+/** Remove a payment with a comment (it stays under «Öçirilgan»). An approved one's coins are taken back. */
+function Remove({ p, onDecide, block = false }) {
+  const [open, setOpen] = useState(false)
+  const [reason, setReason] = useState('')
+  const [notify, setNotify] = useState(true)
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState(null)
+  if (p.status === 'cancelled') return null
+  const approved = p.status === 'approved'
+  const balance = p.balance ?? p.user?.coins
+  if (!open) {
+    return (
+      <button className={`ad-btn ad-pay-remove ${block ? 'block' : ''}`} onClick={() => setOpen(true)} title="Tölovni öçiriş (izoh bilan)">
+        <Trash2 size={15} /> Öçiriş
+      </button>
+    )
+  }
+  const run = async () => {
+    setBusy(true)
+    setErr(null)
+    try {
+      await onDecide(p, 'cancel', reason.trim(), notify)
+      setOpen(false)
+    } catch (e) {
+      setErr(e.message)
+    } finally {
+      setBusy(false)
+    }
+  }
+  return (
+    <div className="ad-pay-reject ad-pay-removebox">
+      <b className="ad-pay-remove-title">
+        <Trash2 size={15} /> Tölovni öçiriş
+      </b>
+      {approved ? (
+        <p className="ad-pay-remove-warn">
+          <b>{fmt(p.coins)} coin</b> foydalanuvçi hisobidan qaytarib olinadi
+          {balance != null && <> (hozir balansda {fmt(balance)} coin{balance < p.coins ? ` — faqat ${fmt(balance)} tasi olinadi` : ''})</>}. Boşqa xaridi bölmasa, Premium ham yopiladi.
+        </p>
+      ) : (
+        <p className="ad-pay-remove-warn soft">Coinlarga tegilmaydi — tölov «Öçirilgan» röyxatiga ötadi.</p>
+      )}
+      <input className="ad-input" value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Izoh — masalan: test tölovi" maxLength={300} autoFocus />
+      {approved && (
+        <label className="ad-pay-remove-notify">
+          <input type="checkbox" checked={notify} onChange={(e) => setNotify(e.target.checked)} /> Foydalanuvçiga bildirişnoma yuboriş
+        </label>
+      )}
+      {err && <p className="ad-pay-err">{err}</p>}
+      <div className="ad-pay-actions">
+        <button className="ad-btn" onClick={() => setOpen(false)} disabled={busy}>
+          Bekor qiliş
+        </button>
+        <button className="ad-btn ad-btn-danger" onClick={run} disabled={reason.trim().length < 2 || busy}>
+          <Trash2 size={15} /> {busy ? 'Öçirilmoqda…' : 'Öçiriş'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
 function Payment({ p, onDecide, onUser, onView }) {
   const u = p.user
   return (
@@ -216,7 +285,7 @@ function Payment({ p, onDecide, onUser, onView }) {
             <Coins size={14} /> {fmt(p.coins)} coin{p.pack ? ` · ${p.pack}` : ' · istalgan miqdor'}
           </span>
           <span className={`ad-pay-status st-${p.status}`}>
-            {p.status === 'pending' ? <Clock size={13} /> : p.status === 'approved' ? <CheckCircle2 size={13} /> : <XCircle size={13} />}
+            <StatusIcon s={p.status} size={13} />
             {STATUS[p.status]}
           </span>
         </header>
@@ -229,6 +298,12 @@ function Payment({ p, onDecide, onUser, onView }) {
         </div>
         {p.note && <p className="ad-pay-note">“{p.note}”</p>}
         {p.status === 'rejected' && p.reason && <p className="ad-pay-reason">Sabab: {p.reason}</p>}
+        {p.status === 'cancelled' && (
+          <p className="ad-pay-reason cancelled">
+            Öçirildi{p.reason ? `: ${p.reason}` : ''}
+            {p.revertedCoins != null && <> · {fmt(p.revertedCoins)} coin qaytarib olindi</>}
+          </p>
+        )}
         <footer className="ad-pay-foot">
           {u ? (
             <button className="ad-msg-account" onClick={() => onUser(u.id)} title="Foydalanuvçi hisobini oçiş">
@@ -248,8 +323,12 @@ function Payment({ p, onDecide, onUser, onView }) {
           ) : (
             <span className="ad-muted">Hisob öçirilgan</span>
           )}
-          <Decision p={p} onDecide={onDecide} />
+          <div className="ad-pay-actions">
+            {p.status !== 'pending' && <Remove p={p} onDecide={onDecide} />}
+            <Decision p={p} onDecide={onDecide} />
+          </div>
         </footer>
+        {p.status === 'pending' && <Remove p={p} onDecide={onDecide} block />}
       </div>
     </article>
   )
@@ -314,10 +393,19 @@ function ReceiptViewer({ p, onClose, onDecide }) {
             />
           ) : (
             <span className={`ad-pay-status big st-${state.status}`}>
-              {state.status === 'approved' ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
+              <StatusIcon s={state.status} size={16} />
               {STATUS[state.status]}
             </span>
           )}
+          <Remove
+            p={state}
+            block
+            onDecide={async (x, action, reason, notify) => {
+              const r = await onDecide(x, action, reason, notify)
+              setState((s) => ({ ...s, status: r.status, reason: r.reason, revertedCoins: r.revertedCoins }))
+              return r
+            }}
+          />
         </aside>
       </div>
     </div>

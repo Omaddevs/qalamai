@@ -458,7 +458,7 @@ function DoneStep({ order, onClose, onHistory }) {
   )
 }
 
-const STATUS_ICON = { pending: Clock, approved: CheckCircle2, rejected: XCircle }
+const STATUS_ICON = { pending: Clock, approved: CheckCircle2, rejected: XCircle, cancelled: XCircle }
 
 function HistoryView({ orders, onBack }) {
   return (
@@ -488,7 +488,7 @@ function HistoryView({ orders, onBack }) {
                   <small>
                     {som(o.amount)} {t('lp.pr.som')} · {o.method.toUpperCase()} · {formatDate(new Date(o.createdAt), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                   </small>
-                  {o.status === 'rejected' && o.reason && <p className="ck-history-reason">{o.reason}</p>}
+                  {(o.status === 'rejected' || o.status === 'cancelled') && o.reason && <p className="ck-history-reason">{o.reason}</p>}
                 </div>
                 <span className={`ck-pill ${o.status}`}>
                   <Icon size={13} /> {t(`pay.st.${o.status}`)}

@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { t } from '../i18n/index.js'
 import { go, linkClick } from '../nav.js'
 import { Wordmark } from './ui.jsx'
+import { applySeo } from '../seo.js'
 import shrug from './assets/notfound-shrug.png?inline'
 import './notfound.css'
 
@@ -14,16 +15,8 @@ const Arrow = ({ back }) => (
 /** 404: an address that is neither "/", a public page nor the app. Kept out of search results. */
 export default function NotFound() {
   useEffect(() => {
-    const prevTitle = document.title
-    document.title = `404 — ${t('nf.title')} · QalamAI`
-    const meta = document.createElement('meta')
-    meta.name = 'robots'
-    meta.content = 'noindex'
-    document.head.appendChild(meta)
-    return () => {
-      document.title = prevTitle
-      meta.remove()
-    }
+    // no canonical / alternates: this address isn't a page (nginx also answers it with status 404)
+    applySeo({ title: `404 — ${t('nf.title')} · QalamAI`, description: t('nf.text'), path: null, robots: 'noindex' })
   }, [])
 
   // a malformed escape (/%E0%A4%A) makes decodeURIComponent throw: show the raw path instead

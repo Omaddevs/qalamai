@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, Presentation } from 'lucide-react'
 import { Wordmark } from '../components/ui.jsx'
 import { getSharedDesign } from '../api.js'
 import { t } from '../i18n/index.js'
+import { applySeo, NOINDEX } from '../seo.js'
 import Slide from '../editor/Slide.jsx'
 import { Present } from '../editor/Present.jsx'
 import { getTemplate } from '../editor/templates.js'
@@ -23,11 +24,14 @@ export default function SharedDeck({ shareId }) {
     getSharedDesign(shareId)
       .then((design) => {
         setState({ step: 'ready', design })
-        document.title = `${design.name} · QalamAI`
+        // a user's own work, shared by link: viewable, never indexed (nginx sends X-Robots-Tag too)
+        applySeo({ title: `${design.name} · QalamAI`, path: null, robots: NOINDEX })
       })
       .catch((e) => setState({ step: 'error', code: e.status === 404 || e.status === 400 ? 'gone' : 'net', msg: e.message }))
   }, [shareId])
   useEffect(load, [load])
+  // never indexed, whatever the load ends in (nginx sends X-Robots-Tag: noindex too)
+  useEffect(() => applySeo({ title: 'QalamAI', path: null, robots: NOINDEX }), [])
 
   const design = state.design
   const slides = design?.deck.slides ?? []

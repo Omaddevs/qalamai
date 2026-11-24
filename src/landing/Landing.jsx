@@ -5,10 +5,13 @@ import {
 import { QalamNib, Wordmark } from '../components/ui.jsx'
 import { SIGNUP_BONUS } from '../../shared/coins.js'
 import { COLORS } from '../data.js'
-import { t } from '../i18n/index.js'
+import { getLang, t } from '../i18n/index.js'
 import { openQalamChat } from '../components/qalamChatBus.js'
 import { go, linkClick } from '../nav.js'
-import { PUBLIC_PAGES, pathOf } from './pages.js'
+import { ALL_PAGES, pathOf } from './pages.js'
+import { pageJsonLd, pageTexts } from './seo-meta.js'
+import { applySeo, INDEX, SITE_URL } from '../seo.js'
+import { ToolsHub, ToolLanding } from './ToolPages.jsx'
 import '../editor/editor.css'
 import ProductMock from './ProductMock.jsx'
 import HeroCursors from './HeroCursors.jsx'
@@ -457,7 +460,7 @@ function Footer({ onStart, onLogin }) {
             <b>{t('lp.ft.product')}</b>
             <button onClick={onStart}>{t('lp.ft.aiPres')}</button>
             <button onClick={onStart}>{t('lp.ft.essays')}</button>
-            <button onClick={onStart}>{t('lp.ft.files')}</button>
+            <a href={pathOf('tools')} onClick={linkClick(() => go(pathOf('tools')))}>{t('lp.ft.files')}</a>
           </div>
           <div>
             <b>{t('lp.ft.pages')}</b>
@@ -495,23 +498,20 @@ const PAGE_SECTIONS = {
   templates: ({ onStart }) => <><Templates onStart={onStart} /><AudienceCards onStart={onStart} /></>,
   pricing: ({ onStart }) => <Pricing onStart={onStart} />,
   faq: () => null,
+  tools: () => <ToolsHub />,
 }
+const sectionsOf = (page, meta) => (meta?.toolPage ? ({ onStart }) => <ToolLanding page={meta} onStart={onStart} /> : PAGE_SECTIONS[page])
 const WITH_FAQ = new Set(['home', 'pricing', 'faq'])
 
 export default function Landing({ page = 'home', onStart, onLogin }) {
   const root = useRef(null)
   useReveal(root)
-  const meta = page === 'home' ? null : PUBLIC_PAGES.find((p) => p.id === page)
+  const meta = page === 'home' ? null : ALL_PAGES.find((p) => p.id === page)
+  // title, description, canonical, hreflang and the page's JSON-LD (same as its prerendered HTML)
   useEffect(() => {
-    const prev = document.title
-    document.title = meta ? t(meta.title) : t('lp.title')
-    const desc = document.querySelector('meta[name="description"]')
-    const prevDesc = desc?.getAttribute('content')
-    desc?.setAttribute('content', meta ? t(meta.desc) : t('lp.sub'))
-    return () => {
-      document.title = prev
-      if (desc && prevDesc != null) desc.setAttribute('content', prevDesc)
-    }
+    const { title, desc } = pageTexts(meta, t)
+    const parents = meta?.toolPage ? [ALL_PAGES.find((p) => p.id === 'tools')] : []
+    applySeo({ title, description: desc, path: meta?.path ?? '/', robots: INDEX, jsonLd: pageJsonLd({ site: SITE_URL, page: meta, lang: getLang(), tr: t, parents }) })
   }, [meta])
   // arrived from a nav link aimed at a section further down this page
   useEffect(() => {
@@ -520,13 +520,14 @@ export default function Landing({ page = 'home', onStart, onLogin }) {
     pendingScroll = null
     requestAnimationFrame(() => scrollToId(id))
   }, [])
-  const Sections = PAGE_SECTIONS[page]
+  const Sections = sectionsOf(page, meta)
+  const ownH1 = meta?.toolPage || page === 'tools' // these pages show their heading themselves
   return (
     <div className={`lp${meta ? ' lp-subpage' : ''}`} ref={root}>
       <Header onStart={onStart} onLogin={onLogin} />
       {meta ? (
         <main className="lp-main">
-          <h1 className="lp-page-h1">{t(`lp.page.${page}.h1`)}</h1>
+          {!ownH1 && <h1 className="lp-page-h1">{t(`lp.page.${page}.h1`)}</h1>}
           <Sections onStart={onStart} />
         </main>
       ) : (

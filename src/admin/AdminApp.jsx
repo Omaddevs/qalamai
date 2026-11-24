@@ -49,6 +49,7 @@ export default function AdminApp() {
     document.title = 'Admin — QalamAI'
     let robots = document.querySelector('meta[name=robots]')
     robots?.setAttribute('content', 'noindex, nofollow')
+    document.querySelectorAll('link[rel=canonical], link[hreflang]').forEach((el) => el.remove()) // not a public page
     admin.me().then(
       () => setState('in'),
       () => setState('out'),

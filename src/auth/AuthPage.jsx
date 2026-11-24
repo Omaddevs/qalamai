@@ -12,6 +12,8 @@ import TelegramFlow from './TelegramFlow.jsx'
 import '../editor/editor.css'
 import './auth.css'
 import { t } from '../i18n/index.js'
+import { applySeo, NOINDEX } from '../seo.js'
+import { pathOf } from '../landing/pages.js'
 
 /* ───────── validation (mirrors the server: e-mail or Uzbek phone, password ≥ 8) ───────── */
 
@@ -242,7 +244,13 @@ export default function AuthPage({ mode, onMode, onDone, onBack }) {
 
   useEffect(() => {
     const prev = document.title
-    document.title = isSignup ? t('au.titleSignup') : t('au.titleLogin')
+    // sign-in / sign-up forms have public addresses but stay out of search results
+    applySeo({
+      title: isSignup ? t('au.titleSignup') : t('au.titleLogin'),
+      description: isSignup ? t('au.descSignup') : t('au.descLogin'),
+      path: pathOf(isSignup ? 'signup' : 'login'),
+      robots: NOINDEX,
+    })
     return () => {
       document.title = prev
     }

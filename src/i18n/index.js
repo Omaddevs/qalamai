@@ -41,8 +41,12 @@ function initial() {
   } catch {
     /* storage unavailable */
   }
+  if (typeof navigator === 'undefined') return DEFAULT_LANG
+  // A crawler (Googlebot reports en-US) reads the bare address as what it is — the Uzbek page;
+  // the other languages have their own ?lang= addresses (hreflang), so it must not see duplicates.
+  if (/bot\b|bot\/|crawler|spider|slurp|lighthouse|facebookexternalhit|embedly|preview/i.test(navigator.userAgent ?? '')) return DEFAULT_LANG
   // First visit: follow the browser if it speaks one of our languages.
-  return typeof navigator !== 'undefined' ? pickLang((navigator.languages ?? [navigator.language]).join(',')) : DEFAULT_LANG
+  return pickLang((navigator.languages ?? [navigator.language]).join(','))
 }
 
 let lang = initial()

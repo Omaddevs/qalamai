@@ -3,7 +3,7 @@ import ProBadge from '../components/ProBadge.jsx'
 // Icons: Phosphor (rounded duotone set) — https://phosphoricons.com
 import {
   TextAa, FilePdf, Translate, FileMagnifyingGlass, SquaresFour,
-  HouseSimple, FolderSimple, Layout, Images, FileText, Bell, CaretLeft, CaretRight, SignOut, SignIn, Plus,
+  HouseSimple, FolderSimple, Layout, Images, FileText, Bell, CaretLeft, CaretRight, SignOut, SignIn, Plus, MagicWand,
 } from '@phosphor-icons/react'
 import { blueprintOf } from '../blueprints.js'
 import { CoinChip } from '../components/Coins.jsx'
@@ -38,6 +38,7 @@ const FilesStudio = lazy(() => import('../files/FilesStudio.jsx'))
 const AlifboView = lazy(() => import('./AlifboView.jsx'))
 const CreateSheet = lazy(() => import('./CreateSheet.jsx'))
 const NotificationsView = lazy(() => import('./NotificationsView.jsx'))
+const AiDeckView = lazy(() => import('./AiDeckView.jsx'))
 const TabLoading = () => <div className="page-loading" role="status" aria-busy="true" />
 
 const IS_MAC = /Mac|iPhone|iPad/.test(navigator.platform)
@@ -123,6 +124,8 @@ export default function HomePage({
     setTypeChosen(true)
   }
   const [filesTab, setFilesTab] = useState('tools')
+  // a topic handed over to the AI taqdimot page (from the "+ Yaratiş" sheet)
+  const [deckTopic, setDeckTopic] = useState('')
   const [creating, setCreating] = useState(false)
   const openCreate = useCallback(() => setCreating(true), [])
   // Ctrl/⌘+K opens the "+ Yaratiş" sheet from anywhere on the home screens
@@ -199,6 +202,7 @@ export default function HomePage({
 
   const RAIL = [
     { id: 'home', label: t('hm.rail.home'), icon: HouseSimple, onClick: () => { setTab('home'); setQ('') } },
+    { id: 'aideck', label: t('ad.rail'), icon: MagicWand, onClick: () => { setDeckTopic(''); setTab('aideck'); setQ('') } },
     { id: 'projects', label: t('hm.rail.projects'), icon: FolderSimple, onClick: () => { setTab('projects'); setQ('') } },
     { id: 'templates', label: t('hm.rail.templates'), icon: Layout, onClick: () => { setTab('templates'); setQ('') } },
     { id: 'media', label: t('hm.rail.media'), icon: Images, onClick: () => { setTab('media'); setQ('') } },
@@ -295,6 +299,12 @@ export default function HomePage({
           <CreateSheet
             onClose={() => setCreating(false)}
             onAi={(id, topic) => {
+              if (id === 'Prezentatsiya') {
+                setDeckTopic(topic ?? '')
+                setTab('aideck')
+                window.scrollTo({ top: 0 })
+                return
+              }
               setTab('home')
               pickType(id)
               setQ(topic)
@@ -320,7 +330,11 @@ export default function HomePage({
           </div>
         </header>
 
-        {tab === 'projects' ? (
+        {tab === 'aideck' ? (
+          <Suspense fallback={<TabLoading />}>
+          <AiDeckView key={deckTopic} initialTopic={deckTopic} onCreate={onCreate} notify={notify} />
+          </Suspense>
+        ) : tab === 'projects' ? (
           <Suspense fallback={<TabLoading />}>
           <ProjectsView
             designs={designs}

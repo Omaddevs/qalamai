@@ -110,6 +110,38 @@ function presentation(topic, { count }, pr) {
   return { slides }
 }
 
+/* ───────────── AI taqdimot sahifasi (reja + slayd soni) ─────────────
+ * Title → plan (the N plan items) → each plan item gets its share of the content slides →
+ * conclusion → thanks. So the smallest deck for N plan items is N + 4 slides. */
+export const PLAN_FIXED = 4
+export const PLAN_MAX = 15
+
+/** Content slides per plan item, e.g. 4 plan items in 10 slides → [2, 2, 1, 1]. */
+export function planSplit(plans, slides) {
+  const content = Math.max(plans, slides - PLAN_FIXED)
+  return Array.from({ length: plans }, (_, i) => Math.floor(content / plans) + (i < content % plans ? 1 : 0))
+}
+
+export function planDeck(topic, { plans, slides: count }, pr) {
+  const pool = Array.from({ length: PLAN_MAX }, (_, i) => LL(`p.main.${i}`, { country: country() }))
+  const heads = pool.slice(0, plans)
+  const out = [title(cap(topic), authorLine(pr) ?? L('p.subtitle', { year: year() })), content(L('p.agenda'), heads.map(([h]) => h))]
+  // extra slides of a plan item borrow the pool items that are not plan items themselves
+  let spare = plans
+  planSplit(plans, count).forEach((n, i) => {
+    const [h, ...b] = heads[i]
+    out.push(content(`${i + 1}. ${h}`, b))
+    for (let k = 1; k < n; k++) {
+      const [eh, ...eb] = pool[spare++ % PLAN_MAX]
+      out.push(content(eh, eb))
+    }
+  })
+  out.push(contentL('p.summary'))
+  const [thanks, questions] = LL('p.thanks')
+  out.push(title(thanks, questions))
+  return { slides: out }
+}
+
 /* ───────────── Hisobot ─────────────
  * Executive summary → KPIs (plan vs fact) → analysis → risks → next-period targets → actions. */
 export const PERIODS = ['Oylik', 'Çoraklik', 'Yillik']

@@ -14,6 +14,7 @@ import { CoinIcon } from '../components/Coins.jsx'
 import { ACTION_BY_TYPE, COIN_COSTS, refundCoins, spendCoins } from '../coins.js'
 import { DeckLangPicker, buildIn, deckLangs, defaultDeckLang, fallbackOf } from './DeckLang.jsx'
 import GenerateOverlay, { headingsOf } from './GenerateOverlay.jsx'
+import TitulSheet, { TitulPill } from './TitulSheet.jsx'
 import './hero.css'
 import { t, tr } from '../i18n/index.js'
 
@@ -143,6 +144,75 @@ function Stepper({ c, value, onChange, opts }) {
   )
 }
 
+/** Page count: ready numbers (5…30) or any number the user types (c.low…c.high). */
+function PagesPicker({ c, value, onChange }) {
+  const [custom, setCustom] = useState('')
+  const n = Number(custom)
+  const ok = custom !== '' && n >= c.low && n <= c.high
+  return (
+    <Dropdown
+      className="pg-pop"
+      button={({ toggle, open }) => (
+        <button
+          type="button"
+          className={`hx-pill hx-choice ${open ? 'open' : ''}`}
+          onClick={() => {
+            setCustom(c.options.includes(value) ? '' : String(value))
+            toggle()
+          }}
+          aria-label={t('pg.title')}
+        >
+          <b>{value}</b> {c.unit}
+          <CaretDown size={11} weight="bold" className="hx-pill-caret" />
+        </button>
+      )}
+    >
+      {(close) => {
+        const pick = (v) => {
+          onChange(v)
+          close()
+        }
+        return (
+          <>
+            <div className="pg-title">{t('pg.title')}</div>
+            <div className="pg-grid">
+              {c.options.map((o) => (
+                <button key={o} type="button" className={`pg-opt ${o === value ? 'on' : ''}`} onClick={() => pick(o)}>
+                  <b>{o}</b>
+                  <small>{c.unit}</small>
+                </button>
+              ))}
+            </div>
+            <div className="pg-custom">
+              <div className="pg-custom-label">
+                {t('pg.custom')} <small>{t('pg.range', { min: c.low, max: c.high })}</small>
+              </div>
+              <div className="pg-custom-row">
+                <input
+                  inputMode="numeric"
+                  value={custom}
+                  placeholder="18"
+                  className={custom && !ok ? 'bad' : ''}
+                  aria-label={t('pg.custom')}
+                  onChange={(e) => setCustom(e.target.value.replace(/\D/g, '').slice(0, 2))}
+                  onKeyDown={(e) => {
+                    if (e.key !== 'Enter') return
+                    e.preventDefault() // not the composer's submit
+                    if (ok) pick(n)
+                  }}
+                />
+                <button type="button" disabled={!ok} onClick={() => pick(n)}>
+                  {t('pg.apply')}
+                </button>
+              </div>
+            </div>
+          </>
+        )
+      }}
+    </Dropdown>
+  )
+}
+
 /** Compact pill with a menu: sinf, daqiqa, bob, davr, tadbir… */
 function Choice({ c, value, onChange }) {
   const grid = c.options.length > 6
@@ -212,6 +282,9 @@ export default function Hero({ mode, onMode, q, onQ, inputRef, typeLabel, onType
   const langs = useMemo(deckLangs, [])
   const [deckLang, setDeckLang] = useState(defaultDeckLang)
   const [gen, setGen] = useState(null)
+  // titul details (profile): the composer pill shows how complete they are
+  const [docProfile, setDocProfile] = useState(loadDocProfile)
+  const [titulOpen, setTitulOpen] = useState(false)
   // bp.examples is a getter that builds a new array each time — keep one per type for the typewriter
   const examples = useMemo(() => bp.examples, [bp])
   const typed = useTypewriter(examples, mode === 'ai' && !q && !focused)
@@ -223,7 +296,7 @@ export default function Hero({ mode, onMode, q, onQ, inputRef, typeLabel, onType
   useEffect(() => setUseAlt(false), [typeLabel])
 
   // Live preview = exactly what "Yaratish" will produce (same blueprint, same profile).
-  const built = useMemo(() => (topic && mode === 'ai' ? bp.build(topic, opts, loadDocProfile()) : null), [topic, mode, bp, opts])
+  const built = useMemo(() => (topic && mode === 'ai' ? bp.build(topic, opts, docProfile) : null), [topic, mode, bp, opts, docProfile])
 
   const ideas = useMemo(() => {
     const all = ideasList()
@@ -493,7 +566,9 @@ export default function Hero({ mode, onMode, q, onQ, inputRef, typeLabel, onType
                   </Dropdown>
 
                   {bp.controls.map((c) =>
-                    c.kind === 'stepper' ? (
+                    c.kind === 'pages' ? (
+                      <PagesPicker key={`${type.id}-${c.key}`} c={c} value={opts[c.key]} onChange={(v) => setOpt(c.key, v)} />
+                    ) : c.kind === 'stepper' ? (
                       <Stepper key={`${type.id}-${c.key}`} c={c} value={opts[c.key]} opts={opts} onChange={(v) => setOpt(c.key, v)} />
                     ) : (
                       <Choice key={`${type.id}-${c.key}`} c={c} value={opts[c.key]} onChange={(v) => setOpt(c.key, v)} />
@@ -501,6 +576,7 @@ export default function Hero({ mode, onMode, q, onQ, inputRef, typeLabel, onType
                   )}
 
                   {bp.lang && <DeckLangPicker langs={langs} value={deckLang} onChange={setDeckLang} variant="pill" />}
+                  {bp.titul && <TitulPill profile={docProfile} onClick={() => setTitulOpen(true)} />}
 
                   <button className="hx-go" disabled={!topic || paying}>
                     <span className="hx-go-label">{paying ? t('ui.wait') : t('ui.create')}</span>
@@ -590,6 +666,20 @@ export default function Hero({ mode, onMode, q, onQ, inputRef, typeLabel, onType
           )}
         </div>
       </div>
+
+      {titulOpen && (
+        <TitulSheet
+          kindId={type.id}
+          topic={topic}
+          lang={deckLang}
+          langName={langs.find((l) => l.id === deckLang)?.name}
+          onClose={() => setTitulOpen(false)}
+          onSaved={(p) => {
+            setDocProfile(p)
+            notify?.(t('ts.saved'))
+          }}
+        />
+      )}
 
       {gen && <HeroGenerate gen={gen} langs={langs} onCreate={onCreate} onCreateDoc={onCreateDoc} onClose={() => setGen(null)} notify={notify} />}
     </section>

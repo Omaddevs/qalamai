@@ -84,6 +84,10 @@ function titul(type, topic, pr, role) {
 </div>`
 }
 
+/** The title page alone (for the titul editor's live preview), as the document builder draws it. */
+export const titulPage = (id, topic, pr) =>
+  id === 'Kurs işi' ? titul(L('t.kurs'), topic, pr, L('t.supervisor')) : titul(L('t.referat'), topic, pr, L('t.accepted')) // i18n-ignore (type id)
+
 /** Table of contents with estimated page numbers. rows: [label, page, level] */
 const toc = (rows) =>
   `<table class="toc"><tbody>${rows
@@ -467,8 +471,11 @@ export const BLUEPRINTS = {
   Referat: withTexts(
     {
       format: 'doc',
-      controls: [stepper('count', [5, 8, 10, 12, 15, 20], 'page')],
+      // presets plus any number the user types (3–60 pages)
+      controls: [Object.assign(stepper('count', [5, 10, 15, 20, 25, 30], 'page'), { kind: 'pages', low: 3, high: 60 })],
       defaults: { count: 10 },
+      lang: true,
+      titul: true,
       outline: (o) => L('ui.referat.outline', { n: o.count <= 6 ? 2 : o.count <= 12 ? 3 : 4 }),
       meta: (o) => L('ui.referat.meta', { n: o.count }),
       build: referat,
@@ -480,6 +487,8 @@ export const BLUEPRINTS = {
       format: 'doc',
       controls: [stepper('count', [20, 25, 30, 35, 40], 'page'), choice('chapters', [2, 3], (v) => L('ui.kurs.chapters', { n: v }))],
       defaults: { count: 30, chapters: 2 },
+      lang: true,
+      titul: true,
       outline: (o) => L('ui.kurs.outline', { ch: L('ui.kurs.chapters', { n: o.chapters }) }),
       meta: (o) => `A4 · ${L('ui.kurs.chapters', { n: o.chapters })} · ${L('pages', { n: o.count })}`,
       build: kursIshi,

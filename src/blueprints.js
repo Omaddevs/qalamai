@@ -85,8 +85,10 @@ function titul(type, topic, pr, role) {
 }
 
 /** The title page alone (for the titul editor's live preview), as the document builder draws it. */
-export const titulPage = (id, topic, pr) =>
-  id === 'Kurs işi' ? titul(L('t.kurs'), topic, pr, L('t.supervisor')) : titul(L('t.referat'), topic, pr, L('t.accepted')) // i18n-ignore (type id)
+export const titulPage = (id, topic, pr) => {
+  const w = WORDS[id] ?? WORDS.Referat
+  return titul(L(w.title), topic, pr, L(w.role))
+}
 
 /** Table of contents with estimated page numbers. rows: [label, page, level] */
 const toc = (rows) =>
@@ -214,7 +216,19 @@ function invitation(topic, { event }, pr) {
 /* ───────────── Referat ─────────────
  * Titul → Reja → Kirish (dolzarblik, maqsad, vazifalar, tuzilish) → 2–4 boʻlim → Xulosa →
  * Foydalanilgan adabiyotlar. A4, Times New Roman 14, 1.5 interval. */
-function referat(topic, { count }, pr) {
+/* Words that name the document; Mustaqil iş, Diplom işi and Dissertatsiya reuse the referat and
+ * kurs işi structures with their own title page and sentences. Keys are type ids. */
+const WORDS = {
+  Referat: { title: 't.referat', role: 't.accepted', k: 'ref', name: 'ref.name' },
+  'Mustaqil iş': { title: 't.mustaqil', role: 't.accepted', k: 'mi', name: 'mi.name' }, // i18n-ignore (type id)
+  'Kurs işi': { title: 't.kurs', role: 't.supervisor', k: 'ki', name: 'ki.name' }, // i18n-ignore (type id)
+  'Diplom işi': { title: 't.diplom', role: 't.supervisor', k: 'dp', name: 'dp.name' }, // i18n-ignore (type id)
+  Dissertatsiya: { title: 't.dis', role: 't.supervisor', k: 'dis', name: 'dis.name' },
+}
+/** The type's own sentence for `key` when it has one ('mi.struct'), else the base type's ('ref.struct'). */
+const own = (w, base, key) => (w.k !== base ? `${w.k}.${key}` : `${base}.${key}`)
+
+function referat(topic, { count }, pr, w = WORDS.Referat) {
   const T = esc(cap(topic))
   const n = count <= 6 ? 2 : count <= 12 ? 3 : 4
   const all = [0, 1, 2, 3].map((i) => LL(`ref.sec.${i}`, { T, country: country() }))
@@ -222,15 +236,15 @@ function referat(topic, { count }, pr) {
   const sections = n === 2 ? [all[0], [altTitle, all[2][1], altTip]] : all.slice(0, n)
   const per = Math.max(1, Math.round((count - 5) / n))
   const pages = [
-    titul(L('t.referat'), topic, pr, L('t.accepted')),
+    titul(L(w.title), topic, pr, L(w.role)),
     h1(L('H.plan')) + ol([L('intro'), ...sections.map(([s]) => s), L('conclusion'), L('refs')]),
     h1(L('H.intro')) +
       lead(L('relevance'), L('relevanceText', { T })) +
       hint(L('ref.relHint')) +
-      lead(L('ref.goal'), L('ref.goalText', { T })) +
-      lead(L('ref.tasksLead')) +
+      lead(L(own(w, 'ref', 'goal')), L('ref.goalText', { T })) +
+      lead(L(own(w, 'ref', 'tasksLead'))) +
       ul(LL('ref.tasks')) +
-      lead(L('ref.structLead'), L('ref.struct', { n, nw: numWord(n) })),
+      lead(L(own(w, 'ref', 'structLead')), L(own(w, 'ref', 'struct'), { n, nw: numWord(n) })),
     sections.map(([s, first, tip], i) => h2(`${i + 1}. ${s}`) + p(first) + hint(`${tip} ${L('volume', { n: per })}`)).join(''),
     h1(L('H.concl')) +
       p(L('ref.conclText', { T })) +
@@ -238,14 +252,14 @@ function referat(topic, { count }, pr) {
       hint(L('ref.conclHint')),
     h1(L('H.refs')) + hint(L('ref.refsHint')) + ol(refSamples('ref.normDoc')),
   ]
-  return { name: L('ref.name', { topic: cap(topic) }), pages, estPages: count }
+  return { name: L(w.name, { topic: cap(topic) }), pages, estPages: count }
 }
 
 /* ───────────── Kurs ishi ─────────────
  * Titul → Mundarija (bet raqamlari bilan) → Kirish (dolzarblik, oʻrganilganlik darajasi, maqsad,
  * vazifalar, obyekt, predmet, metodlar, ahamiyat, tuzilish) → 2–3 bob × 2 paragraf (+ bob xulosasi)
  * → Xulosa va takliflar → Adabiyotlar (15+, alifbo tartibida) → Ilovalar. */
-function kursIshi(topic, { count, chapters }, pr) {
+function kursIshi(topic, { count, chapters }, pr, w = WORDS['Kurs işi']) { // i18n-ignore (type id)
   const T = esc(cap(topic))
   const C = chapters
   const v = { T, country: country() }
@@ -283,7 +297,7 @@ function kursIshi(topic, { count, chapters }, pr) {
   const tasks = [t1, t2, ...(C === 3 ? [L('ki.taskForeign')] : []), t3]
 
   const pages = [
-    titul(L('t.kurs'), topic, pr, L('t.supervisor')),
+    titul(L(w.title), topic, pr, L(w.role)),
     h1(L('H.toc')) + toc(rows),
     h1(L('H.intro')) +
       lead(L('relevance'), L('relevanceText', { T })) +
@@ -296,7 +310,7 @@ function kursIshi(topic, { count, chapters }, pr) {
       lead(L('ki.subject'), ihint(L('ki.subjectHint'))) +
       lead(L('ki.methods'), L('ki.methodsText')) +
       lead(L('ki.value'), ihint(L('ki.valueHint'))) +
-      lead(L('ki.structLead'), L('ki.struct', { n: C, nw: numWord(C), count })),
+      lead(L(own(w, 'ki', 'structLead')), L(own(w, 'ki', 'struct'), { n: C, nw: numWord(C), count })),
     ...plan.map(
       ([s, paras], c) =>
         h1(chapterTitle(c, s)) +
@@ -304,7 +318,7 @@ function kursIshi(topic, { count, chapters }, pr) {
         lead(L('ki.chapterSum', { r: ROMAN[c + 1] }), ihint(L('ki.chapterSumHint'))),
     ),
     h1(L('H.conclProp')) +
-      p(L('ki.conclText', { T })) +
+      p(L(own(w, 'ki', 'conclText'), { T })) +
       ol(plan.map((_, c) => ihint(L('ki.conclItem', { r: ROMAN[c + 1] })))) +
       lead(L('ki.props')) +
       ul(LL('ki.propItems').map(ihint)) +
@@ -314,7 +328,7 @@ function kursIshi(topic, { count, chapters }, pr) {
       h1(L('H.appx')) +
       hint(L('ki.appxHint')),
   ]
-  return { name: L('ki.name', { topic: cap(topic) }), pages, estPages: count }
+  return { name: L(w.name, { topic: cap(topic) }), pages, estPages: count }
 }
 
 /* ───────────── Dars ishlanma ─────────────
@@ -494,6 +508,45 @@ export const BLUEPRINTS = {
       build: kursIshi,
     },
     'ui.kurs',
+  ),
+  'Mustaqil iş': withTexts( // i18n-ignore (type id)
+    {
+      format: 'doc',
+      controls: [Object.assign(stepper('count', [3, 5, 8, 10, 12, 15], 'page'), { kind: 'pages', low: 2, high: 40 })],
+      defaults: { count: 8 },
+      lang: true,
+      titul: true,
+      outline: (o) => L('ui.referat.outline', { n: o.count <= 6 ? 2 : o.count <= 12 ? 3 : 4 }),
+      meta: (o) => L('ui.referat.meta', { n: o.count }),
+      build: (topic, o, pr) => referat(topic, o, pr, WORDS['Mustaqil iş']), // i18n-ignore (type id)
+    },
+    'ui.mi',
+  ),
+  'Diplom işi': withTexts( // i18n-ignore (type id)
+    {
+      format: 'doc',
+      controls: [Object.assign(stepper('count', [50, 60, 70, 80, 90, 100], 'page'), { kind: 'pages', low: 40, high: 150 }), choice('chapters', [2, 3], (v) => L('ui.kurs.chapters', { n: v }))],
+      defaults: { count: 70, chapters: 3 },
+      lang: true,
+      titul: true,
+      outline: (o) => L('ui.kurs.outline', { ch: L('ui.kurs.chapters', { n: o.chapters }) }),
+      meta: (o) => `A4 · ${L('ui.kurs.chapters', { n: o.chapters })} · ${L('pages', { n: o.count })}`,
+      build: (topic, o, pr) => kursIshi(topic, o, pr, WORDS['Diplom işi']), // i18n-ignore (type id)
+    },
+    'ui.dp',
+  ),
+  Dissertatsiya: withTexts(
+    {
+      format: 'doc',
+      controls: [Object.assign(stepper('count', [80, 90, 100, 110, 120, 150], 'page'), { kind: 'pages', low: 60, high: 200 }), choice('chapters', [2, 3], (v) => L('ui.kurs.chapters', { n: v }))],
+      defaults: { count: 100, chapters: 3 },
+      lang: true,
+      titul: true,
+      outline: (o) => L('ui.kurs.outline', { ch: L('ui.kurs.chapters', { n: o.chapters }) }),
+      meta: (o) => `A4 · ${L('ui.kurs.chapters', { n: o.chapters })} · ${L('pages', { n: o.count })}`,
+      build: (topic, o, pr) => kursIshi(topic, o, pr, WORDS.Dissertatsiya),
+    },
+    'ui.dis',
   ),
   'Dars işlanma': withTexts(
     {

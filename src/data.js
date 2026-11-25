@@ -25,6 +25,7 @@ export const COLORS = {
   pink: { band: '#fde4eb', from: '#f98fae', to: '#e8456f' },
   emerald: { band: '#ddf4e6', from: '#6fd598', to: '#2bb069' },
   blue: { band: '#e3ebfd', from: '#7aa2f7', to: '#2f5bff' },
+  slate: { band: '#e8eaef', from: '#9aa3b5', to: '#475569' },
 }
 
 export const APPS = [

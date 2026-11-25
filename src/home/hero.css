@@ -865,12 +865,112 @@
   transform: rotate(180deg);
 }
 
-.hx-type-pop {
-  width: 250px;
+/* type picker: a wide grid, four in a row */
+.popover.hx-type-pop {
+  width: 628px;
+  max-width: calc(100vw - 40px);
+  padding: 10px;
+  border: 1px solid rgba(15, 17, 21, 0.06);
+  border-radius: 20px;
 }
 
-.hx-type-pop .menu-item.on {
+.hx-type-pop .pop-label {
+  padding: 2px 6px 8px;
+}
+
+.hx-type-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.hx-type-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px 12px 11px;
+  border: 1.5px solid transparent;
+  border-radius: 15px;
+  background: #faf9f6;
+  color: #0f1115;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align: left;
+  animation: hx-type-in 0.3s calc(var(--i) * 18ms) cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  transition: background 0.18s, border-color 0.18s, transform 0.2s cubic-bezier(0.3, 1.6, 0.5, 1), box-shadow 0.2s;
+}
+
+@keyframes hx-type-in {
+  from { opacity: 0; transform: translateY(6px); }
+}
+
+.hx-type-card:hover {
+  border-color: #e4e1d9;
+  background: #fff;
+  box-shadow: 0 10px 22px -14px rgba(15, 17, 21, 0.35);
+  transform: translateY(-2px);
+}
+
+.hx-type-card.on {
+  border-color: var(--brand-strong);
   background: var(--brand-soft);
+}
+
+.hx-type-card .hm-cat-tile {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+}
+
+.hx-type-card .hm-cat-tile svg {
+  width: 20px;
+  height: 20px;
+}
+
+.hx-type-card .hx-type-text {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.hx-type-card .hx-type-text,
+.hx-type-card .hx-type-text small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hx-type-on {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--black);
+  color: var(--brand);
+}
+
+@media (max-width: 700px) {
+  /* hang the grid off the whole composer, not the pill, so it stays on screen */
+  .hx-tools .dd:has(> .hx-type-pop) {
+    position: static;
+  }
+
+  .popover.hx-type-pop {
+    left: 0;
+    right: 0;
+    width: auto;
+    max-width: none;
+  }
+
+  .hx-type-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .hx-type-text {

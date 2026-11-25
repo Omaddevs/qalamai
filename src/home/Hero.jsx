@@ -194,7 +194,7 @@ function PagesPicker({ c, value, onChange }) {
                   placeholder="18"
                   className={custom && !ok ? 'bad' : ''}
                   aria-label={t('pg.custom')}
-                  onChange={(e) => setCustom(e.target.value.replace(/\D/g, '').slice(0, 2))}
+                  onChange={(e) => setCustom(e.target.value.replace(/\D/g, '').slice(0, String(c.high).length))}
                   onKeyDown={(e) => {
                     if (e.key !== 'Enter') return
                     e.preventDefault() // not the composer's submit
@@ -541,26 +541,32 @@ export default function Hero({ mode, onMode, q, onQ, inputRef, typeLabel, onType
                     {(close) => (
                       <>
                         <div className="pop-label">{t('hx.whatCreate')}</div>
-                        {CREATE.map((c) => (
-                          <button
-                            key={c.id}
-                            type="button"
-                            className={`menu-item hm-create-item ${c.id === type.id ? 'on' : ''}`}
-                            onClick={() => {
-                              onType(c.id)
-                              close()
-                            }}
-                          >
-                            <span className="hm-create-row">
+                        {/* a wide grid, four in a row, instead of a long list */}
+                        <div className="hx-type-grid">
+                          {CREATE.map((c, i) => (
+                            <button
+                              key={c.id}
+                              type="button"
+                              className={`hx-type-card ${c.id === type.id ? 'on' : ''}`}
+                              style={{ '--i': i }}
+                              onClick={() => {
+                                onType(c.id)
+                                close()
+                              }}
+                            >
                               <CatTile icon={c.icon} color={c.color} />
                               <span className="hx-type-text">
                                 {c.label}
                                 <small>{blueprintOf(c.id).format === 'doc' ? t('hx.a4') : t('hx.slides')}</small>
                               </span>
-                            </span>
-                            {c.id === type.id && <Check size={14} weight="bold" className="hx-check" />}
-                          </button>
-                        ))}
+                              {c.id === type.id && (
+                                <span className="hx-type-on">
+                                  <Check size={11} weight="bold" />
+                                </span>
+                              )}
+                            </button>
+                          ))}
+                        </div>
                       </>
                     )}
                   </Dropdown>

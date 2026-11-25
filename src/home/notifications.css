@@ -35,7 +35,7 @@
 .nt-head-tile b {
   position: absolute;
   top: -6px;
-  right: -8px;
+  inset-inline-end: -8px;
   min-width: 22px;
   height: 22px;
   padding: 0 6px;
@@ -149,7 +149,7 @@
   position: absolute;
   top: 8px;
   bottom: 8px;
-  left: 118px;
+  inset-inline-start: 118px;
   width: 2px;
   border-radius: 2px;
   background: repeating-linear-gradient(180deg, #e3dfd4 0 6px, transparent 6px 11px);
@@ -167,7 +167,7 @@
   top: 72px;
   align-self: start;
   margin: 10px 0 0;
-  text-align: right;
+  text-align: end;
 }
 
 .nt-day-label span {
@@ -184,7 +184,7 @@
   content: '';
   position: absolute;
   top: 50%;
-  right: -21px;
+  inset-inline-end: -21px;
   width: 10px;
   height: 10px;
   border: 2px solid #fbfaf7;
@@ -346,7 +346,7 @@
 .nt-dot {
   position: absolute;
   top: 18px;
-  right: -5px;
+  inset-inline-end: -5px;
   width: 10px;
   height: 10px;
   border: 2px solid #fbfaf7;
@@ -436,7 +436,7 @@
 
   .nt-day-label {
     position: static;
-    text-align: left;
+    text-align: start;
   }
 
   .nt-day-label span::after {
@@ -445,7 +445,7 @@
 
   .nt-more,
   .nt-skel {
-    margin-left: 0;
+    margin-inline-start: 0;
   }
 
   .nt-head h1 {

@@ -77,7 +77,7 @@
 }
 .au-lead { margin-top: 6px !important; font-size: 14.5px; color: var(--au-muted); max-width: 320px; }
 
-.au-form { width: 100%; margin-top: 28px; display: flex; flex-direction: column; gap: 12px; text-align: left; }
+.au-form { width: 100%; margin-top: 28px; display: flex; flex-direction: column; gap: 12px; text-align: start; }
 .au-field {
   display: flex;
   align-items: center;
@@ -176,7 +176,7 @@
 .au-spin { animation: au-spin 0.8s linear infinite; }
 
 .au-or { position: relative; width: 100%; margin: 26px 0 18px; text-align: center; }
-.au-or::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: linear-gradient(90deg, transparent, var(--au-line) 20%, var(--au-line) 80%, transparent); }
+.au-or::before { content: ''; position: absolute; inset-inline-start: 0; inset-inline-end: 0; top: 50%; height: 1px; background: linear-gradient(90deg, transparent, var(--au-line) 20%, var(--au-line) 80%, transparent); }
 .au-or span { position: relative; padding: 0 14px; background: #fff; font-size: 13.5px; color: var(--au-muted); }
 
 .au-social { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -239,7 +239,7 @@
 .au-wall-tilt {
   position: absolute;
   top: -30%;
-  left: -18%;
+  inset-inline-start: -18%;
   width: 136%;
   height: 160%;
   display: grid;
@@ -275,7 +275,7 @@
     linear-gradient(180deg, rgba(14, 15, 18, 0.35) 0%, transparent 22%, transparent 48%, rgba(14, 15, 18, 0.88) 72%, #0e0f12 88%),
     radial-gradient(120% 70% at 50% 40%, transparent 55%, rgba(14, 15, 18, 0.55));
 }
-.au-wall .au-vis-chip { right: 8%; bottom: auto; top: 46%; }
+.au-wall .au-vis-chip { inset-inline-end: 8%; bottom: auto; top: 46%; }
 @keyframes au-wall-up { from { transform: translateY(0); } to { transform: translateY(-50%); } }
 @keyframes au-wall-down { from { transform: translateY(-50%); } to { transform: translateY(0); } }
 
@@ -311,11 +311,11 @@
 .au-page.title small { font-size: 7px; letter-spacing: 0.03em; color: #6b6f78; }
 .au-page.title b { margin-top: auto; font-size: 15px; letter-spacing: 0.1em; }
 .au-page.title span { font-size: 9px; }
-.au-page.title em { margin-top: auto; align-self: flex-end; text-align: right; font-style: normal; font-size: 7.5px; color: #6b6f78; line-height: 1.6; }
+.au-page.title em { margin-top: auto; align-self: flex-end; text-align: end; font-style: normal; font-size: 7.5px; color: #6b6f78; line-height: 1.6; }
 .au-page.toc { display: flex; flex-direction: column; gap: 8px; font-size: 8.5px; }
 .au-page.toc b { text-align: center; font-size: 10px; letter-spacing: 0.08em; margin-bottom: 6px; }
 .au-page.toc span { display: flex; align-items: baseline; gap: 4px; }
-.au-page.toc span.sub { padding-left: 10px; color: #6b6f78; }
+.au-page.toc span.sub { padding-inline-start: 10px; color: #6b6f78; }
 .au-page.toc em { font-style: normal; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .au-page.toc i { flex: 1; border-bottom: 1px dotted #b9bcc3; }
 
@@ -348,19 +348,19 @@
 }
 
 /* ───────── Telegram orqali kiriş ───────── */
-.tg-head { display: flex; align-items: center; gap: 12px; text-align: left; margin-bottom: 4px; }
+.tg-head { display: flex; align-items: center; gap: 12px; text-align: start; margin-bottom: 4px; }
 .tg-head b { display: block; font-size: 15px; color: var(--au-ink); }
 .tg-head small { display: block; font-size: 13px; color: var(--au-muted); margin-top: 2px; }
 .tg-badge { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: #e8f5fc; color: #229ed9; flex-shrink: 0; }
-.tg-prefix { padding-left: 14px; font-size: 15px; font-weight: 600; color: var(--au-text-2); }
-.au-field .tg-prefix + input { padding-left: 8px; }
+.tg-prefix { padding-inline-start: 14px; font-size: 15px; font-weight: 600; color: var(--au-text-2); }
+.au-field .tg-prefix + input { padding-inline-start: 8px; }
 .tg-submit { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
 .tg-back { display: inline-flex; align-items: center; gap: 6px; align-self: center; margin-top: 2px; }
 .tg-code input { letter-spacing: 0.35em; font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
-.tg-auto { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--au-text-2); cursor: pointer; text-align: left; }
+.tg-auto { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--au-text-2); cursor: pointer; text-align: start; }
 .tg-auto input { width: 16px; height: 16px; accent-color: var(--brand-strong); }
 
-.tg-steps { list-style: none; margin: 4px 0; padding: 0; display: grid; gap: 10px; text-align: left; }
+.tg-steps { list-style: none; margin: 4px 0; padding: 0; display: grid; gap: 10px; text-align: start; }
 .tg-steps li { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 14px; background: #f7f8fa; color: var(--au-muted); transition: background 0.25s var(--au-ease), color 0.25s; }
 .tg-steps li > span { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #e4e7ec; font-size: 12px; font-weight: 700; flex-shrink: 0; }
 .tg-steps li > svg { flex-shrink: 0; margin-top: 2px; }

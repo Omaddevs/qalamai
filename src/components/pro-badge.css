@@ -63,8 +63,8 @@
 }
 
 /* placements — positioning only; the look always comes from .pro-badge above */
-.pro-badge.tpl-pro { position: absolute; right: 6px; bottom: 6px; width: auto; height: var(--pb-h); padding: 0 7px 0 5px; display: inline-flex; border-radius: 999px; backdrop-filter: none; color: inherit; }
-.pro-badge.tm-pro { position: absolute; top: 12px; right: 12px; height: var(--pb-h); padding: 0 9px 0 6px; backdrop-filter: none; }
-.pro-badge.ed-rail-pro { position: absolute; top: -5px; right: -4px; width: 18px; height: 18px; padding: 0; border: 0; box-shadow: inset 0 0 0 1px rgba(255, 210, 110, 0.6), 0 0 0 2px #fff, 0 3px 8px -2px rgba(140, 90, 0, 0.6); }
-.pro-badge.tp-pro-badge { margin-left: 8px; vertical-align: 0.2em; }
+.pro-badge.tpl-pro { position: absolute; inset-inline-end: 6px; bottom: 6px; width: auto; height: var(--pb-h); padding: 0 7px 0 5px; display: inline-flex; border-radius: 999px; backdrop-filter: none; color: inherit; }
+.pro-badge.tm-pro { position: absolute; top: 12px; inset-inline-end: 12px; height: var(--pb-h); padding: 0 9px 0 6px; backdrop-filter: none; }
+.pro-badge.ed-rail-pro { position: absolute; top: -5px; inset-inline-end: -4px; width: 18px; height: 18px; padding: 0; border: 0; box-shadow: inset 0 0 0 1px rgba(255, 210, 110, 0.6), 0 0 0 2px #fff, 0 3px 8px -2px rgba(140, 90, 0, 0.6); }
+.pro-badge.tp-pro-badge { margin-inline-start: 8px; vertical-align: 0.2em; }
 .pro-banner .pro-badge { flex-shrink: 0; }

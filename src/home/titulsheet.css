@@ -371,7 +371,7 @@
 }
 
 .ts-field select {
-  padding-right: 30px;
+  padding-inline-end: 30px;
   text-overflow: ellipsis;
 }
 
@@ -427,7 +427,7 @@
   gap: 12px;
   padding: 20px 22px;
   overflow-y: auto;
-  border-left: 1px solid #f0eee8;
+  border-inline-start: 1px solid #f0eee8;
   background:
     radial-gradient(120% 60% at 100% 0%, rgba(198, 244, 50, 0.16), transparent 60%),
     #f6f5f1;
@@ -547,7 +547,7 @@
     padding: 14px 16px;
     overflow: visible;
     border-bottom: 1px solid #f0eee8;
-    border-left: 0;
+    border-inline-start: 0;
   }
 
   .ts-page {

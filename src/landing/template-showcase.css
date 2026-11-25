@@ -34,8 +34,8 @@
   opacity: 0.32;
   pointer-events: none;
 }
-.tm-glow.g1 { left: 14%; background: var(--brand); transform: translateY(-60%); }
-.tm-glow.g2 { right: 12%; background: var(--lp-violet); transform: translateY(-30%); opacity: 0.26; }
+.tm-glow.g1 { inset-inline-start: 14%; background: var(--brand); transform: translateY(-60%); }
+.tm-glow.g2 { inset-inline-end: 12%; background: var(--lp-violet); transform: translateY(-30%); opacity: 0.26; }
 
 .tm-plane {
   display: flex;
@@ -55,7 +55,7 @@
   animation-play-state: paused;
 }
 .tm-row.rev .tm-track { animation-direction: reverse; }
-.tm-row:first-child .tm-track { margin-left: calc(var(--cw) * -0.4); }
+.tm-row:first-child .tm-track { margin-inline-start: calc(var(--cw) * -0.4); }
 .tm[data-live] .tm-track { animation-play-state: running; }
 .tm[data-live] .tm-row:hover .tm-track,
 .tm[data-live] .tm-row:focus-within .tm-track { animation-play-state: paused; }
@@ -110,7 +110,7 @@
 .tm-pro {
   position: absolute;
   top: 12px;
-  right: 12px;
+  inset-inline-end: 12px;
   display: inline-flex;
   align-items: center;
   gap: 3px;
@@ -130,8 +130,8 @@
 /* caption glides up on hover */
 .tm-cap {
   position: absolute;
-  left: 11px;
-  right: 11px;
+  inset-inline-start: 11px;
+  inset-inline-end: 11px;
   bottom: 11px;
   display: flex;
   align-items: center;
@@ -143,7 +143,7 @@
   -webkit-backdrop-filter: blur(14px) saturate(1.5);
   backdrop-filter: blur(14px) saturate(1.5);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7), 0 10px 24px -12px rgba(11, 11, 13, 0.45);
-  text-align: left;
+  text-align: start;
   opacity: 0;
   transform: translateY(10px);
   transition: opacity 0.35s, transform 0.5s var(--ease);
@@ -202,7 +202,7 @@
   cursor: pointer;
   transition: transform 0.3s var(--ease), box-shadow 0.3s;
 }
-.lp .tm-cta svg { margin-right: 10px; transition: transform 0.3s var(--ease); }
+.lp .tm-cta svg { margin-inline-end: 10px; transition: transform 0.3s var(--ease); }
 .lp .tm-cta:hover { transform: translateY(-2px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), inset 0 0 0 1px #5f6168, 0 22px 36px -14px rgba(11, 11, 13, 0.8); }
 .lp .tm-cta:hover svg { transform: translateX(3px); }
 .tm-count {
@@ -236,7 +236,7 @@
   padding: 24px;
   border-radius: 22px;
   overflow: hidden;
-  text-align: left;
+  text-align: start;
   background: #fff;
   color: var(--lp-ink);
   box-shadow: 0 0 0 1px rgba(16, 24, 40, 0.06), 0 1px 2px rgba(16, 24, 40, 0.04);
@@ -254,7 +254,7 @@
 .ts-aud-card::before {
   content: '';
   position: absolute;
-  left: var(--ox);
+  inset-inline-start: var(--ox);
   top: var(--oy);
   z-index: -2;
   width: var(--d);
@@ -270,7 +270,7 @@
 .ts-aud-card::after {
   content: '';
   position: absolute;
-  left: 0;
+  inset-inline-start: 0;
   top: 0;
   z-index: -1;
   width: 320px;
@@ -377,7 +377,7 @@
   .lp .tm-card { border-radius: 13px; }
   .tm-frame { padding: 4px; }
   .tm-slide { border-radius: 9px; }
-  .tm-pro { top: 9px; right: 9px; }
+  .tm-pro { top: 9px; inset-inline-end: 9px; }
   .ts-aud { padding-top: 56px; }
 }
 /* no hover on touch: no dimming of siblings */

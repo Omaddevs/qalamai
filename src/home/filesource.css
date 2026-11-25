@@ -46,7 +46,7 @@
   border-radius: 16px;
   background: #faf9f6;
   color: #0f1115;
-  text-align: left;
+  text-align: start;
   transition: border-color 0.2s, background 0.2s, box-shadow 0.25s;
 }
 

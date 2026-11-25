@@ -18,17 +18,43 @@ export const LANGS = [
   { id: 'kk', code: 'KZ', name: 'Қазақша', locale: 'kk-KZ' },
   { id: 'ky', code: 'KG', name: 'Кыргызча', locale: 'ky-KG' },
   { id: 'tg', code: 'TJ', name: 'Тоҷикӣ', locale: 'tg-TJ' },
+  // The most spoken world languages. Their texts live in src/i18n/locales/<id>/*.json.
+  // Digits stay Latin (-u-nu-latn) so numbers inside a sentence match the grouped ones.
+  { id: 'zh', code: 'ZH', name: '中文', note: '简体', locale: 'zh-CN', world: true },
+  { id: 'hi', code: 'HI', name: 'हिन्दी', locale: 'hi-IN-u-nu-latn', world: true },
+  { id: 'es', code: 'ES', name: 'Español', locale: 'es-ES', world: true },
+  { id: 'fr', code: 'FR', name: 'Français', locale: 'fr-FR', world: true }, // i18n-ignore
+  { id: 'ar', code: 'AR', name: 'العربية', locale: 'ar-u-nu-latn', dir: 'rtl', world: true },
+  { id: 'bn', code: 'BN', name: 'বাংলা', locale: 'bn-BD-u-nu-latn', world: true },
+  { id: 'pt', code: 'PT', name: 'Português', locale: 'pt-BR', world: true },
+  { id: 'ur', code: 'UR', name: 'اردو', locale: 'ur-PK-u-nu-latn', dir: 'rtl', world: true },
+  { id: 'id', code: 'ID', name: 'Bahasa Indonesia', locale: 'id-ID', world: true },
+  { id: 'de', code: 'DE', name: 'Deutsch', locale: 'de-DE', world: true },
+  { id: 'ja', code: 'JA', name: '日本語', locale: 'ja-JP', world: true },
+  { id: 'tr', code: 'TR', name: 'Türkçe', locale: 'tr-TR', world: true }, // i18n-ignore
+  { id: 'ko', code: 'KO', name: '한국어', locale: 'ko-KR', world: true },
+  { id: 'vi', code: 'VI', name: 'Tiếng Việt', locale: 'vi-VN', world: true },
+  { id: 'it', code: 'IT', name: 'Italiano', locale: 'it-IT', world: true },
+  { id: 'fa', code: 'FA', name: 'فارسی', locale: 'fa-IR-u-ca-gregory-nu-latn', dir: 'rtl', world: true },
+  { id: 'pl', code: 'PL', name: 'Polski', locale: 'pl-PL', world: true },
+  { id: 'uk', code: 'UK', name: 'Українська', locale: 'uk-UA', world: true },
 ]
 
 export const DEFAULT_LANG = 'uz'
-/** Languages every dictionary entry must carry (uz-cyrl is derived). */
+/** Languages written beside the key in src/i18n/msg/*.js (uz-cyrl is derived). */
 export const SOURCE_LANGS = ['uz', 'ru', 'en', 'kk', 'ky', 'tg']
+/** Languages kept in their own files, src/i18n/locales/<id>/<area>.json. */
+export const WORLD_LANGS = LANGS.filter((l) => l.world).map((l) => l.id)
+/** Every language a dictionary entry must carry. */
+export const ALL_SOURCE_LANGS = [...SOURCE_LANGS, ...WORLD_LANGS]
 
 const BY_ID = Object.fromEntries(LANGS.map((l) => [l.id, l]))
 export const isLang = (id) => Boolean(BY_ID[id])
 export const localeOf = (lang) => BY_ID[lang]?.locale ?? BY_ID[DEFAULT_LANG].locale
 /** Value for <html lang>: a BCP-47 tag. */
-export const htmlLangOf = (lang) => (lang === 'uz-cyrl' ? 'uz-Cyrl' : lang === 'uz' ? 'uz-Latn' : lang)
+export const htmlLangOf = (lang) => (lang === 'uz-cyrl' ? 'uz-Cyrl' : lang === 'uz' ? 'uz-Latn' : lang === 'zh' ? 'zh-Hans' : lang)
+/** Writing direction: 'rtl' for Arabic, Urdu and Persian. */
+export const dirOf = (lang) => BY_ID[lang]?.dir ?? 'ltr'
 
 /**
  * Best supported language for a header such as `x-lang: ru` or `Accept-Language: kk-KZ,ru;q=0.8`.
@@ -52,6 +78,8 @@ export function pickLang(header) {
     if (BY_ID[base]) return base
     if (base === 'kz') return 'kk'
     if (base === 'kg') return 'ky'
+    if (base === 'ua') return 'uk'
+    if (base === 'in') return 'id' // old Java/Android code for Indonesian
   }
   return DEFAULT_LANG
 }
@@ -144,7 +172,8 @@ function rawText(entry, lang) {
 }
 
 /**
- * Text for `key` in `lang`. Falls back to Uzbek, then English, then the key itself.
+ * Text for `key` in `lang`. Falls back to Uzbek (English for a world language), then the other one,
+ * then the key itself.
  * @param {Record<string, Record<string, string|object>>} dict
  */
 export function translate(dict, key, vars, lang = DEFAULT_LANG, onMissing) {
@@ -157,7 +186,8 @@ export function translate(dict, key, vars, lang = DEFAULT_LANG, onMissing) {
   let used = lang
   if (raw == null) {
     onMissing?.(key, lang)
-    used = entry.uz != null ? DEFAULT_LANG : 'en'
+    const order = BY_ID[lang]?.world ? ['en', DEFAULT_LANG] : [DEFAULT_LANG, 'en']
+    used = order.find((l) => entry[l] != null) ?? DEFAULT_LANG
     raw = rawText(entry, used)
   }
   if (raw == null) return key

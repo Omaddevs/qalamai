@@ -93,7 +93,7 @@ export function countryName(cc) {
 }
 export const flag = (cc) => (cc && /^[A-Z]{2}$/.test(cc) ? String.fromCodePoint(...[...cc].map((c) => 0x1f1a5 + c.charCodeAt(0))) : '🌐')
 
-const UZ_LANGS = { uz: 'Özbek', ru: 'Rus', en: 'Ingliz', kk: 'Qozoq', ky: 'Qirğiz', tg: 'Tojik', tr: 'Turk', de: 'Nemis', fr: 'Fransuz', ar: 'Arab', zh: 'Xitoy', ko: 'Koreys', ja: 'Yapon', es: 'Ispan', it: 'Italyan', uk: 'Ukrain', az: 'Ozarbayjon', fa: 'Fors', hi: 'Hind' }
+const UZ_LANGS = { uz: 'Özbek', ru: 'Rus', en: 'Ingliz', kk: 'Qozoq', ky: 'Qirğiz', tg: 'Tojik', tr: 'Turk', de: 'Nemis', fr: 'Fransuz', ar: 'Arab', zh: 'Xitoy', ko: 'Koreys', ja: 'Yapon', es: 'Ispan', it: 'Italyan', uk: 'Ukrain', az: 'Ozarbayjon', fa: 'Fors', hi: 'Hind', bn: 'Bengal', pt: 'Portugal', ur: 'Urdu', id: 'Indonez', vi: 'Vyetnam', pl: 'Polyak' }
 
 let langNames = null
 export function langName(code) {

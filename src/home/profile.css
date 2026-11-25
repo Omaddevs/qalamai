@@ -30,9 +30,9 @@
 /* aurora wash + fading grid */
 .pf-hero-bg { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
 .pf-blob { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.75; animation: pf-drift 18s ease-in-out infinite alternate; }
-.pf-blob.b1 { top: -40%; left: -8%; width: 460px; height: 340px; background: #e6f9a6; }
-.pf-blob.b2 { top: -20%; right: 8%; width: 520px; height: 380px; background: #e6defc; animation-delay: -6s; }
-.pf-blob.b3 { bottom: -55%; left: 38%; width: 420px; height: 300px; background: #fde7cf; animation-delay: -12s; }
+.pf-blob.b1 { top: -40%; inset-inline-start: -8%; width: 460px; height: 340px; background: #e6f9a6; }
+.pf-blob.b2 { top: -20%; inset-inline-end: 8%; width: 520px; height: 380px; background: #e6defc; animation-delay: -6s; }
+.pf-blob.b3 { bottom: -55%; inset-inline-start: 38%; width: 420px; height: 300px; background: #fde7cf; animation-delay: -12s; }
 .pf-grid {
   position: absolute;
   inset: 0;
@@ -97,7 +97,7 @@
 .pf-title em::after {
   content: '';
   position: absolute;
-  left: -2%;
+  inset-inline-start: -2%;
   bottom: -0.06em;
   width: 104%;
   height: 0.26em;
@@ -171,7 +171,7 @@
   position: absolute;
   top: 4px;
   bottom: 4px;
-  left: 4px;
+  inset-inline-start: 4px;
   width: calc((100% - 8px) / 2);
   border-radius: 10px;
   background: #fff;
@@ -380,7 +380,7 @@ button.pf-avatar:focus-visible .pf-avatar-edit { opacity: 1; }
 .pf-av-opt:disabled { cursor: default; }
 .pf-av-check {
   position: absolute;
-  right: 6%;
+  inset-inline-end: 6%;
   bottom: 6%;
   display: grid;
   place-items: center;
@@ -608,7 +608,7 @@ button.pf-avatar:focus-visible .pf-avatar-edit { opacity: 1; }
 }
 .pf-in-ic {
   position: absolute;
-  left: 15px;
+  inset-inline-start: 15px;
   color: #a1a6ae;
   pointer-events: none;
   transition: color 0.2s;
@@ -631,7 +631,7 @@ button.pf-avatar:focus-visible .pf-avatar-edit { opacity: 1; }
 .pf-in input::placeholder { color: #b0b4bb; font-weight: 400; }
 .pf-in-ok {
   position: absolute;
-  right: 14px;
+  inset-inline-end: 14px;
   display: grid;
   place-items: center;
   width: 18px;
@@ -648,13 +648,13 @@ button.pf-avatar:focus-visible .pf-avatar-edit { opacity: 1; }
 .pf-in.sel select {
   appearance: none;
   -webkit-appearance: none;
-  padding-right: 40px;
+  padding-inline-end: 40px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   cursor: pointer;
 }
-.pf-in.sel:has(.pf-uni-badge) select { padding-left: 0; }
+.pf-in.sel:has(.pf-uni-badge) select { padding-inline-start: 0; }
 .pf-uni-badge {
   flex-shrink: 0;
   margin: 0 10px 0 44px;
@@ -668,7 +668,7 @@ button.pf-avatar:focus-visible .pf-avatar-edit { opacity: 1; }
 }
 .pf-caret {
   position: absolute;
-  right: 16px;
+  inset-inline-end: 16px;
   color: #8b919a;
   pointer-events: none;
 }
@@ -782,7 +782,7 @@ button.pf-avatar:focus-visible .pf-avatar-edit { opacity: 1; }
 .pf-set-note { margin: 0; font-size: 14px; }
 .pf-set-note a { color: var(--brand-fg); font-weight: 600; }
 .pf-switch { position: relative; flex-shrink: 0; width: 44px; height: 26px; border: 0; border-radius: 999px; background: #d0d5dd; cursor: pointer; transition: background 0.2s; }
-.pf-switch span { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(16, 24, 40, 0.2); transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1); }
+.pf-switch span { position: absolute; top: 3px; inset-inline-start: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(16, 24, 40, 0.2); transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1); }
 .pf-switch.on { background: var(--brand); }
 .pf-switch.on span { transform: translateX(18px); }
 .pf-methods { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -824,11 +824,11 @@ button.pf-avatar:focus-visible .pf-avatar-edit { opacity: 1; }
 .pf-pass { display: flex; flex-direction: column; gap: 12px; }
 .pf-pass-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 14px; }
 .pf-secret-in { position: relative; display: flex; }
-.pf-secret-in input { padding-right: 42px !important; }
+.pf-secret-in input { padding-inline-end: 42px !important; }
 .pf-secret-in button {
   position: absolute;
   top: 0;
-  right: 0;
+  inset-inline-end: 0;
   display: grid;
   place-items: center;
   width: 42px;
@@ -848,7 +848,7 @@ button.pf-avatar:focus-visible .pf-avatar-edit { opacity: 1; }
   align-items: center;
   gap: 7px;
   height: 42px;
-  margin-left: auto;
+  margin-inline-start: auto;
   padding: 0 18px;
   border: 0;
   border-radius: 12px;
@@ -866,5 +866,5 @@ button.pf-avatar:focus-visible .pf-avatar-edit { opacity: 1; }
 
 .pf-guest { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
 .pf-guest p { flex-basis: 100%; margin: 0; font-size: 14px; }
-.pf-guest .pf-pass-btn { margin-left: 0; text-decoration: none; }
+.pf-guest .pf-pass-btn { margin-inline-start: 0; text-decoration: none; }
 .pf-guest-alt { color: var(--brand-fg); font-size: 13.5px; font-weight: 600; }

@@ -19,10 +19,13 @@
 .lp-lang.open .lp-lang-btn .caret { transform: rotate(180deg); }
 .lp-lang-menu {
   position: absolute;
-  right: 0;
+  inset-inline-end: 0;
   top: calc(100% + 10px);
   z-index: 50;
-  width: 232px;
+  width: 248px;
+  max-height: min(72vh, 520px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 6px;
   border-radius: 14px;
   background: #fff;
@@ -30,7 +33,8 @@
   transform-origin: top right;
   animation: lang-pop-in 0.18s var(--lp-ease, cubic-bezier(0.22, 1, 0.36, 1));
 }
-.lp-lang-head { padding: 8px 10px 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #9ba1aa; }
+.lp-lang-group + .lp-lang-group { margin-top: 4px; padding-top: 4px; border-top: 1px solid #eef0f2; }
+.lp-lang-head { position: sticky; top: -6px; z-index: 1; background: #fff; padding: 8px 10px 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #9ba1aa; }
 .lp-lang-menu button {
   display: flex;
   align-items: center;
@@ -39,7 +43,7 @@
   height: 40px;
   padding: 0 10px;
   border-radius: 9px;
-  text-align: left;
+  text-align: start;
   font-size: 14px;
   color: var(--lp-text, #1f2329);
 }

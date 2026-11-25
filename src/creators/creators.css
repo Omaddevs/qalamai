@@ -86,7 +86,7 @@
 .cs-top-right {
   display: flex;
   gap: 8px;
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 .cs-body {
   display: grid;
@@ -100,7 +100,7 @@
   gap: 10px;
   padding: 14px;
   overflow-y: auto;
-  border-right: 1px solid #e6e2d9;
+  border-inline-end: 1px solid #e6e2d9;
   background: #faf9f6;
 }
 .cs-stage {
@@ -133,7 +133,7 @@
 .cs-offscreen {
   position: fixed;
   top: 0;
-  left: -10000px;
+  inset-inline-start: -10000px;
   width: 900px;
   visibility: hidden;
   pointer-events: none;
@@ -212,13 +212,13 @@
   background: none;
   color: #16181d;
   font-size: 14px;
-  text-align: left;
+  text-align: start;
 }
 .cs-panel-head svg:first-child {
   color: #6b717a;
 }
 .cs-caret {
-  margin-left: auto;
+  margin-inline-start: auto;
   color: #9ca3af;
   transition: transform 0.2s;
 }
@@ -381,7 +381,7 @@
   content: '';
   position: absolute;
   top: 3px;
-  left: 3px;
+  inset-inline-start: 3px;
   width: 17px;
   height: 17px;
   border-radius: 50%;
@@ -490,7 +490,7 @@
   border: 0;
   border-radius: 8px;
   background: none;
-  text-align: left;
+  text-align: start;
 }
 .cs-rep-title b {
   overflow: hidden;
@@ -504,7 +504,7 @@
   color: #9ca3af;
 }
 .cs-off {
-  margin-left: 6px;
+  margin-inline-start: 6px;
   padding: 1px 6px;
   border-radius: 6px;
   background: #f1efea;
@@ -792,7 +792,7 @@
 }
 .lg-pick {
   position: absolute;
-  right: 10px;
+  inset-inline-end: 10px;
   bottom: 10px;
   display: inline-flex;
   align-items: center;
@@ -896,7 +896,7 @@
 }
 .bp-arrow {
   position: absolute;
-  right: 14px;
+  inset-inline-end: 14px;
   opacity: 0.6;
 }
 .bp-empty {
@@ -1202,20 +1202,20 @@
 .cv-stage-inner {
   position: absolute;
   top: 0;
-  left: 0;
+  inset-inline-start: 0;
   width: 794px;
   transform-origin: 0 0;
 }
 .cv-break {
   position: absolute;
-  left: -10px;
-  right: -10px;
+  inset-inline-start: -10px;
+  inset-inline-end: -10px;
   padding: 2px 4px 0;
   border-top: 2px dashed #f59e0b;
   color: #b45309;
   font-size: 11px;
   font-weight: 700;
-  text-align: right;
+  text-align: end;
   pointer-events: none;
 }
 .cv-warn {
@@ -1251,7 +1251,7 @@
   font-family: var(--body);
   font-size: var(--fs);
   line-height: 1.5;
-  text-align: left;
+  text-align: start;
 }
 .cv-page.compact {
   --fs: 9.6px;
@@ -1335,7 +1335,7 @@
 }
 .cv-bullets {
   margin: 0.35em 0 0;
-  padding-left: 1.3em;
+  padding-inline-start: 1.3em;
   color: #374151;
 }
 .cv-bullets li {
@@ -1671,7 +1671,7 @@
   .cs-left {
     order: 2;
     overflow: visible;
-    border-right: 0;
+    border-inline-end: 0;
   }
   .cs-stage {
     overflow: visible;
@@ -1701,7 +1701,7 @@
 .tv-cat-new {
   position: absolute;
   top: 14px;
-  right: 14px;
+  inset-inline-end: 14px;
   z-index: 3;
   padding: 2px 8px;
   border-radius: 99px;
@@ -1724,11 +1724,11 @@
   border-radius: 14px;
 }
 .tv-cat.kit-bio .tv-cat-thumb.k0 {
-  right: 74px;
+  inset-inline-end: 74px;
   bottom: -46px;
 }
 .tv-cat.kit-bio .tv-cat-thumb.k1 {
-  right: 10px;
+  inset-inline-end: 10px;
   bottom: -22px;
 }
 .tv-cat.kit-cv .tv-cat-thumb {
@@ -1737,11 +1737,11 @@
   border-radius: 4px;
 }
 .tv-cat.kit-cv .tv-cat-thumb.k0 {
-  right: 44px;
+  inset-inline-end: 44px;
   bottom: -40px;
 }
 .tv-cat.kit-cv .tv-cat-thumb.k1 {
-  right: -24px;
+  inset-inline-end: -24px;
   bottom: -18px;
 }
 .tg-thumb.kit {
@@ -1860,6 +1860,6 @@
 .bio-tpls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
 .bio-tpl { display: flex; flex-direction: column; gap: 4px; padding: 0; border: 0; background: none; cursor: pointer; }
 .bio-tpl-page { position: relative; display: block; height: 150px; overflow: hidden; border-radius: 12px; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08); }
-.bio-tpl-page > .bp2 { position: absolute; top: 0; left: 0; width: 390px; height: 844px; transform: scale(0.218); transform-origin: top left; }
+.bio-tpl-page > .bp2 { position: absolute; top: 0; inset-inline-start: 0; width: 390px; height: 844px; transform: scale(0.218); transform-origin: top left; }
 .bio-tpl:hover .bio-tpl-page { box-shadow: 0 0 0 2px var(--brand-strong); }
 .bio-tpl small { font-size: 11.5px; font-weight: 600; text-align: center; }

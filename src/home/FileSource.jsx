@@ -58,7 +58,7 @@ export default function FileSource({ doc, onDoc, notify, variant = 'pill' }) {
           <b title={doc.fileName}>{doc.fileName}</b>
           <small>{docMeta(doc)}</small>
         </span>
-        <button type="button" className="fs-x" onClick={() => onDoc(null)} aria-label={t('fs.remove')} title={t('fs.remove')}>
+        <button type="button" className="fs-x" onClick={() => onDoc(null)} aria-label={t('fs.removeFile')} title={t('fs.removeFile')}>
           <X size={12} weight="bold" />
         </button>
       </div>

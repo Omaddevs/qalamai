@@ -4,6 +4,7 @@ import { createElement, useSyncExternalStore } from 'react'
 import {
   DEFAULT_LANG,
   LANGS,
+  dirOf,
   formatDate as fmtDate,
   formatNumber as fmtNumber,
   htmlLangOf,
@@ -14,7 +15,7 @@ import {
 } from '../../shared/i18n.js'
 import { loadMessages } from './messages.js'
 
-export { LANGS, DEFAULT_LANG, localeOf }
+export { LANGS, DEFAULT_LANG, localeOf, dirOf }
 
 const KEY = 'qalam.lang'
 
@@ -51,7 +52,13 @@ function initial() {
 
 let lang = initial()
 const subs = new Set()
-if (typeof document !== 'undefined') document.documentElement.lang = htmlLangOf(lang)
+/** <html lang dir>: the language tag, and right-to-left for Arabic, Urdu and Persian. */
+function markDocument(id) {
+  if (typeof document === 'undefined') return
+  document.documentElement.lang = htmlLangOf(id)
+  document.documentElement.dir = dirOf(id)
+}
+markDocument(lang)
 
 export const getLang = () => lang
 
@@ -84,7 +91,7 @@ export async function setLang(id) {
   } catch {
     /* the choice just isn't remembered */
   }
-  document.documentElement.lang = htmlLangOf(id)
+  markDocument(id)
   // Keep a language link in the address in step, so a reload doesn't switch back.
   if (urlLang()) {
     const url = new URL(location.href)

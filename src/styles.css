@@ -85,7 +85,7 @@ p {
   font-weight: 400;
   font-size: 1.32em;
   letter-spacing: -0.01em;
-  margin-left: -0.02em;
+  margin-inline-start: -0.02em;
 }
 
 .wm-ai {
@@ -93,7 +93,7 @@ p {
   font-weight: 800;
   font-size: 1.05em;
   letter-spacing: -0.045em;
-  margin-left: -0.1em;
+  margin-inline-start: -0.1em;
 }
 
 .icon-btn {
@@ -156,11 +156,11 @@ p {
 }
 
 .popover.left {
-  left: 0;
+  inset-inline-start: 0;
 }
 
 .popover.right {
-  right: 0;
+  inset-inline-end: 0;
 }
 
 @keyframes pop {
@@ -195,7 +195,7 @@ p {
   border-radius: 8px;
   background: none;
   font-size: 13px;
-  text-align: left;
+  text-align: start;
 }
 
 .menu-item.col {

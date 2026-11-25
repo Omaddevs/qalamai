@@ -15,7 +15,7 @@ export const TOPICS = {
   support: 'Texnik yordam',
   payment: 'Tölov',
 }
-const LANGS = { uz: 'Özbekça', 'uz-cyrl': 'Ўзбекча', ru: 'Ruscha', en: 'Inglizça', kk: 'Qozoqça', ky: 'Qirğizça', tg: 'Tojikça' }
+const LANGS = { uz: 'Özbekça', 'uz-cyrl': 'Ўзбекча', ru: 'Ruscha', en: 'Inglizça', kk: 'Qozoqça', ky: 'Qirğizça', tg: 'Tojikça', zh: 'Xitoyça', hi: 'Hindça', es: 'Ispança', fr: 'Fransuzça', ar: 'Arabça', bn: 'Bengalça', pt: 'Portugalça', ur: 'Urduça', id: 'Indonezça', de: 'Nemisça', ja: 'Yaponça', tr: 'Turkça', ko: 'Koreysça', vi: 'Vyetnamça', it: 'Italyança', fa: 'Forsça', pl: 'Polyakça', uk: 'Ukrainça' }
 const LIMIT = 20
 
 /** Tells the sidebar badge to recount new messages. */

@@ -46,7 +46,7 @@
 
 .hx-aurora.a1 {
   top: -260px;
-  left: -220px;
+  inset-inline-start: -220px;
   width: 760px;
   height: 580px;
   background: radial-gradient(closest-side, rgba(198, 244, 50, 0.67), rgba(198, 244, 50, 0.0));
@@ -55,7 +55,7 @@
 
 .hx-aurora.a2 {
   top: -290px;
-  right: -240px;
+  inset-inline-end: -240px;
   width: 800px;
   height: 620px;
   background: radial-gradient(closest-side, rgba(167, 139, 250, 0.3), rgba(167, 139, 250, 0));
@@ -67,7 +67,7 @@
   left: 50%;
   width: 960px;
   height: 500px;
-  margin-left: -480px;
+  margin-inline-start: -480px;
   background: radial-gradient(closest-side, rgba(251, 191, 140, 0.38), rgba(251, 191, 140, 0));
   animation: hx-drift-c 27s ease-in-out infinite alternate;
 }
@@ -320,7 +320,7 @@
 }
 
 .hx-word em {
-  padding-right: 0.06em;
+  padding-inline-end: 0.06em;
   color: var(--brand-ink);
   font-family: 'Instrument Serif', 'Playfair Display', Georgia, serif;
   font-size: 1.14em;
@@ -346,7 +346,7 @@
 /* the "?" pops in once the pen has written the word */
 .hx-q {
   display: inline-block;
-  margin-left: 0.42em;
+  margin-inline-start: 0.42em;
   animation: hx-q-pop 0.7s 2.1s cubic-bezier(0.3, 1.6, 0.5, 1) backwards;
 }
 
@@ -360,7 +360,7 @@
 /* Handwritten underline drawn by the pen (shared with the workspace headers) */
 .hx-stroke {
   position: absolute;
-  left: -2%;
+  inset-inline-start: -2%;
   bottom: -0.1em;
   width: 104%;
   height: 0.3em;
@@ -385,7 +385,7 @@
 .hx-pen {
   position: absolute;
   bottom: 0.02em;
-  left: -2%;
+  inset-inline-start: -2%;
   width: 0;
   height: 0;
   animation: hx-write 1.4s 0.6s cubic-bezier(0.65, 0, 0.35, 1) forwards;
@@ -393,7 +393,7 @@
 
 .hx-pen svg {
   position: absolute;
-  left: 0;
+  inset-inline-start: 0;
   bottom: 0;
   transform-origin: 59% 95%;
   transform: translate(-59%, 5%) rotate(26deg);
@@ -412,8 +412,8 @@
 }
 
 @keyframes hx-write {
-  from { left: -2%; }
-  to { left: 101%; }
+  from { inset-inline-start: -2%; }
+  to { inset-inline-start: 101%; }
 }
 
 @keyframes hx-pen-idle {
@@ -566,9 +566,9 @@
 .hx-ph {
   position: absolute;
   top: 0;
-  right: 52px;
+  inset-inline-end: 52px;
   bottom: 0;
-  left: 60px;
+  inset-inline-start: 60px;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -588,7 +588,7 @@
   display: inline-block;
   width: 2px;
   height: 22px;
-  margin-left: -3px;
+  margin-inline-start: -3px;
   border-radius: 2px;
   background: var(--brand);
   animation: hx-blink 1s steps(1) infinite;
@@ -654,8 +654,8 @@
 }
 
 .hx-tools-hint {
-  margin-left: auto;
-  padding-right: 8px;
+  margin-inline-start: auto;
+  padding-inline-end: 8px;
   color: #9298a1;
   font-size: 12.5px;
 }
@@ -733,7 +733,7 @@
   color: #0f1115;
   font-size: 13.5px;
   font-weight: 600;
-  text-align: left;
+  text-align: start;
   animation: hx-type-in 0.3s calc(var(--i) * 18ms) cubic-bezier(0.2, 0.8, 0.2, 1) both;
   transition: background 0.18s, border-color 0.18s, transform 0.2s cubic-bezier(0.3, 1.6, 0.5, 1), box-shadow 0.2s;
 }
@@ -780,7 +780,7 @@
 .hx-type-on {
   position: absolute;
   top: 9px;
-  right: 9px;
+  inset-inline-end: 9px;
   display: grid;
   place-items: center;
   width: 20px;
@@ -797,8 +797,8 @@
   }
 
   .popover.hx-type-pop {
-    left: 0;
-    right: 0;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
     width: auto;
     max-width: none;
   }
@@ -915,7 +915,7 @@
   align-items: center;
   gap: 8px;
   height: 42px;
-  margin-left: auto;
+  margin-inline-start: auto;
   padding: 0 14px 0 18px;
   border: 1px solid transparent;
   border-radius: 13px;
@@ -966,7 +966,7 @@
   position: absolute;
   top: -20%;
   bottom: -20%;
-  left: 0;
+  inset-inline-start: 0;
   width: 45%;
   background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.4), transparent);
   transform: translateX(-160%) skewX(-18deg);
@@ -1094,8 +1094,8 @@
 .hx-preview {
   position: absolute;
   top: 0;
-  right: 0;
-  left: 0;
+  inset-inline-end: 0;
+  inset-inline-start: 0;
   animation: hx-fade-up 0.35s ease-out backwards;
 }
 
@@ -1300,7 +1300,7 @@
 .mp ul,
 .mp ol {
   margin: 0.6cqw 0;
-  padding-left: 5cqw;
+  padding-inline-start: 5cqw;
 }
 
 .mp table {
@@ -1315,7 +1315,7 @@
 .mp th {
   padding: 0.4cqw 0.8cqw;
   border: 0.15cqw solid #555;
-  text-align: left;
+  text-align: start;
   vertical-align: top;
 }
 
@@ -1330,11 +1330,11 @@
 
 .mp .toc td.pg {
   width: 6cqw;
-  text-align: right;
+  text-align: end;
 }
 
 .mp .toc td.l2 {
-  padding-left: 4cqw;
+  padding-inline-start: 4cqw;
 }
 
 .mp .hint {
@@ -1343,8 +1343,8 @@
 
 .mp p.hint {
   margin: 0.4cqw 0;
-  padding-left: 1.5cqw;
-  border-left: 0.5cqw solid var(--brand);
+  padding-inline-start: 1.5cqw;
+  border-inline-start: 0.5cqw solid var(--brand);
   background: var(--brand-soft);
   text-indent: 0;
 }
@@ -1400,7 +1400,7 @@
 
 .mp .titul .t-who p {
   margin-top: 1.2cqw;
-  text-align: left;
+  text-align: start;
 }
 
 .mp .t-city {
@@ -1477,7 +1477,7 @@
   .hx-field {
     height: 54px;
     gap: 10px;
-    padding-left: 6px;
+    padding-inline-start: 6px;
   }
   .hx-field-ic {
     width: 32px;
@@ -1488,7 +1488,7 @@
     font-size: 16px;
   }
   .hx-ph {
-    left: 48px;
+    inset-inline-start: 48px;
   }
   .hx-kbd {
     display: none;
@@ -1559,6 +1559,6 @@
     stroke-dashoffset: 0;
   }
   .hx-pen {
-    left: 101%;
+    inset-inline-start: 101%;
   }
 }

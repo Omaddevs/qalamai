@@ -13,7 +13,7 @@
   position: absolute;
   top: 12px;
   bottom: 12px;
-  left: 12px;
+  inset-inline-start: 12px;
   display: flex;
   flex-direction: column;
   width: min(1080px, calc(100% - 24px));
@@ -226,7 +226,7 @@
 }
 
 .ys-ex > span {
-  margin-right: 2px;
+  margin-inline-end: 2px;
   font-size: 12.5px;
   color: #6b717b;
 }
@@ -246,7 +246,7 @@
   transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
 
-.ys-ex button svg { opacity: 0; margin-right: -4px; transform: translateX(-4px); transition: opacity 0.15s, transform 0.15s, margin 0.15s; }
+.ys-ex button svg { opacity: 0; margin-inline-end: -4px; transform: translateX(-4px); transition: opacity 0.15s, transform 0.15s, margin 0.15s; }
 
 .ys-ex button:hover {
   border-color: rgba(198, 244, 50, 0.5);
@@ -254,7 +254,7 @@
   color: #fff;
 }
 
-.ys-ex button:hover svg { opacity: 1; margin-right: 0; transform: none; color: var(--brand); }
+.ys-ex button:hover svg { opacity: 1; margin-inline-end: 0; transform: none; color: var(--brand); }
 
 /* ── main: cards on the left, preview on the right ── */
 .ys-main {
@@ -533,7 +533,7 @@
 .ys-16::after {
   content: '';
   position: absolute;
-  right: 0;
+  inset-inline-end: 0;
   top: 0;
   width: 30%;
   height: 100%;
@@ -676,7 +676,7 @@
   place-items: center;
   width: 26px;
   height: 22px;
-  margin-left: auto;
+  margin-inline-start: auto;
   border-radius: 7px;
   background: rgba(255, 255, 255, 0.16);
 }
@@ -706,7 +706,7 @@
 }
 
 .ys-foot kbd {
-  margin-right: 3px;
+  margin-inline-end: 3px;
   border: 1px solid #e4e4df;
   border-bottom-width: 2px;
   background: #fbfbf9;
@@ -714,7 +714,7 @@
 }
 
 .ys-foot-brand {
-  margin-left: auto;
+  margin-inline-start: auto;
   font-family: var(--font-display);
   font-weight: 600;
   color: #b2b6bd;
@@ -731,7 +731,7 @@
 }
 
 @media (max-width: 640px) {
-  .ys-scrim { left: 0; }
+  .ys-scrim { inset-inline-start: 0; }
 
   .cs {
     inset: 0;

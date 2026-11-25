@@ -16,7 +16,7 @@
   border: 1.5px solid #e8e5de;
   border-radius: 16px;
   background: #fff;
-  text-align: left;
+  text-align: start;
   transition: border-color 0.2s, box-shadow 0.25s;
 }
 
@@ -71,7 +71,7 @@
 }
 
 .ad-lang-text b[dir='rtl'] {
-  text-align: left;
+  text-align: start;
   unicode-bidi: plaintext;
 }
 
@@ -182,7 +182,7 @@
   border: 0;
   border-radius: 11px;
   background: transparent;
-  text-align: left;
+  text-align: start;
   transition: background 0.15s;
 }
 

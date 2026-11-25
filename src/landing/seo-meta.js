@@ -10,8 +10,12 @@ export const SITE_NAME = 'QalamAI'
 export const FAQ_COUNT = 8
 
 /** hreflang value of a language id ("uz-cyrl" → "uz-Cyrl"). */
-export const hreflangOf = (lang) => (lang === 'uz-cyrl' ? 'uz-Cyrl' : lang)
-const OG_LOCALE = { uz: 'uz_UZ', 'uz-cyrl': 'uz_UZ', ru: 'ru_RU', en: 'en_US', kk: 'kk_KZ', ky: 'ky_KG', tg: 'tg_TJ' }
+export const hreflangOf = (lang) => (lang === 'uz-cyrl' ? 'uz-Cyrl' : lang === 'zh' ? 'zh-Hans' : lang)
+const OG_LOCALE = {
+  uz: 'uz_UZ', 'uz-cyrl': 'uz_UZ', ru: 'ru_RU', en: 'en_US', kk: 'kk_KZ', ky: 'ky_KG', tg: 'tg_TJ',
+  zh: 'zh_CN', hi: 'hi_IN', es: 'es_ES', fr: 'fr_FR', ar: 'ar_AR', bn: 'bn_IN', pt: 'pt_BR', ur: 'ur_PK', id: 'id_ID',
+  de: 'de_DE', ja: 'ja_JP', tr: 'tr_TR', ko: 'ko_KR', vi: 'vi_VN', it: 'it_IT', fa: 'fa_IR', pl: 'pl_PL', uk: 'uk_UA',
+}
 export const ogLocaleOf = (lang) => OG_LOCALE[lang] ?? OG_LOCALE[DEFAULT_LANG]
 
 /**

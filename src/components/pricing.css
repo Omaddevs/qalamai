@@ -88,7 +88,7 @@
 .modal.pricing .modal-head .icon-btn {
   position: absolute;
   top: 14px;
-  right: 14px;
+  inset-inline-end: 14px;
 }
 
 .modal.pricing .modal-body {
@@ -209,7 +209,7 @@
 .cs-tag {
   position: absolute;
   top: 14px;
-  right: 14px;
+  inset-inline-end: 14px;
   padding: 3px 9px;
   border-radius: 999px;
   background: #fff;
@@ -364,7 +364,7 @@
 }
 
 .cs-costs small {
-  margin-left: 6px;
+  margin-inline-start: 6px;
   color: var(--muted);
   font-size: 12px;
 }

@@ -37,7 +37,7 @@
 
 .gn-aurora.a1 {
   top: -20%;
-  left: -10%;
+  inset-inline-start: -10%;
   width: 70vw;
   height: 70vh;
   background: radial-gradient(closest-side, rgba(198, 244, 50, 0.45), rgba(198, 244, 50, 0));
@@ -45,7 +45,7 @@
 }
 
 .gn-aurora.a2 {
-  right: -15%;
+  inset-inline-end: -15%;
   bottom: -25%;
   width: 70vw;
   height: 75vh;
@@ -191,7 +191,7 @@
 }
 
 .gn-pct i {
-  margin-left: 2px;
+  margin-inline-start: 2px;
   color: var(--ink-3);
   font-size: 0.5em;
   font-style: normal;
@@ -268,7 +268,7 @@
   position: absolute;
   top: 24px;
   bottom: -12px;
-  left: 10px;
+  inset-inline-start: 10px;
   width: 2px;
   border-radius: 2px;
   background: #ecebe5;
@@ -314,7 +314,7 @@
   height: 22px;
   border: 2px solid transparent;
   border-top-color: var(--black);
-  border-right-color: var(--black);
+  border-inline-end-color: var(--black);
   border-radius: 50%;
   animation: gn-spin 0.8s linear infinite;
 }
@@ -417,7 +417,7 @@
 
 .gn-typing {
   gap: 3px !important;
-  padding-left: 26px;
+  padding-inline-start: 26px;
 }
 
 .gn-typing i {
@@ -567,7 +567,7 @@
 .gn-thumb-n {
   position: absolute;
   bottom: 5px;
-  left: 5px;
+  inset-inline-start: 5px;
   display: grid;
   place-items: center;
   min-width: 18px;
@@ -583,7 +583,7 @@
 
 .gn-pen {
   position: absolute;
-  right: 12%;
+  inset-inline-end: 12%;
   top: 30%;
   animation: gn-penmove 0.9s ease-in-out infinite;
 }

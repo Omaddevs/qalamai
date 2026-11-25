@@ -34,11 +34,11 @@
   animation: fx-float 7s ease-in-out infinite;
   z-index: 0;
 }
-.fx-dot.d1 { width: 26px; height: 26px; top: 48px; right: 13%; }
-.fx-dot.d2 { width: 12px; height: 12px; top: 96px; left: 15%; animation-delay: -2s; }
-.fx-dot.d3 { width: 7px; height: 7px; top: 140px; right: 6%; animation-delay: -4s; }
-.fx-dot.d4 { width: 24px; height: 24px; top: 300px; left: 7%; animation-delay: -1s; }
-.fx-dot.d5 { width: 11px; height: 11px; top: 272px; right: 18%; animation-delay: -5s; }
+.fx-dot.d1 { width: 26px; height: 26px; top: 48px; inset-inline-end: 13%; }
+.fx-dot.d2 { width: 12px; height: 12px; top: 96px; inset-inline-start: 15%; animation-delay: -2s; }
+.fx-dot.d3 { width: 7px; height: 7px; top: 140px; inset-inline-end: 6%; animation-delay: -4s; }
+.fx-dot.d4 { width: 24px; height: 24px; top: 300px; inset-inline-start: 7%; animation-delay: -1s; }
+.fx-dot.d5 { width: 11px; height: 11px; top: 272px; inset-inline-end: 18%; animation-delay: -5s; }
 @keyframes fx-float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
@@ -47,8 +47,8 @@
 /* dashed guides framing the active row */
 .fx-guide {
   position: absolute;
-  left: 0;
-  right: 0;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
   height: 0;
   border-top: 1.5px dashed #dcdfe4;
   z-index: 0;
@@ -71,8 +71,8 @@
   padding: 0 18px;
   z-index: 0;
 }
-.fx-ghost.left { left: -14px; align-items: flex-end; }
-.fx-ghost.right { right: -14px; align-items: flex-start; }
+.fx-ghost.left { inset-inline-start: -14px; align-items: flex-end; }
+.fx-ghost.right { inset-inline-end: -14px; align-items: flex-start; }
 .fx-ghost i { display: block; height: 6px; border-radius: 4px; background: #e2e4e8; width: 72%; }
 .fx-ghost i + i { width: 46%; }
 
@@ -101,13 +101,13 @@
   background: linear-gradient(#c9cdd3, #dde0e4);
   clip-path: polygon(6% 0, 94% 0, 100% 100%, 0 100%);
 }
-.fx-flap.l { left: -112px; clip-path: polygon(0 0, 78% 22%, 100% 100%, 14% 86%); }
-.fx-flap.r { right: -112px; clip-path: polygon(22% 22%, 100% 0, 86% 86%, 0 100%); }
+.fx-flap.l { inset-inline-start: -112px; clip-path: polygon(0 0, 78% 22%, 100% 100%, 14% 86%); }
+.fx-flap.r { inset-inline-end: -112px; clip-path: polygon(22% 22%, 100% 0, 86% 86%, 0 100%); }
 
 .fx-box-front {
   position: absolute;
-  left: 0;
-  right: 0;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
   top: 440px;
   bottom: 0;
   z-index: 3;
@@ -128,8 +128,8 @@
 .fx-lid::after {
   content: '';
   position: absolute;
-  left: 0;
-  right: 0;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
   bottom: 0;
   height: 4px;
   background: linear-gradient(90deg, #cfe0dc, #e0ebe9 50%, #cfe0dc);
@@ -181,8 +181,8 @@
   -webkit-mask: linear-gradient(90deg, transparent 0 1px, #000 1px calc(100% - 1px), transparent 0) ;
   mask: linear-gradient(90deg, transparent 0 1px, #000 1px calc(100% - 1px), transparent 0);
 }
-.fx-tape.l { left: -10px; transform: rotate(-32deg); }
-.fx-tape.r { right: -10px; transform: rotate(28deg); }
+.fx-tape.l { inset-inline-start: -10px; transform: rotate(-32deg); }
+.fx-tape.r { inset-inline-end: -10px; transform: rotate(28deg); }
 
 /* ───────── rising cards ───────── */
 .fx-tube {
@@ -201,7 +201,7 @@
   top: var(--fx-row);
   width: var(--fx-card-w);
   height: var(--fx-card-h);
-  margin-left: calc(var(--fx-card-w) / -2);
+  margin-inline-start: calc(var(--fx-card-w) / -2);
   transform: translateY(calc(var(--k) * var(--fx-step))) scale(0.96);
   transition:
     transform var(--fx-dur) var(--fx-ease),
@@ -230,7 +230,7 @@
     inset 0 1px 0 #fff,
     0 10px 20px -14px rgba(16, 24, 40, 0.35);
   cursor: pointer;
-  text-align: left;
+  text-align: start;
   font: inherit;
   transition: background 0.5s ease, box-shadow 0.5s ease;
 }

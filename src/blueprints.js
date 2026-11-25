@@ -11,7 +11,7 @@
 // There is no AI backend yet: documents carry the full structure, topic-aware opening lines and
 // grey "✎" hints telling the author what to write where.
 import { authorLine, uniOf } from './profile.js'
-import { getLang, t } from './i18n/index.js'
+import { getLang, localeOf, t } from './i18n/index.js'
 
 /* ───────────── helpers ───────────── */
 
@@ -34,7 +34,16 @@ const MONTHS = {
   tg: ['январ', 'феврал', 'март', 'апрел', 'май', 'июн', 'июл', 'август', 'сентябр', 'октябр', 'ноябр', 'декабр'],
   'uz-cyrl': ['январ', 'феврал', 'март', 'апрел', 'май', 'июн', 'июл', 'август', 'сентябр', 'октябр', 'ноябр', 'декабр'],
 }
-const monthName = (i) => (MONTHS[getLang()] ?? MONTHS.uz)[i]
+/** Month name for a document date; the world languages take their standalone name from Intl. */
+const monthName = (i) => {
+  const lang = getLang()
+  if (MONTHS[lang]) return MONTHS[lang][i]
+  try {
+    return new Intl.DateTimeFormat(localeOf(lang), { month: 'long' }).format(new Date(2000, i, 15))
+  } catch {
+    return MONTHS.en[i]
+  }
+}
 
 /** Text from src/i18n/msg/bp.js. */
 const L = (key, vars) => t(`bp.${key}`, vars)

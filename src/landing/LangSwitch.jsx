@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Globe, CaretDown, Check } from '@phosphor-icons/react'
 import { LANGS, setLang, t, useLang } from '../i18n/index.js'
+import { htmlLangOf } from '../../shared/i18n.js'
 import './lang-switch.css'
 
 // Interface language picker. Languages and the store live in src/i18n.
@@ -58,23 +59,35 @@ export default function LangSwitch({ className = '', up = false }) {
       </button>
       {open && (
         <div className="lp-lang-menu" role="menu" aria-label={t('lang.menu')}>
-          <div className="lp-lang-head">{t('lang.menu')}</div>
-          {LANGS.map((l, i) => (
-            <button
-              key={l.id}
-              ref={(el) => (items.current[i] = el)}
-              role="menuitemradio"
-              aria-checked={l.id === lang}
-              className={l.id === lang ? 'on' : ''}
-              onClick={() => choose(l.id)}
-            >
-              <span className="badge">{l.code}</span>
-              <span className="name">
-                {l.name}
-                {l.note && <small>{l.note}</small>}
-              </span>
-              {l.id === lang && <Check size={14} weight="bold" className="tick" />}
-            </button>
+          {[
+            [t('ad.langSite'), LANGS.filter((l) => !l.world)],
+            [t('ad.langWorld'), LANGS.filter((l) => l.world)],
+          ].map(([label, list]) => (
+            <div className="lp-lang-group" key={label} role="group" aria-label={label}>
+              <div className="lp-lang-head">{label}</div>
+              {list.map((l) => {
+                const i = LANGS.indexOf(l)
+                return (
+                  <button
+                    key={l.id}
+                    ref={(el) => (items.current[i] = el)}
+                    role="menuitemradio"
+                    aria-checked={l.id === lang}
+                    lang={htmlLangOf(l.id)}
+                    dir={l.dir ?? 'ltr'}
+                    className={l.id === lang ? 'on' : ''}
+                    onClick={() => choose(l.id)}
+                  >
+                    <span className="badge">{l.code}</span>
+                    <span className="name">
+                      {l.name}
+                      {l.note && <small>{l.note}</small>}
+                    </span>
+                    {l.id === lang && <Check size={14} weight="bold" className="tick" />}
+                  </button>
+                )
+              })}
+            </div>
           ))}
         </div>
       )}

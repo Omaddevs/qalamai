@@ -97,7 +97,7 @@
 .sv-thumb .slide { pointer-events: none; }
 .sv-thumb > span {
   position: absolute;
-  left: 4px;
+  inset-inline-start: 4px;
   bottom: 4px;
   padding: 1px 6px;
   border-radius: 4px;
@@ -124,7 +124,7 @@
 @media (max-width: 640px) {
   .sv-top { padding: 10px 16px; gap: 10px; }
   .sv-name { display: none; }
-  .sv-top-right { margin-left: auto; }
+  .sv-top-right { margin-inline-start: auto; }
   .sv-stage { padding: 16px 16px 4px; gap: 0; }
   .sv-arrow { display: none; }
   .sv-slide { width: 100%; }

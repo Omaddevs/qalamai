@@ -23,7 +23,7 @@
 }
 
 .tl-head .pj-title .hx-word {
-  margin-right: 0.5em;
+  margin-inline-end: 0.5em;
 }
 
 .tl-progress {
@@ -162,7 +162,7 @@
 }
 
 .tl-field select {
-  padding-right: 8px;
+  padding-inline-end: 8px;
   text-overflow: ellipsis;
 }
 

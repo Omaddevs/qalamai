@@ -28,7 +28,7 @@
   font-size: 1.12em;
   letter-spacing: -0.01em;
   color: #9ba0a8;
-  padding-right: 0.04em;
+  padding-inline-end: 0.04em;
 }
 .hw-arrows { display: flex; gap: 10px; flex-shrink: 0; }
 .lp .hw-arrow {
@@ -125,7 +125,7 @@
 
 .hw-timer {
   position: absolute;
-  left: 0;
+  inset-inline-start: 0;
   bottom: 0;
   height: 3px;
   width: 100%;
@@ -162,7 +162,7 @@
   white-space: nowrap;
 }
 .hw-typed { display: inline-block; overflow: hidden; }
-.hw-caret { width: 1.5px; height: 15px; margin-left: 1px; background: var(--brand-hover); }
+.hw-caret { width: 1.5px; height: 15px; margin-inline-start: 1px; background: var(--brand-hover); }
 .hw-card.on .hw-typed { animation: hw-type 1.6s steps(23) both 0.2s; }
 .hw-card.on .hw-caret { animation: hw-blink 0.9s steps(1) infinite; }
 .hw-chips { display: flex; gap: 6px; }
@@ -202,7 +202,7 @@
 .hw-tick {
   position: absolute;
   top: -6px;
-  right: -6px;
+  inset-inline-end: -6px;
   display: grid;
   place-items: center;
   width: 17px;
@@ -278,7 +278,7 @@
   margin-top: -1px;
   background: #e2e4e9;
 }
-.hw-rail-line { position: absolute; top: 50%; left: 23px; right: 23px; height: 2px; margin-top: -1px; }
+.hw-rail-line { position: absolute; top: 50%; inset-inline-start: 23px; inset-inline-end: 23px; height: 2px; margin-top: -1px; }
 .hw-rail-line span {
   position: absolute;
   inset: 0;
@@ -331,5 +331,5 @@
   .hw-arrows { display: none; }
   .hw-track { --hw-gutter: 16px; }
   .lp .hw-pill { width: 42px; height: 32px; }
-  .hw-rail-line { left: 21px; right: 21px; }
+  .hw-rail-line { inset-inline-start: 21px; inset-inline-end: 21px; }
 }

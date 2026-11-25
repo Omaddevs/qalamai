@@ -6,47 +6,27 @@ import { Dropdown } from '../components/ui.jsx'
 import { LANGS, getLang, inLang, t } from '../i18n/index.js'
 import './decklang.css'
 
-/* The 7 site languages, then the most spoken world languages.
- * The order matches 'ad.names' (src/i18n/msg/aideck.js); native names are not translated. */
-const WORLD = [
-  ['zh', '中文'],
-  ['hi', 'हिन्दी'],
-  ['es', 'Español'],
-  ['fr', 'Français'], // i18n-ignore
-  ['ar', 'العربية', true],
-  ['bn', 'বাংলা'],
-  ['pt', 'Português'],
-  ['ur', 'اردو', true],
-  ['id', 'Bahasa Indonesia'],
-  ['de', 'Deutsch'],
-  ['ja', '日本語'],
-  ['tr', 'Türkçe'], // i18n-ignore
-  ['ko', '한국어'],
-  ['vi', 'Tiếng Việt'],
-  ['it', 'Italiano'],
-  ['fa', 'فارسی', true],
-  ['pl', 'Polski'],
-  ['uk', 'Українська'],
-]
+/* Every interface language can also be the language of a presentation: the 7 languages of the
+ * region first, then the most spoken world languages. 'ad.names' (src/i18n/msg/aideck.js) names them
+ * in LANGS order, in the interface language; native names are not translated. */
 
 /** Every presentation language, named in the interface language. */
 export const deckLangs = () => {
   const names = t('ad.names').split('|')
-  const site = LANGS.map((l) => ({ id: l.id, code: l.code, native: l.note ? `${l.name} · ${l.note}` : l.name, site: true }))
-  const world = WORLD.map(([id, native, rtl]) => ({ id, code: id.toUpperCase(), native, rtl }))
-  return [...site, ...world].map((l, i) => ({ ...l, name: names[i] ?? l.native }))
+  return LANGS.map((l, i) => {
+    const native = l.note ? `${l.name} · ${l.note}` : l.name
+    return { id: l.id, code: l.code, native, rtl: l.dir === 'rtl', site: !l.world, name: names[i] ?? native }
+  })
 }
 
-const isSite = (id) => LANGS.some((l) => l.id === id)
+const isLangId = (id) => LANGS.some((l) => l.id === id)
 /** The interface language, which is always one of the presentation languages. */
-export const defaultDeckLang = () => (isSite(getLang()) ? getLang() : 'uz')
+export const defaultDeckLang = () => (isLangId(getLang()) ? getLang() : 'uz')
 
-/**
- * Builds a document in `lang`. Site languages have their own texts; until the AI backend writes
- * the other languages, their decks get the English texts (`fallback` says so).
- */
-export const buildIn = (lang, fn) => inLang(isSite(lang) ? lang : 'en', fn)
-export const fallbackOf = (lang) => !isSite(lang)
+/** Builds a document in `lang` — every presentation language has its own texts. */
+export const buildIn = (lang, fn) => inLang(isLangId(lang) ? lang : 'en', fn)
+/** True when a document can't be written in `lang` and falls back to English (an unknown id). */
+export const fallbackOf = (lang) => !isLangId(lang)
 
 export function DeckLangPicker({ langs, value, onChange, variant = 'field' }) {
   const [q, setQ] = useState('')

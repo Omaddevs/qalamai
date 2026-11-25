@@ -7,7 +7,7 @@ export default {
   'fs.reading': { uz: 'Fayl öqilmoqda…', ru: 'Читаем файл…', en: 'Reading the file…', kk: 'Файл оқылуда…', ky: 'Файл окулууда…', tg: 'Файл хонда мешавад…' },
   'fs.words': { uz: '{n} söz', ru: { one: '{n} слово', few: '{n} слова', many: '{n} слов' }, en: { one: '{n} word', other: '{n} words' }, kk: '{n} сөз', ky: '{n} сөз', tg: '{n} калима' },
   'fs.pagesN': { uz: '{n} bet', ru: { one: '{n} страница', few: '{n} страницы', many: '{n} страниц' }, en: { one: '{n} page', other: '{n} pages' }, kk: '{n} бет', ky: '{n} барак', tg: '{n} саҳифа' },
-  'fs.remove': { uz: 'Faylni olib taşlaş', ru: 'Убрать файл', en: 'Remove the file', kk: 'Файлды алып тастау', ky: 'Файлды алып салуу', tg: 'Хориҷ кардани файл' },
+  'fs.removeFile': { uz: 'Faylni olib taşlaş', ru: 'Убрать файл', en: 'Remove the file', kk: 'Файлды алып тастау', ky: 'Файлды алып салуу', tg: 'Хориҷ кардани файл' },
   'fs.private': {
     uz: 'Fayl serverga yuklanmaydi — faqat brauzeringizda öqiladi va taqdimot tayyor bölgaç öçiriladi',
     ru: 'Файл не загружается на сервер — он читается только в вашем браузере и удаляется, когда презентация готова',

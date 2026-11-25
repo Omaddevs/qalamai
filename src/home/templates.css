@@ -206,7 +206,7 @@
   border: 1px solid #ebe8e1;
   border-radius: 18px;
   background: #fff;
-  text-align: left;
+  text-align: start;
   animation: pj-in 0.45s calc(var(--i) * 50ms) both;
   transition: transform 0.2s, border-color 0.2s;
 }
@@ -269,7 +269,7 @@
 
 .tv-cat-art {
   position: absolute;
-  right: 0;
+  inset-inline-end: 0;
   bottom: 0;
   width: 200px;
   height: 130px;
@@ -287,14 +287,14 @@
 
 .tv-cat-thumb.k0 {
   z-index: 2;
-  right: 4px;
+  inset-inline-end: 4px;
   bottom: -14px;
   transform: rotate(-7deg);
 }
 
 .tv-cat-thumb.k1 {
   z-index: 1;
-  right: -46px;
+  inset-inline-end: -46px;
   bottom: 26px;
   transform: rotate(9deg);
 }
@@ -342,7 +342,7 @@
   padding: 0;
   border: 0;
   background: none;
-  text-align: left;
+  text-align: start;
   scroll-snap-align: start;
 }
 
@@ -421,7 +421,7 @@
 .tg-badges {
   position: absolute;
   top: 8px;
-  left: 8px;
+  inset-inline-start: 8px;
   z-index: 2;
   display: flex;
   gap: 5px;
@@ -556,7 +556,7 @@
   position: absolute;
   z-index: 3;
   top: 14px;
-  right: 14px;
+  inset-inline-end: 14px;
   display: grid;
   place-items: center;
   width: 36px;
@@ -607,11 +607,11 @@
 }
 
 .tp-arrow.l {
-  left: 12px;
+  inset-inline-start: 12px;
 }
 
 .tp-arrow.r {
-  right: 12px;
+  inset-inline-end: 12px;
 }
 
 .tp-arrow:disabled {
@@ -730,7 +730,7 @@
 }
 
 .tp-swatches small {
-  margin-left: 6px;
+  margin-inline-start: 6px;
   color: #8b919a;
   font-size: 12px;
 }
@@ -797,7 +797,7 @@
     display: none;
   }
   .tv-head-text {
-    padding-right: 32px;
+    padding-inline-end: 32px;
   }
   .tp {
     grid-template-columns: 1fr;

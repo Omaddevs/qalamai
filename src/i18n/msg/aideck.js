@@ -1,5 +1,5 @@
 // AI taqdimot page (home tab 'aideck'): topic, plan points, slide count, presentation language.
-// 'ad.names' lists language names in the order of AiDeckView's DECK_LANGS.
+// 'ad.names' lists language names in LANGS order (shared/i18n.js), as deckLangs() reads them.
 export default {
   'ad.rail': { uz: 'AI taqdimot', ru: 'AI-презентация', en: 'AI presentation', kk: 'AI презентация', ky: 'AI презентация', tg: 'Презентатсияи AI' },
   'ad.eyebrow': { uz: 'QalamAI · Taqdimot generatori', ru: 'QalamAI · Генератор презентаций', en: 'QalamAI · Presentation generator', kk: 'QalamAI · Презентация генераторы', ky: 'QalamAI · Презентация генератору', tg: 'QalamAI · Генератори презентатсия' },
@@ -54,7 +54,7 @@ export default {
   'ad.more': { uz: 'Köpaytiriş', ru: 'Больше', en: 'More', kk: 'Көбейту', ky: 'Көбөйтүү', tg: 'Бештар' },
   'ad.lang': { uz: 'Taqdimot tili', ru: 'Язык презентации', en: 'Presentation language', kk: 'Презентация тілі', ky: 'Презентациянын тили', tg: 'Забони презентатсия' },
   'ad.langSearch': { uz: 'Tilni qidiring…', ru: 'Найти язык…', en: 'Search languages…', kk: 'Тілді іздеу…', ky: 'Тилди издөө…', tg: 'Ҷустуҷӯи забон…' },
-  'ad.langSite': { uz: 'Sayt tillari', ru: 'Языки сайта', en: 'Site languages', kk: 'Сайт тілдері', ky: 'Сайттын тилдери', tg: 'Забонҳои сайт' },
+  'ad.langSite': { uz: 'Mintaqa tillari', ru: 'Языки региона', en: 'Regional languages', kk: 'Өңір тілдері', ky: 'Аймактын тилдери', tg: 'Забонҳои минтақа' },
   'ad.langWorld': { uz: 'Dunyo tillari', ru: 'Мировые языки', en: 'World languages', kk: 'Әлем тілдері', ky: 'Дүйнө тилдери', tg: 'Забонҳои ҷаҳон' },
   'ad.langNone': { uz: 'Bunday til topilmadi', ru: 'Язык не найден', en: 'No language found', kk: 'Тіл табылмады', ky: 'Тил табылган жок', tg: 'Забон ёфт нашуд' },
   'ad.names': {

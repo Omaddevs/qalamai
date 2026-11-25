@@ -1,16 +1,23 @@
 // npm run i18n:check — keeps the translations complete.
-//  1. every key has every source language (uz, ru, en, kk, ky, tg), non-empty unless uz is empty too
+//  1. every key has every language (uz, ru, en, kk, ky, tg in msg/*.js; the world languages in
+//     locales/<lang>/<area>.json), non-empty unless uz is empty too; no unknown keys in the JSON files
 //  2. no language uses a {placeholder} the Uzbek text doesn't have (it would show up raw)
-//  3. Russian plural texts give one/few/many, English ones one/other
+//  3. a plural text gives every form the language has (Intl.PluralRules: ru one/few/many, ar zero…other)
 //  4. every literal key used in t('…') / tr('…') exists (web app and server)
 //  5. no Uzbek UI text left hard-coded in src/ outside the dictionaries
-import { readdirSync, readFileSync, statSync } from 'node:fs'
+//
+//  --lang zh    report only that language's dictionary problems (for a translator)
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { SOURCE_LANGS, placeholdersOf } from '../shared/i18n.js'
+import { ALL_SOURCE_LANGS, SOURCE_LANGS, WORLD_LANGS, localeOf, placeholdersOf } from '../shared/i18n.js'
+import { loadDict, localeFile } from './i18n-dict.mjs'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
 const problems = []
+const argLang = process.argv.includes('--lang') ? process.argv[process.argv.indexOf('--lang') + 1] : null
+const LANGS_TO_CHECK = argLang ? [argLang] : ALL_SOURCE_LANGS
+const categoriesOf = (lang) => new Intl.PluralRules(localeOf(lang)).resolvedOptions().pluralCategories
 const warn = (msg) => problems.push(msg)
 
 async function loadDir(dir) {
@@ -30,7 +37,7 @@ function checkDict(name, dict) {
     const uz = entry.uz
     // `_vars` lists placeholders some languages use although Uzbek doesn't (e.g. digits vs number words)
     const allowed = new Set([...placeholdersOf(uz ?? ''), ...(entry._vars ?? [])])
-    for (const lang of SOURCE_LANGS) {
+    for (const lang of name === 'web' ? LANGS_TO_CHECK : SOURCE_LANGS) {
       const v = entry[lang]
       if (v == null) { warn(`${name}: ${key} has no ${lang}`); continue }
       const empty = typeof v === 'string' ? v === '' : !Object.keys(v).length
@@ -42,6 +49,20 @@ function checkDict(name, dict) {
       if (typeof v === 'object') {
         if (lang === 'ru' && !(v.one && v.few && v.many)) warn(`${name}: ${key} [ru] plural needs one/few/many`)
         if (lang === 'en' && !(v.one && v.other)) warn(`${name}: ${key} [en] plural needs one/other`)
+        if (WORLD_LANGS.includes(lang)) {
+          const need = categoriesOf(lang).filter((c) => !v[c])
+          if (need.length) warn(`${name}: ${key} [${lang}] plural needs ${need.join('/')}`)
+        }
+      } else if (WORLD_LANGS.includes(lang) && typeof uz === 'object' && categoriesOf(lang).length > 1) {
+        warn(`${name}: ${key} [${lang}] must be a plural object { ${categoriesOf(lang).join(', ')} } like uz`)
+      }
+      if (WORLD_LANGS.includes(lang) && typeof v === 'string' && typeof entry.en === 'string') {
+        // "|"-separated lists must keep their length
+        const want = entry.en.split('|').length
+        if (want > 1 && v.split('|').length !== want) warn(`${name}: ${key} [${lang}] list has ${v.split('|').length} items, en has ${want}`)
+        // <b>…</b> rich tags must survive
+        const tags = (x) => (x.match(/<\/?(?:b|strong|em|i|br)\s*\/?>/g) ?? []).length
+        if (tags(v) !== tags(entry.en)) warn(`${name}: ${key} [${lang}] has ${tags(v)} rich tags, en has ${tags(entry.en)}`)
       }
     }
   }
@@ -92,8 +113,23 @@ function leftovers(files) {
   }
 }
 
-const web = await loadDir(join(root, 'src/i18n/msg'))
+const MSG_DIR = join(root, 'src/i18n/msg')
+const LOCALES_DIR = join(root, 'src/i18n/locales')
+const { dict: web, areas } = await loadDict(MSG_DIR, LOCALES_DIR, { onDuplicate: (k, a) => warn(`duplicate key ${k} (${a}.js)`) })
 checkDict('web', web)
+// a world-language file may only carry keys its area has
+for (const lang of LANGS_TO_CHECK.filter((l) => WORLD_LANGS.includes(l))) {
+  for (const [area, keys] of Object.entries(areas)) {
+    const f = localeFile(LOCALES_DIR, lang, area)
+    if (!existsSync(f)) { warn(`web: missing ${relative(root, f)}`); continue }
+    const known = new Set(keys)
+    for (const k of Object.keys(JSON.parse(readFileSync(f, 'utf8')))) if (!known.has(k)) warn(`web: ${relative(root, f)} has unknown key ${k}`)
+  }
+}
+if (argLang) {
+  console.log(problems.length ? `${problems.join('\n')}\n\n✗ ${problems.length} problem(s) in ${argLang}` : `✓ ${argLang} complete`)
+  process.exit(problems.length ? 1 : 0)
+}
 const webFiles = walk(join(root, 'src'))
 checkUsage(webFiles, web, 'web')
 
@@ -111,7 +147,7 @@ if (!process.argv.includes('--no-leftovers')) leftovers([...webFiles, ...walk(jo
 const keys = Object.keys(web).length + Object.keys(serverDict).length
 if (problems.length) {
   console.log(problems.join('\n'))
-  console.log(`\n✗ ${problems.length} problem(s) · ${keys} keys × ${SOURCE_LANGS.length} languages (+ uz-cyrl derived)`)
+  console.log(`\n✗ ${problems.length} problem(s) · ${keys} keys × ${ALL_SOURCE_LANGS.length} languages (+ uz-cyrl derived)`)
   process.exit(1)
 }
-console.log(`✓ i18n OK — ${keys} keys × ${SOURCE_LANGS.length} languages (+ uz-cyrl derived)`)
+console.log(`✓ i18n OK — ${keys} keys × ${ALL_SOURCE_LANGS.length} languages (+ uz-cyrl derived)`)

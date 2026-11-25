@@ -211,9 +211,9 @@
   filter: blur(60px);
   opacity: 0.5;
 }
-.pr-aurora i:nth-child(1) { top: -120px; right: -80px; background: #ffffff; opacity: 0.08; animation: pr-drift 14s ease-in-out infinite; }
-.pr-aurora i:nth-child(2) { bottom: -140px; left: -100px; background: #5f6168; opacity: 0.3; animation: pr-drift 18s ease-in-out infinite reverse; }
-.pr-aurora i:nth-child(3) { top: 40%; left: 30%; width: 180px; height: 180px; background: #ffffff; opacity: 0.04; animation: pr-drift 22s ease-in-out infinite; }
+.pr-aurora i:nth-child(1) { top: -120px; inset-inline-end: -80px; background: #ffffff; opacity: 0.08; animation: pr-drift 14s ease-in-out infinite; }
+.pr-aurora i:nth-child(2) { bottom: -140px; inset-inline-start: -100px; background: #5f6168; opacity: 0.3; animation: pr-drift 18s ease-in-out infinite reverse; }
+.pr-aurora i:nth-child(3) { top: 40%; inset-inline-start: 30%; width: 180px; height: 180px; background: #ffffff; opacity: 0.04; animation: pr-drift 22s ease-in-out infinite; }
 /* fine grid over the aurora */
 .pr-aurora::after {
   content: '';

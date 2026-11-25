@@ -59,8 +59,8 @@
 
 .nf-img {
   position: absolute;
-  left: 8%;
-  right: 4%;
+  inset-inline-start: 8%;
+  inset-inline-end: 4%;
   bottom: 0;
   aspect-ratio: 440 / 273;
   background: var(--text);
@@ -72,8 +72,8 @@
 
 .nf-ground {
   position: absolute;
-  left: -6%;
-  right: -6%;
+  inset-inline-start: -6%;
+  inset-inline-end: -6%;
   bottom: -1px;
   height: 2px;
   border-radius: 2px;

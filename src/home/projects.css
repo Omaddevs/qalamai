@@ -46,7 +46,7 @@
 .pj-rings {
   position: absolute;
   top: 36%;
-  left: 82%;
+  inset-inline-start: 82%;
   width: 1000px;
   height: 1000px;
   transform: translate(-50%, -50%);
@@ -106,7 +106,7 @@
 }
 
 .pj-title em {
-  padding-right: 0.05em;
+  padding-inline-end: 0.05em;
   color: var(--brand-fg);
   font-family: 'Instrument Serif', 'Playfair Display', Georgia, serif;
   font-size: 1.14em;
@@ -115,7 +115,7 @@
 }
 
 .pj-title .hx-word {
-  margin-right: 0.5em;
+  margin-inline-end: 0.5em;
 }
 
 .pj-title .hx-stroke path {
@@ -258,7 +258,7 @@
   border: 0;
   border-radius: 13px;
   background: transparent;
-  text-align: left;
+  text-align: start;
   cursor: pointer;
   transition: background 0.18s;
   animation: pj-resume-in 0.45s calc(0.08s + var(--i) * 60ms) cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
@@ -268,8 +268,8 @@
   content: '';
   position: absolute;
   top: -1px;
-  left: 108px;
-  right: 12px;
+  inset-inline-start: 108px;
+  inset-inline-end: 12px;
   height: 1px;
   background: #f1efea;
 }
@@ -329,7 +329,7 @@
 
 .pj-resume-meta > span + span::before {
   content: '·';
-  margin-right: 6px;
+  margin-inline-end: 6px;
   color: #c4c7cc;
 }
 
@@ -418,7 +418,7 @@
 }
 
 .pj-thumbs-item + .pj-thumbs-item {
-  margin-left: -16px;
+  margin-inline-start: -16px;
 }
 
 .pj-thumbs-item:nth-child(1) { transform: rotate(-6deg); }
@@ -433,7 +433,7 @@
   place-items: center;
   height: 24px;
   min-width: 30px;
-  margin-left: 6px;
+  margin-inline-start: 6px;
   padding: 0 7px;
   border-radius: 999px;
   background: #f1efe9;
@@ -485,7 +485,7 @@
 }
 
 .pj-tile + .pj-tile {
-  border-left: 1px solid #ebe8e1;
+  border-inline-start: 1px solid #ebe8e1;
 }
 
 .pj-tile-label {
@@ -1043,7 +1043,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .pj-tile:nth-child(3) {
-    border-left: 0;
+    border-inline-start: 0;
   }
   .pj-tile:nth-child(n + 3) {
     border-top: 1px solid #ebe8e1;
@@ -1107,7 +1107,7 @@
   }
   .pj-tile-link {
     font-size: 11.5px;
-    text-align: left;
+    text-align: start;
   }
   .pj-row-head {
     display: none;

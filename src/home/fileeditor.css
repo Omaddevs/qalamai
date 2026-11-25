@@ -150,7 +150,7 @@
   padding: 8px 6px 8px 8px;
   border: 0;
   background: none;
-  text-align: left;
+  text-align: start;
 }
 
 .fe-doc-ic {
@@ -197,7 +197,7 @@
   place-items: center;
   width: 28px;
   height: 28px;
-  margin-right: 6px;
+  margin-inline-end: 6px;
   border: 0;
   border-radius: 8px;
   background: none;
@@ -285,7 +285,7 @@
 .fe-top-right {
   display: flex;
   gap: 8px;
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 
 .fe-menu span {
@@ -433,13 +433,13 @@
 .fe-page ul,
 .fe-page ol {
   margin: 4px 0;
-  padding-left: 32px;
+  padding-inline-start: 32px;
 }
 
 .fe-page blockquote {
   margin: 10px 0;
   padding: 4px 0 4px 16px;
-  border-left: 3px solid var(--brand-strong);
+  border-inline-start: 3px solid var(--brand-strong);
   color: #3f4550;
   font-style: italic;
 }
@@ -527,7 +527,7 @@
 
 .fe-page .titul .t-who p {
   margin-top: 12px;
-  text-align: left;
+  text-align: start;
 }
 
 .fe-page .t-city {
@@ -544,12 +544,12 @@
 .fe-page p.hint {
   margin: 4px 0 8px;
   padding: 5px 12px;
-  border-left: 3px solid var(--brand);
+  border-inline-start: 3px solid var(--brand);
   border-radius: 0 8px 8px 0;
   background: var(--brand-soft);
   font-size: 16px;
   line-height: 1.45;
-  text-align: left;
+  text-align: start;
   text-indent: 0;
 }
 
@@ -560,11 +560,11 @@
 
 .fe-page .toc td.pg {
   width: 48px;
-  text-align: right;
+  text-align: end;
 }
 
 .fe-page .toc td.l2 {
-  padding-left: 32px;
+  padding-inline-start: 32px;
 }
 
 .fe-page .info td:first-child {
@@ -610,7 +610,7 @@
 }
 
 .fe-status-std {
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 
 /* Empty state */

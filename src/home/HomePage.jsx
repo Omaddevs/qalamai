@@ -164,7 +164,22 @@ export default function HomePage({
   }
   const [filesTab, setFilesTab] = useState('tools')
   // a topic handed over to the AI taqdimot page (from the "+ Yaratiş" sheet)
-  const [deckTopic, setDeckTopic] = useState('')
+  const [deckTopic, setDeckTopic] = useState(() => {
+    const v = sessionStorage.getItem('qalamai.deckTopic') ?? ''
+    sessionStorage.removeItem('qalamai.deckTopic')
+    return v
+  })
+  // the Prezentatsiya app (App.jsx) sends its topic here: the AI taqdimot page writes the deck
+  useEffect(() => {
+    const go = (e) => {
+      sessionStorage.removeItem('qalamai.deckTopic')
+      setDeckTopic(e.detail?.topic ?? '')
+      setTab('aideck')
+      window.scrollTo({ top: 0 })
+    }
+    window.addEventListener('qalam:ai-deck', go)
+    return () => window.removeEventListener('qalam:ai-deck', go)
+  }, [])
   const [creating, setCreating] = useState(false)
   const openCreate = useCallback(() => setCreating(true), [])
   // Ctrl/⌘+K opens the "+ Yaratiş" sheet from anywhere on the home screens

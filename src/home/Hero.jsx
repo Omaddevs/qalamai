@@ -12,6 +12,7 @@ import { blueprintOf, docHtml, fileDeck } from '../blueprints.js'
 import { CREATE, CatTile } from './create.jsx'
 import { CoinIcon } from '../components/Coins.jsx'
 import { ACTION_BY_TYPE, COIN_COSTS, refundCoins, spendCoins } from '../coins.js'
+import { useAiDeck } from './useAiDeck.jsx'
 import { DeckLangPicker, buildIn, deckLangs, defaultDeckLang, fallbackOf } from './DeckLang.jsx'
 import GenerateOverlay, { headingsOf } from './GenerateOverlay.jsx'
 import TitulSheet, { TitulPill } from './TitulSheet.jsx'
@@ -244,6 +245,7 @@ export default function Hero({ mode, onMode, q, onQ, inputRef, typeLabel, onType
   const langs = useMemo(deckLangs, [])
   const [deckLang, setDeckLang] = useState(defaultDeckLang)
   const [gen, setGen] = useState(null)
+  const ai = useAiDeck(notify)
   // titul details (profile): the composer pill shows how complete they are
   const [docProfile, setDocProfile] = useState(loadDocProfile)
   const [titulOpen, setTitulOpen] = useState(false)
@@ -339,6 +341,28 @@ export default function Hero({ mode, onMode, q, onQ, inputRef, typeLabel, onType
   const submit = async (e) => {
     e.preventDefault()
     if (mode !== 'ai' || (!topic && !fromFile) || paying) return
+    // a presentation is written by Claude on the server (which also charges); the sample builder below
+    // is only for when the AI is not connected, and for the other document types
+    if (type.id === 'Prezentatsiya') {
+      setPaying(true)
+      const handled = await ai
+        .run({
+          topic,
+          plans: fromFile ? built?.outline?.length : opts.plans,
+          slides: opts.count,
+          lang: deckLang,
+          doc: fromFile ? doc : null,
+          outline: fromFile ? built?.outline : null,
+          templateId,
+          kind: type.kind,
+          onStart: () => {
+            setPaying(false)
+            setDoc(null) // the document's text is no longer needed: drop it
+          },
+        })
+        .finally(() => setPaying(false))
+      if (handled) return
+    }
     // pay first; when coins are short the coin shop opens and nothing is created
     setPaying(true)
     let paid = null
@@ -656,6 +680,7 @@ export default function Hero({ mode, onMode, q, onQ, inputRef, typeLabel, onType
         />
       )}
 
+      {ai.overlay({ kindLabel: type.label, onCreate })}
       {gen && <HeroGenerate gen={gen} langs={langs} onCreate={onCreate} onCreateDoc={onCreateDoc} onClose={() => setGen(null)} notify={notify} />}
     </section>
   )

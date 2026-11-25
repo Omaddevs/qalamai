@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { AppModal } from './components/Modals.jsx'
 import { CoinShopHost } from './components/Coins.jsx'
-import { openCoinShop, spendCoins } from './coins.js'
+import { openCoinShop } from './coins.js'
 import { APPS } from './data.js'
 import { onSynced } from './changes.js'
 import { deleteDesign, duplicateDesign, getDesign, loadDesigns, newDeck, saveDesign } from './store.js'
@@ -155,15 +155,13 @@ function Pages() {
     openDesign(kit.id)
   }
 
-  // AI presentation from an app modal: pay first, then build.
-  const createPaid = async (topic) => {
-    try {
-      if (!(await spendCoins('prezentatsiya', { topic }))) return
-    } catch (err) {
-      notify(err.message)
-      return
-    }
-    create({ topic, templateId: 'pitch', count: 10, ai: true })
+  // AI presentation from an app modal: the AI taqdimot page writes it (and charges there), with this topic.
+  const createPaid = (topic) => {
+    setOpenAppId(null)
+    sessionStorage.setItem('qalamai.tab', 'aideck')
+    sessionStorage.setItem('qalamai.deckTopic', topic ?? '')
+    window.dispatchEvent(new CustomEvent('qalam:ai-deck', { detail: { topic: topic ?? '' } }))
+    if (designId) goHome()
   }
 
   const deck = useMemo(() => (designId ? getDesign(designId) : null), [designId])

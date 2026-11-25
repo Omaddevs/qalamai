@@ -150,7 +150,7 @@ export function TemplatesPanel({ currentId, recent, onApply }) {
 /* ───────── Qalam AI ───────── */
 const IDEAS = ['Özbekistonda turizm', 'Iqlim özgarişi', 'Kiberxavfsizlik asoslari', 'Amir Temur davri']
 
-export function AiPanel({ onGenerate }) {
+export function AiPanel({ onGenerate, busy = null }) {
   const [topic, setTopic] = useState('')
   const [count, setCount] = useState(6)
   return (
@@ -185,10 +185,19 @@ export function AiPanel({ onGenerate }) {
           </button>
         ))}
       </div>
-      <button className="btn primary block" disabled={!topic.trim()} onClick={() => onGenerate(topic, count)}>
-        <Wand2 size={15} /> Taqdimot yaratiş · <CoinPrice cost={COIN_COSTS.prezentatsiya.cost} size={14} />
+      <button className="btn primary block" disabled={!topic.trim() || Boolean(busy)} onClick={() => onGenerate(topic.trim(), count)}>
+        <Wand2 size={15} />{' '}
+        {busy ? (
+          <>QalamAI yozmoqda · {busy.written}/{busy.total}</>
+        ) : (
+          <>
+            Taqdimot yaratiş · <CoinPrice cost={COIN_COSTS.prezentatsiya.cost} size={14} />
+          </>
+        )}
       </button>
-      <p className="pn-note">Demo rejim: matn namunaviy, AI backend hali ulanmagan.</p>
+      <p className="pn-note">
+        {busy ? 'Slaydlar birma-bir paydo böladi. Yangi taqdimot joriy slaydlar örnini egallaydi — Ctrl+Z bilan qaytariş mumkin.' : 'Yangi taqdimot joriy slaydlar örnini egallaydi. Dizayn joriy şablondan olinadi.'}
+      </p>
     </div>
   )
 }

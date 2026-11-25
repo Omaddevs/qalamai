@@ -8,7 +8,8 @@ import {
 import { Dropdown, QalamNib, Wordmark } from '../components/ui.jsx'
 import { AppModal } from '../components/Modals.jsx'
 import { CoinChip } from '../components/Coins.jsx'
-import { openCoinShop, spendCoins, useWallet } from '../coins.js'
+import { aiDeck, openCoinShop, spendCoins, useWallet } from '../coins.js'
+import { ApiError } from '../api.js'
 import { APPS } from '../data.js'
 import { convert, detectScript } from '../lib/alifbo.js'
 import Slide from './Slide.jsx'
@@ -22,7 +23,7 @@ import ProBadge from '../components/ProBadge.jsx'
 import LayoutPicker from './LayoutPicker.jsx'
 import { ElementBar, ElementContextMenu } from './ElementMenu.jsx'
 import DownloadPanel from './DownloadPanel.jsx'
-import { t } from '../i18n/index.js'
+import { getLang, t } from '../i18n/index.js'
 import {
   AiPanel, AlifboPanel, AppsPanel, BrandPanel, ProjectsPanel, TemplatesPanel,
   TextPanel, UploadsPanel,
@@ -530,7 +531,51 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
     setCurrent((c) => Math.max(0, c > i ? c - 1 : Math.min(c, deck.slides.length - 2)))
   }
 
+  // AI: Claude writes the deck on the server and the slides replace this deck one by one, live.
+  // The first change is one undo step, so Ctrl+Z brings the old deck back.
+  const [aiBusy, setAiBusy] = useState(null) // { written, total } while writing
   const generate = async (topic, count) => {
+    if (aiBusy) return
+    const plans = Math.min(15, Math.max(1, Math.ceil((count - 4) / 1.5)))
+    const total = Math.max(count, plans + 4)
+    const got = []
+    let first = true
+    const show = () => {
+      set((d) => ({ ...d, name: topic, slides: got.filter(Boolean) }), !first) // only the first is an undo step
+      first = false
+    }
+    setAiBusy({ written: 0, total })
+    try {
+      const ran = await aiDeck(
+        { topic, plans, slides: total, lang: getLang() },
+        {
+          onEvent: (ev) => {
+            if (ev.type === 'slide') {
+              got[ev.index] = { ...ev.slide, id: newId('s'), elements: [] }
+              show()
+              if (ev.index === 0) {
+                setCurrent(0)
+                setSelectedId(null)
+              }
+              setAiBusy({ written: got.filter(Boolean).length, total })
+            } else if (ev.type === 'image' && got[ev.index]) {
+              got[ev.index] = { ...got[ev.index], image: ev.image, imageCredit: ev.credit }
+              show()
+            } else if (ev.type === 'done') notify(`«${topic}» böyiça ${got.filter(Boolean).length} ta slayd yaratildi`)
+            else if (ev.type === 'error') notify(ev.message)
+          },
+        },
+      )
+      if (ran) return
+    } catch (err) {
+      if (!(err instanceof ApiError && err.code === 'AI_OFF')) {
+        notify(err.message)
+        return
+      }
+    } finally {
+      setAiBusy(null)
+    }
+    // AI not connected (local development without a key): the sample deck
     try {
       if (!(await spendCoins('prezentatsiya', { topic }))) return
     } catch (err) {
@@ -628,7 +673,7 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
   /* ───── panel content ───── */
   const panelBody = {
     templates: <TemplatesPanel currentId={deck.templateId} recent={recent} onApply={applyTemplate} />,
-    ai: <AiPanel onGenerate={generate} />,
+    ai: <AiPanel onGenerate={generate} busy={aiBusy} />,
     elements: <ElementsPanel theme={theme} selected={selectedEls.length === 1 ? selectedEl : null} onAdd={insertEls} onFill={fillEl} />,
     text: <TextPanel onAdd={(t) => addEl({ kind: 'text', w: 40, h: 10, x: 30, y: 40, ...t })} onAddMany={(els) => insertEls(els)} />,
     brand: <BrandPanel accent={deck.accent} defaultAccent={tpl.theme.accent} onAccent={(c) => set((d) => ({ ...d, accent: c }))} />,

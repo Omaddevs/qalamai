@@ -68,6 +68,7 @@ SLIDE TYPES (exact field names; keep every text within its limit)
 
 IMG is {"q":"English image search phrase, 2–5 words","kind":"real"|"generic"}.
 - "real": a specific real person, place, building, artwork, animal, plant, object or event. Search phrases that find photos: for historical people use their statue, monument or portrait ("Amir Timur statue Tashkent"); for places the name and city ("Registan Samarkand").
+- The title slide's image shows the topic itself, as recognisably as possible: the person's statue or portrait, the building, the object — never a street, square, park or company merely named after it.
 - "generic": a general idea shown by an everyday photo ("students working on laptops", "wheat field harvest").
 - Never ask for text, charts, diagrams or logos in images.
 

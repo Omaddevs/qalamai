@@ -1,7 +1,7 @@
 // QalamCoin on the client: the balance (kept on the API user), spending before an AI action,
 // and one global "coin shop" that any screen can open.
 import { useEffect, useState } from 'react'
-import { ApiError, api, currentUser, ensureSession, onUser, request, updateUser } from './api.js'
+import { ApiError, api, currentUser, ensureSession, onUser, request, streamLines, updateUser } from './api.js'
 import { ACTION_BY_APP, ACTION_BY_TYPE, COIN_COSTS, COIN_PACKS, CUSTOM_COINS, RECEIPT_MAX_MB, SIGNUP_BONUS, coinRate, costOf, priceFor } from '../shared/coins.js'
 import { FREE_FEATURES as FREE, PREMIUM_PERKS as PREMIUM } from '../shared/coins.js'
 import { formatNumber, t } from './i18n/index.js'
@@ -76,6 +76,31 @@ export async function spendCoins(action, { qty = 1, topic, ref: fixedRef } = {})
     if (err instanceof ApiError && ['NOT_ENOUGH_COINS', 'REGISTER_REQUIRED'].includes(err.code)) {
       if (err.details?.balance != null) updateUser({ coins: err.details.balance })
       openCoinShop({ code: err.code, need: err.details?.need ?? costOf(action, qty), action })
+      return null
+    }
+    throw err
+  }
+}
+
+/**
+ * An AI presentation, paid and written on the server and streamed slide by slide (onEvent gets
+ * start · outline · slide · image · done · error). Resolves true when it ran; null when it couldn't
+ * be paid (the coin shop opens) — the server gives the coins back itself if the writing fails.
+ */
+export async function aiDeck({ topic, plans, slides, lang }, { onEvent, signal } = {}) {
+  try {
+    await streamLines('/ai/deck', { topic: topic.slice(0, 300), plans, slides, lang, ref: newRef() }, {
+      signal,
+      onEvent: (ev) => {
+        if (ev.balance != null) updateUser({ coins: ev.balance })
+        onEvent?.(ev)
+      },
+    })
+    return true
+  } catch (err) {
+    if (err instanceof ApiError && ['NOT_ENOUGH_COINS', 'REGISTER_REQUIRED'].includes(err.code)) {
+      if (err.details?.balance != null) updateUser({ coins: err.details.balance })
+      openCoinShop({ code: err.code, need: err.details?.need ?? costOf('prezentatsiya'), action: 'prezentatsiya' })
       return null
     }
     throw err

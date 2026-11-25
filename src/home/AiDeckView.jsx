@@ -5,7 +5,8 @@ import {
 import Slide from '../editor/Slide.jsx'
 import { getTemplate } from '../editor/templates.js'
 import { CoinIcon } from '../components/Coins.jsx'
-import { ACTION_BY_TYPE, COIN_COSTS, refundCoins, spendCoins } from '../coins.js'
+import { ACTION_BY_TYPE, COIN_COSTS, aiDeck, refundCoins, spendCoins } from '../coins.js'
+import { ApiError } from '../api.js'
 import { blueprintOf, fileDeck, planDeck, planSplit, PLAN_FIXED, PLAN_MAX } from '../blueprints.js'
 import { loadDocProfile } from '../profile.js'
 import { t, tr } from '../i18n/index.js'
@@ -112,6 +113,7 @@ export default function AiDeckView({ initialTopic = '', onCreate, notify }) {
   const [paying, setPaying] = useState(false)
   const area = useRef(null)
   const topicBox = useRef(null)
+  const stop = useRef(null) // aborts the AI stream
 
   // a document to build from: read in the browser, only its text kept in memory until the deck is made
   const [doc, setDoc] = useState(null)
@@ -162,6 +164,8 @@ export default function AiDeckView({ initialTopic = '', onCreate, notify }) {
       notify?.(t('ad.needTopic'))
       return
     }
+    // a topic is written by the AI on the server (paid there); a file still uses the in-browser builder
+    if (!doc && (await writeWithAi())) return
     // pay first; when coins are short the coin shop opens and nothing is created
     setPaying(true)
     let paid = null
@@ -186,6 +190,63 @@ export default function AiDeckView({ initialTopic = '', onCreate, notify }) {
       throw err
     }
   }
+  /**
+   * Claude writes the deck; slides appear in the overlay as they arrive. Returns false only when the
+   * AI is not connected (AI_OFF), so the caller falls back to the sample builder.
+   */
+  async function writeWithAi() {
+    const total = Math.max(slides, minSlides(plans))
+    const ctl = new AbortController()
+    stop.current = ctl
+    setPaying(true)
+    let failed = false
+    const patch = (fn) => setGen((g) => (g?.live ? fn(g) : g))
+    try {
+      const ran = await aiDeck(
+        { topic: text, plans, slides: total, lang },
+        {
+          signal: ctl.signal,
+          onEvent: (ev) => {
+            if (ev.type === 'start') {
+              setPaying(false)
+              setGen({ live: { outline: null, written: 0, done: false }, slides: [], total, topic: text, lang })
+            } else if (ev.type === 'outline') patch((g) => ({ ...g, live: { ...g.live, outline: ev.items } }))
+            else if (ev.type === 'slide')
+              patch((g) => {
+                const list = [...g.slides]
+                list[ev.index] = { ...ev.slide, elements: [], ...(list[ev.index]?.image ? { image: list[ev.index].image, imageCredit: list[ev.index].imageCredit } : {}) }
+                return { ...g, slides: list, live: { ...g.live, written: list.filter(Boolean).length } }
+              })
+            else if (ev.type === 'image')
+              patch((g) => {
+                const list = [...g.slides]
+                list[ev.index] = { elements: [], ...(list[ev.index] ?? {}), image: ev.image, imageCredit: ev.credit }
+                return { ...g, slides: list }
+              })
+            else if (ev.type === 'done') patch((g) => ({ ...g, total: g.slides.filter(Boolean).length, live: { ...g.live, done: true } }))
+            else if (ev.type === 'error') {
+              failed = true
+              setGen(null)
+              notify?.(ev.message || t('hx.createFailed'))
+            }
+          },
+        },
+      )
+      if (!ran) setGen(null) // not paid: the coin shop is open
+      return true
+    } catch (err) {
+      if (err instanceof ApiError && err.code === 'AI_OFF') return false
+      if (err.name !== 'AbortError' && !failed) {
+        setGen(null)
+        notify?.(err.message || t('hx.createFailed'))
+      }
+      return true
+    } finally {
+      setPaying(false)
+      if (stop.current === ctl) stop.current = null
+    }
+  }
+
   const tpl = getTemplate(TEMPLATE)
 
   const lowPct = ((low - SLIDES_MIN) / (SLIDES_MAX - SLIDES_MIN)) * 100
@@ -367,7 +428,29 @@ export default function AiDeckView({ initialTopic = '', onCreate, notify }) {
         </form>
       </section>
 
-      {gen && (
+      {gen?.live && (
+        <GenerateOverlay
+          topic={gen.topic}
+          kind={t('ad.rail')}
+          unit={t('bp.unit.slide')}
+          outline={[]}
+          live={gen.live}
+          total={gen.total}
+          renderThumb={(i) => (gen.slides[i] ? <Slide slide={gen.slides[i]} theme={tpl.theme} index={i} preview /> : null)}
+          templateName={tpl.name}
+          onDone={() =>
+            onCreate({ topic: gen.topic, templateId: TEMPLATE, kind: 'Taqdimot', slides: gen.slides.filter(Boolean), ai: true, lang: gen.lang })
+          }
+          onCancel={() => {
+            // the server stops writing and gives the coins back
+            stop.current?.abort()
+            setGen(null)
+            notify?.(t('gn.cancelled'))
+          }}
+        />
+      )}
+
+      {gen && !gen.live && (
         <GenerateOverlay
           topic={gen.topic}
           kind={t('ad.rail')}

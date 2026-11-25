@@ -77,6 +77,12 @@ const schema = z.object({
   /** Free photos in the editor (unsplash.com/developers → your app → Access Key). Without it the editor uses Openverse. */
   UNSPLASH_ACCESS_KEY: z.string().optional(),
   UNSPLASH_API_URL: z.string().url().default('https://api.unsplash.com'),
+  /** Claude API key (platform.claude.com → API keys). Without it the AI features answer AI_OFF. */
+  ANTHROPIC_API_KEY: z.string().optional(),
+  /** Model for AI generation. Development can use claude-haiku-5-5 to save credits. */
+  AI_MODEL: z.string().default('claude-opus-5-5'),
+  /** How hard the model thinks: low is fastest and cheapest, high writes the most careful text. */
+  AI_EFFORT: z.enum(['low', 'medium', 'high', 'xhigh', 'max']).default('medium'),
 })
 
 function load() {
@@ -137,6 +143,7 @@ function load() {
     telegram: env.TELEGRAM_BOT_TOKEN ? { token: env.TELEGRAM_BOT_TOKEN, polling: env.TELEGRAM_POLLING, apiUrl: env.TELEGRAM_API_URL.replace(/\/$/, ''), apiIp: env.TELEGRAM_API_IP ?? null } : null,
     support: { chatId: env.CONTACT_CHAT_ID || null },
     unsplash: env.UNSPLASH_ACCESS_KEY ? { key: env.UNSPLASH_ACCESS_KEY, apiUrl: env.UNSPLASH_API_URL.replace(/\/$/, '') } : null,
+    ai: env.ANTHROPIC_API_KEY ? { key: env.ANTHROPIC_API_KEY, model: env.AI_MODEL, effort: env.AI_EFFORT } : null,
     admin: { password: env.ADMIN_PASSWORD ?? null },
     coins: {
       demoPurchase: env.COIN_DEMO_PURCHASE ?? !isProd,

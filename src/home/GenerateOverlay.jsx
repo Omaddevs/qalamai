@@ -1,8 +1,8 @@
 // "QalamAI is working" — the screen between pressing Yaratiş and the editor opening.
 // Four steps (topic → outline → slides/pages → design) with the real result appearing piece by
 // piece: the outline items, then every slide or page, then the template's colours.
-// The result is built before this opens; once the AI backend streams, the same steps follow its
-// events instead of the clock below.
+// Without `live` the result is built before this opens and a clock plays the steps. With `live`
+// ({ outline, written, done }) the steps follow the AI stream: each slide shows when it is written.
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Check, X, ArrowRight, Info } from '@phosphor-icons/react'
@@ -27,9 +27,9 @@ export const headingsOf = (pages) =>
     .flatMap((html) => [...html.matchAll(/<h[12][^>]*>([\s\S]*?)<\/h[12]>/g)].map((m) => m[1].replace(/<[^>]+>/g, '').trim()))
     .filter(Boolean)
 
-export default function GenerateOverlay({ topic, kind, unit, outline, total, renderThumb, format = 'slides', templateName, note, onDone, onCancel }) {
-  const items = outline.slice(0, 12)
-  const [plan] = useState(() => timeline(items.length, total))
+export default function GenerateOverlay({ topic, kind, unit, outline, total, renderThumb, format = 'slides', templateName, note, onDone, onCancel, live = null }) {
+  const items = (live ? live.outline ?? [] : outline).slice(0, 12)
+  const [plan] = useState(() => timeline(items.length || 4, total))
   const [now, setNow] = useState(0)
   const finished = useRef(false)
   const grid = useRef(null)
@@ -47,7 +47,8 @@ export default function GenerateOverlay({ topic, kind, unit, outline, total, ren
     const tick = (ts) => {
       const e = ts - start
       setNow(e)
-      if (e < plan.total + 650) raf = requestAnimationFrame(tick)
+      // live: the stream decides when it is over; the clock only moves the "reading the topic" bar
+      if (live || e < plan.total + 650) raf = requestAnimationFrame(tick)
       else finish()
     }
     raf = requestAnimationFrame(tick)
@@ -66,13 +67,34 @@ export default function GenerateOverlay({ topic, kind, unit, outline, total, ren
     }
   }, [onCancel])
 
-  const step = plan.ends.findIndex((end) => now < end) // -1 = all done
-  const done = step === -1
-  const at = (i) => Math.min(1, Math.max(0, (now - (plan.ends[i - 1] ?? 0)) / plan.d[i]))
-  const shownItems = Math.ceil(at(1) * items.length)
-  const written = Math.min(total, Math.floor(at(2) * total + (step > 2 || done ? 1 : 0)))
-  const designed = step > 3 || done || (step === 3 && at(3) > 0.25)
-  const pct = Math.min(100, Math.round((now / plan.total) * 100))
+  const isLive = Boolean(live)
+  const liveDone = Boolean(live?.done)
+  // live: open the editor a moment after the last slide (and its pictures) arrived
+  useEffect(() => {
+    if (!liveDone) return
+    const id = setTimeout(finish, 900)
+    return () => clearTimeout(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [liveDone])
+
+  let step, done, shownItems, written, designed, pct
+  if (isLive) {
+    done = liveDone
+    written = Math.min(total, live.written)
+    step = done ? -1 : written > 0 ? 2 : live.outline ? 1 : 0
+    shownItems = items.length
+    designed = written > 0
+    // reading the topic creeps towards 12 %; then every written slide moves the bar
+    pct = done ? 100 : Math.round(written > 0 ? 15 + (80 * written) / Math.max(1, total) : Math.min(12, 12 * (1 - Math.exp(-now / 6000))))
+  } else {
+    step = plan.ends.findIndex((end) => now < end) // -1 = all done
+    done = step === -1
+    const at = (i) => Math.min(1, Math.max(0, (now - (plan.ends[i - 1] ?? 0)) / plan.d[i]))
+    shownItems = Math.ceil(at(1) * items.length)
+    written = Math.min(total, Math.floor(at(2) * total + (step > 2 || done ? 1 : 0)))
+    designed = step > 3 || done || (step === 3 && at(3) > 0.25)
+    pct = Math.min(100, Math.round((now / plan.total) * 100))
+  }
 
   // keep the slide being written in view
   useEffect(() => {
@@ -195,7 +217,7 @@ export default function GenerateOverlay({ topic, kind, unit, outline, total, ren
               <button type="button" className="gn-cancel" onClick={onCancel}>
                 <X size={13} weight="bold" /> {t('gn.cancel')}
               </button>
-              {step >= 2 && (
+              {step >= 2 && !isLive && (
                 <button type="button" className="gn-skip" onClick={finish}>
                   {t('gn.open')} <ArrowRight size={14} weight="bold" />
                 </button>

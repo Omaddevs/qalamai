@@ -132,6 +132,61 @@ export async function request(method, path, { json, form, signal, retry = true }
   return parse(res)
 }
 
+/**
+ * POST that answers with JSON Lines (the AI stream): `onEvent` gets every line as it arrives.
+ * Errors before the stream starts (not enough coins, …) throw an ApiError like request() does.
+ */
+export async function streamLines(path, json, { onEvent, signal, retry = true } = {}) {
+  if (!access) await startSession()
+  let res
+  try {
+    res = await fetch(`${BASE}${path}`, {
+      method: 'POST',
+      headers: H({ authorization: `Bearer ${access}`, 'content-type': 'application/json' }),
+      credentials: 'include',
+      signal,
+      body: JSON.stringify(json),
+    })
+  } catch (err) {
+    if (err.name === 'AbortError') throw err
+    throw offline()
+  }
+  if (res.status === 401 && retry) {
+    access = null
+    await startSession()
+    return streamLines(path, json, { onEvent, signal, retry: false })
+  }
+  if (!res.ok || !res.body) return parse(res)
+  const reader = res.body.pipeThrough(new TextDecoderStream()).getReader()
+  let buf = ''
+  const take = (line) => {
+    if (!line.trim()) return
+    let ev
+    try {
+      ev = JSON.parse(line)
+    } catch {
+      return
+    }
+    onEvent?.(ev)
+  }
+  try {
+    for (;;) {
+      const { value, done } = await reader.read()
+      if (done) break
+      buf += value
+      let i
+      while ((i = buf.indexOf('\n')) >= 0) {
+        take(buf.slice(0, i))
+        buf = buf.slice(i + 1)
+      }
+    }
+  } catch (err) {
+    if (err.name === 'AbortError') throw err
+    throw offline()
+  }
+  take(buf)
+}
+
 /** A shared design for its public view page — no account, no session. */
 export async function getSharedDesign(shareId) {
   let res

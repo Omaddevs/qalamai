@@ -112,7 +112,7 @@
   "tpl.sec.0": "Introduzione|Attualità del tema|Scopi e obiettivi della ricerca|Domande chiave",
   "tpl.sec.1": "Concetti chiave|Termini e definizioni importanti|Basi teoriche|Sviluppo storico",
   "tpl.sec.2": "Analisi|Situazione attuale|Numeri e statistiche|Punti di forza e di debolezza",
-  "tpl.sec.3": "Casi di studio|L’esperienza di {country}|Esperienza internazionale|Confronto",
+  "tpl.sec.3": "Casi di studio|{country}: l’esperienza nazionale|Esperienza internazionale|Confronto",
   "tpl.sec.4": "Problemi e soluzioni|Problemi principali|Soluzioni proposte|Risultati attesi",
   "tpl.sec.5": "Conclusione|Conclusioni principali|Raccomandazioni|Grazie per l’attenzione!",
   "tm.startWith": "Inizia con il modello {name}",

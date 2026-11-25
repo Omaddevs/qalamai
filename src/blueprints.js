@@ -19,7 +19,8 @@ const esc = (s = '') =>
   String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1)
 const line = (n = 14) => '_'.repeat(n)
-const year = () => new Date().getFullYear()
+// a string, so {year} is never formatted as a number ("2,026")
+const year = () => String(new Date().getFullYear())
 /** Uzbek number words ("ikki bölim") — only the Uzbek texts spell numbers out. */
 const NUM_UZ = ['nol', 'bir', 'ikki', 'uç', 'tört', 'beş', 'olti', 'yetti', 'sakkiz', 'töqqiz', 'ön']
 const numWord = (n) => (getLang().startsWith('uz') ? NUM_UZ[n] ?? String(n) : String(n))
@@ -92,25 +93,6 @@ const toc = (rows) =>
 const refSamples = (normKey) => [L(normKey), ...LL('refSamples', { year: year() })]
 
 /* ───────────── Prezentatsiya ─────────────
- * Title → agenda (7+ slides) → why it matters → one idea per slide → takeaways → Q&A.
- * (10/20/30 guidance, "one idea per slide", agenda of 4–6 items, closing call to action.) */
-const MAIN_COUNT = 15
-
-function presentation(topic, { count }, pr) {
-  const agenda = count >= 7
-  const n = Math.min(MAIN_COUNT, Math.max(1, count - 4 - (agenda ? 1 : 0)))
-  const main = Array.from({ length: n }, (_, i) => LL(`p.main.${i}`, { country: country() }))
-  const slides = [title(cap(topic), authorLine(pr) ?? L('p.subtitle', { year: year() }))]
-  if (agenda) slides.push(content(L('p.agenda'), [L('intro'), ...main.slice(0, 3).map(([h]) => h), L('conclusion')]))
-  slides.push(contentL('p.why'))
-  main.forEach(([h, ...b]) => slides.push(content(h, b)))
-  slides.push(contentL('p.summary'))
-  const [thanks, questions] = LL('p.thanks')
-  slides.push(title(thanks, questions))
-  return { slides }
-}
-
-/* ───────────── AI taqdimot sahifasi (reja + slayd soni) ─────────────
  * Title → plan (the N plan items) → each plan item gets its share of the content slides →
  * conclusion → thanks. So the smallest deck for N plan items is N + 4 slides. */
 export const PLAN_FIXED = 4
@@ -122,7 +104,12 @@ export function planSplit(plans, slides) {
   return Array.from({ length: plans }, (_, i) => Math.floor(content / plans) + (i < content % plans ? 1 : 0))
 }
 
-export function planDeck(topic, { plans, slides: count }, pr) {
+/** Plan points for a slide count when none were chosen (editor AI panel: 6 → 2, 10 → 4, 15 → 8). */
+const autoPlans = (count) => Math.min(PLAN_MAX, Math.max(1, Math.ceil((count - PLAN_FIXED) / 1.5)))
+
+export function planDeck(topic, { plans: chosen, slides: asked }, pr) {
+  const plans = chosen ?? autoPlans(asked)
+  const count = Math.max(asked, plans + PLAN_FIXED)
   const pool = Array.from({ length: PLAN_MAX }, (_, i) => LL(`p.main.${i}`, { country: country() }))
   const heads = pool.slice(0, plans)
   const out = [title(cap(topic), authorLine(pr) ?? L('p.subtitle', { year: year() })), content(L('p.agenda'), heads.map(([h]) => h))]
@@ -139,7 +126,7 @@ export function planDeck(topic, { plans, slides: count }, pr) {
   out.push(contentL('p.summary'))
   const [thanks, questions] = LL('p.thanks')
   out.push(title(thanks, questions))
-  return { slides: out }
+  return { slides: out, outline: heads.map(([h]) => h) }
 }
 
 /* ───────────── Hisobot ─────────────
@@ -381,9 +368,9 @@ function darsIshlanma(topic, { grade, minutes }, pr) {
 function biznesReja(topic, { years }, pr) {
   const T = esc(cap(topic))
   const has = (k) => String(pr[k] ?? '').trim()
-  const y0 = year()
+  const y0 = new Date().getFullYear()
   const SECTIONS = LL('b.sections')
-  const cols = Array.from({ length: years }, (_, i) => L('year', { y: y0 + i }))
+  const cols = Array.from({ length: years }, (_, i) => L('year', { y: String(y0 + i) }))
   const money = (label) => [label, ...cols.map(() => '')]
   const sec = (i, html) => h2(`${i + 1}. ${SECTIONS[i]}`) + html
   const total = `<b>${L('b.total')}</b>`
@@ -466,10 +453,14 @@ export const BLUEPRINTS = {
   Prezentatsiya: withTexts(
     {
       format: 'slides',
-      controls: [stepper('count', [5, 6, 8, 10, 12, 15, 20], 'slide')],
-      defaults: { count: 10 },
-      outline: (o) => L('ui.presentation.outline', { agenda: o.count >= 7 ? L('ui.agendaArrow') : '', n: Math.max(1, o.count - 4 - (o.count >= 7 ? 1 : 0)) }),
-      build: presentation,
+      controls: [
+        stepper('plans', Array.from({ length: PLAN_MAX }, (_, i) => i + 1), 'plan'),
+        Object.assign(stepper('count', Array.from({ length: 26 }, (_, i) => i + 5), 'slide'), { min: (o) => o.plans + PLAN_FIXED }),
+      ],
+      defaults: { plans: 4, count: 10 },
+      lang: true, // the presentation can be written in another language than the interface
+      outline: (o) => L('ui.presentation.outline', { agenda: L('ui.agendaArrow'), n: o.plans }),
+      build: (topic, o, pr) => planDeck(topic, { plans: o.plans, slides: o.count }, pr),
     },
     'ui.presentation',
   ),

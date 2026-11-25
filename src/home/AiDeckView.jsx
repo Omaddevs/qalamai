@@ -1,120 +1,28 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
-  ArrowRight, Sparkle, Shuffle, Minus, Plus, CaretDown, Check, MagnifyingGlass, ListNumbers, Stack, Translate,
-  Lightbulb, X, PresentationChart,
+  ArrowRight, Sparkle, Shuffle, Minus, Plus, ListNumbers, Stack, Translate, Lightbulb, X, PresentationChart,
 } from '@phosphor-icons/react'
-import { Dropdown } from '../components/ui.jsx'
+import Slide from '../editor/Slide.jsx'
+import { getTemplate } from '../editor/templates.js'
 import { CoinIcon } from '../components/Coins.jsx'
 import { ACTION_BY_TYPE, COIN_COSTS, refundCoins, spendCoins } from '../coins.js'
 import { blueprintOf, planDeck, planSplit, PLAN_FIXED, PLAN_MAX } from '../blueprints.js'
 import { loadDocProfile } from '../profile.js'
-import { LANGS, getLang, t, tr } from '../i18n/index.js'
+import { t, tr } from '../i18n/index.js'
+import { DeckLangPicker, buildIn, deckLangs, defaultDeckLang, fallbackOf } from './DeckLang.jsx'
+import GenerateOverlay from './GenerateOverlay.jsx'
 import './aideck.css'
 
 const SLIDES_MIN = 5
 const SLIDES_MAX = 30
 const TOPIC_MAX = 300
+const TEMPLATE = 'pitch'
 const PLAN_NUMS = Array.from({ length: PLAN_MAX }, (_, i) => i + 1)
 // one soft colour per plan item, cycling (lime first — the brand)
 const HUES = ['#c6f432', '#b9a7fb', '#fbbf8c', '#8fd3f4', '#f9a8d4', '#86efac']
 
-/* Presentation languages: the 7 site languages, then the most spoken world languages.
- * The order matches 'ad.names' (src/i18n/msg/aideck.js); native names are not translated. */
-const WORLD = [
-  ['zh', '中文'],
-  ['hi', 'हिन्दी'],
-  ['es', 'Español'],
-  ['fr', 'Français'], // i18n-ignore
-  ['ar', 'العربية', true],
-  ['bn', 'বাংলা'],
-  ['pt', 'Português'],
-  ['ur', 'اردو', true],
-  ['id', 'Bahasa Indonesia'],
-  ['de', 'Deutsch'],
-  ['ja', '日本語'],
-  ['tr', 'Türkçe'], // i18n-ignore
-  ['ko', '한국어'],
-  ['vi', 'Tiếng Việt'],
-  ['it', 'Italiano'],
-  ['fa', 'فارسی', true],
-  ['pl', 'Polski'],
-  ['uk', 'Українська'],
-]
-const deckLangs = () => {
-  const names = t('ad.names').split('|')
-  const site = LANGS.map((l) => ({ id: l.id, code: l.code, native: l.note ? `${l.name} · ${l.note}` : l.name, site: true }))
-  const world = WORLD.map(([id, native, rtl]) => ({ id, code: id.toUpperCase(), native, rtl }))
-  return [...site, ...world].map((l, i) => ({ ...l, name: names[i] ?? l.native }))
-}
-
 const minSlides = (plans) => plans + PLAN_FIXED
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n))
-
-function LangPicker({ langs, value, onChange }) {
-  const [q, setQ] = useState('')
-  const cur = langs.find((l) => l.id === value) ?? langs[0]
-  const query = q.trim().toLowerCase()
-  const found = query ? langs.filter((l) => `${l.name} ${l.native} ${l.code}`.toLowerCase().includes(query)) : langs
-  const groups = [
-    [t('ad.langSite'), found.filter((l) => l.site)],
-    [t('ad.langWorld'), found.filter((l) => !l.site)],
-  ].filter(([, list]) => list.length)
-
-  return (
-    <Dropdown
-      className="ad-lang-pop"
-      button={({ toggle, open }) => (
-        <button type="button" className={`ad-lang-btn ${open ? 'open' : ''}`} onClick={() => { setQ(''); toggle() }} aria-haspopup="listbox" aria-expanded={open}>
-          <span className="ad-code">{cur.code}</span>
-          <span className="ad-lang-text">
-            <b dir={cur.rtl ? 'rtl' : undefined}>{cur.native}</b>
-            {cur.name !== cur.native && <small>{cur.name}</small>}
-          </span>
-          <CaretDown size={14} weight="bold" className="ad-caret" />
-        </button>
-      )}
-    >
-      {(close) => (
-        <>
-          <label className="ad-lang-search">
-            <MagnifyingGlass size={15} weight="bold" />
-            <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('ad.langSearch')} aria-label={t('ad.langSearch')} />
-          </label>
-          <div className="ad-lang-list" role="listbox">
-            {groups.map(([label, list]) => (
-              <div key={label} className="ad-lang-group">
-                <div className="pop-label">
-                  {label} <span>{list.length}</span>
-                </div>
-                {list.map((l) => (
-                  <button
-                    key={l.id}
-                    type="button"
-                    role="option"
-                    aria-selected={l.id === value}
-                    className={`ad-lang-item ${l.id === value ? 'on' : ''}`}
-                    onClick={() => {
-                      onChange(l.id)
-                      close()
-                    }}
-                  >
-                    <span className="ad-code sm">{l.code}</span>
-                    <span className="ad-lang-text">
-                      <b dir={l.rtl ? 'rtl' : undefined}>{l.native}</b>
-                      {l.name !== l.native && <small>{l.name}</small>}
-                    </span>
-                    {l.id === value && <Check size={15} weight="bold" className="ad-check" />}
-                  </button>
-                ))}
-              </div>
-            ))}
-            {!groups.length && <p className="ad-lang-none">{t('ad.langNone')}</p>}
-          </div>
-        </>
-      )}
-    </Dropdown>
-  )
-}
 
 /** Live outline: one mini slide per slide, coloured by section, plus the plan legend. */
 function Structure({ plans, slides, lang }) {
@@ -196,7 +104,8 @@ export default function AiDeckView({ initialTopic = '', onCreate, notify }) {
   const [topic, setTopic] = useState(initialTopic)
   const [plans, setPlans] = useState(4)
   const [slides, setSlides] = useState(10)
-  const [lang, setLang] = useState(() => (langs.some((l) => l.id === getLang()) ? getLang() : 'uz'))
+  const [lang, setLang] = useState(defaultDeckLang)
+  const [gen, setGen] = useState(null)
   const [ideaPage, setIdeaPage] = useState(0)
   const [bumped, setBumped] = useState(0)
   const [paying, setPaying] = useState(false)
@@ -256,14 +165,15 @@ export default function AiDeckView({ initialTopic = '', onCreate, notify }) {
       setPaying(false)
     }
     try {
-      const out = planDeck(text, { plans, slides }, loadDocProfile())
-      onCreate({ topic: text, templateId: 'pitch', kind: 'Taqdimot', slides: out.slides, ai: true, lang })
+      const out = await buildIn(lang, () => planDeck(text, { plans, slides }, loadDocProfile()))
+      setGen({ out, paid, topic: text, lang })
     } catch (err) {
       if (paid.ref) refundCoins(paid.ref)
       notify?.(t('hx.createFailed'))
       throw err
     }
   }
+  const tpl = getTemplate(TEMPLATE)
 
   const lowPct = ((low - SLIDES_MIN) / (SLIDES_MAX - SLIDES_MIN)) * 100
   const valPct = ((slides - SLIDES_MIN) / (SLIDES_MAX - SLIDES_MIN)) * 100
@@ -399,7 +309,7 @@ export default function AiDeckView({ initialTopic = '', onCreate, notify }) {
                   <span>{t('ad.lang')}</span>
                   <span className="ad-value">{langs.length}</span>
                 </div>
-                <LangPicker langs={langs} value={lang} onChange={setLang} />
+                <DeckLangPicker langs={langs} value={lang} onChange={setLang} />
               </div>
             </div>
           </div>
@@ -438,6 +348,25 @@ export default function AiDeckView({ initialTopic = '', onCreate, notify }) {
           </aside>
         </form>
       </section>
+
+      {gen && (
+        <GenerateOverlay
+          topic={gen.topic}
+          kind={t('ad.rail')}
+          unit={t('bp.unit.slide')}
+          outline={gen.out.outline}
+          total={gen.out.slides.length}
+          renderThumb={(i) => <Slide slide={gen.out.slides[i]} theme={tpl.theme} preview />}
+          templateName={tpl.name}
+          note={fallbackOf(gen.lang) ? t('gn.langFallback', { lang: langs.find((l) => l.id === gen.lang)?.name }) : null}
+          onDone={() => onCreate({ topic: gen.topic, templateId: TEMPLATE, kind: 'Taqdimot', slides: gen.out.slides, ai: true, lang: gen.lang })}
+          onCancel={() => {
+            if (gen.paid?.ref) refundCoins(gen.paid.ref)
+            setGen(null)
+            notify?.(t('gn.cancelled'))
+          }}
+        />
+      )}
     </div>
   )
 }

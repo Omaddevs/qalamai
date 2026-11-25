@@ -13,6 +13,7 @@ export default {
   'bp.topicLabel': { uz: 'Mavzu', ru: 'Тема', en: 'Topic', kk: 'Тақырып', ky: 'Тема', tg: 'Мавзӯъ' },
   'bp.unit.slide': { uz: 'slayd', ru: 'слайдов', en: 'slides', kk: 'слайд', ky: 'слайд', tg: 'слайд' },
   'bp.unit.page': { uz: 'bet', ru: 'стр.', en: 'pages', kk: 'бет', ky: 'бет', tg: 'саҳ.' },
+  'bp.unit.plan': { uz: 'reja', ru: 'пунктов', en: 'points', kk: 'тармақ', ky: 'пункт', tg: 'банд' },
   'bp.unit.project': { uz: 'loyiha', ru: 'проектов', en: 'projects', kk: 'жоба', ky: 'долбоор', tg: 'лоиҳа' },
   'bp.intro': { uz: 'Kiriş', ru: 'Введение', en: 'Introduction', kk: 'Кіріспе', ky: 'Киришүү', tg: 'Муқаддима' },
   'bp.conclusion': { uz: 'Xulosa', ru: 'Заключение', en: 'Conclusion', kk: 'Қорытынды', ky: 'Корутунду', tg: 'Хулоса' },

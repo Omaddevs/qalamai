@@ -12,6 +12,8 @@ import { blueprintOf, docHtml } from '../blueprints.js'
 import { CREATE, CatTile } from './create.jsx'
 import { CoinIcon } from '../components/Coins.jsx'
 import { ACTION_BY_TYPE, COIN_COSTS, refundCoins, spendCoins } from '../coins.js'
+import { DeckLangPicker, buildIn, deckLangs, defaultDeckLang, fallbackOf } from './DeckLang.jsx'
+import GenerateOverlay, { headingsOf } from './GenerateOverlay.jsx'
 import './hero.css'
 import { t, tr } from '../i18n/index.js'
 
@@ -122,12 +124,13 @@ function Floater({ f, onPick }) {
 }
 
 /** −  10 slayd  + — walks through the blueprint's allowed values. */
-function Stepper({ c, value, onChange }) {
+function Stepper({ c, value, onChange, opts }) {
   const i = c.options.indexOf(value)
   const go = (d) => onChange(c.options[Math.min(c.options.length - 1, Math.max(0, i + d))])
+  const low = c.min?.(opts) ?? -Infinity
   return (
     <div className="hx-stepper" role="group" aria-label={c.unit}>
-      <button type="button" onClick={() => go(-1)} disabled={i <= 0} aria-label={t('hx.less')}>
+      <button type="button" onClick={() => go(-1)} disabled={i <= 0 || c.options[i - 1] < low} aria-label={t('hx.less')}>
         <Minus size={12} weight="bold" />
       </button>
       <span>
@@ -196,7 +199,19 @@ export default function Hero({ mode, onMode, q, onQ, inputRef, typeLabel, onType
   const type = typeOf(typeLabel)
   const bp = blueprintOf(type.id)
   const opts = useMemo(() => ({ ...bp.defaults, ...optsByType[type.id] }), [bp, optsByType, type.id])
-  const setOpt = (key, value) => setOptsByType((o) => ({ ...o, [type.id]: { ...o[type.id], [key]: value } }))
+  // a control may need another one to move along (slides ≥ plan points + 4)
+  const setOpt = (key, value) =>
+    setOptsByType((o) => {
+      const next = { ...bp.defaults, ...o[type.id], [key]: value }
+      for (const c of bp.controls) {
+        const low = c.min?.(next)
+        if (low != null && next[c.key] < low) next[c.key] = c.options.find((v) => v >= low) ?? c.options.at(-1)
+      }
+      return { ...o, [type.id]: next }
+    })
+  const langs = useMemo(deckLangs, [])
+  const [deckLang, setDeckLang] = useState(defaultDeckLang)
+  const [gen, setGen] = useState(null)
   // bp.examples is a getter that builds a new array each time — keep one per type for the typewriter
   const examples = useMemo(() => bp.examples, [bp])
   const typed = useTypewriter(examples, mode === 'ai' && !q && !focused)
@@ -292,9 +307,9 @@ export default function Hero({ mode, onMode, q, onQ, inputRef, typeLabel, onType
       setPaying(false)
     }
     try {
-      const out = bp.build(topic, opts, loadDocProfile())
-      if (bp.format === 'doc') onCreateDoc({ name: out.name, html: docHtml(out.pages), kind: type.label })
-      else onCreate({ topic, templateId, kind: type.kind, slides: out.slides, ai: true })
+      const build = () => bp.build(topic, opts, loadDocProfile())
+      const out = await (bp.lang ? buildIn(deckLang, build) : build())
+      setGen({ out, paid, topic, type, bp, templateId, lang: bp.lang ? deckLang : null })
     } catch (err) {
       if (paid.ref) refundCoins(paid.ref)
       notify?.(t('hx.createFailed'))
@@ -479,11 +494,13 @@ export default function Hero({ mode, onMode, q, onQ, inputRef, typeLabel, onType
 
                   {bp.controls.map((c) =>
                     c.kind === 'stepper' ? (
-                      <Stepper key={`${type.id}-${c.key}`} c={c} value={opts[c.key]} onChange={(v) => setOpt(c.key, v)} />
+                      <Stepper key={`${type.id}-${c.key}`} c={c} value={opts[c.key]} opts={opts} onChange={(v) => setOpt(c.key, v)} />
                     ) : (
                       <Choice key={`${type.id}-${c.key}`} c={c} value={opts[c.key]} onChange={(v) => setOpt(c.key, v)} />
                     ),
                   )}
+
+                  {bp.lang && <DeckLangPicker langs={langs} value={deckLang} onChange={setDeckLang} variant="pill" />}
 
                   <button className="hx-go" disabled={!topic || paying}>
                     <span className="hx-go-label">{paying ? t('ui.wait') : t('ui.create')}</span>
@@ -573,6 +590,47 @@ export default function Hero({ mode, onMode, q, onQ, inputRef, typeLabel, onType
           )}
         </div>
       </div>
+
+      {gen && <HeroGenerate gen={gen} langs={langs} onCreate={onCreate} onCreateDoc={onCreateDoc} onClose={() => setGen(null)} notify={notify} />}
     </section>
+  )
+}
+
+/** The generation screen for whatever the composer built (slides, card or A4 pages). */
+function HeroGenerate({ gen, langs, onCreate, onCreateDoc, onClose, notify }) {
+  const { out, type, bp, topic, templateId, lang } = gen
+  const isDoc = bp.format === 'doc'
+  const tpl = getTemplate(templateId)
+  const outline = out.outline ?? (isDoc ? headingsOf(out.pages) : out.slides.map((s) => s.title).filter(Boolean))
+  return (
+    <GenerateOverlay
+      topic={topic}
+      kind={type.label}
+      unit={t(isDoc ? 'bp.unit.page' : 'bp.unit.slide')}
+      format={bp.format}
+      outline={outline}
+      total={isDoc ? out.pages.length : out.slides.length}
+      renderThumb={(i) =>
+        isDoc ? (
+          <div className="gn-doc">
+            <div className="mp" dangerouslySetInnerHTML={{ __html: out.pages[i] }} />
+          </div>
+        ) : (
+          <Slide slide={out.slides[i]} theme={tpl.theme} preview />
+        )
+      }
+      templateName={isDoc ? 'A4' : tpl.name}
+      note={lang && fallbackOf(lang) ? t('gn.langFallback', { lang: langs.find((l) => l.id === lang)?.name }) : null}
+      onDone={() => {
+        if (isDoc) onCreateDoc({ name: out.name, html: docHtml(out.pages), kind: type.label })
+        else onCreate({ topic, templateId, kind: type.kind, slides: out.slides, ai: true, lang })
+        onClose()
+      }}
+      onCancel={() => {
+        if (gen.paid?.ref) refundCoins(gen.paid.ref)
+        onClose()
+        notify?.(t('gn.cancelled'))
+      }}
+    />
   )
 }

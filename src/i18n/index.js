@@ -99,6 +99,23 @@ export function onLang(fn) {
   return () => subs.delete(fn)
 }
 
+/**
+ * Runs `fn` (synchronously) with another language's texts, e.g. to write a document in the language
+ * the user picked for it while the interface stays in its own. Unknown languages run as they are.
+ */
+export async function inLang(id, fn) {
+  if (!isLang(id) || id === lang) return fn()
+  const dict = await loadMessages(id)
+  const prev = [MESSAGES, lang]
+  MESSAGES = dict
+  lang = id
+  try {
+    return fn()
+  } finally {
+    ;[MESSAGES, lang] = prev
+  }
+}
+
 /** Current language; re-renders the caller when it changes. */
 export const useLang = () => useSyncExternalStore(onLang, getLang, getLang)
 

@@ -71,12 +71,8 @@ export default {
   'hx.otherTpl': { uz: 'Boşqa şablon', ru: 'Другой шаблон', en: 'Another template', kk: 'Басқа үлгі', ky: 'Башка шаблон', tg: 'Қолаби дигар' },
   'hx.morePages': { uz: 'bet', ru: 'стр.', en: 'pages', kk: 'бет', ky: 'бет', tg: 'саҳ.' },
   'hx.moreSlides': { uz: 'slayd', ru: 'слайдов', en: 'slides', kk: 'слайд', ky: 'слайд', tg: 'слайд' },
-  'hx.startWith': { uz: '{name} bilan boşlaş', ru: 'Начать с «{name}»', en: 'Start with {name}', kk: '{name} үлгісімен бастау', ky: '{name} менен баштоо', tg: 'Оғоз бо «{name}»' },
   'hx.createFailed': { uz: 'Yaratib bölmadi — coin qaytarildi', ru: 'Не удалось создать — монеты возвращены', en: "Couldn't create it — coins refunded", kk: 'Жасау мүмкін болмады — монета қайтарылды', ky: 'Түзүү мүмкүн болбоду — монета кайтарылды', tg: 'Сохтан нашуд — танга баргардонида шуд' },
   'hx.coins': { uz: '{n} coin', ru: { one: '{n} монета', few: '{n} монеты', many: '{n} монет', other: '{n} монеты' }, en: { one: '{n} coin', other: '{n} coins' }, kk: '{n} монета', ky: '{n} монета', tg: '{n} танга' },
-  'hx.st.titul': { uz: 'Titul · OTM standarti', ru: 'Титул · стандарт вуза', en: 'Title page · university standard', kk: 'Титул · ЖОО стандарты', ky: 'Титул · ЖОЖ стандарты', tg: 'Титул · стандарти МТО' },
-  'hx.st.script': { uz: 'Lotin ⇄ Кирилл', ru: 'Латиница ⇄ Кириллица', en: 'Latin ⇄ Кирилл', kk: 'Латын ⇄ Кирилл', ky: 'Латын ⇄ Кирилл', tg: 'Лотинӣ ⇄ Кириллӣ' },
-  'hx.st.slides': { uz: '10 slayd · bir bosişda', ru: '10 слайдов · в один клик', en: '10 slides · one click', kk: '10 слайд · бір басуда', ky: '10 слайд · бир басууда', tg: '10 слайд · бо як пахш' },
 
   // ideas: "chip|typed" — typed falls back to the chip text
   'hx.idea.0': { uz: 'Özbekistonda turizm', ru: 'Туризм в Узбекистане', en: 'Tourism in Uzbekistan', kk: 'Қазақстандағы туризм', ky: 'Кыргызстандагы туризм', tg: 'Сайёҳӣ дар Тоҷикистон' },

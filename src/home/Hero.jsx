@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowUp, ArrowRight, MagnifyingGlass, Sparkle, X, CaretDown, Minus, Plus, Shuffle, ArrowsClockwise,
-  Check, SealCheck, TextAa, DownloadSimple, Exam, ListBullets,
+  Check, TextAa, DownloadSimple, Exam, ListBullets,
 } from '@phosphor-icons/react'
 import { Dropdown, QalamNib } from '../components/ui.jsx'
 import Slide from '../editor/Slide.jsx'
@@ -43,15 +43,6 @@ const ideasList = () =>
 const PER_PAGE = 4
 const typeOf = (id) => CREATE.find((c) => c.id === id) ?? CREATE[0]
 
-// Real template previews in the side gutters, kept clear of the headline and composer rows.
-// side/x = distance from that edge, depth = parallax strength (px), low = hidden first on narrow heroes.
-const FLOATERS = [
-  { tpl: 'chronicle', side: 'left', x: '2.6%', y: '6%', r: -8, d: 0.35, depth: 18, sticker: { icon: SealCheck, key: 'hx.st.titul', r: -3 } },
-  { tpl: 'gallery', side: 'right', x: '2.6%', y: '5%', r: 7, d: 0.5, depth: 26, sticker: { icon: TextAa, key: 'hx.st.script', r: 4 } },
-  { tpl: 'quiz', side: 'left', x: '3.4%', y: '71%', r: 6, d: 0.7, depth: 34, low: true, sticker: { icon: Sparkle, key: 'hx.st.slides', r: 3, up: true } },
-  { tpl: 'pitch', side: 'right', x: '3.2%', y: '69%', r: -6, d: 0.85, depth: 14, low: true, sticker: { icon: DownloadSimple, text: 'PPTX · PDF', r: -4, up: true } },
-]
-
 const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
 /** Types and erases each word in turn — used as a living placeholder. */
@@ -92,36 +83,6 @@ function useTypewriter(words, active) {
     return () => clearTimeout(timer)
   }, [words, active])
   return text
-}
-
-function Floater({ f, onPick }) {
-  const tpl = getTemplate(f.tpl)
-  const slide = useMemo(() => ({ id: tpl.id, type: 'title', ...tpl.sample, elements: [] }), [tpl])
-  const S = f.sticker
-  return (
-    <div
-      className={`hx-card ${f.low ? 'low' : ''}`}
-      style={{ [f.side]: f.x, top: f.y, '--r': `${f.r}deg`, '--d': `${f.d}s`, '--depth': f.depth }}
-    >
-      <div className="hx-card-btn" onClick={() => onPick(tpl.id)}>
-        <div className="hx-card-in">
-          <Slide slide={slide} theme={tpl.theme} preview />
-          <span className="hx-sheen" />
-        </div>
-        <span className="hx-card-cta">
-          {t('hx.startWith', { name: tpl.name })} <ArrowRight size={11} weight="bold" />
-        </span>
-      </div>
-      {S && (
-        <span className={`hx-sticker ${S.up ? 'up' : ''}`} style={{ '--sr': `${S.r}deg` }}>
-          <span className="hx-sticker-ic">
-            <S.icon size={12} weight="bold" />
-          </span>
-          {S.key ? t(S.key) : S.text}
-        </span>
-      )}
-    </div>
-  )
 }
 
 /** −  10 slayd  + — walks through the blueprint's allowed values. */
@@ -421,12 +382,6 @@ export default function Hero({ mode, onMode, q, onQ, inputRef, typeLabel, onType
           </g>
         </svg>
         <span className="hx-grain" />
-      </div>
-
-      <div className="hx-floaters" aria-hidden="true">
-        {FLOATERS.map((f) => (
-          <Floater key={f.tpl} f={f} onPick={(id) => onCreate({ templateId: id })} />
-        ))}
       </div>
 
       <div className="hx-content">

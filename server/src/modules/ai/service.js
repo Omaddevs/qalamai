@@ -119,7 +119,7 @@ export function createAi(cfg, { log } = {}) {
             : 'Which image best illustrates this idea for the slide — clearly on its subject, so a viewer connects it with the slide at once? A picture of a different subject is wrong (boxing for a judo slide, a random landscape for a cyber-security slide). Prefer a sharp, well-composed photo without large text or watermarks. Answer with only {"pick": N}: N is the image number, or 0 if none fits.',
       },
     ]
-    const res = await client.messages.create({ model: cfg.judgeModel, max_tokens: 2000, output_config: { effort: 'low' }, messages: [{ role: 'user', content }] })
+    const res = await client.messages.create({ model: cfg.judgeModel, max_tokens: 600, output_config: { effort: 'low' }, messages: [{ role: 'user', content }] })
     const text = res.content.filter((b) => b.type === 'text').map((b) => b.text).join(' ')
     const n = Number(/"pick"\s*:\s*(\d+)/.exec(text)?.[1] ?? /\b(\d+)\b/.exec(text)?.[1] ?? 0)
     return Number.isInteger(n) && n >= 0 && n <= shown.length ? n : 0

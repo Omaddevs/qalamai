@@ -9,8 +9,8 @@ const UA = 'QalamAI/1.0 (https://qalamai.uz; presentation images)'
 const TTL_MS = 24 * 60 * 60 * 1000
 const MAX_CACHED = 2000
 const WIDTH = 1280
-const PER_SOURCE = 5
-const MAX_CANDIDATES = 10
+const PER_SOURCE = 3
+const MAX_CANDIDATES = 6
 // Wikimedia serves only its standard thumbnail widths (a 400 px copy answers 400 Bad Request)
 const THUMB = 330
 const THUMB_MAX_BYTES = 600_000

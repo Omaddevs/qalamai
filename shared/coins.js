@@ -1,5 +1,7 @@
 // QalamCoin — narxlar bitta joyda. Server (yeçiş, sotib oliş) va frontend (körsatiş) şu faylni öqiydi.
 // 1 coin ≈ 100 söm. Har bir amal narxi AI xarajatidan ~2,5 baravar köp qilib tanlangan.
+// AI hozir Claude Haiku 5.5 da (kiriş $0,10, çiqiş $0,50 / 1M token): 10 slayd ≈ $0,003 + rasm tekşiruvi ≈ $0,002.
+// Narxlar quyidagi Opus 5.5 hisobidan qolgan — modelni qaytarsangiz ham zarar bölmaydi.
 // Xarajat hisobi (2026-11-26): Claude Opus 5.5 — kiriş $4, çiqiş $20 / 1M token, 1$ ≈ 12 800 söm,
 // özbekça matn ≈ 2,5 token/söz, fikrlaş (effort medium) ≈ çiqişning 20–30% i. Masalan 10 slayd:
 // ~3k kiriş + ~5k çiqiş ≈ $0,11 ≈ 1 400 söm → 35 coin. Fayldan: + faylning matni (örtaça ~15k, eñ

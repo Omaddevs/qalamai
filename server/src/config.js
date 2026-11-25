@@ -79,10 +79,10 @@ const schema = z.object({
   UNSPLASH_API_URL: z.string().url().default('https://api.unsplash.com'),
   /** Claude API key (platform.claude.com → API keys). Without it the AI features answer AI_OFF. */
   ANTHROPIC_API_KEY: z.string().optional(),
-  /** Model for AI generation. Development can use claude-haiku-5-5 to save credits. */
-  AI_MODEL: z.string().default('claude-opus-5-5'),
+  /** Model for AI generation: the cheapest by default (Haiku 5.5, ~40× cheaper than Opus 5.5). */
+  AI_MODEL: z.string().default('claude-haiku-5-5'),
   /** How hard the model thinks: low is fastest and cheapest, high writes the most careful text. */
-  AI_EFFORT: z.enum(['low', 'medium', 'high', 'xhigh', 'max']).default('medium'),
+  AI_EFFORT: z.enum(['low', 'medium', 'high', 'xhigh', 'max']).default('low'),
   /** Small model that looks at candidate pictures and keeps only one that really shows the slide's subject. */
   AI_JUDGE_MODEL: z.string().default('claude-haiku-5-5'),
 })

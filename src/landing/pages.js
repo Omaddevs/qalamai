@@ -38,7 +38,14 @@ export const TOOL_PAGES = [
   { tool: 'image-compress', slug: 'rasm-siqish', category: 'image' },
   { tool: 'image-resize', slug: 'rasm-olchamini-ozgartirish', category: 'image' },
   { tool: 'images-to-pdf', slug: 'rasmdan-pdf', category: 'image' },
+  { tool: 'heic-to-jpg', slug: 'heic-dan-jpg', category: 'image' },
+  { tool: 'webp-to-jpg', slug: 'webp-dan-jpg', category: 'image' },
+  { tool: 'webp-to-png', slug: 'webp-dan-png', category: 'image' },
+  { tool: 'png-to-jpg', slug: 'png-dan-jpg', category: 'image' },
+  { tool: 'jpg-to-png', slug: 'jpg-dan-png', category: 'image' },
   { tool: 'doc-to-pdf', slug: 'word-dan-pdf', category: 'document' },
+  { tool: 'xlsx-to-pdf', slug: 'excel-dan-pdf', category: 'document' },
+  { tool: 'pptx-to-pdf', slug: 'powerpoint-dan-pdf', category: 'document' },
 ].map((p) => ({ ...p, id: `tool:${p.tool}`, path: `/vositalar/${p.slug}`, toolPage: true }))
 
 /** Every public address (sections, auth forms, tool pages). */

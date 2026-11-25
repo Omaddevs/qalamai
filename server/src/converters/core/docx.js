@@ -2,9 +2,11 @@
 // bold/italic runs, alignment, embedded images in reading order). Pages with almost
 // no text — scans — are placed as a full-width picture so nothing is lost.
 // Portable (server worker threads and the browser tool worker).
-import { AlignmentType, Document, HeadingLevel, ImageRun, Packer, PageBreak, Paragraph, TextRun } from 'docx'
+import {
+  AlignmentType, BorderStyle, Document, HeadingLevel, ImageRun, Packer, PageBreak, Paragraph, Table, TableCell, TableRow, TextRun, WidthType,
+} from 'docx'
 import { closePdf, openPdf, pageImages, pageText, renderPage } from './pdfjs.js'
-import { median, readingOrder, toLines, toParagraphs } from './layout.js'
+import { LEADING_BULLET, findTables, median, readingOrder, toLines, toParagraphs } from './layout.js'
 import { parsePageRange } from './ranges.js'
 import { renameExt, u8 } from './util.js'
 
@@ -29,6 +31,39 @@ async function imageRun(img, maxWidthPt, platform) {
   const wPt = Math.min(img.w, maxWidthPt)
   const hPt = img.h * (wPt / img.w)
   return new ImageRun({ type: 'png', data: png, transformation: { width: Math.round(wPt * PX_PER_PT), height: Math.round(hPt * PX_PER_PT) } })
+}
+
+const CELL_BORDER = { style: BorderStyle.SINGLE, size: 4, color: '9CA3AF' }
+
+/** A detected table → a Word table with the page's column proportions. */
+function wordTable(tb, contentWidthPt) {
+  const total = tb.widths.reduce((s, w) => s + w, 0)
+  const twips = Math.round(contentWidthPt * 20)
+  const widths = tb.widths.map((w) => Math.round((w / total) * twips))
+  return new Table({
+    width: { size: twips, type: WidthType.DXA },
+    columnWidths: widths,
+    rows: tb.rows.map(
+      (row) =>
+        new TableRow({
+          children: row.map(
+            (cell, k) =>
+              new TableCell({
+                width: { size: widths[k], type: WidthType.DXA },
+                borders: { top: CELL_BORDER, bottom: CELL_BORDER, left: CELL_BORDER, right: CELL_BORDER },
+                margins: { top: 40, bottom: 40, left: 80, right: 80 },
+                children: [
+                  new Paragraph({
+                    children: cell
+                      .filter((r) => r.text)
+                      .map((r) => new TextRun({ text: r.text, bold: r.bold, italics: r.italic, size: Math.round(r.size * 2), font: wordFont(r) })),
+                  }),
+                ],
+              }),
+          ),
+        }),
+    ),
+  })
 }
 
 export async function run({ inputs: [input], options }, { progress, platform }) {
@@ -67,10 +102,13 @@ export async function run({ inputs: [input], options }, { progress, platform }) 
 
       for (const it of items) fontVotes.set(wordFont(it), (fontVotes.get(wordFont(it)) ?? 0) + it.str.length)
 
-      const lines = toLines(items)
-      const rows = readingOrder(lines, width)
+      const allLines = toLines(items)
+      // tables become real Word tables; their lines leave the paragraph flow
+      const { tables, used } = findTables(allLines, width)
+      const lines = allLines.filter((l) => !used.has(l))
+      const rows = lines.length ? readingOrder(lines, width) : []
       const body = median(items.filter((i) => i.str.trim().length > 2).map((i) => i.size))
-      const blocks = toParagraphs(rows, width, body).map((b) => ({ ...b, top: b.y + b.size }))
+      const blocks = rows.length ? toParagraphs(rows, width, body).map((b) => ({ ...b, top: b.y + b.size })) : []
 
       // embedded pictures, placed between paragraphs by vertical position
       let images = []
@@ -79,10 +117,14 @@ export async function run({ inputs: [input], options }, { progress, platform }) 
       } catch {
         images = []
       }
-      const flow = [...blocks.map((b) => ({ type: 'text', top: b.top, b })), ...images.map((im) => ({ type: 'image', top: im.y + im.h, im }))]
-      // keep reading order of text (columns!) and slot each image before the first block below it
+      const flow = [
+        ...blocks.map((b) => ({ type: 'text', top: b.top, b })),
+        ...images.map((im) => ({ type: 'image', top: im.y + im.h, im })),
+        ...tables.map((tb) => ({ type: 'table', top: tb.top, tb })),
+      ]
+      // keep reading order of text (columns!) and slot each image / table before the first block below it
       const ordered = []
-      const pendingImgs = flow.filter((f) => f.type === 'image').sort((a, b) => b.top - a.top)
+      const pendingImgs = flow.filter((f) => f.type !== 'text').sort((a, b) => b.top - a.top)
       for (const f of flow.filter((f) => f.type === 'text')) {
         while (pendingImgs.length && pendingImgs[0].top > f.top + 2) ordered.push(pendingImgs.shift())
         ordered.push(f)
@@ -90,6 +132,11 @@ export async function run({ inputs: [input], options }, { progress, platform }) 
       ordered.push(...pendingImgs)
 
       for (const f of ordered) {
+        if (f.type === 'table') {
+          children.push(wordTable(f.tb, contentWidth))
+          children.push(new Paragraph({ spacing: { after: 60 }, children: [] }))
+          continue
+        }
         if (f.type === 'image') {
           try {
             children.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 120, after: 120 }, children: [await imageRun(f.im, contentWidth, platform)] }))
@@ -99,7 +146,8 @@ export async function run({ inputs: [input], options }, { progress, platform }) 
           continue
         }
         const b = f.b
-        const text = b.kind === 'list' ? b.runs.map((r, i) => ({ ...r, text: i === 0 ? r.text.replace(/^([•●○◦▪■□–—-])\s*/, '') : r.text })) : b.runs
+        const glyph = b.kind === 'list' && LEADING_BULLET.test(b.text)
+        const text = glyph ? b.runs.map((r, i) => ({ ...r, text: i === 0 ? r.text.replace(LEADING_BULLET, '') : r.text })) : b.runs
         const runs = text
           .filter((r) => r.text)
           .map(
@@ -116,7 +164,7 @@ export async function run({ inputs: [input], options }, { progress, platform }) 
           new Paragraph({
             children: runs,
             heading: b.kind === 'heading' ? HEADING[b.level] : undefined,
-            bullet: b.kind === 'list' && /^[•●○◦▪■□–—-]/.test(b.text) ? { level: 0 } : undefined,
+            bullet: glyph ? { level: 0 } : undefined,
             alignment: ALIGN[b.align] ?? AlignmentType.LEFT,
             indent: b.firstIndent ? { firstLine: Math.round(b.size * 2.5 * 20) } : undefined,
             spacing: { after: b.kind === 'heading' ? 160 : 100, line: 276 },

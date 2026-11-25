@@ -13,7 +13,7 @@ import PdfEditor from './PdfEditor.jsx'
 import './files.css'
 import { t } from '../i18n/index.js'
 
-export const ACCEPT_ALL = '.pdf,.docx,.txt,.md,.html,.htm,.csv,.jpg,.jpeg,.png,.webp,.gif,.avif,.tif,.tiff,.bmp,.svg'
+export const ACCEPT_ALL = '.pdf,.docx,.xlsx,.pptx,.txt,.md,.html,.htm,.csv,.jpg,.jpeg,.png,.webp,.gif,.avif,.heic,.heif,.tif,.tiff,.bmp,.svg'
 
 /* ───────── Hero with drop zone ───────── */
 

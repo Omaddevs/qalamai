@@ -115,18 +115,31 @@ export function readingOrder(lines, pageWidth) {
   const left = []
   const right = []
   for (const p of parts) {
-    for (const s of p.segs) (s.x0 >= mid - 20 ? right : left).push({ y: p.line.y, size: s.size, segs: [s] })
+    for (const s of p.segs) (s.x0 >= mid - 20 ? right : left).push(s.x0 >= mid - 20 ? { y: p.line.y, size: s.size, segs: [s], col: 1 } : { y: p.line.y, size: s.size, segs: [s], col: 0 })
   }
   return [...left, ...right]
 }
 
-const BULLET = /^([•●○◦▪■□–—-]|\d{1,3}[.)]|[a-zа-я][.)])\s+/i
+/** Bullet glyphs, including the private-use ones Word writes with the Symbol / Wingdings fonts. */
+const GLYPHS = '•●○◦▪■□▫►▸‣➢➤✓✔·\uf0b7\uf0a7\uf0d8\uf076\uf0fc\uf0a8\uf06e\uf0e0'
+// a glyph may touch its text; a dash, number or letter needs a space after it ("-5" is no bullet)
+const BULLET = new RegExp(`^([${GLYPHS}]\\s*(?=\\S)|([–—-]|\\d{1,3}[.)]|[a-zа-я][.)])\\s+)`, 'i')
+/** A leading bullet glyph (not a number) with its space — what Word's own bullet replaces. */
+export const LEADING_BULLET = new RegExp(`^([${GLYPHS}–—-])\\s*`)
 
 /**
  * Group lines into paragraphs. Returns blocks with `kind` heading|paragraph|list,
  * `level` for headings, alignment, and inline runs.
  */
 export function toParagraphs(rows, pageWidth, bodySize) {
+  // two-column pages: each column is laid out against its own margins
+  if (rows.some((r) => r.col === 1)) {
+    const size = bodySize ?? median(rows.flatMap((r) => r.segs.map((s) => s.size)))
+    return [0, 1].flatMap((c) => {
+      const own = rows.filter((r) => (r.col ?? 0) === c)
+      return own.length ? toParagraphs(own.map(({ col, ...r }) => r), pageWidth / 2, size) : []
+    })
+  }
   const body = bodySize ?? median(rows.flatMap((r) => r.segs.map((s) => s.size)))
   const left = median(rows.map((r) => r.segs[0]?.x0 ?? 0))
   const right = Math.max(...rows.map((r) => r.segs.at(-1)?.x1 ?? 0), pageWidth * 0.6)
@@ -198,6 +211,81 @@ function finish(p, body, pageWidth, left, right) {
   if (runs[0]) runs[0].text = runs[0].text.trimStart()
   if (runs.at(-1)) runs.at(-1).text = runs.at(-1).text.trimEnd()
   return { kind, level, align, size: p.size, text, runs: runs.filter((r) => r.text), y: p.y, firstIndent: p.firstIndent > body * 1.2 && kind === 'paragraph' }
+}
+
+/**
+ * Tables from text positions: runs of consecutive lines that split into the same columns.
+ * Returns { tables: [{ top, bottom, cols: [x0…], rows: [[cell runs…]…], widths }], used: Set<line> }.
+ * Two-column prose is not a table: cells of a table are short.
+ */
+export function findTables(lines, pageWidth) {
+  const tables = []
+  const used = new Set()
+  const rows = lines.map((l) => ({ line: l, segs: segments(l, 0.8) }))
+  let i = 0
+  while (i < rows.length) {
+    if (rows[i].segs.length < 2) {
+      i++
+      continue
+    }
+    // grow the run while lines keep ≥2 cells and the vertical rhythm stays table-like
+    let j = i + 1
+    while (j < rows.length && rows[j].segs.length >= 2 && rows[j - 1].line.y - rows[j].line.y < Math.max(rows[j].line.size, rows[j - 1].line.size) * 3.2) j++
+    const group = rows.slice(i, j)
+    const table = group.length >= 2 ? asTable(group, pageWidth) : null
+    if (table) {
+      tables.push(table)
+      for (const g of group) used.add(g.line)
+    }
+    i = j
+  }
+  return { tables, used }
+}
+
+function asTable(group, pageWidth) {
+  const size = median(group.map((g) => g.line.size))
+  // column anchors: left edges that several rows share
+  const xs = group.flatMap((g) => g.segs.map((s) => s.x0)).sort((a, b) => a - b)
+  const anchors = []
+  for (const x of xs) {
+    const last = anchors.at(-1)
+    if (last && x - last.x < size * 1.2) {
+      last.n++
+      last.sum += x
+    } else anchors.push({ x, n: 1, sum: x })
+  }
+  const cols = anchors.filter((a) => a.n >= Math.max(2, group.length * 0.4)).map((a) => a.sum / a.n)
+  if (cols.length < 2 || cols.length > 14) return null
+  const cells = group.flatMap((g) => g.segs)
+  const avgLen = cells.reduce((s, c) => s + c.text.length, 0) / cells.length
+  const wide = cells.filter((c) => c.x1 - c.x0 > pageWidth * 0.3).length / cells.length
+  if (avgLen > 60 || (cols.length === 2 && wide > 0.5)) return null
+  // most rows must start their cells at the anchors
+  const fits = group.filter((g) => g.segs.every((s) => cols.some((c) => Math.abs(c - s.x0) < size * 1.2 || s.x0 > c))).length
+  if (fits < group.length * 0.8) return null
+  const colOf = (x) => {
+    let k = 0
+    for (let c = 0; c < cols.length; c++) if (cols[c] <= x + size * 0.6) k = c
+    return k
+  }
+  const grid = group.map((g) => {
+    const row = cols.map(() => [])
+    for (const s of g.segs) {
+      const cell = row[colOf(s.x0)]
+      if (cell.length) cell.push({ ...s.runs[0], text: ' ' })
+      cell.push(...s.runs)
+    }
+    return row
+  })
+  const right = Math.max(...cells.map((c) => c.x1))
+  const edges = [...cols, right + size]
+  return {
+    top: group[0].line.y + group[0].line.size,
+    bottom: group.at(-1).line.y,
+    size,
+    rows: grid,
+    widths: cols.map((c, k) => Math.max(size * 2, edges[k + 1] - c)),
+  }
 }
 
 export { median }

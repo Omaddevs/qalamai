@@ -294,6 +294,29 @@ const TOOLS = [
       fit: z.enum(['inside', 'cover', 'fill']).default('inside'),
     }),
   },
+  /* Popular conversions, each its own tile and page (people search for the pair, not "convert").
+     They run image-convert with the output format fixed. */
+  ...[
+    ['heic-to-jpg', 'HEIC → JPG', 'iPhone suratlarini (HEIC/HEIF) istalgan qurilmada oçiladigan JPG ga.', ['heic'], 'jpg'],
+    ['webp-to-jpg', 'WebP → JPG', 'Saytlardan olingan WebP rasmlarni oddiy JPG ga.', ['webp'], 'jpg'],
+    ['webp-to-png', 'WebP → PNG', 'WebP rasmlarni şaffofligini saqlagan holda PNG ga.', ['webp'], 'png'],
+    ['png-to-jpg', 'PNG → JPG', 'PNG rasmlarni yengil JPG ga — şaffof joylar oq fon bilan.', ['png'], 'jpg'],
+    ['jpg-to-png', 'JPG → PNG', 'JPG rasmlarni sifat yöqotmaydigan PNG formatiga.', ['jpg'], 'png'],
+  ].map(([id, title, description, exts, format]) => ({
+    id,
+    impl: 'image-convert',
+    category: 'image',
+    title,
+    description,
+    accepts: ['image'],
+    exts,
+    maxFiles: 30,
+    output: format,
+    options:
+      format === 'jpg'
+        ? z.object({ format: z.literal('jpg').default('jpg'), quality: z.number().int().min(1).max(100).default(90), background: hex.default('#ffffff') })
+        : z.object({ format: z.literal('png').default('png') }),
+  })),
   {
     id: 'images-to-pdf',
     category: 'image',
@@ -324,6 +347,33 @@ const TOOLS = [
       size: z.number().min(9).max(18).default(14),
       academic: z.boolean().default(true),
     }),
+  },
+  {
+    id: 'xlsx-to-pdf',
+    category: 'document',
+    title: 'Excel → PDF',
+    description: 'XLSX va CSV jadvallar — ustun kengliklari, ranglar va birlaştirilgan kataklar bilan.',
+    accepts: ['spreadsheet', 'text'],
+    exts: ['xlsx', 'csv'],
+    maxFiles: 10,
+    output: 'pdf',
+    options: z.object({
+      orientation: z.enum(['auto', 'portrait', 'landscape']).default('auto'),
+      fitWidth: z.boolean().default(true),
+      gridlines: z.boolean().default(true),
+      pageSize: z.enum(['a4', 'letter']).default('a4'),
+    }),
+  },
+  {
+    id: 'pptx-to-pdf',
+    category: 'document',
+    title: 'PowerPoint → PDF',
+    description: 'PPTX taqdimotning har bir slaydi — fon, matn, rasm va jadvallari bilan PDF sahifaga.',
+    accepts: ['presentation'],
+    exts: ['pptx'],
+    maxFiles: 10,
+    output: 'pdf',
+    options: z.object({}),
   },
 ].map((t) => ({ minFiles: 1, ...t }))
 

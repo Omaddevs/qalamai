@@ -24,6 +24,8 @@ const TOOLS = {
   'pdf-to-pptx': () => import('../../server/src/converters/core/formats.js').then((m) => m.toPptx),
   'pdf-compress': () => import('../../server/src/converters/core/compress.js').then((m) => m.run),
   'doc-to-pdf': () => import('../../server/src/converters/core/office.js').then((m) => m.run),
+  'xlsx-to-pdf': () => import('../../server/src/converters/core/sheet.js').then((m) => m.run),
+  'pptx-to-pdf': () => import('../../server/src/converters/core/slides.js').then((m) => m.run),
   'image-remove-bg': () => import('./removebg.js').then((m) => m.run),
   'image-convert': () => import('./image.js').then((m) => m.convert),
   'image-compress': () => import('./image.js').then((m) => m.compress),
@@ -79,9 +81,11 @@ self.onmessage = async ({ data: msg }) => {
   const { id } = msg
   try {
     if (msg.op === 'probe') return self.postMessage({ id, type: 'done', result: await probe(msg.file) })
-    const load = TOOLS[msg.tool]
+    const { TOOL_MAP } = await import('../../server/src/modules/tools/catalog.js')
+    // preset tools (heic-to-jpg …) run another tool's implementation with fixed options
+    const load = TOOLS[TOOL_MAP.get(msg.tool)?.impl ?? msg.tool]
     if (!load) throw Object.assign(new Error(msg.tool), { code: 'LOCAL_UNSUPPORTED' })
-    const [run, { TOOL_MAP }] = await Promise.all([load(), import('../../server/src/modules/tools/catalog.js')])
+    const run = await load()
     // the server's own option schema: same defaults, same validation messages
     const parsed = TOOL_MAP.get(msg.tool).options.safeParse(msg.options ?? {})
     if (!parsed.success) throw Object.assign(new Error(parsed.error.issues[0]?.message ?? 'Sozlamalar notöğri'), { code: 'BAD_OPTIONS' })

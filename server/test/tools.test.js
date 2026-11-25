@@ -125,6 +125,30 @@ describe('PDF → formats', () => {
   })
 })
 
+describe('PDF → Word layout', () => {
+  test('a table on the page becomes a Word table; two-column prose does not', async () => {
+    const { PDFDocument, StandardFonts } = await import('pdf-lib')
+    const doc = await PDFDocument.create()
+    const font = await doc.embedFont(StandardFonts.Helvetica)
+    const page = doc.addPage([595, 842])
+    page.drawText('Annual report', { x: 60, y: 780, size: 20, font })
+    const rows = [['Region', 'People', 'GDP'], ['Tashkent', '3040', '142.5'], ['Samarkand', '4190', '48.2'], ['Fergana', '3980', '39.7']]
+    rows.forEach((r, i) => r.forEach((cell, k) => page.drawText(cell, { x: 60 + k * 150, y: 720 - i * 22, size: 12, font })))
+    const two = doc.addPage([595, 842])
+    const prose = 'This column of running text is long enough to wrap over several lines of the page'.split(' ')
+    for (let i = 0; i < 14; i++) {
+      two.drawText(prose.slice(0, 8).join(' '), { x: 50, y: 780 - i * 16, size: 11, font })
+      two.drawText(prose.slice(6, 14).join(' '), { x: 320, y: 780 - i * 16, size: 11, font })
+    }
+    const { body } = await c.upload([{ name: 'table.pdf', data: Buffer.from(await doc.save()) }])
+    const job = ok(await c.runTool('pdf-to-docx', [body.files[0].id]))
+    const mammoth = (await import('mammoth')).default
+    const html = (await mammoth.convertToHtml({ buffer: await c.download(job.outputs[0]) })).value
+    assert.equal((html.match(/<table>/g) ?? []).length, 1, html)
+    assert.match(html, /<td><p>Samarkand<\/p><\/td><td><p>4190<\/p><\/td>/)
+  })
+})
+
 describe('PDF editing and organising', () => {
   test('pdf-edit: replace text, add Uzbek text, shapes, image, ink, reorder + rotate pages', async () => {
     const sig = `data:image/png;base64,${(await samplePng()).toString('base64')}`
@@ -262,6 +286,13 @@ describe('images', () => {
     assert.deepEqual([m.width, m.height], [240, 180])
   })
 
+  test('preset conversions (png-to-jpg …) run image-convert with the format fixed', async () => {
+    const job = ok(await c.runTool('png-to-jpg', [png.id]))
+    assert.equal(job.outputs[0].ext, 'jpg')
+    const wrong = await c.req('POST', '/api/v1/tools/webp-to-png/jobs', { json: { fileIds: [png.id] } })
+    assert.equal(wrong.status, 415, 'a preset takes only its own input format')
+  })
+
   test('images-to-pdf', async () => {
     const job = ok(await c.runTool('images-to-pdf', [png.id, jpg.id], { pageSize: 'a4' }))
     const doc = await PDFDocument.load(await c.download(job.outputs[0]))
@@ -327,6 +358,54 @@ describe('documents → PDF', () => {
     assert.match(text, /KURS ISHI/)
     assert.match(text, /gʻ, oʻ va ʼ/)
     assert.match(text, /Ўзбекистон, Қўқон, Ғазна, Ҳамза/)
+  })
+
+  test('xlsx → PDF keeps number formats, merged title and repeats the header row', async () => {
+    const ExcelJS = (await import('exceljs')).default
+    const wb = new ExcelJS.Workbook()
+    const ws = wb.addWorksheet('Hisobot')
+    ws.mergeCells('A1:C1')
+    ws.getCell('A1').value = 'Oʻzbekiston — 2025'
+    ws.addRow(['Viloyat', 'Aholi', 'Ösiş'])
+    for (let i = 0; i < 80; i++) {
+      const r = ws.addRow([`Qator ${i + 1}`, 1000000 + i, 0.05])
+      r.getCell(2).numFmt = '#,##0'
+      r.getCell(3).numFmt = '0.0%'
+    }
+    ws.pageSetup.printTitlesRow = '2:2'
+    const { body } = await c.upload([{ name: 'jadval.xlsx', data: Buffer.from(await wb.xlsx.writeBuffer()) }])
+    assert.equal(body.files[0].kind, 'spreadsheet')
+    const job = ok(await c.runTool('xlsx-to-pdf', [body.files[0].id]))
+    const out = await c.download(job.outputs[0])
+    const pages = (await PDFDocument.load(out)).getPageCount()
+    assert.ok(pages >= 2, `pages: ${pages}`)
+    const text = await textOf(out)
+    assert.match(text, /Oʻzbekiston — 2025/)
+    assert.match(text, /1\s000\s079/)
+    assert.match(text, /5\.0%/)
+    assert.ok((text.match(/Viloyat/g) ?? []).length >= pages, 'header row on every page')
+  })
+
+  test('pptx → PDF: one page per slide with text, table and picture', async () => {
+    const PptxGenJS = (await import('pptxgenjs')).default
+    const p = new PptxGenJS()
+    let s = p.addSlide()
+    s.background = { color: '0B1F3A' }
+    s.addText('Taqdimot — Тақдимот', { x: 1, y: 2, w: 8, h: 1, fontSize: 40, color: 'FFFFFF' })
+    s = p.addSlide()
+    s.addText([{ text: 'Birinchi band', options: { bullet: true } }, { text: 'Ikkinchi band', options: { bullet: true } }], { x: 0.5, y: 0.5, w: 5, h: 2 })
+    s.addImage({ data: `image/png;base64,${(await samplePng()).toString('base64')}`, x: 6, y: 1, w: 3, h: 2 })
+    s.addTable([['Yil', 'Soni'], ['2024', '15']], { x: 0.5, y: 3, w: 5 })
+    const data = Buffer.from(await p.write({ outputType: 'nodebuffer' }))
+    const { body } = await c.upload([{ name: 'slaydlar.pptx', data }])
+    const job = ok(await c.runTool('pptx-to-pdf', [body.files[0].id]))
+    const out = await c.download(job.outputs[0])
+    const doc = await PDFDocument.load(out)
+    assert.equal(doc.getPageCount(), 2)
+    assert.equal(Math.round(doc.getPage(0).getWidth()), 720) // 10 in wide
+    const text = await textOf(out)
+    for (const s of ['Taqdimot — Тақдимот', 'Birinchi band', 'Ikkinchi band', '2024']) assert.match(text, new RegExp(s))
+    assert.match(text, /•/)
   })
 
   test('markdown → PDF', async () => {

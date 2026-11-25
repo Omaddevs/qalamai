@@ -2,7 +2,7 @@
 // labels for option values (in the interface language), and which options depend on others.
 import {
   FileDoc, FileImage, FileTxt, FileXls, FilePpt, NotePencil, ArrowsMerge, Scissors, ArrowClockwise, ArrowsInSimple,
-  Stamp, ListNumbers, MagicWand, ArrowsLeftRight, ArrowsIn, CornersOut, FilePdf, FileText, UserFocus,
+  Stamp, ListNumbers, MagicWand, ArrowsLeftRight, ArrowsIn, CornersOut, FilePdf, FileText, UserFocus, DeviceMobileCamera,
 } from '@phosphor-icons/react'
 import { has, t } from '../i18n/index.js'
 
@@ -13,21 +13,28 @@ export const TOOL_UI = {
   'image-remove-bg': { icon: MagicWand, color: 'purple', from: 'JPG', to: 'PNG', tag: 'AI', hero: true },
   'pdf-edit': { icon: NotePencil, color: 'indigo', from: 'PDF', to: 'PDF', get tag() { return t('fs.tagNew') }, hero: true },
   'pdf-to-docx': { icon: FileDoc, color: 'sky', from: 'PDF', to: 'DOCX', hero: true },
+  'images-to-pdf': { icon: FileText, color: 'red', from: 'JPG', to: 'PDF' },
   'doc-to-pdf': { icon: FilePdf, color: 'red', from: 'DOCX', to: 'PDF' },
+  'xlsx-to-pdf': { icon: FileXls, color: 'green', from: 'XLSX', to: 'PDF' },
+  'pptx-to-pdf': { icon: FilePpt, color: 'orange', from: 'PPTX', to: 'PDF' },
   'pdf-to-images': { icon: FileImage, color: 'amber', from: 'PDF', to: 'JPG' },
+  'pdf-compress': { icon: ArrowsInSimple, color: 'emerald', from: 'PDF', to: '−70%' },
+  'pdf-merge': { icon: ArrowsMerge, color: 'red', from: 'PDF+', to: 'PDF' },
+  'heic-to-jpg': { icon: DeviceMobileCamera, color: 'pink', from: 'HEIC', to: 'JPG' },
   'pdf-to-xlsx': { icon: FileXls, color: 'green', from: 'PDF', to: 'XLSX' },
   'pdf-to-pptx': { icon: FilePpt, color: 'orange', from: 'PDF', to: 'PPTX' },
   'pdf-to-text': { icon: FileTxt, color: 'indigo', from: 'PDF', to: 'TXT' },
-  'pdf-merge': { icon: ArrowsMerge, color: 'red', from: 'PDF+', to: 'PDF' },
   'pdf-split': { icon: Scissors, color: 'pink', from: 'PDF', to: 'PDF×' },
-  'pdf-compress': { icon: ArrowsInSimple, color: 'emerald', from: 'PDF', to: '−70%' },
   'pdf-rotate': { icon: ArrowClockwise, color: 'teal', from: 'PDF', to: '90°' },
   'pdf-watermark': { icon: Stamp, color: 'sky', from: 'PDF', to: 'PDF' },
   'pdf-page-numbers': { icon: ListNumbers, color: 'indigo', from: 'PDF', to: '1·2·3' },
   'image-convert': { icon: ArrowsLeftRight, color: 'amber', from: 'JPG', to: 'PNG' },
   'image-compress': { icon: ArrowsIn, color: 'green', from: 'IMG', to: '−80%' },
   'image-resize': { icon: CornersOut, color: 'orange', from: 'IMG', to: 'px' },
-  'images-to-pdf': { icon: FileText, color: 'red', from: 'JPG', to: 'PDF' },
+  'webp-to-jpg': { icon: ArrowsLeftRight, color: 'sky', from: 'WEBP', to: 'JPG' },
+  'webp-to-png': { icon: ArrowsLeftRight, color: 'teal', from: 'WEBP', to: 'PNG' },
+  'png-to-jpg': { icon: ArrowsLeftRight, color: 'orange', from: 'PNG', to: 'JPG' },
+  'jpg-to-png': { icon: ArrowsLeftRight, color: 'purple', from: 'JPG', to: 'PNG' },
 }
 
 /**
@@ -53,15 +60,19 @@ export function suggest(tools, files) {
       ? ['pdf-merge', 'pdf-compress']
       : ['pdf-to-docx', 'pdf-edit', 'pdf-compress', 'pdf-to-images', 'pdf-to-xlsx', 'pdf-to-pptx', 'pdf-split', 'pdf-watermark', 'pdf-page-numbers', 'pdf-rotate', 'pdf-to-text']
     : kinds.has('image')
-      ? ['image-remove-bg', 'image-convert', 'image-compress', 'images-to-pdf', 'image-resize', 'pdf-merge']
-      : exts.has('docx') || kinds.has('text')
-        ? ['doc-to-pdf']
-        : []
+      ? ['heic-to-jpg', 'webp-to-jpg', 'webp-to-png', 'png-to-jpg', 'jpg-to-png', 'images-to-pdf', 'image-remove-bg', 'image-convert', 'image-compress', 'image-resize', 'pdf-merge']
+      : kinds.has('spreadsheet') || exts.has('csv')
+        ? ['xlsx-to-pdf', 'doc-to-pdf']
+        : kinds.has('presentation')
+          ? ['pptx-to-pdf']
+          : exts.has('docx') || kinds.has('text')
+            ? ['doc-to-pdf']
+            : []
   const byId = new Map(tools.map((t) => [t.id, t]))
   return priority.map((id) => byId.get(id)).filter((t) => t && fits(t))
 }
 
-const FIELDS = ['format', 'dpi', 'pages', 'layout', 'mode', 'ranges', 'angle', 'level', 'text', 'position', 'size', 'color', 'opacity', 'start', 'skipFirst', 'background', 'crop', 'quality', 'maxSide', 'percent', 'width', 'height', 'fit', 'pageSize', 'orientation', 'margin', 'font', 'academic']
+const FIELDS = ['format', 'dpi', 'pages', 'layout', 'mode', 'ranges', 'angle', 'level', 'text', 'position', 'size', 'color', 'opacity', 'start', 'skipFirst', 'background', 'crop', 'quality', 'maxSide', 'percent', 'width', 'height', 'fit', 'pageSize', 'orientation', 'margin', 'font', 'academic', 'gridlines', 'fitWidth']
 /** Option labels in the interface language (src/i18n/msg/files.js). */
 export const FIELD_LABELS = Object.fromEntries(FIELDS.map((f) => [f, null]))
 for (const f of FIELDS) Object.defineProperty(FIELD_LABELS, f, { get: () => t(`fs.f.${f}`), enumerable: true })
@@ -94,6 +105,8 @@ export const VISIBLE_IF = {
   'image-remove-bg': { color: (o) => o.background === 'color' },
   'image-resize': { percent: (o) => o.mode === 'percent', width: (o) => o.mode === 'size', height: (o) => o.mode === 'size', fit: (o) => o.mode === 'size' },
   'image-convert': { background: (o) => o.format === 'jpg' },
+  // preset conversions: the format is the tool itself
+  ...Object.fromEntries(['heic-to-jpg', 'webp-to-jpg', 'webp-to-png', 'png-to-jpg', 'jpg-to-png'].map((id) => [id, { format: () => false }])),
   'pdf-to-images': {},
 }
 

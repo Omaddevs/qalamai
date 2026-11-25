@@ -16,10 +16,14 @@ import { t } from '../i18n/index.js'
 
 const ACCEPT = {
   pdf: '.pdf',
-  image: '.jpg,.jpeg,.png,.webp,.gif,.avif,.tif,.tiff,.bmp,.svg',
+  image: '.jpg,.jpeg,.png,.webp,.gif,.avif,.heic,.heif,.tif,.tiff,.bmp,.svg',
   document: '.docx',
+  spreadsheet: '.xlsx',
+  presentation: '.pptx',
   text: '.txt,.md,.html,.htm,.csv',
 }
+/** Picker extensions for a tool that takes only some formats. */
+const EXT_ALIASES = { jpg: '.jpg,.jpeg', heic: '.heic,.heif', html: '.html,.htm' }
 
 function Ring({ value }) {
   const r = 52
@@ -60,7 +64,7 @@ export default function ToolWorkspace({ tool, tools, initialFiles, notify, onClo
   const accepts = tool.editor ? ['pdf'] : tool.accepts
   const maxFiles = tool.editor ? 1 : tool.maxFiles
   const multi = maxFiles > 1
-  const accept = accepts.map((k) => (tool.exts && (k === 'document' || k === 'text') ? tool.exts.map((e) => `.${e}`).join(',') : ACCEPT[k])).join(',')
+  const accept = tool.exts ? tool.exts.map((e) => EXT_ALIASES[e] ?? `.${e}`).join(',') : accepts.map((k) => ACCEPT[k]).join(',')
 
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && phase !== 'running' && onClose()

@@ -34,6 +34,15 @@ export async function decode(blob) {
   try {
     return await createImageBitmap(blob, { imageOrientation: 'from-image' })
   } catch {
+    // HEIC/HEIF (iPhone photos): only Safari decodes them natively
+    const { decodeHeic, isHeic } = await import('./heic.js')
+    if (await isHeic(blob)) {
+      try {
+        return await decodeHeic(blob)
+      } catch (err) {
+        console.warn('heic decode:', err)
+      }
+    }
     throw unsupportedHere('image decode')
   }
 }

@@ -1,6 +1,6 @@
 // Small building blocks shared by the file studio, tool workspace and editor.
 import { useEffect, useState } from 'react'
-import { FilePdf, FileDoc, FileImage, File as FileIcon, FileText, WarningCircle } from '@phosphor-icons/react'
+import { FilePdf, FileDoc, FileImage, FileXls, FilePpt, File as FileIcon, FileText, WarningCircle } from '@phosphor-icons/react'
 import { apiUrl } from '../api.js'
 import { pdfThumb } from './store.js'
 import { COLORS } from '../data.js'
@@ -19,7 +19,7 @@ export function ToolIcon({ id, size = 46 }) {
 }
 
 export function KindIcon({ file, size = 20 }) {
-  const Icon = file.kind === 'pdf' ? FilePdf : file.kind === 'image' ? FileImage : file.ext === 'docx' ? FileDoc : FileText
+  const Icon = file.kind === 'pdf' ? FilePdf : file.kind === 'image' ? FileImage : file.ext === 'docx' ? FileDoc : file.kind === 'spreadsheet' ? FileXls : file.kind === 'presentation' ? FilePpt : FileText
   return <Icon size={size} weight="duotone" className={`fs-kind k-${file.kind}`} />
 }
 

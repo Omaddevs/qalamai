@@ -36,6 +36,22 @@ export default {
   'fs.f.margin': { uz: 'Çekka', ru: 'Поля', en: 'Margins', kk: 'Шеттер', ky: 'Четтер', tg: 'Ҳошия' },
   'fs.f.font': { uz: 'Şrift', ru: 'Шрифт', en: 'Font', kk: 'Қаріп', ky: 'Шрифт', tg: 'Ҳуруф' },
   'fs.f.academic': { uz: 'Akademik talablar (OTM standarti)', ru: 'Академические требования (стандарт вуза)', en: 'Academic formatting (university standard)', kk: 'Академиялық талаптар (ЖОО стандарты)', ky: 'Академиялык талаптар (ЖОЖ стандарты)', tg: 'Талаботи академӣ (стандарти МТО)' },
+  'fs.f.gridlines': {
+    uz: 'Katak çiziqlari',
+    ru: 'Линии сетки',
+    en: 'Gridlines',
+    kk: 'Тор сызықтары',
+    ky: 'Тор сызыктары',
+    tg: 'Хатҳои тор',
+  },
+  'fs.f.fitWidth': {
+    uz: 'Kenglikka sığdiriş',
+    ru: 'Вписать по ширине',
+    en: 'Fit to page width',
+    kk: 'Енге сыйғызу',
+    ky: 'Туурасына батыруу',
+    tg: 'Ба паҳно ҷо кардан',
+  },
   // hints
   'fs.h.pages': { uz: 'Böş qoldirsangiz — barça sahifalar. Masalan: 1-3, 5', ru: 'Оставьте пустым — все страницы. Например: 1-3, 5', en: 'Leave empty for all pages. For example: 1-3, 5', kk: 'Бос қалдырсаңыз — барлық беттер. Мысалы: 1-3, 5', ky: 'Бош калтырсаңыз — бардык барактар. Мисалы: 1-3, 5', tg: 'Холӣ гузоред — ҳамаи саҳифаҳо. Масалан: 1-3, 5' },
   'fs.h.ranges': { uz: 'Masalan: 1-3, 4-6, 9', ru: 'Например: 1-3, 4-6, 9', en: 'For example: 1-3, 4-6, 9', kk: 'Мысалы: 1-3, 4-6, 9', ky: 'Мисалы: 1-3, 4-6, 9', tg: 'Масалан: 1-3, 4-6, 9' },

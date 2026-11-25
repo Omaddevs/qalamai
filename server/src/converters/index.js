@@ -21,11 +21,18 @@ const TOOLS = {
   'image-resize': () => import('./image/basic.js').then((m) => m.resize),
   'images-to-pdf': () => import('./image/to-pdf.js').then((m) => m.run),
   'doc-to-pdf': () => import('./office/to-pdf.js').then((m) => m.run),
+  'xlsx-to-pdf': () => portable('./core/sheet.js'),
+  'pptx-to-pdf': () => portable('./core/slides.js'),
 }
+
+/** A portable core tool (also run in the browser) wrapped for the server's worker threads. */
+const portable = (path) => Promise.all([import(path), import('./lib/node-platform.js')]).then(([m, p]) => p.onServer(m.run))
 
 /** @param {{ tool: string, inputs: any[], options: object, outDir: string }} task */
 export async function run(task, ctx) {
-  const load = TOOLS[task.tool]
+  // preset tools (heic-to-jpg …) run another tool's implementation with fixed options
+  const { TOOL_MAP } = await import('../modules/tools/catalog.js')
+  const load = TOOLS[TOOL_MAP.get(task.tool)?.impl ?? task.tool]
   if (!load) throw new ToolError('UNKNOWN_TOOL', `Nomaʼlum vosita: ${task.tool}`)
   const fn = await load()
   const result = await fn(task, ctx)

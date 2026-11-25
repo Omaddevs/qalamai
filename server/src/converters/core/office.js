@@ -96,10 +96,12 @@ export function mdToHtml(md) {
   return out.join('')
 }
 
-export function csvToHtml(text) {
-  const sep = (text.split('\n')[0].match(/;/g)?.length ?? 0) > (text.split('\n')[0].match(/,/g)?.length ?? 0) ? ';' : ','
+/** CSV (comma or semicolon, quoted fields) → rows of cells. */
+export function csvRows(text) {
+  const first = text.split('\n')[0]
+  const sep = (first.match(/;/g)?.length ?? 0) > (first.match(/,/g)?.length ?? 0) ? ';' : ','
   const rows = []
-  for (const line of text.replace(/^﻿/, '').split(/\r?\n/)) {
+  for (const line of text.replace(/^\uFEFF/, '').split(/\r?\n/)) {
     if (!line.trim()) continue
     const cells = []
     let cur = ''
@@ -119,6 +121,11 @@ export function csvToHtml(text) {
     cells.push(cur)
     rows.push(cells)
   }
+  return rows
+}
+
+export function csvToHtml(text) {
+  const rows = csvRows(text)
   return `<table>${rows.map((r, i) => `<tr>${r.map((c) => (i ? `<td>${esc(c)}</td>` : `<th>${esc(c)}</th>`)).join('')}</tr>`).join('')}</table>`
 }
 

@@ -17,11 +17,14 @@ import { PDF_ASSETS, loadPdfjs } from './pdfjs.js'
 export const LOCAL_TOOLS = new Set([
   'pdf-to-docx', 'pdf-to-images', 'pdf-to-text', 'pdf-to-xlsx', 'pdf-to-pptx',
   'pdf-merge', 'pdf-split', 'pdf-rotate', 'pdf-compress', 'pdf-watermark', 'pdf-page-numbers', 'pdf-edit', 'images-to-pdf',
-  'image-remove-bg', 'image-convert', 'image-compress', 'image-resize', 'doc-to-pdf',
+  'image-remove-bg', 'image-convert', 'image-compress', 'image-resize', 'doc-to-pdf', 'xlsx-to-pdf', 'pptx-to-pdf',
+  'heic-to-jpg', 'webp-to-jpg', 'webp-to-png', 'png-to-jpg', 'jpg-to-png',
 ])
+/** Preset tiles that are image-convert with the output format fixed. */
+const CONVERT_PRESETS = new Set(['heic-to-jpg', 'webp-to-jpg', 'webp-to-png', 'png-to-jpg', 'jpg-to-png'])
 
-/** Images every current browser decodes (SVG, TIFF and HEIC go to the server). */
-const DECODABLE = new Set(['jpg', 'png', 'webp', 'gif', 'bmp', 'avif'])
+/** Images the tool worker decodes (HEIC through libheif; SVG and TIFF go to the server). */
+const DECODABLE = new Set(['jpg', 'png', 'webp', 'gif', 'bmp', 'avif', 'heic'])
 const ENCODABLE = new Set(['jpg', 'png', 'webp'])
 
 const KEEP_DAYS = 30
@@ -250,7 +253,7 @@ export function runsHere(toolId, files, options = {}) {
   if (!files.every((f) => f.local)) return false
   const images = files.filter((f) => f.kind === 'image')
   if (!images.every((f) => DECODABLE.has(f.ext))) return false
-  switch (toolId) {
+  switch (CONVERT_PRESETS.has(toolId) ? 'image-convert' : toolId) {
     case 'image-convert':
       // animation would be lost (the server keeps GIF / WebP frames)
       return ENCODABLE.has(options.format ?? 'png') && !(options.format === 'webp' && images.some((f) => f.ext === 'gif' || f.ext === 'webp'))

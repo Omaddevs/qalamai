@@ -34,6 +34,8 @@ export default {
   'hm.tools.pdf': { uz: 'PDF', ru: 'PDF', en: 'PDF', kk: 'PDF', ky: 'PDF', tg: 'PDF' },
   'hm.tools.tarjima': { uz: 'Tarjima', ru: 'Перевод', en: 'Translate', kk: 'Аударма', ky: 'Котормо', tg: 'Тарҷума' },
   'hm.tools.plagiat': { uz: 'Plagiat', ru: 'Плагиат', en: 'Plagiarism', kk: 'Плагиат', ky: 'Плагиат', tg: 'Плагиат' },
+  'hm.scrollPrev': { uz: 'Orqaga', ru: 'Назад', en: 'Previous', kk: 'Артқа', ky: 'Артка', tg: 'Ба қафо' },
+  'hm.scrollNext': { uz: 'Oldinga', ru: 'Вперёд', en: 'Next', kk: 'Алға', ky: 'Алга', tg: 'Ба пеш' },
   'hm.more': { uz: 'Köproq', ru: 'Ещё', en: 'More', kk: 'Тағы', ky: 'Дагы', tg: 'Бештар' },
   'hm.allApps': { uz: 'Barça ilovalar', ru: 'Все приложения', en: 'All apps', kk: 'Барлық қосымшалар', ky: 'Бардык тиркемелер', tg: 'Ҳамаи барномаҳо' },
   'hm.recent': { uz: 'Oxirgi dizaynlar', ru: 'Недавние дизайны', en: 'Recent designs', kk: 'Соңғы дизайндар', ky: 'Акыркы дизайндар', tg: 'Дизайнҳои охирин' },

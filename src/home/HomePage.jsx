@@ -72,6 +72,45 @@ function ToolTile({ icon: Icon, color }) {
   )
 }
 
+/**
+ * The row of type and tool tiles: scrolls sideways when it doesn't fit, with arrows and faded
+ * edges; centred when it does. `after` stays outside the scroller, so its menu isn't clipped.
+ */
+function CatsCarousel({ children, after }) {
+  const ref = useRef(null)
+  const [edge, setEdge] = useState({ l: false, r: false })
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const update = () => setEdge({ l: el.scrollLeft > 4, r: el.scrollLeft + el.clientWidth < el.scrollWidth - 4 })
+    update()
+    el.addEventListener('scroll', update, { passive: true })
+    const ro = new ResizeObserver(update)
+    ro.observe(el)
+    return () => {
+      el.removeEventListener('scroll', update)
+      ro.disconnect()
+    }
+  }, [])
+  const go = (dir) => ref.current?.scrollBy({ left: dir * ref.current.clientWidth * 0.75, behavior: 'smooth' })
+  return (
+    <div className={`hm-cats-wrap ${edge.l ? 'can-l' : ''} ${edge.r ? 'can-r' : ''}`}>
+      <div className="hm-cats-view">
+        <button type="button" className="hm-cats-arrow prev" onClick={() => go(-1)} aria-label={t('hm.scrollPrev')} tabIndex={edge.l ? 0 : -1}>
+          <CaretLeft size={16} weight="bold" />
+        </button>
+        <div className="hm-cats" ref={ref}>
+          {children}
+        </div>
+        <button type="button" className="hm-cats-arrow next" onClick={() => go(1)} aria-label={t('hm.scrollNext')} tabIndex={edge.r ? 0 : -1}>
+          <CaretRight size={16} weight="bold" />
+        </button>
+      </div>
+      {after && <div className="hm-cats-after">{after}</div>}
+    </div>
+  )
+}
+
 function Section({ title, action, onAction, children }) {
   return (
     <section className="hm-section">
@@ -398,7 +437,33 @@ export default function HomePage({
             </>
           ) : tab === 'home' ? (
             <>
-              <div className="hm-cats">
+              <CatsCarousel
+                after={
+                  <Dropdown
+                    align="right"
+                    button={({ toggle }) => (
+                      <button className="hm-cat tool" onClick={toggle}>
+                        <span className="hm-cat-tile soft neutral">
+                          <SquaresFour size={27} weight="duotone" />
+                        </span>
+                        <span>{t('hm.more')}</span>
+                      </button>
+                    )}
+                  >
+                    {(close) => (
+                      <>
+                        <div className="pop-label">{t('hm.allApps')}</div>
+                        {APPS.filter((a) => a.id !== 'muharrir').map((a) => (
+                          <button key={a.id} className="menu-item" onClick={() => { close(); openApp(a.id) }}>
+                            {a.name}
+                            <span className="menu-hint">{a.soon ? t('ui.soon') : ''}</span>
+                          </button>
+                        ))}
+                      </>
+                    )}
+                  </Dropdown>
+                }
+              >
                 {CREATE.map((c) => (
                   <button key={c.id} className={`hm-cat ${typeChosen && heroType === c.id ? 'on' : ''}`} onClick={() => pickType(c.id)}>
                     <CatTile icon={c.icon} color={c.color} />
@@ -412,30 +477,7 @@ export default function HomePage({
                     <span>{tool.label}</span>
                   </button>
                 ))}
-                <Dropdown
-                  align="right"
-                  button={({ toggle }) => (
-                    <button className="hm-cat tool" onClick={toggle}>
-                      <span className="hm-cat-tile soft neutral">
-                        <SquaresFour size={27} weight="duotone" />
-                      </span>
-                      <span>{t('hm.more')}</span>
-                    </button>
-                  )}
-                >
-                  {(close) => (
-                    <>
-                      <div className="pop-label">{t('hm.allApps')}</div>
-                      {APPS.filter((a) => a.id !== 'muharrir').map((a) => (
-                        <button key={a.id} className="menu-item" onClick={() => { close(); openApp(a.id) }}>
-                          {a.name}
-                          <span className="menu-hint">{a.soon ? t('ui.soon') : ''}</span>
-                        </button>
-                      ))}
-                    </>
-                  )}
-                </Dropdown>
-              </div>
+              </CatsCarousel>
 
               <Section title={t('hm.recent')} action={t('hm.all')} onAction={() => setTab('projects')}>
                 {designs.length ? designGrid(designs.slice(0, 8)) : <p className="hm-empty">{t('hm.noDesigns')}</p>}

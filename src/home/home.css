@@ -27,7 +27,7 @@
   height: 100%;
   padding: 14px 0 16px;
   overflow: hidden;
-  border-right: 1px solid #eceae4;
+  border-inline-end: 1px solid #eceae4;
   background: #fff;
 }
 
@@ -63,7 +63,7 @@
 .hm-rail-toggle {
   position: absolute;
   top: 28px;
-  right: -12px;
+  inset-inline-end: -12px;
   display: grid;
   place-items: center;
   width: 24px;
@@ -110,7 +110,7 @@
 
 .rail-open .hm-rail .ed-rail-label {
   font-size: 14px;
-  text-align: left;
+  text-align: start;
   white-space: nowrap;
 }
 
@@ -192,7 +192,7 @@
 .rail-open .hm-new-label {
   flex: 1;
   font-size: 14px;
-  text-align: left;
+  text-align: start;
 }
 
 .hm-new-kbd {
@@ -210,7 +210,7 @@
 
 .hm-create-pop {
   width: 250px;
-  left: 8px;
+  inset-inline-start: 8px;
 }
 
 .hm-create-item {
@@ -256,7 +256,7 @@
 .hm-bell-dot {
   position: absolute;
   top: 2px;
-  left: 22px;
+  inset-inline-start: 22px;
   min-width: 18px;
   height: 18px;
   padding: 0 5px;
@@ -282,7 +282,7 @@
   border: 0;
   border-radius: 12px;
   background: none;
-  text-align: left;
+  text-align: start;
 }
 
 .hm-me-text {
@@ -327,7 +327,7 @@
 .rail-open .hm-bell-dot {
   position: static;
   order: 2;
-  margin-left: auto;
+  margin-inline-start: auto;
   border: 0;
   line-height: 18px;
 }
@@ -438,7 +438,7 @@
   position: absolute;
   top: -20%;
   bottom: -20%;
-  left: 0;
+  inset-inline-start: 0;
   width: 46%;
   background: linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.5) 50%, transparent 100%);
   transform: translateX(-160%) skewX(-18deg);
@@ -505,7 +505,7 @@
 }
 
 .hm-mode-brand b {
-  margin-left: 1px;
+  margin-inline-start: 1px;
   color: var(--brand-fg);
   font-weight: 800;
 }
@@ -520,15 +520,106 @@
 }
 
 /* Categories */
-.hm-cats {
+.hm-cats-wrap {
   display: flex;
-  justify-content: center;
+  justify-content: center; /* the tiles and "Köproq" stay together when they fit */
   align-items: flex-start;
   gap: 6px;
-  margin: 28px 0 8px;
-  padding-bottom: 6px;
+  margin: 22px 0 8px;
+}
+
+.hm-cats-view {
+  position: relative;
+  flex: 0 1 auto; /* as wide as the tiles, narrower (then scrolling) when the page is */
+  min-width: 0;
+}
+
+/* a scroller that is centred when everything fits (auto margins) and scrolls fully when not */
+.hm-cats {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px 2px 6px; /* room for the lifted tile on hover */
   overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scroll-padding: 0 40px;
   scrollbar-width: none;
+}
+
+.hm-cats::-webkit-scrollbar {
+  display: none;
+}
+
+.hm-cats > :first-child {
+  margin-inline-start: auto;
+}
+
+.hm-cats > :last-child {
+  margin-inline-end: auto;
+}
+
+.hm-cats > * {
+  scroll-snap-align: start;
+}
+
+.hm-cats-wrap.can-l .hm-cats {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 56px);
+  mask-image: linear-gradient(90deg, transparent, #000 56px);
+}
+
+.hm-cats-wrap.can-r .hm-cats {
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 56px), transparent);
+  mask-image: linear-gradient(90deg, #000 calc(100% - 56px), transparent);
+}
+
+.hm-cats-wrap.can-l.can-r .hm-cats {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 56px, #000 calc(100% - 56px), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 56px, #000 calc(100% - 56px), transparent);
+}
+
+.hm-cats-arrow {
+  position: absolute;
+  top: 34px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #e6e3dc;
+  border-radius: 50%;
+  background: #fff;
+  color: #16181d;
+  box-shadow: 0 8px 18px -8px rgba(15, 17, 21, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.85);
+  transition: opacity 0.2s, transform 0.2s, background 0.2s;
+}
+
+.hm-cats-arrow.prev {
+  inset-inline-start: -4px;
+}
+
+.hm-cats-arrow.next {
+  inset-inline-end: -4px;
+}
+
+.hm-cats-wrap.can-l .hm-cats-arrow.prev,
+.hm-cats-wrap.can-r .hm-cats-arrow.next {
+  opacity: 1;
+  pointer-events: auto;
+  transform: none;
+}
+
+.hm-cats-arrow:hover {
+  background: var(--brand);
+  border-color: var(--brand-strong);
+}
+
+.hm-cats-after {
+  flex-shrink: 0;
+  padding-top: 8px;
 }
 
 .hm-cats .dd {
@@ -676,7 +767,7 @@
 
 .dz-count {
   position: absolute;
-  left: 8px;
+  inset-inline-start: 8px;
   bottom: 8px;
   padding: 2px 7px;
   border-radius: 6px;
@@ -701,7 +792,7 @@
 
 .dz-progress {
   position: absolute;
-  right: 10px;
+  inset-inline-end: 10px;
   bottom: 10px;
   display: flex;
   gap: 3px;
@@ -742,7 +833,7 @@
 .dz-menu {
   position: absolute;
   top: 8px;
-  right: 8px;
+  inset-inline-end: 8px;
   opacity: 0;
   transition: opacity 0.15s;
 }
@@ -820,9 +911,10 @@
 }
 
 /* Responsive */
-@media (max-width: 900px) {
-  .hm-cats {
-    justify-content: flex-start;
+@media (hover: none) {
+  /* touch screens swipe the row; arrows only get in the way */
+  .hm-cats-arrow {
+    display: none;
   }
 }
 
@@ -842,13 +934,13 @@
   /* on phones the open rail floats over the page instead of squeezing it */
   .hm.rail-open .hm-side {
     position: fixed;
-    left: 0;
+    inset-inline-start: 0;
   }
   .hm.rail-open .hm-rail {
     box-shadow: 0 20px 60px rgba(15, 17, 21, 0.25);
   }
   .hm.rail-open .hm-main {
-    margin-left: 62px;
+    margin-inline-start: 62px;
   }
   .hm-pro {
     padding: 0 12px;

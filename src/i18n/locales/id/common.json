@@ -41,7 +41,7 @@
   "design.copied": "Desain diduplikasi",
   "design.deleted": "Desain dihapus",
   "design.renamed": "Nama diubah",
-  "design.aiReady": "“{topic}” — {kind}: {n} slide siap (demo)",
+  "design.aiReady": "“{topic}” — {kind}: {n} slide siap",
   "design.appDemo": "“{topic}” — {app} sedang diproses… (demo, AI belum terhubung)",
   "design.newDesign": "Desain baru",
   "ui.close": "Tutup",

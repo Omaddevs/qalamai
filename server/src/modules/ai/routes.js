@@ -5,9 +5,8 @@
 import { PassThrough } from 'node:stream'
 import { AppError } from '../../lib/errors.js'
 import { createAi } from './service.js'
-import { DECK_LANGS, PLAN_FIXED, PLAN_MAX } from './deck.js'
+import { DECK_LANGS, PLAN_FIXED, PLAN_MAX, SOURCE_MAX } from './deck.js'
 
-const ACTION = 'prezentatsiya'
 const off = () => new AppError(503, 'AI_OFF', 'AI hozirça ulanmagan')
 
 /** @param {import('fastify').FastifyInstance} app */
@@ -26,10 +25,21 @@ export default async function aiRoutes(app) {
         summary: 'AI taqdimot (slaydlar birma-bir keladi, JSON Lines)',
         body: {
           type: 'object',
-          required: ['topic', 'plans', 'slides', 'lang', 'ref'],
+          required: ['plans', 'slides', 'lang', 'ref'],
           additionalProperties: false,
           properties: {
-            topic: { type: 'string', minLength: 2, maxLength: 300 },
+            topic: { type: 'string', maxLength: 300 },
+            // a document read in the browser: only its text comes here, and it is not stored
+            source: {
+              type: 'object',
+              required: ['name', 'text'],
+              additionalProperties: false,
+              properties: {
+                name: { type: 'string', minLength: 1, maxLength: 200 },
+                text: { type: 'string', minLength: 50, maxLength: SOURCE_MAX },
+                outline: { type: 'array', maxItems: PLAN_MAX, items: { type: 'string', maxLength: 120 } },
+              },
+            },
             plans: { type: 'integer', minimum: 1, maximum: PLAN_MAX },
             slides: { type: 'integer', minimum: 5, maximum: 30 },
             lang: { type: 'string', enum: DECK_LANGS },
@@ -40,11 +50,14 @@ export default async function aiRoutes(app) {
     },
     async (req, reply) => {
       if (!ai) throw off()
-      const { topic, plans, lang, ref } = req.body
+      const { plans, lang, ref, source = null } = req.body
+      const topic = (req.body.topic ?? '').trim()
+      if (topic.length < 2 && !source) throw new AppError(400, 'TOPIC_REQUIRED', 'Mavzuni yozing')
       const slides = Math.max(req.body.slides, plans + PLAN_FIXED)
+      const ACTION = source ? 'prezentatsiya-fayl' : 'prezentatsiya'
 
       // one paid ref = one presentation: a ref that was seen before (used, or refunded) is not free again
-      const paid = await coins.spend(req.user, ACTION, { ref, meta: { topic: topic.trim(), ai: true } })
+      const paid = await coins.spend(req.user, ACTION, { ref, meta: { topic: (topic || source.name).slice(0, 300), ai: true } })
       if (paid.repeated) throw new AppError(409, 'REF_USED', 'Bu tölov allaqaçon işlatilgan')
 
       const out = new PassThrough()
@@ -60,7 +73,7 @@ export default async function aiRoutes(app) {
       ;(async () => {
         send({ type: 'start', balance: paid.balance })
         try {
-          const res = await ai.deck({ topic: topic.trim(), plans, slides, lang }, { emit: send, signal: abort.signal })
+          const res = await ai.deck({ topic, plans, slides, lang, source }, { emit: send, signal: abort.signal })
           send({ type: 'done', slides: res.slides.length })
         } catch (err) {
           if (abort.signal.aborted) req.log.info('ai deck cancelled by the client')

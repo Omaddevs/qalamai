@@ -41,7 +41,7 @@
   "design.copied": "设计已复制",
   "design.deleted": "设计已删除",
   "design.renamed": "已重命名",
-  "design.aiReady": "“{topic}”— {kind}：{n} 张幻灯片已就绪（演示）",
+  "design.aiReady": "“{topic}”— {kind}：{n} 张幻灯片已就绪",
   "design.appDemo": "“{topic}”— {app} 处理中…（演示，AI 尚未接入）",
   "design.newDesign": "新建设计",
   "ui.close": "关闭",

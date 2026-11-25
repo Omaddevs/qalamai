@@ -41,7 +41,7 @@
   "design.copied": "डिज़ाइन की कॉपी बन गई",
   "design.deleted": "डिज़ाइन हटा दिया गया",
   "design.renamed": "नाम बदल दिया गया",
-  "design.aiReady": "“{topic}” — {kind}: {n} स्लाइड तैयार (डेमो)",
+  "design.aiReady": "“{topic}” — {kind}: {n} स्लाइड तैयार",
   "design.appDemo": "“{topic}” — {app} पर काम चल रहा है… (डेमो, AI अभी जुड़ा नहीं है)",
   "design.newDesign": "नया डिज़ाइन",
   "ui.close": "बंद करें",

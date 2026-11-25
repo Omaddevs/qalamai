@@ -7,7 +7,7 @@
   "fs.words": { "one": "{n} palavra", "many": "{n} de palavras", "other": "{n} palavras" },
   "fs.pagesN": { "one": "{n} página", "many": "{n} de páginas", "other": "{n} páginas" },
   "fs.removeFile": "Remover o arquivo",
-  "fs.private": "O arquivo nunca é enviado — ele é lido só no seu navegador e descartado quando a apresentação fica pronta",
+  "fs.private": "O arquivo não é guardado: ele é lido no seu navegador e só o texto dele é enviado à IA para escrever a apresentação",
   "fs.topicOptional": "Tema (opcional) — senão, ele vem do arquivo",
   "fs.planFromFile": "Os tópicos do roteiro vêm das seções do arquivo",
   "fs.contentNote": "O texto dos slides fica no idioma do arquivo; com a IA, ele será reescrito no idioma escolhido",

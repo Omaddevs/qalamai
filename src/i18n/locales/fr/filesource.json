@@ -15,7 +15,7 @@
     "other": "{n} pages"
   },
   "fs.removeFile": "Retirer le fichier",
-  "fs.private": "Le fichier n’est jamais envoyé : il est lu uniquement dans votre navigateur, puis oublié dès que la présentation est prête",
+  "fs.private": "Le fichier n’est pas conservé : il est lu dans votre navigateur et seul son texte est envoyé à l’IA pour rédiger la présentation",
   "fs.topicOptional": "Sujet (facultatif) : sinon, il est tiré du fichier",
   "fs.planFromFile": "Les points du plan proviennent des sections du fichier",
   "fs.contentNote": "Le texte des diapositives reste dans la langue du fichier ; avec l’IA, il sera réécrit dans la langue choisie",

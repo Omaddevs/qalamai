@@ -11,7 +11,7 @@
     "other": "{n} trang"
   },
   "fs.removeFile": "Bỏ tệp",
-  "fs.private": "Tệp không bao giờ được tải lên — tệp chỉ được đọc trong trình duyệt của bạn và bị loại bỏ khi bài thuyết trình đã sẵn sàng",
+  "fs.private": "Tệp không được lưu — tệp được đọc trong trình duyệt của bạn và chỉ phần văn bản được gửi đến AI để viết bài thuyết trình",
   "fs.topicOptional": "Chủ đề (không bắt buộc) — nếu không sẽ lấy từ tệp",
   "fs.planFromFile": "Các mục dàn ý được lấy từ các phần của tệp",
   "fs.contentNote": "Văn bản trang chiếu giữ nguyên ngôn ngữ của tệp; khi có AI, văn bản sẽ được viết lại bằng ngôn ngữ đã chọn",

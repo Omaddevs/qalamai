@@ -53,7 +53,7 @@
   "design.copied": "Design dupliqué",
   "design.deleted": "Design supprimé",
   "design.renamed": "Renommé",
-  "design.aiReady": "« {topic} » — {kind} : {n} diapositives prêtes (démo)",
+  "design.aiReady": "« {topic} » — {kind} : {n} diapositives prêtes",
   "design.appDemo": "« {topic} » — {app} en cours… (démo, IA pas encore connectée)",
   "design.newDesign": "Nouveau design",
   "ui.close": "Fermer",

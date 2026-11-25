@@ -9,12 +9,12 @@ export default {
   'fs.pagesN': { uz: '{n} bet', ru: { one: '{n} страница', few: '{n} страницы', many: '{n} страниц' }, en: { one: '{n} page', other: '{n} pages' }, kk: '{n} бет', ky: '{n} барак', tg: '{n} саҳифа' },
   'fs.removeFile': { uz: 'Faylni olib taşlaş', ru: 'Убрать файл', en: 'Remove the file', kk: 'Файлды алып тастау', ky: 'Файлды алып салуу', tg: 'Хориҷ кардани файл' },
   'fs.private': {
-    uz: 'Fayl serverga yuklanmaydi — faqat brauzeringizda öqiladi va taqdimot tayyor bölgaç öçiriladi',
-    ru: 'Файл не загружается на сервер — он читается только в вашем браузере и удаляется, когда презентация готова',
-    en: 'The file is never uploaded — it is read only in your browser and dropped once the deck is ready',
-    kk: 'Файл серверге жүктелмейді — тек браузеріңізде оқылады және презентация дайын болғанда жойылады',
-    ky: 'Файл серверге жүктөлбөйт — браузериңизде гана окулат жана презентация даяр болгондо өчүрүлөт',
-    tg: 'Файл ба сервер бор карда намешавад — танҳо дар браузери шумо хонда мешавад ва пас аз тайёр шудани презентатсия нест мешавад',
+    uz: 'Fayl saqlanmaydi — brauzeringizda öqiladi, taqdimot yoziş uçun faqat uning matni AI ga yuboriladi',
+    ru: 'Файл не сохраняется — он читается в вашем браузере, и для презентации ИИ получает только его текст',
+    en: 'The file isn’t stored — it’s read in your browser, and only its text is sent to the AI to write the deck',
+    kk: 'Файл сақталмайды — браузеріңізде оқылады, презентация жазу үшін AI-ға тек оның мәтіні жіберіледі',
+    ky: 'Файл сакталбайт — браузериңизде окулат, презентация жазуу үчүн AIга анын тексти гана жөнөтүлөт',
+    tg: 'Файл нигоҳ дошта намешавад — дар браузери шумо хонда мешавад ва барои навиштани презентатсия танҳо матни он ба AI фиристода мешавад',
   },
   'fs.topicOptional': {
     uz: 'Mavzu (ixtiyoriy) — yozilmasa fayldan olinadi',

@@ -41,7 +41,7 @@
   "design.copied": "ডিজাইনের কপি তৈরি হয়েছে",
   "design.deleted": "ডিজাইন মুছে ফেলা হয়েছে",
   "design.renamed": "নাম বদলানো হয়েছে",
-  "design.aiReady": "“{topic}” — {kind}: {n}টি স্লাইড তৈরি (ডেমো)",
+  "design.aiReady": "“{topic}” — {kind}: {n}টি স্লাইড তৈরি",
   "design.appDemo": "“{topic}” — {app} চলছে… (ডেমো, এআই এখনও সংযুক্ত নয়)",
   "design.newDesign": "নতুন ডিজাইন",
   "ui.close": "বন্ধ করুন",

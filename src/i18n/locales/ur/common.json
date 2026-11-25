@@ -41,7 +41,7 @@
   "design.copied": "ڈیزائن کی نقل بن گئی",
   "design.deleted": "ڈیزائن حذف ہو گیا",
   "design.renamed": "نام تبدیل ہو گیا",
-  "design.aiReady": "“{topic}” — {kind}: {n} سلائیڈز تیار (ڈیمو)",
+  "design.aiReady": "“{topic}” — {kind}: {n} سلائیڈز تیار",
   "design.appDemo": "“{topic}” — {app} جاری ہے… (ڈیمو، AI ابھی منسلک نہیں)",
   "design.newDesign": "نیا ڈیزائن",
   "ui.close": "بند کریں",

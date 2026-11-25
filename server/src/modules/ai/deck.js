@@ -79,11 +79,15 @@ RULES
 - Vary the layout: never the same type on two slides in a row (except "content" for the conclusion). Use "media" (with an image) for about a third of the content slides.
 - Follow the requested slide plan exactly: the slide count, which slides belong to which plan item, and the fixed slides.`
 
+/** Longest document text sent to the model (~40k tokens); longer files are cut at a paragraph. */
+export const SOURCE_MAX = 150_000
+
 /**
- * The user message: topic, language, and the exact slide plan.
- * @param {{ topic: string, plans: number, slides: number, lang: string, extra?: string }} o
+ * The user message: topic, language, and the exact slide plan. With `source` (a document read in the
+ * browser) the deck retells that document and its sections become the plan.
+ * @param {{ topic: string, plans: number, slides: number, lang: string, source?: { name: string, text: string, outline?: string[] } }} o
  */
-export function deckPrompt({ topic, plans, slides, lang }) {
+export function deckPrompt({ topic, plans, slides, lang, source = null }) {
   const split = planSplit(plans, slides)
   const total = split.reduce((a, b) => a + b, 0) + PLAN_FIXED
   const lines = [
@@ -99,7 +103,16 @@ export function deckPrompt({ topic, plans, slides, lang }) {
   lines.push(`${n}. "content": the conclusion — title the word for "Conclusion" in the deck language, 3–5 key takeaways.`)
   lines.push(`${n + 1}. "end": "Thank you for your attention!" and "Questions?" in the deck language.`)
   const uz = lang === 'uz' ? `\nWrite Uzbek in the standard Latin alphabet (oʻ, gʻ, sh, ch).` : ''
-  return `Topic: ${topic}
+  const doc = source
+    ? `<document name="${source.name.replace(/"/g, "'")}">
+${source.text}
+</document>
+
+Make the presentation from the document above. Use its content: its facts, names, numbers, examples and order. Do not add facts that are not in the document, except common knowledge needed to explain it. If the document is in another language, translate into the deck language.
+${source.outline?.length ? `The plan items are the document's sections, in this order (phrase them in the deck language, short): ${source.outline.map((x) => `"${x}"`).join('; ')}.\n` : ''}${topic ? '' : 'Take the presentation title from the document.\n'}
+`
+    : ''
+  return `${doc}Topic: ${topic || '(take it from the document)'}
 Deck language: ${LANG_NAMES[lang] ?? 'English'}${uz}
 Plan items: ${plans}
 Slides: exactly ${total}, in this order:

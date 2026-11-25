@@ -41,7 +41,7 @@
   "design.copied": "از طرح کپی گرفته شد",
   "design.deleted": "طرح حذف شد",
   "design.renamed": "نام تغییر کرد",
-  "design.aiReady": "«{topic}» — {kind}: {n} اسلاید آماده است (نسخه نمایشی)",
+  "design.aiReady": "«{topic}» — {kind}: {n} اسلاید آماده است",
   "design.appDemo": "«{topic}» — {app} در حال انجام… (نسخه نمایشی، هوش مصنوعی هنوز وصل نشده است)",
   "design.newDesign": "طرح جدید",
   "ui.close": "بستن",

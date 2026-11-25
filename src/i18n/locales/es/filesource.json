@@ -15,7 +15,7 @@
     "other": "{n} páginas"
   },
   "fs.removeFile": "Quitar el archivo",
-  "fs.private": "El archivo nunca se sube: solo se lee en tu navegador y se descarta cuando la presentación está lista",
+  "fs.private": "El archivo no se guarda: se lee en tu navegador y solo su texto se envía a la IA para escribir la presentación",
   "fs.topicOptional": "Tema (opcional): si no, se toma del archivo",
   "fs.planFromFile": "Los puntos del índice salen de las secciones del archivo",
   "fs.contentNote": "El texto de las diapositivas se mantiene en el idioma del archivo; con IA se reescribirá en el idioma elegido",

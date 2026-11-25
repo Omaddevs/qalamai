@@ -24,6 +24,19 @@ const PLAN_NUMS = Array.from({ length: PLAN_MAX }, (_, i) => i + 1)
 const HUES = ['#c6f432', '#b9a7fb', '#fbbf8c', '#8fd3f4', '#f9a8d4', '#86efac']
 
 const minSlides = (plans) => plans + PLAN_FIXED
+// what the AI may read of a file (the server takes up to 150 000 characters)
+const SOURCE_MAX = 150_000
+
+/** A document read in the browser → plain text with "#" headings, cut at a paragraph if it is long. */
+function docText(doc) {
+  let out = ''
+  for (const b of doc.blocks) {
+    const line = b.kind === 'h' ? `${'#'.repeat(Math.min(3, b.level || 2))} ${b.text}` : b.text
+    if (out.length + line.length + 2 > SOURCE_MAX) break
+    out += `${line}\n\n`
+  }
+  return out.trim()
+}
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n))
 
 /** Live outline: one mini slide per slide, coloured by section, plus the plan legend. */
@@ -164,8 +177,8 @@ export default function AiDeckView({ initialTopic = '', onCreate, notify }) {
       notify?.(t('ad.needTopic'))
       return
     }
-    // a topic is written by the AI on the server (paid there); a file still uses the in-browser builder
-    if (!doc && (await writeWithAi())) return
+    // the AI writes on the server (and charges there); the in-browser builder stays for when it is off
+    if (await writeWithAi()) return
     // pay first; when coins are short the coin shop opens and nothing is created
     setPaying(true)
     let paid = null
@@ -195,7 +208,11 @@ export default function AiDeckView({ initialTopic = '', onCreate, notify }) {
    * AI is not connected (AI_OFF), so the caller falls back to the sample builder.
    */
   async function writeWithAi() {
-    const total = Math.max(slides, minSlides(plans))
+    const usePlans = Math.min(PLAN_MAX, Math.max(1, planCount))
+    const total = Math.max(slides, minSlides(usePlans))
+    // a file: only its text goes to the AI (not the file), and the page forgets it afterwards
+    const source = doc ? { name: (doc.name || doc.fileName || 'file').slice(0, 200), text: docText(doc), outline: (fileOutline ?? []).slice(0, PLAN_MAX).map((x) => String(x).slice(0, 120)) } : null
+    const title = text || doc?.title || doc?.name || ''
     const ctl = new AbortController()
     stop.current = ctl
     setPaying(true)
@@ -203,13 +220,14 @@ export default function AiDeckView({ initialTopic = '', onCreate, notify }) {
     const patch = (fn) => setGen((g) => (g?.live ? fn(g) : g))
     try {
       const ran = await aiDeck(
-        { topic: text, plans, slides: total, lang },
+        { topic: text, plans: usePlans, slides: total, lang, source },
         {
           signal: ctl.signal,
           onEvent: (ev) => {
             if (ev.type === 'start') {
               setPaying(false)
-              setGen({ live: { outline: null, written: 0, done: false }, slides: [], total, topic: text, lang })
+              setGen({ live: { outline: null, written: 0, done: false }, slides: [], total, topic: title, named: Boolean(text), lang })
+              setDoc(null) // the document's text is no longer needed: drop it
             } else if (ev.type === 'outline') patch((g) => ({ ...g, live: { ...g.live, outline: ev.items } }))
             else if (ev.type === 'slide')
               patch((g) => {
@@ -439,7 +457,8 @@ export default function AiDeckView({ initialTopic = '', onCreate, notify }) {
           renderThumb={(i) => (gen.slides[i] ? <Slide slide={gen.slides[i]} theme={tpl.theme} index={i} preview /> : null)}
           templateName={tpl.name}
           onDone={() =>
-            onCreate({ topic: gen.topic, templateId: TEMPLATE, kind: 'Taqdimot', slides: gen.slides.filter(Boolean), ai: true, lang: gen.lang })
+            // from a file without a typed topic, the deck is named by its cover title, not the file name
+            onCreate({ topic: (gen.named ? gen.topic : gen.slides[0]?.title) || gen.topic, templateId: TEMPLATE, kind: 'Taqdimot', slides: gen.slides.filter(Boolean), ai: true, lang: gen.lang })
           }
           onCancel={() => {
             // the server stops writing and gives the coins back

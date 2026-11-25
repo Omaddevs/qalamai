@@ -41,7 +41,7 @@
   "design.copied": "Tasarım çoğaltıldı",
   "design.deleted": "Tasarım silindi",
   "design.renamed": "Yeniden adlandırıldı",
-  "design.aiReady": "“{topic}” — {kind}: {n} slayt hazır (demo)",
+  "design.aiReady": "“{topic}” — {kind}: {n} slayt hazır",
   "design.appDemo": "“{topic}” — {app} hazırlanıyor… (demo, yapay zekâ henüz bağlı değil)",
   "design.newDesign": "Yeni tasarım",
   "ui.close": "Kapat",

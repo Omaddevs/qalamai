@@ -87,9 +87,10 @@ export async function spendCoins(action, { qty = 1, topic, ref: fixedRef } = {})
  * start · outline · slide · image · done · error). Resolves true when it ran; null when it couldn't
  * be paid (the coin shop opens) — the server gives the coins back itself if the writing fails.
  */
-export async function aiDeck({ topic, plans, slides, lang }, { onEvent, signal } = {}) {
+export async function aiDeck({ topic, plans, slides, lang, source = null }, { onEvent, signal } = {}) {
+  const action = source ? 'prezentatsiya-fayl' : 'prezentatsiya'
   try {
-    await streamLines('/ai/deck', { topic: topic.slice(0, 300), plans, slides, lang, ref: newRef() }, {
+    await streamLines('/ai/deck', { topic: topic.slice(0, 300), plans, slides, lang, ref: newRef(), ...(source ? { source } : {}) }, {
       signal,
       onEvent: (ev) => {
         if (ev.balance != null) updateUser({ coins: ev.balance })
@@ -100,7 +101,7 @@ export async function aiDeck({ topic, plans, slides, lang }, { onEvent, signal }
   } catch (err) {
     if (err instanceof ApiError && ['NOT_ENOUGH_COINS', 'REGISTER_REQUIRED'].includes(err.code)) {
       if (err.details?.balance != null) updateUser({ coins: err.details.balance })
-      openCoinShop({ code: err.code, need: err.details?.need ?? costOf('prezentatsiya'), action: 'prezentatsiya' })
+      openCoinShop({ code: err.code, need: err.details?.need ?? costOf(action), action })
       return null
     }
     throw err

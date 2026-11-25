@@ -47,7 +47,7 @@
   "design.copied": "Đã nhân bản thiết kế",
   "design.deleted": "Đã xóa thiết kế",
   "design.renamed": "Đã đổi tên",
-  "design.aiReady": "“{topic}” — {kind}: đã sẵn sàng {n} trang chiếu (bản thử)",
+  "design.aiReady": "“{topic}” — {kind}: đã sẵn sàng {n} trang chiếu",
   "design.appDemo": "“{topic}” — {app} đang thực hiện… (bản thử, AI chưa được kết nối)",
   "design.newDesign": "Thiết kế mới",
   "ui.close": "Đóng",

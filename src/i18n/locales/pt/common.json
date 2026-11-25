@@ -41,7 +41,7 @@
   "design.copied": "Design duplicado",
   "design.deleted": "Design excluído",
   "design.renamed": "Nome alterado",
-  "design.aiReady": "“{topic}” — {kind}: {n} slides prontos (demonstração)",
+  "design.aiReady": "“{topic}” — {kind}: {n} slides prontos",
   "design.appDemo": "“{topic}” — {app} em andamento… (demonstração, a IA ainda não está conectada)",
   "design.newDesign": "Novo design",
   "ui.close": "Fechar",

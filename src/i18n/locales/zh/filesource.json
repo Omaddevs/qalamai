@@ -7,7 +7,7 @@
   "fs.words": { "other": "{n} 字" },
   "fs.pagesN": { "other": "{n} 页" },
   "fs.removeFile": "移除文件",
-  "fs.private": "文件不会上传——仅在你的浏览器中读取，演示文稿生成后即丢弃",
+  "fs.private": "文件不会被保存——它在你的浏览器中读取，只有其文本会发送给 AI 用于撰写演示文稿",
   "fs.topicOptional": "主题（可选），留空则从文件中提取",
   "fs.planFromFile": "大纲要点取自文件的章节",
   "fs.contentNote": "幻灯片文本保留文件原语言；启用 AI 后将以所选语言重写",

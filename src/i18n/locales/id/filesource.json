@@ -7,7 +7,7 @@
   "fs.words": { "other": "{n} kata" },
   "fs.pagesN": { "other": "{n} halaman" },
   "fs.removeFile": "Hapus file",
-  "fs.private": "File tidak pernah diunggah — file hanya dibaca di browser Anda dan dibuang setelah presentasi selesai",
+  "fs.private": "File tidak disimpan — file dibaca di browser Anda, dan hanya teksnya yang dikirim ke AI untuk menulis presentasi",
   "fs.topicOptional": "Topik (opsional) — jika kosong, diambil dari file",
   "fs.planFromFile": "Poin rencana diambil dari bagian-bagian file",
   "fs.contentNote": "Teks slide tetap dalam bahasa file; dengan AI, teks akan ditulis ulang dalam bahasa yang dipilih",

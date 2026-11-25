@@ -41,7 +41,7 @@
   "design.copied": "디자인을 복제했어요",
   "design.deleted": "디자인을 삭제했어요",
   "design.renamed": "이름을 변경했어요",
-  "design.aiReady": "“{topic}” — {kind}: 슬라이드 {n}장 완성(데모)",
+  "design.aiReady": "“{topic}” — {kind}: 슬라이드 {n}장 완성",
   "design.appDemo": "“{topic}” — {app} 진행 중…(데모, AI 아직 연결 안 됨)",
   "design.newDesign": "새 디자인",
   "ui.close": "닫기",

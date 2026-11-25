@@ -41,7 +41,7 @@
   "design.copied": "Design dupliziert",
   "design.deleted": "Design gelöscht",
   "design.renamed": "Umbenannt",
-  "design.aiReady": "„{topic}“ – {kind}: {n} Folien fertig (Demo)",
+  "design.aiReady": "„{topic}“ – {kind}: {n} Folien fertig",
   "design.appDemo": "„{topic}“ – {app} läuft … (Demo, KI noch nicht angebunden)",
   "design.newDesign": "Neues Design",
   "ui.close": "Schließen",

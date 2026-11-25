@@ -7,7 +7,7 @@
   "fs.words": { "one": "{n} parola", "many": "{n} di parole", "other": "{n} parole" },
   "fs.pagesN": { "one": "{n} pagina", "many": "{n} di pagine", "other": "{n} pagine" },
   "fs.removeFile": "Rimuovi il file",
-  "fs.private": "Il file non viene mai caricato: viene letto solo nel tuo browser ed eliminato quando la presentazione è pronta",
+  "fs.private": "Il file non viene conservato: viene letto nel tuo browser e solo il suo testo viene inviato all’IA per scrivere la presentazione",
   "fs.topicOptional": "Argomento (facoltativo): altrimenti viene preso dal file",
   "fs.planFromFile": "I punti del piano derivano dalle sezioni del file",
   "fs.contentNote": "Il testo delle slide resta nella lingua del file; con l’IA verrà riscritto in quella scelta",

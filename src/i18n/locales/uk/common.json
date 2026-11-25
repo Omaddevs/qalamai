@@ -56,7 +56,7 @@
   "design.copied": "Дизайн продубльовано",
   "design.deleted": "Дизайн видалено",
   "design.renamed": "Назву змінено",
-  "design.aiReady": "„{topic}“ — {kind}: готово слайдів: {n} (демо)",
+  "design.aiReady": "„{topic}“ — {kind}: готово слайдів: {n}",
   "design.appDemo": "„{topic}“ — {app}: готуємо… (демо, ШІ ще не підключено)",
   "design.newDesign": "Новий дизайн",
   "ui.close": "Закрити",

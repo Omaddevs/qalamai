@@ -41,7 +41,7 @@
   "design.copied": "تم تكرار التصميم",
   "design.deleted": "تم حذف التصميم",
   "design.renamed": "تمت إعادة التسمية",
-  "design.aiReady": "«{topic}» — {kind}: {n} شريحة جاهزة (تجريبي)",
+  "design.aiReady": "«{topic}» — {kind}: {n} شريحة جاهزة",
   "design.appDemo": "«{topic}» — {app} قيد التنفيذ… (تجريبي، الذكاء الاصطناعي غير متصل بعد)",
   "design.newDesign": "تصميم جديد",
   "ui.close": "إغلاق",

@@ -41,7 +41,7 @@
   "design.copied": "デザインを複製しました",
   "design.deleted": "デザインを削除しました",
   "design.renamed": "名前を変更しました",
-  "design.aiReady": "「{topic}」：{kind} のスライド {n} 枚が完成しました（デモ）",
+  "design.aiReady": "「{topic}」：{kind} のスライド {n} 枚が完成しました",
   "design.appDemo": "「{topic}」：{app} を作成中…（デモ。AI はまだ接続されていません）",
   "design.newDesign": "新しいデザイン",
   "ui.close": "閉じる",

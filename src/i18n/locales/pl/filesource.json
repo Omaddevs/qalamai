@@ -7,7 +7,7 @@
   "fs.words": { "one": "{n} słowo", "few": "{n} słowa", "many": "{n} słów", "other": "{n} słowa" },
   "fs.pagesN": { "one": "{n} strona", "few": "{n} strony", "many": "{n} stron", "other": "{n} strony" },
   "fs.removeFile": "Usuń plik",
-  "fs.private": "Plik nigdy nie jest przesyłany — jest odczytywany tylko w Twojej przeglądarce i odrzucany, gdy prezentacja jest gotowa",
+  "fs.private": "Plik nie jest zapisywany — jest czytany w Twojej przeglądarce, a do AI trafia tylko jego tekst, by napisać prezentację",
   "fs.topicOptional": "Temat (opcjonalnie) — w przeciwnym razie zostanie wzięty z pliku",
   "fs.planFromFile": "Punkty planu pochodzą z sekcji pliku",
   "fs.contentNote": "Tekst slajdów pozostaje w języku pliku; z AI zostanie przepisany w wybranym języku",

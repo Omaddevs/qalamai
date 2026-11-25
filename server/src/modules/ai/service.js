@@ -23,7 +23,7 @@ export function createAi(cfg, { log } = {}) {
    *   { type: 'outline', items } · { type: 'slide', index, slide } · { type: 'image', index, image, credit }
    * and resolves with { slides, usage } when every slide and picture is in.
    */
-  async function deck({ topic, plans, slides, lang }, { emit, signal }) {
+  async function deck({ topic, plans, slides, lang, source = null }, { emit, signal }) {
     const total = planSplit(plans, slides).reduce((a, b) => a + b, 0) + PLAN_FIXED
     const local = localize(lang)
     const out = []
@@ -60,7 +60,7 @@ export function createAi(cfg, { log } = {}) {
       max_tokens: 32000,
       system: SYSTEM,
       output_config: { effort: cfg.effort },
-      messages: [{ role: 'user', content: deckPrompt({ topic, plans, slides, lang }) }],
+      messages: [{ role: 'user', content: deckPrompt({ topic, plans, slides, lang, source }) }],
     }
     const withFallback = FALLBACK_MODELS.test(cfg.model)
     const stream = withFallback

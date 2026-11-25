@@ -7,7 +7,7 @@
   "fs.words": { "one": "{n} kelime", "other": "{n} kelime" },
   "fs.pagesN": { "one": "{n} sayfa", "other": "{n} sayfa" },
   "fs.removeFile": "Dosyayı kaldır",
-  "fs.private": "Dosya hiçbir zaman yüklenmez — yalnızca tarayıcınızda okunur ve sunum hazır olunca silinir",
+  "fs.private": "Dosya saklanmaz — tarayıcınızda okunur ve sunumu yazmak için yalnızca metni yapay zekâya gönderilir",
   "fs.topicOptional": "Konu (isteğe bağlı) — boş bırakılırsa dosyadan alınır",
   "fs.planFromFile": "Plan maddeleri dosyanın bölümlerinden alınır",
   "fs.contentNote": "Slayt metni dosyanın dilinde kalır; yapay zekâ ile seçilen dilde yeniden yazılır",

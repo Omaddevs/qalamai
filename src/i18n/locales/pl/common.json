@@ -41,7 +41,7 @@
   "design.copied": "Zduplikowano projekt",
   "design.deleted": "Usunięto projekt",
   "design.renamed": "Zmieniono nazwę",
-  "design.aiReady": "„{topic}” — {kind}: gotowe slajdy: {n} (demo)",
+  "design.aiReady": "„{topic}” — {kind}: gotowe slajdy: {n}",
   "design.appDemo": "„{topic}” — {app} w toku… (demo, AI nie jest jeszcze podłączona)",
   "design.newDesign": "Nowy projekt",
   "ui.close": "Zamknij",

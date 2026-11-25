@@ -7,7 +7,7 @@
   "fs.words": { "one": "{n} Wort", "other": "{n} Wörter" },
   "fs.pagesN": { "one": "{n} Seite", "other": "{n} Seiten" },
   "fs.removeFile": "Datei entfernen",
-  "fs.private": "Die Datei wird nie hochgeladen – sie wird nur in deinem Browser gelesen und verworfen, sobald die Präsentation fertig ist",
+  "fs.private": "Die Datei wird nicht gespeichert – sie wird in deinem Browser gelesen, und nur ihr Text geht an die KI, um die Präsentation zu schreiben",
   "fs.topicOptional": "Thema (optional) – sonst aus der Datei übernommen",
   "fs.planFromFile": "Die Gliederungspunkte stammen aus den Abschnitten der Datei",
   "fs.contentNote": "Der Folientext bleibt in der Sprache der Datei; mit KI wird er in der gewählten Sprache neu geschrieben",

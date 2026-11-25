@@ -50,7 +50,7 @@ export default {
   'design.copied': { uz: 'Dizayn nusxalandi', ru: 'Дизайн скопирован', en: 'Design duplicated', kk: 'Дизайн көшірілді', ky: 'Дизайн көчүрүлдү', tg: 'Дизайн нусхабардорӣ шуд' },
   'design.deleted': { uz: 'Dizayn öçirildi', ru: 'Дизайн удалён', en: 'Design deleted', kk: 'Дизайн жойылды', ky: 'Дизайн өчүрүлдү', tg: 'Дизайн нест карда шуд' },
   'design.renamed': { uz: 'Nomi özgartirildi', ru: 'Название изменено', en: 'Renamed', kk: 'Атауы өзгертілді', ky: 'Аталышы өзгөртүлдү', tg: 'Ном иваз шуд' },
-  'design.aiReady': { uz: '«{topic}» — {kind}: {n} ta slayd tayyor (demo)', ru: '«{topic}» — {kind}: готово слайдов: {n} (демо)', en: '“{topic}” — {kind}: {n} slides ready (demo)', kk: '«{topic}» — {kind}: {n} слайд дайын (демо)', ky: '«{topic}» — {kind}: {n} слайд даяр (демо)', tg: '«{topic}» — {kind}: {n} слайд тайёр (демо)' },
+  'design.aiReady': { uz: '«{topic}» — {kind}: {n} ta slayd tayyor', ru: '«{topic}» — {kind}: готово слайдов: {n}', en: '“{topic}” — {kind}: {n} slides ready', kk: '«{topic}» — {kind}: {n} слайд дайын', ky: '«{topic}» — {kind}: {n} слайд даяр', tg: '«{topic}» — {kind}: {n} слайд тайёр' },
   'design.appDemo': { uz: '«{topic}» — {app} tayyorlanmoqda… (demo, AI hali ulanmagan)', ru: '«{topic}» — {app}: готовим… (демо, AI ещё не подключён)', en: '“{topic}” — {app} in progress… (demo, AI not connected yet)', kk: '«{topic}» — {app} дайындалуда… (демо, AI әлі қосылмаған)', ky: '«{topic}» — {app} даярдалууда… (демо, AI азырынча туташкан эмес)', tg: '«{topic}» — {app} омода мешавад… (демо, AI ҳоло пайваст нашудааст)' },
   'design.newDesign': { uz: 'Yangi dizayn', ru: 'Новый дизайн', en: 'New design', kk: 'Жаңа дизайн', ky: 'Жаңы дизайн', tg: 'Дизайни нав' },
 

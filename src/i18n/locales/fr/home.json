@@ -31,6 +31,7 @@
   },
   "hm.saveFailed": "Enregistrement impossible : le stockage du navigateur est plein",
   "hm.docReady": "La structure ({kind}) est prête : remplacez les indications grises ✎ par votre texte (démo)",
+  "hm.docAiReady": "« {kind} » est prêt — vous pouvez modifier le texte ici",
   "hm.tools.alifbo": "Alphabet",
   "hm.tools.pdf": "PDF",
   "hm.tools.tarjima": "Traduction",

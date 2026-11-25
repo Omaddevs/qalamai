@@ -29,6 +29,7 @@
   },
   "hm.saveFailed": "Không lưu được — bộ nhớ trình duyệt đã đầy",
   "hm.docReady": "Cấu trúc {kind} đã sẵn sàng — hãy thay các gợi ý ✎ màu xám bằng văn bản của bạn (bản thử)",
+  "hm.docAiReady": "{kind} đã sẵn sàng — bạn có thể chỉnh sửa văn bản tại đây",
   "hm.tools.alifbo": "Bảng chữ cái",
   "hm.tools.pdf": "PDF",
   "hm.tools.tarjima": "Dịch",

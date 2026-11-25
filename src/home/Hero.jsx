@@ -13,12 +13,13 @@ import { CREATE, CatTile } from './create.jsx'
 import { CoinIcon } from '../components/Coins.jsx'
 import { ACTION_BY_TYPE, COIN_COSTS, refundCoins, spendCoins } from '../coins.js'
 import { useAiDeck } from './useAiDeck.jsx'
+import { useAiFill } from './useAiFill.jsx'
 import { DeckLangPicker, buildIn, deckLangs, defaultDeckLang, fallbackOf } from './DeckLang.jsx'
 import GenerateOverlay, { headingsOf } from './GenerateOverlay.jsx'
 import TitulSheet, { TitulPill } from './TitulSheet.jsx'
 import FileSource from './FileSource.jsx'
 import './hero.css'
-import { t, tr } from '../i18n/index.js'
+import { getLang, t, tr } from '../i18n/index.js'
 
 // Ideas carry their type (and options) — picking one also sets up the composer.
 // `label` is what the chip says, `t` what gets typed into the field.
@@ -218,6 +219,27 @@ function DocPage({ html, i }) {
   )
 }
 
+/** What the AI should know about a type's options (in English, for the model). */
+const PERIOD_EN = { Oylik: 'monthly', Çoraklik: 'quarterly', Yillik: 'yearly' }
+function extraFor(id, o) {
+  switch (id) {
+    case 'Kurs işi': // i18n-ignore (type id)
+      return `${o.chapters} chapters`
+    case 'Dars işlanma': // i18n-ignore (type id)
+      return `Grade: ${o.grade === 'OTM' ? 'university' : o.grade}; lesson length: ${o.minutes} minutes`
+    case 'Biznes reja':
+      return `Financial forecast for ${o.years} year(s)`
+    case 'Hisobot':
+      return `Report period: ${PERIOD_EN[o.period] ?? o.period}`
+    case 'Taklifnoma':
+      return `Occasion: ${o.event}`
+    case 'Portfolio':
+      return `${o.count} projects`
+    default:
+      return ''
+  }
+}
+
 export default function Hero({ mode, onMode, q, onQ, inputRef, typeLabel, onType, onCreate, onCreateDoc, onTab, notify }) {
   const root = useRef(null)
   const typing = useRef(null)
@@ -246,6 +268,7 @@ export default function Hero({ mode, onMode, q, onQ, inputRef, typeLabel, onType
   const [deckLang, setDeckLang] = useState(defaultDeckLang)
   const [gen, setGen] = useState(null)
   const ai = useAiDeck(notify)
+  const aiDoc = useAiFill(notify)
   // titul details (profile): the composer pill shows how complete they are
   const [docProfile, setDocProfile] = useState(loadDocProfile)
   const [titulOpen, setTitulOpen] = useState(false)
@@ -362,6 +385,29 @@ export default function Hero({ mode, onMode, q, onQ, inputRef, typeLabel, onType
         })
         .finally(() => setPaying(false))
       if (handled) return
+    } else if (ACTION_BY_TYPE[type.id]) {
+      // every other type: the app builds the structure, the AI writes its text (server charges)
+      setPaying(true)
+      try {
+        const make = () => bp.build(topic, opts, loadDocProfile())
+        const out = await (bp.lang ? buildIn(deckLang, make) : make())
+        const handled = await aiDoc.run({
+          kind: type.id,
+          label: type.label,
+          topic,
+          lang: bp.lang ? deckLang : getLang(),
+          out,
+          format: bp.format,
+          pages: opts.count ?? out.estPages,
+          extra: extraFor(type.id, opts),
+          templateId,
+          deckKind: type.kind,
+          onStart: () => setPaying(false),
+        })
+        if (handled) return
+      } finally {
+        setPaying(false)
+      }
     }
     // pay first; when coins are short the coin shop opens and nothing is created
     setPaying(true)
@@ -681,6 +727,7 @@ export default function Hero({ mode, onMode, q, onQ, inputRef, typeLabel, onType
       )}
 
       {ai.overlay({ kindLabel: type.label, onCreate })}
+      {aiDoc.overlay({ onCreate, onCreateDoc })}
       {gen && <HeroGenerate gen={gen} langs={langs} onCreate={onCreate} onCreateDoc={onCreateDoc} onClose={() => setGen(null)} notify={notify} />}
     </section>
   )

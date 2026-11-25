@@ -27,6 +27,7 @@
   "hm.coins": { "other": "{n} コイン" },
   "hm.saveFailed": "保存できませんでした。ブラウザーのストレージがいっぱいです",
   "hm.docReady": "{kind} の構成ができました。灰色の ✎ ヒントをご自身の文章に置き換えてください（デモ）",
+  "hm.docAiReady": "「{kind}」が完成しました。ここでテキストを編集できます",
   "hm.tools.alifbo": "文字変換",
   "hm.tools.pdf": "PDF",
   "hm.tools.tarjima": "翻訳",

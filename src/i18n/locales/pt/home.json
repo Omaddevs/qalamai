@@ -27,6 +27,7 @@
   "hm.coins": { "one": "{n} moeda", "many": "{n} de moedas", "other": "{n} moedas" },
   "hm.saveFailed": "Não foi possível salvar — o armazenamento do navegador está cheio",
   "hm.docReady": "A estrutura de {kind} está pronta — substitua as dicas cinza ✎ pelo seu texto (demonstração)",
+  "hm.docAiReady": "{kind} pronto: você pode editar o texto aqui",
   "hm.tools.alifbo": "Alfabeto",
   "hm.tools.pdf": "PDF",
   "hm.tools.tarjima": "Traduzir",

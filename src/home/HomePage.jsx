@@ -180,6 +180,28 @@ export default function HomePage({
     window.addEventListener('qalam:ai-deck', go)
     return () => window.removeEventListener('qalam:ai-deck', go)
   }, [])
+  // the Referat / Kurs işi apps (App.jsx): the composer with that type and topic
+  useEffect(() => {
+    const go = ({ type, topic }) => {
+      sessionStorage.removeItem('qalamai.aiType')
+      setTab('home')
+      pickType(type)
+      setQ(topic ?? '')
+      window.scrollTo({ top: 0 })
+    }
+    const saved = sessionStorage.getItem('qalamai.aiType')
+    if (saved) {
+      try {
+        go(JSON.parse(saved))
+      } catch {
+        sessionStorage.removeItem('qalamai.aiType')
+      }
+    }
+    const on = (e) => go(e.detail ?? {})
+    window.addEventListener('qalam:ai-type', on)
+    return () => window.removeEventListener('qalam:ai-type', on)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   const [creating, setCreating] = useState(false)
   const openCreate = useCallback(() => setCreating(true), [])
   // Ctrl/⌘+K opens the "+ Yaratiş" sheet from anywhere on the home screens
@@ -203,7 +225,7 @@ export default function HomePage({
   }
 
   // Document types (referat, kurs ishi…) open as an A4 file in the file editor.
-  const createDoc = ({ name, html, kind }) => {
+  const createDoc = ({ name, html, kind, ai = false }) => {
     if (!saveDocs([blankDoc(name, html), ...loadDocs()])) {
       notify(t('hm.saveFailed'))
       return
@@ -212,7 +234,7 @@ export default function HomePage({
     setFilesTab('docs')
     setTab('files')
     window.scrollTo({ top: 0 })
-    notify(t('hm.docReady', { kind }))
+    notify(t(ai ? 'hm.docAiReady' : 'hm.docReady', { kind }))
   }
   const input = useRef(null)
 

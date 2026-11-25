@@ -27,6 +27,7 @@
   "hm.coins": { "zero": "{n} عملة", "one": "عملة واحدة", "two": "عملتان", "few": "{n} عملات", "many": "{n} عملة", "other": "{n} عملة" },
   "hm.saveFailed": "تعذّر الحفظ — مساحة تخزين المتصفح ممتلئة",
   "hm.docReady": "هيكل {kind} جاهز — استبدل التلميحات الرمادية ✎ بنصك (تجريبي)",
+  "hm.docAiReady": "{kind} جاهز — يمكنك تعديل النص هنا",
   "hm.tools.alifbo": "الأبجدية",
   "hm.tools.pdf": "PDF",
   "hm.tools.tarjima": "الترجمة",

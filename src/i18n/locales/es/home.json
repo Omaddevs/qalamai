@@ -31,6 +31,7 @@
   },
   "hm.saveFailed": "No se pudo guardar: el almacenamiento del navegador está lleno",
   "hm.docReady": "La estructura de {kind} está lista: sustituye las indicaciones grises ✎ por tu texto (demo)",
+  "hm.docAiReady": "{kind} listo: puedes editar el texto aquí",
   "hm.tools.alifbo": "Alfabeto",
   "hm.tools.pdf": "PDF",
   "hm.tools.tarjima": "Traducir",

@@ -27,6 +27,7 @@
   "hm.coins": { "one": "{n} coin", "other": "{n} coin" },
   "hm.saveFailed": "Kaydedilemedi — tarayıcı depolama alanı dolu",
   "hm.docReady": "{kind}: yapı hazır — gri ✎ ipuçlarının yerine kendi metninizi yazın (demo)",
+  "hm.docAiReady": "{kind} hazır — metni burada düzenleyebilirsiniz",
   "hm.tools.alifbo": "Alfabe",
   "hm.tools.pdf": "PDF",
   "hm.tools.tarjima": "Çeviri",

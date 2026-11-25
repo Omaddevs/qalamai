@@ -85,7 +85,9 @@ export default function GenerateOverlay({ topic, kind, unit, outline, total, ren
     shownItems = items.length
     designed = written > 0
     // reading the topic creeps towards 12 %; then every written slide moves the bar
-    pct = done ? 100 : Math.round(written > 0 ? 15 + (80 * written) / Math.max(1, total) : Math.min(12, 12 * (1 - Math.exp(-now / 6000))))
+    // `progress` (0–1), when given, measures the writing better than shown thumbnails (documents show every page at once)
+    const share = live.progress ?? written / Math.max(1, total)
+    pct = done ? 100 : Math.round(share > 0 ? 15 + 80 * share : Math.min(12, 12 * (1 - Math.exp(-now / 6000))))
   } else {
     step = plan.ends.findIndex((end) => now < end) // -1 = all done
     done = step === -1

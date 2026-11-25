@@ -27,6 +27,7 @@
   "hm.coins": { "other": "{n}코인" },
   "hm.saveFailed": "저장하지 못했어요. 브라우저 저장 공간이 가득 찼어요",
   "hm.docReady": "{kind} 구조가 준비되었어요. 회색 ✎ 안내 문구를 내 텍스트로 바꾸세요(데모)",
+  "hm.docAiReady": "{kind} 완성 — 여기에서 텍스트를 편집할 수 있습니다",
   "hm.tools.alifbo": "문자",
   "hm.tools.pdf": "PDF",
   "hm.tools.tarjima": "번역",

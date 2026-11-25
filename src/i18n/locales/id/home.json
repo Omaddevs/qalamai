@@ -27,6 +27,7 @@
   "hm.coins": { "other": "{n} koin" },
   "hm.saveFailed": "Gagal menyimpan — penyimpanan browser penuh",
   "hm.docReady": "Struktur {kind} sudah siap — ganti petunjuk ✎ abu-abu dengan teks Anda (demo)",
+  "hm.docAiReady": "{kind} siap — Anda bisa menyunting teksnya di sini",
   "hm.tools.alifbo": "Alfabet",
   "hm.tools.pdf": "PDF",
   "hm.tools.tarjima": "Terjemah",

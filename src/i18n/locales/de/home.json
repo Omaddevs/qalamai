@@ -27,6 +27,7 @@
   "hm.coins": { "one": "{n} Coin", "other": "{n} Coins" },
   "hm.saveFailed": "Speichern fehlgeschlagen – der Browserspeicher ist voll",
   "hm.docReady": "Der Aufbau für „{kind}“ ist fertig – ersetze die grauen ✎-Hinweise durch deinen Text (Demo)",
+  "hm.docAiReady": "„{kind}“ ist fertig – du kannst den Text hier bearbeiten",
   "hm.tools.alifbo": "Alphabet",
   "hm.tools.pdf": "PDF",
   "hm.tools.tarjima": "Übersetzen",

@@ -87,10 +87,23 @@ export async function spendCoins(action, { qty = 1, topic, ref: fixedRef } = {})
  * start · outline · slide · image · done · error). Resolves true when it ran; null when it couldn't
  * be paid (the coin shop opens) — the server gives the coins back itself if the writing fails.
  */
-export async function aiDeck({ topic, plans, slides, lang, source = null }, { onEvent, signal } = {}) {
+export function aiDeck({ topic, plans, slides, lang, source = null }, opts = {}) {
   const action = source ? 'prezentatsiya-fayl' : 'prezentatsiya'
+  return aiStream('/ai/deck', { topic: topic.slice(0, 300), plans, slides, lang, ...(source ? { source } : {}) }, action, opts)
+}
+
+/**
+ * A document type written by the AI (/ai/fill): { kind, topic, lang, pages?, extra?, tasks | slides }.
+ * Events: start · fill (doc piece) · card (slide rewrite) · done · error. Same answers as aiDeck.
+ */
+export function aiFill(body, opts = {}) {
+  return aiStream('/ai/fill', { ...body, topic: body.topic.slice(0, 300) }, ACTION_BY_TYPE[body.kind], opts)
+}
+
+/** Streams an AI endpoint; true when it ran, null when it couldn't be paid (the coin shop opens). */
+async function aiStream(path, body, action, { onEvent, signal } = {}) {
   try {
-    await streamLines('/ai/deck', { topic: topic.slice(0, 300), plans, slides, lang, ref: newRef(), ...(source ? { source } : {}) }, {
+    await streamLines(path, { ...body, ref: newRef() }, {
       signal,
       onEvent: (ev) => {
         if (ev.balance != null) updateUser({ coins: ev.balance })

@@ -27,6 +27,7 @@
   "hm.coins": { "one": "{n} moneta", "few": "{n} monety", "many": "{n} monet", "other": "{n} monety" },
   "hm.saveFailed": "Nie udało się zapisać — pamięć przeglądarki jest pełna",
   "hm.docReady": "{kind}: struktura gotowa — zastąp szare podpowiedzi ✎ własnym tekstem (demo)",
+  "hm.docAiReady": "{kind} gotowe — tekst możesz edytować tutaj",
   "hm.tools.alifbo": "Alfabet",
   "hm.tools.pdf": "PDF",
   "hm.tools.tarjima": "Tłumacz",

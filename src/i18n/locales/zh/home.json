@@ -27,6 +27,7 @@
   "hm.coins": { "other": "{n} 金币" },
   "hm.saveFailed": "无法保存：浏览器存储空间已满",
   "hm.docReady": "{kind}结构已就绪——请用你的文字替换灰色的 ✎ 提示（演示）",
+  "hm.docAiReady": "“{kind}”已完成——可以在这里编辑文本",
   "hm.tools.alifbo": "字母",
   "hm.tools.pdf": "PDF",
   "hm.tools.tarjima": "翻译",

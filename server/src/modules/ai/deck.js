@@ -16,7 +16,7 @@ export function planSplit(plans, slides) {
 }
 
 /** The language a deck is written in, named in English for the model. */
-const LANG_NAMES = {
+export const LANG_NAMES = {
   uz: 'Uzbek (Latin script)',
   'uz-cyrl': 'Uzbek (Cyrillic script)',
   ru: 'Russian',

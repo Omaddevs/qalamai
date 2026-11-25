@@ -290,6 +290,16 @@ function Pages() {
           onClose={() => setOpenAppId(null)}
           onCreate={(app, topic) => {
             if (app.id === 'prezentatsiya') return createPaid(topic)
+            // referat and kurs ishi are written by the AI in the home composer, with this type and topic
+            const type = { referat: 'Referat', kursishi: 'Kurs işi' }[app.id] // i18n-ignore (type ids)
+            if (type) {
+              setOpenAppId(null)
+              sessionStorage.setItem('qalamai.tab', 'home')
+              sessionStorage.setItem('qalamai.aiType', JSON.stringify({ type, topic: topic ?? '' }))
+              window.dispatchEvent(new CustomEvent('qalam:ai-type', { detail: { type, topic: topic ?? '' } }))
+              if (designId) goHome()
+              return
+            }
             setOpenAppId(null)
             notify(t('design.appDemo', { topic, app: app.name }))
           }}

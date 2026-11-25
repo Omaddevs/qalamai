@@ -1,0 +1,89 @@
+{
+  "pj.jump": "Tiếp tục từ chỗ bạn đã dừng",
+  "date.weekdays": "Chủ nhật|Thứ hai|Thứ ba|Thứ tư|Thứ năm|Thứ sáu|Thứ bảy",
+  "date.weekdaysShort": "CN|T2|T3|T4|T5|T6|T7",
+  "greet.night": "Chúc ngủ ngon",
+  "greet.morning": "Chào buổi sáng",
+  "greet.day": "Chào buổi chiều",
+  "greet.evening": "Chào buổi tối",
+  "dz.actions": "Thao tác",
+  "dz.open": "Mở",
+  "dz.rename": "Đổi tên",
+  "dz.duplicate": "Nhân bản",
+  "dz.name": "Tên thiết kế",
+  "dz.openName": "{name} — mở",
+  "dz.slides": {
+    "other": "{n} trang chiếu"
+  },
+  "pj.sort.recent": "Chỉnh sửa gần nhất",
+  "pj.sort.oldest": "Cũ nhất",
+  "pj.sort.name": "Tên (A–Z)",
+  "pj.sort.slides": "Số trang chiếu",
+  "pj.g.today": "Hôm nay",
+  "pj.g.week": "Tuần này",
+  "pj.g.month": "Tháng này",
+  "pj.g.earlier": "Trước đó",
+  "pj.spark": "7 ngày qua: {list}",
+  "pj.sparkTip": {
+    "other": "{day} · {n} thiết kế"
+  },
+  "pj.title1": "Dự án",
+  "pj.title2": "của tôi",
+  "pj.count": {
+    "other": "{n} thiết kế"
+  },
+  "pj.lastEdit": "chỉnh sửa lần cuối {ago}",
+  "pj.total": "Tổng số thiết kế",
+  "pj.kinds": {
+    "other": "{n} loại"
+  },
+  "pj.totalSlides": "Tổng số trang chiếu",
+  "pj.avg": "trung bình {n} mỗi thiết kế",
+  "pj.activity": "Hoạt động · 7 ngày",
+  "pj.streak": {
+    "other": "{n} ngày liên tiếp"
+  },
+  "pj.weekEdited": {
+    "other": "Đã chỉnh sửa {n} thiết kế"
+  },
+  "pj.fav": "Mẫu yêu thích",
+  "pj.favCreate": "Tạo bằng mẫu này",
+  "pj.favIn": {
+    "other": "trong {n} thiết kế"
+  },
+  "pj.searchPh": "Tìm kiếm dự án",
+  "pj.sortBy": "Sắp xếp:",
+  "pj.view": "Chế độ xem",
+  "pj.grid": "Lưới",
+  "pj.list": "Danh sách",
+  "pj.nothing": "Không tìm thấy gì",
+  "pj.first": "Tạo thiết kế đầu tiên của bạn",
+  "pj.nothingHint": "Hãy thử tìm kiếm khác hoặc xóa bộ lọc.",
+  "pj.firstHint": "Nhập chủ đề — Qalam lo phần còn lại.",
+  "pj.clearFilter": "Xóa bộ lọc",
+  "pj.newPres": "Bài thuyết trình mới",
+  "pj.fromBlank": "Bắt đầu từ bài thuyết trình trống",
+  "pj.col.name": "Tên",
+  "pj.col.kind": "Loại",
+  "pj.col.slides": "Trang chiếu",
+  "pj.col.tpl": "Mẫu",
+  "pj.col.edited": "Đã chỉnh sửa",
+  "av.eyebrow": "Latinh ↔ Latinh mới ↔ Kirin",
+  "av.title1": "Chuyển đổi",
+  "av.title2": "bảng chữ cái",
+  "av.free": "Công cụ chuyển đổi bảng chữ cái miễn phí — không tốn xu. Công cụ còn chuyển đổi được tệp DOCX/PDF mà vẫn giữ nguyên định dạng.",
+  "av.sample": "Oʻzbekiston — mening Vatanim. Toshkent shahri choyxonalari va togʻlari bilan mashhur.",
+  "av.script.old": "Latinh (hiện hành)",
+  "av.script.new": "Latinh mới",
+  "av.script.cyr": "Kirin",
+  "av.auto": "Tự động nhận diện",
+  "av.swap": "Hoán đổi",
+  "av.input": "Văn bản gốc",
+  "av.detected": "Đã nhận diện: {name}",
+  "av.chars": {
+    "other": "{n} ký tự"
+  },
+  "av.output": "Kết quả",
+  "av.copied": "Đã sao chép",
+  "av.copy": "Sao chép"
+}

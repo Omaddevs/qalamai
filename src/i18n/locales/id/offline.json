@@ -1,0 +1,12 @@
+{
+  "off.badge": "Offline",
+  "off.title": "Tidak ada koneksi internet",
+  "off.text": "Jangan khawatir — pekerjaan Anda tersimpan di perangkat ini. Semuanya akan tersinkron otomatis begitu Anda kembali online.",
+  "off.tip": "Periksa Wi‑Fi atau data seluler Anda",
+  "off.retry": "Coba lagi",
+  "off.checking": "Memeriksa…",
+  "off.still": "Masih offline",
+  "off.continue": "Lanjutkan offline",
+  "off.banner": "Offline — perubahan disimpan di perangkat ini",
+  "off.back": "Anda kembali online"
+}

@@ -1,0 +1,12 @@
+{
+  "off.badge": "Sin conexión",
+  "off.title": "No hay conexión a internet",
+  "off.text": "Tranquilo: tu trabajo está guardado en este dispositivo. Todo se sincronizará automáticamente cuando vuelvas a estar en línea.",
+  "off.tip": "Revisa tu wifi o tus datos móviles",
+  "off.retry": "Reintentar",
+  "off.checking": "Comprobando…",
+  "off.still": "Sigues sin conexión",
+  "off.continue": "Seguir sin conexión",
+  "off.banner": "Sin conexión: los cambios se guardan en este dispositivo",
+  "off.back": "Vuelves a estar en línea"
+}

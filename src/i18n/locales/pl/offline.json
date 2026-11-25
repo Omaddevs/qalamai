@@ -1,0 +1,12 @@
+{
+  "off.badge": "Offline",
+  "off.title": "Brak połączenia z internetem",
+  "off.text": "Bez obaw — Twoja praca jest zapisana na tym urządzeniu. Wszystko zsynchronizuje się automatycznie, gdy wrócisz do sieci.",
+  "off.tip": "Sprawdź Wi‑Fi lub dane komórkowe",
+  "off.retry": "Spróbuj ponownie",
+  "off.checking": "Sprawdzanie…",
+  "off.still": "Nadal offline",
+  "off.continue": "Kontynuuj offline",
+  "off.banner": "Offline — zmiany są zapisywane na tym urządzeniu",
+  "off.back": "Znów jesteś online"
+}

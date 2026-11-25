@@ -1,0 +1,23 @@
+{
+  "share.title": "分享",
+  "share.preparing": "正在生成链接…",
+  "share.linkLabel": "查看链接",
+  "share.note": "任何拥有链接的人都可以查看此演示文稿，但无法编辑。你之后的修改会自动同步。",
+  "share.copy": "复制",
+  "share.copied": "链接已复制",
+  "share.open": "打开",
+  "share.stop": "关闭链接",
+  "share.stopped": "链接已关闭，不再可用",
+  "share.offline": "无法连接服务器，链接未生成。请检查网络后重试。",
+  "share.notSaved": "演示文稿未能保存到服务器：{reason}",
+  "view.notFound": "链接不存在或已关闭",
+  "view.notFoundHint": "所有者可能已关闭链接或删除了演示文稿。",
+  "view.present": "放映",
+  "view.prev": "上一页",
+  "view.next": "下一页",
+  "view.make": "制作我自己的",
+  "view.empty": "此演示文稿还没有页面",
+  "view.pages": "页面",
+  "ed.preview.auto": "此页没有动画，已播放示例。选中一个元素，在“动画”中添加动画。",
+  "ed.preview.empty": "页面为空，没有可播放的内容"
+}

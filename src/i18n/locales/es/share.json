@@ -1,0 +1,23 @@
+{
+  "share.title": "Compartir",
+  "share.preparing": "Preparando el enlace…",
+  "share.linkLabel": "Enlace de visualización",
+  "share.note": "Cualquier persona con el enlace puede ver la presentación, pero no editarla. Tus cambios posteriores aparecerán automáticamente.",
+  "share.copy": "Copiar",
+  "share.copied": "Enlace copiado",
+  "share.open": "Abrir",
+  "share.stop": "Desactivar el enlace",
+  "share.stopped": "El enlace está desactivado y ya no funciona",
+  "share.offline": "No se pudo conectar con el servidor y no se creó el enlace. Revisa tu conexión e inténtalo de nuevo.",
+  "share.notSaved": "La presentación no se guardó en el servidor: {reason}",
+  "view.notFound": "El enlace no existe o está desactivado",
+  "view.notFoundHint": "Es posible que el propietario haya desactivado el enlace o eliminado la presentación.",
+  "view.present": "Presentar",
+  "view.prev": "Página anterior",
+  "view.next": "Página siguiente",
+  "view.make": "Crea la tuya",
+  "view.empty": "Esta presentación aún no tiene páginas",
+  "view.pages": "Páginas",
+  "ed.preview.auto": "Esta página no tiene animación, así que se reprodujo un ejemplo. Selecciona un elemento y añádele una en «Animación».",
+  "ed.preview.empty": "La página está vacía: no hay nada que reproducir"
+}

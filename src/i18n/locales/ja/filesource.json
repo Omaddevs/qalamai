@@ -1,0 +1,20 @@
+{
+  "fs.attach": "ファイルから",
+  "fs.attachLong": "ファイルから作成：PDF、Word、PowerPoint",
+  "fs.drop": "ここにファイルをドロップするか、選択してください",
+  "fs.types": "PDF、DOCX、PPTX、TXT、MD · 最大 {mb} MB",
+  "fs.reading": "ファイルを読み込んでいます…",
+  "fs.words": { "other": "{n} 語" },
+  "fs.pagesN": { "other": "{n} ページ" },
+  "fs.removeFile": "ファイルを削除",
+  "fs.private": "ファイルはアップロードされません。ブラウザー内でのみ読み込まれ、プレゼンテーションの完成後に破棄されます",
+  "fs.topicOptional": "テーマ（任意）。未入力の場合はファイルから取得します",
+  "fs.planFromFile": "構成はファイルの見出しから作成されます",
+  "fs.contentNote": "スライドのテキストはファイルの言語のままです。AI を使うと、選択した言語で書き直されます",
+  "fs.err.type": "このファイル形式には対応していません。PDF、DOCX、PPTX、TXT、MD のいずれかを選んでください",
+  "fs.err.size": "ファイルが大きすぎます（最大 {mb} MB）",
+  "fs.err.empty": "ファイルに読み取れるテキストがありません（スキャン画像の可能性があります）",
+  "fs.err.read": "ファイルを読み込めませんでした。破損しているか、パスワードで保護されている可能性があります",
+  "as.missing": "この画像は別の端末に保存されています",
+  "as.missingShort": "別の端末にあります"
+}

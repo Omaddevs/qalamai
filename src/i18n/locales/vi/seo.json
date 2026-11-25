@@ -1,0 +1,23 @@
+{
+  "seo.tools.title": "Công cụ tệp — PDF, Word, Excel và hình ảnh | QalamAI",
+  "seo.tools.desc": "Chuyển PDF sang Word, Excel và PowerPoint, gộp, nén và chỉnh sửa PDF, xóa phông nền ảnh — ngay trong trình duyệt, không cần cài đặt.",
+  "seo.page.tools.h1": "Công cụ tệp",
+  "seo.tools.all": "Tất cả công cụ tệp",
+  "seo.crumbs": "Đường dẫn điều hướng",
+  "seo.tool.title": "{tool} trực tuyến — công cụ tệp miễn phí | QalamAI",
+  "seo.tool.desc": "{desc} Trực tuyến, ngay trong trình duyệt — không cần cài đặt.",
+  "seo.tool.cta": "Mở công cụ",
+  "seo.tool.formats": "Định dạng tệp",
+  "seo.tool.how": "Cách hoạt động",
+  "seo.tool.step1": "Đăng ký miễn phí hoặc đăng nhập vào tài khoản của bạn.",
+  "seo.tool.step2": "Chọn tệp và thiết lập các tùy chọn bạn cần.",
+  "seo.tool.step3": "Tải xuống tệp đã hoàn tất.",
+  "seo.tool.why": "Vì sao chọn QalamAI",
+  "seo.tool.f1t": "Tệp luôn ở bên bạn",
+  "seo.tool.f1": "Công cụ chạy trong trình duyệt của bạn: trong hầu hết trường hợp, tệp hoàn toàn không được gửi lên máy chủ.",
+  "seo.tool.f2t": "Bắt đầu miễn phí",
+  "seo.tool.f2": "Tài khoản miễn phí được dùng tối đa {runs} lần mỗi ngày, với tệp tối đa {mb} MB.",
+  "seo.tool.f3t": "7 ngôn ngữ",
+  "seo.tool.f3": "Giao diện có tiếng Uzbek (Latinh và Kirin), tiếng Nga, tiếng Anh, tiếng Kazakh, tiếng Kyrgyz và tiếng Tajik.",
+  "seo.tool.related": "Công cụ khác"
+}

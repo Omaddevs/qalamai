@@ -1,0 +1,23 @@
+{
+  "seo.tools.title": "文件工具 — PDF、Word、Excel 和图片 | QalamAI",
+  "seo.tools.desc": "将 PDF 转换为 Word、Excel 和 PowerPoint，合并、压缩和编辑 PDF，去除图片背景——直接在浏览器中完成，无需安装。",
+  "seo.page.tools.h1": "文件工具",
+  "seo.tools.all": "全部文件工具",
+  "seo.crumbs": "面包屑导航",
+  "seo.tool.title": "在线{tool} — 免费文件工具 | QalamAI",
+  "seo.tool.desc": "{desc}在线使用，直接在浏览器中完成，无需安装。",
+  "seo.tool.cta": "打开工具",
+  "seo.tool.formats": "文件格式",
+  "seo.tool.how": "使用方法",
+  "seo.tool.step1": "免费注册或登录你的账号。",
+  "seo.tool.step2": "选择文件并设置所需选项。",
+  "seo.tool.step3": "下载处理好的文件。",
+  "seo.tool.why": "为什么选择 QalamAI",
+  "seo.tool.f1t": "文件留在你手中",
+  "seo.tool.f1": "工具在你的浏览器中运行：大多数情况下，文件根本不会发送到服务器。",
+  "seo.tool.f2t": "免费开始",
+  "seo.tool.f2": "免费账号每天最多可处理 {runs} 次，文件最大 {mb} MB。",
+  "seo.tool.f3t": "支持 7 种语言",
+  "seo.tool.f3": "界面支持乌兹别克语（拉丁字母和西里尔字母）、俄语、英语、哈萨克语、吉尔吉斯语和塔吉克语。",
+  "seo.tool.related": "其他工具"
+}

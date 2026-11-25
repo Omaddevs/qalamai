@@ -1,0 +1,28 @@
+{
+  "fs.attach": "Desde un archivo",
+  "fs.attachLong": "Crear desde un archivo: PDF, Word, PowerPoint",
+  "fs.drop": "Suelta un archivo aquí o elige uno",
+  "fs.types": "PDF, DOCX, PPTX, TXT, MD · hasta {mb} MB",
+  "fs.reading": "Leyendo el archivo…",
+  "fs.words": {
+    "one": "{n} palabra",
+    "many": "{n} de palabras",
+    "other": "{n} palabras"
+  },
+  "fs.pagesN": {
+    "one": "{n} página",
+    "many": "{n} de páginas",
+    "other": "{n} páginas"
+  },
+  "fs.removeFile": "Quitar el archivo",
+  "fs.private": "El archivo nunca se sube: solo se lee en tu navegador y se descarta cuando la presentación está lista",
+  "fs.topicOptional": "Tema (opcional): si no, se toma del archivo",
+  "fs.planFromFile": "Los puntos del índice salen de las secciones del archivo",
+  "fs.contentNote": "El texto de las diapositivas se mantiene en el idioma del archivo; con IA se reescribirá en el idioma elegido",
+  "fs.err.type": "Este tipo de archivo no es compatible: elige PDF, DOCX, PPTX, TXT o MD",
+  "fs.err.size": "El archivo es demasiado grande (máximo {mb} MB)",
+  "fs.err.empty": "No se encontró texto legible en el archivo (puede que sea un escaneo)",
+  "fs.err.read": "No se pudo leer el archivo: puede estar dañado o protegido con contraseña",
+  "as.missing": "Esta imagen está guardada en otro dispositivo",
+  "as.missingShort": "En otro dispositivo"
+}

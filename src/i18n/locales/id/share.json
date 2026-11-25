@@ -1,0 +1,23 @@
+{
+  "share.title": "Bagikan",
+  "share.preparing": "Menyiapkan tautan…",
+  "share.linkLabel": "Tautan untuk melihat",
+  "share.note": "Siapa pun yang memiliki tautan dapat melihat presentasi, tetapi tidak dapat mengeditnya. Perubahan Anda berikutnya akan muncul secara otomatis.",
+  "share.copy": "Salin",
+  "share.copied": "Tautan disalin",
+  "share.open": "Buka",
+  "share.stop": "Nonaktifkan tautan",
+  "share.stopped": "Tautan dinonaktifkan — tautan tidak lagi berfungsi",
+  "share.offline": "Tidak dapat menghubungi server — tautan tidak dibuat. Periksa koneksi Anda dan coba lagi.",
+  "share.notSaved": "Presentasi tidak tersimpan ke server: {reason}",
+  "view.notFound": "Tautan tidak ditemukan atau sudah dinonaktifkan",
+  "view.notFoundHint": "Pemilik mungkin telah menonaktifkan tautan atau menghapus presentasinya.",
+  "view.present": "Tayangkan",
+  "view.prev": "Halaman sebelumnya",
+  "view.next": "Halaman berikutnya",
+  "view.make": "Buat milik Anda",
+  "view.empty": "Presentasi ini belum memiliki halaman",
+  "view.pages": "Halaman",
+  "ed.preview.auto": "Halaman ini tidak memiliki animasi — contoh animasi diputar. Pilih elemen dan tambahkan animasi di bagian “Animasi”.",
+  "ed.preview.empty": "Halaman kosong — tidak ada yang bisa diputar"
+}

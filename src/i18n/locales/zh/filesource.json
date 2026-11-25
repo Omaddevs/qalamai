@@ -1,0 +1,20 @@
+{
+  "fs.attach": "从文件",
+  "fs.attachLong": "从文件创建：PDF、Word、PowerPoint",
+  "fs.drop": "将文件拖到这里或点击选择",
+  "fs.types": "PDF、DOCX、PPTX、TXT、MD · 最大 {mb} MB",
+  "fs.reading": "正在读取文件…",
+  "fs.words": { "other": "{n} 字" },
+  "fs.pagesN": { "other": "{n} 页" },
+  "fs.removeFile": "移除文件",
+  "fs.private": "文件不会上传——仅在你的浏览器中读取，演示文稿生成后即丢弃",
+  "fs.topicOptional": "主题（可选），留空则从文件中提取",
+  "fs.planFromFile": "大纲要点取自文件的章节",
+  "fs.contentNote": "幻灯片文本保留文件原语言；启用 AI 后将以所选语言重写",
+  "fs.err.type": "不支持此文件类型，请选择 PDF、DOCX、PPTX、TXT 或 MD",
+  "fs.err.size": "文件过大（最大 {mb} MB）",
+  "fs.err.empty": "文件中没有可读取的文本（可能是扫描件）",
+  "fs.err.read": "无法读取文件——文件可能已损坏或受密码保护",
+  "as.missing": "这张图片保存在另一台设备上",
+  "as.missingShort": "在另一台设备上"
+}

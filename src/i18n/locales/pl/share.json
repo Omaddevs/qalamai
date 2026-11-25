@@ -1,0 +1,23 @@
+{
+  "share.title": "Udostępnij",
+  "share.preparing": "Przygotowywanie linku…",
+  "share.linkLabel": "Link do podglądu",
+  "share.note": "Każdy, kto ma link, może oglądać prezentację, ale nie może jej edytować. Twoje późniejsze zmiany pojawią się automatycznie.",
+  "share.copy": "Kopiuj",
+  "share.copied": "Skopiowano link",
+  "share.open": "Otwórz",
+  "share.stop": "Wyłącz link",
+  "share.stopped": "Link jest wyłączony — już nie działa",
+  "share.offline": "Nie udało się połączyć z serwerem — link nie został utworzony. Sprawdź połączenie i spróbuj ponownie.",
+  "share.notSaved": "Nie zapisano prezentacji na serwerze: {reason}",
+  "view.notFound": "Nie znaleziono linku albo został wyłączony",
+  "view.notFoundHint": "Właściciel mógł wyłączyć link lub usunąć prezentację.",
+  "view.present": "Pokaz",
+  "view.prev": "Poprzednia strona",
+  "view.next": "Następna strona",
+  "view.make": "Stwórz własną",
+  "view.empty": "Ta prezentacja nie ma jeszcze stron",
+  "view.pages": "Strony",
+  "ed.preview.auto": "Ta strona nie ma animacji — odtworzono przykład. Zaznacz element i dodaj animację w sekcji „Animacja”.",
+  "ed.preview.empty": "Strona jest pusta — nie ma czego odtworzyć"
+}

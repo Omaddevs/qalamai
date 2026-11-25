@@ -1,0 +1,23 @@
+{
+  "seo.tools.title": "Narzędzia do plików — PDF, Word, Excel i obrazy | QalamAI",
+  "seo.tools.desc": "Konwertuj PDF do Word, Excel i PowerPoint, scalaj, kompresuj i edytuj pliki PDF, usuwaj tło ze zdjęć — bezpośrednio w przeglądarce, bez instalowania czegokolwiek.",
+  "seo.page.tools.h1": "Narzędzia do plików",
+  "seo.tools.all": "Wszystkie narzędzia do plików",
+  "seo.crumbs": "Ścieżka nawigacji",
+  "seo.tool.title": "{tool} online — darmowe narzędzie do plików | QalamAI",
+  "seo.tool.desc": "{desc} Online, bezpośrednio w przeglądarce — bez instalowania czegokolwiek.",
+  "seo.tool.cta": "Otwórz narzędzie",
+  "seo.tool.formats": "Formaty plików",
+  "seo.tool.how": "Jak to działa",
+  "seo.tool.step1": "Zarejestruj się za darmo lub zaloguj na swoje konto.",
+  "seo.tool.step2": "Wybierz plik i ustaw potrzebne opcje.",
+  "seo.tool.step3": "Pobierz gotowy plik.",
+  "seo.tool.why": "Dlaczego QalamAI",
+  "seo.tool.f1t": "Plik zostaje u Ciebie",
+  "seo.tool.f1": "Narzędzie działa w Twojej przeglądarce: w większości przypadków plik w ogóle nie trafia na serwer.",
+  "seo.tool.f2t": "Darmowy start",
+  "seo.tool.f2": "Darmowe konto to do {runs} użyć dziennie i pliki do {mb} MB.",
+  "seo.tool.f3t": "W 7 językach",
+  "seo.tool.f3": "Interfejs jest dostępny po uzbecku (łacinka i cyrylica), rosyjsku, angielsku, kazachsku, kirgisku i tadżycku.",
+  "seo.tool.related": "Inne narzędzia"
+}

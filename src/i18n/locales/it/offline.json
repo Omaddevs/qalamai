@@ -1,0 +1,12 @@
+{
+  "off.badge": "Offline",
+  "off.title": "Nessuna connessione a Internet",
+  "off.text": "Niente paura: il tuo lavoro è salvato su questo dispositivo. Tutto si sincronizza da solo appena torni online.",
+  "off.tip": "Controlla il Wi‑Fi o i dati mobili",
+  "off.retry": "Riprova",
+  "off.checking": "Verifica in corso…",
+  "off.still": "Ancora offline",
+  "off.continue": "Continua offline",
+  "off.banner": "Offline: le modifiche vengono salvate su questo dispositivo",
+  "off.back": "Sei di nuovo online"
+}

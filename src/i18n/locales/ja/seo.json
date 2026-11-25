@@ -1,0 +1,23 @@
+{
+  "seo.tools.title": "ファイルツール — PDF、Word、Excel、画像 | QalamAI",
+  "seo.tools.desc": "PDF を Word、Excel、PowerPoint に変換。PDF の結合・圧縮・編集や、画像の背景除去もブラウザー上で。インストールは不要です。",
+  "seo.page.tools.h1": "ファイルツール",
+  "seo.tools.all": "すべてのファイルツール",
+  "seo.crumbs": "パンくずリスト",
+  "seo.tool.title": "{tool} オンライン — 無料のファイルツール | QalamAI",
+  "seo.tool.desc": "{desc} ブラウザー上でオンラインで使え、インストールは不要です。",
+  "seo.tool.cta": "ツールを開く",
+  "seo.tool.formats": "ファイル形式",
+  "seo.tool.how": "使い方",
+  "seo.tool.step1": "無料で新規登録するか、アカウントにログインします。",
+  "seo.tool.step2": "ファイルを選び、必要なオプションを設定します。",
+  "seo.tool.step3": "完成したファイルをダウンロードします。",
+  "seo.tool.why": "QalamAI が選ばれる理由",
+  "seo.tool.f1t": "ファイルは手元に",
+  "seo.tool.f1": "ツールはブラウザー上で動作します。ほとんどの場合、ファイルがサーバーに送信されることはありません。",
+  "seo.tool.f2t": "無料で始められる",
+  "seo.tool.f2": "無料アカウントでは 1 日最大 {runs} 回、{mb} MB までのファイルを処理できます。",
+  "seo.tool.f3t": "7 つの言語に対応",
+  "seo.tool.f3": "インターフェースはウズベク語（ラテン文字・キリル文字）、ロシア語、英語、カザフ語、キルギス語、タジク語に対応しています。",
+  "seo.tool.related": "その他のツール"
+}

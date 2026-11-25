@@ -1,0 +1,12 @@
+{
+  "off.badge": "Ngoại tuyến",
+  "off.title": "Không có kết nối internet",
+  "off.text": "Đừng lo — công việc của bạn đã được lưu trên thiết bị này. Mọi thứ sẽ tự động đồng bộ khi bạn có mạng trở lại.",
+  "off.tip": "Kiểm tra Wi‑Fi hoặc dữ liệu di động",
+  "off.retry": "Thử lại",
+  "off.checking": "Đang kiểm tra…",
+  "off.still": "Vẫn chưa có mạng",
+  "off.continue": "Tiếp tục ngoại tuyến",
+  "off.banner": "Ngoại tuyến — thay đổi được lưu trên thiết bị này",
+  "off.back": "Đã có mạng trở lại"
+}

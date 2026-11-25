@@ -1,23 +1,15 @@
-import { readdirSync } from 'node:fs'
-import { join } from 'node:path'
-import { pathToFileURL } from 'node:url'
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
-import { DEFAULT_LANG, LANGS, htmlLangOf, isLang, translate } from './shared/i18n.js'
+import { DEFAULT_LANG, LANGS, dirOf, htmlLangOf, isLang, translate } from './shared/i18n.js'
 import i18nSplit from './scripts/vite-i18n-split.mjs'
+import { loadDict } from './scripts/i18n-dict.mjs'
 import { ALL_PAGES, INDEXABLE_PAGES, PUBLIC_PAGES, TOOL_PAGES, relatedTools } from './src/landing/pages.js'
 import { alternatesOf, faqOf, ogLocaleOf, pageJsonLd, pageTexts, pageUrl } from './src/landing/seo-meta.js'
 
 const MSG_DIR = new URL('./src/i18n/msg', import.meta.url).pathname
-// every UI dictionary (src/i18n/msg/*.js): the prerendered pages speak each language
-const MSG = Object.assign(
-  {},
-  ...(await Promise.all(
-    readdirSync(MSG_DIR)
-      .filter((f) => f.endsWith('.js'))
-      .map((f) => import(pathToFileURL(join(MSG_DIR, f)).href).then((m) => m.default)),
-  )),
-)
+const LOCALES_DIR = new URL('./src/i18n/locales', import.meta.url).pathname
+// every UI dictionary (src/i18n/msg/*.js + locales/<lang>/*.json): the prerendered pages speak each language
+const { dict: MSG } = await loadDict(MSG_DIR, LOCALES_DIR)
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 const ROBOTS_INDEX = 'index, follow, max-image-preview:large'
 const TOOLS_HUB = ALL_PAGES.find((p) => p.id === 'tools')
@@ -106,7 +98,7 @@ function seo(siteUrl) {
     const desc = esc(texts.desc)
     const ld = indexable ? pageJsonLd({ site: siteUrl, page: p, lang, tr, parents: p?.toolPage ? [TOOLS_HUB] : [] }) : null
     const subs = [
-      [/<html lang="[^"]*">/, `<html lang="${htmlLangOf(lang)}">`],
+      [/<html lang="[^"]*">/, `<html lang="${htmlLangOf(lang)}"${dirOf(lang) === 'rtl' ? ' dir="rtl"' : ''}>`],
       [/<title>[^<]*<\/title>/, `<title>${title}</title>`],
       [/(<meta name="description" content=")[^"]*/, `$1${desc}`],
       [/(<meta name="robots" content=")[^"]*/, `$1${robots}`],
@@ -186,7 +178,7 @@ export default defineConfig(({ mode }) => {
   const siteUrl = (env.VITE_SITE_URL || 'https://qalamai.uz').replace(/\/+$/, '')
   const api = { target: process.env.API_TARGET ?? 'http://localhost:4000', changeOrigin: false }
   return {
-    plugins: [react(), seo(siteUrl), i18nSplit(MSG_DIR)],
+    plugins: [react(), seo(siteUrl), i18nSplit(MSG_DIR, LOCALES_DIR)],
     // the public address, for canonical / hreflang links written by the app (src/seo.js)
     define: { __SITE_URL__: JSON.stringify(siteUrl) },
     // Lazily imported heavy deps: pre-bundle them at start-up. Found only when a page first

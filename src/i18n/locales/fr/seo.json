@@ -1,0 +1,23 @@
+{
+  "seo.tools.title": "Outils fichiers — PDF, Word, Excel et images | QalamAI",
+  "seo.tools.desc": "Convertissez un PDF en Word, Excel ou PowerPoint, fusionnez, compressez et modifiez des PDF, supprimez l'arrière-plan des images, directement dans votre navigateur, sans rien installer.",
+  "seo.page.tools.h1": "Outils fichiers",
+  "seo.tools.all": "Tous les outils fichiers",
+  "seo.crumbs": "Fil d'Ariane",
+  "seo.tool.title": "{tool} en ligne — outil gratuit | QalamAI",
+  "seo.tool.desc": "{desc} En ligne, directement dans votre navigateur, sans rien installer.",
+  "seo.tool.cta": "Ouvrir l'outil",
+  "seo.tool.formats": "Formats de fichier",
+  "seo.tool.how": "Comment ça marche",
+  "seo.tool.step1": "Inscrivez-vous gratuitement ou connectez-vous à votre compte.",
+  "seo.tool.step2": "Choisissez votre fichier et réglez les options souhaitées.",
+  "seo.tool.step3": "Téléchargez le fichier terminé.",
+  "seo.tool.why": "Pourquoi QalamAI",
+  "seo.tool.f1t": "Votre fichier reste chez vous",
+  "seo.tool.f1": "L'outil fonctionne dans votre navigateur : dans la plupart des cas, le fichier n'est jamais envoyé à un serveur.",
+  "seo.tool.f2t": "Gratuit pour commencer",
+  "seo.tool.f2": "Un compte gratuit permet jusqu'à {runs} utilisations par jour, avec des fichiers jusqu'à {mb} MB.",
+  "seo.tool.f3t": "En 7 langues",
+  "seo.tool.f3": "L'interface est disponible en ouzbek (latin et cyrillique), russe, anglais, kazakh, kirghiz et tadjik.",
+  "seo.tool.related": "Autres outils"
+}

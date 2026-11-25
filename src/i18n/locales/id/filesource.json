@@ -1,0 +1,20 @@
+{
+  "fs.attach": "Dari file",
+  "fs.attachLong": "Buat dari file: PDF, Word, PowerPoint",
+  "fs.drop": "Letakkan file di sini atau pilih file",
+  "fs.types": "PDF, DOCX, PPTX, TXT, MD · hingga {mb} MB",
+  "fs.reading": "Membaca file…",
+  "fs.words": { "other": "{n} kata" },
+  "fs.pagesN": { "other": "{n} halaman" },
+  "fs.removeFile": "Hapus file",
+  "fs.private": "File tidak pernah diunggah — file hanya dibaca di browser Anda dan dibuang setelah presentasi selesai",
+  "fs.topicOptional": "Topik (opsional) — jika kosong, diambil dari file",
+  "fs.planFromFile": "Poin rencana diambil dari bagian-bagian file",
+  "fs.contentNote": "Teks slide tetap dalam bahasa file; dengan AI, teks akan ditulis ulang dalam bahasa yang dipilih",
+  "fs.err.type": "Jenis file ini tidak didukung: pilih PDF, DOCX, PPTX, TXT, atau MD",
+  "fs.err.size": "File terlalu besar (maksimal {mb} MB)",
+  "fs.err.empty": "Tidak ada teks yang dapat dibaca di file ini (mungkin hasil pindaian)",
+  "fs.err.read": "Gagal membaca file — file mungkin rusak atau dilindungi kata sandi",
+  "as.missing": "Gambar ini disimpan di perangkat lain",
+  "as.missingShort": "Di perangkat lain"
+}

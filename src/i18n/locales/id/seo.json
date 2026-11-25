@@ -1,0 +1,23 @@
+{
+  "seo.tools.title": "Alat file — PDF, Word, Excel, dan gambar | QalamAI",
+  "seo.tools.desc": "Ubah PDF ke Word, Excel, dan PowerPoint, gabungkan, kompres, dan edit PDF, hapus latar belakang gambar — langsung di browser, tanpa perlu instal apa pun.",
+  "seo.page.tools.h1": "Alat file",
+  "seo.tools.all": "Semua alat file",
+  "seo.crumbs": "Breadcrumb",
+  "seo.tool.title": "{tool} online — alat file gratis | QalamAI",
+  "seo.tool.desc": "{desc} Online, langsung di browser — tanpa perlu instal apa pun.",
+  "seo.tool.cta": "Buka alat",
+  "seo.tool.formats": "Format file",
+  "seo.tool.how": "Cara kerjanya",
+  "seo.tool.step1": "Daftar gratis atau masuk ke akun Anda.",
+  "seo.tool.step2": "Pilih file Anda dan atur opsi yang Anda perlukan.",
+  "seo.tool.step3": "Unduh file yang sudah jadi.",
+  "seo.tool.why": "Mengapa QalamAI",
+  "seo.tool.f1t": "File Anda tetap di tangan Anda",
+  "seo.tool.f1": "Alat ini berjalan di browser Anda: dalam banyak kasus, file sama sekali tidak dikirim ke server.",
+  "seo.tool.f2t": "Gratis untuk memulai",
+  "seo.tool.f2": "Akun gratis mendapat hingga {runs} kali pemakaian per hari, dengan file hingga {mb} MB.",
+  "seo.tool.f3t": "Dalam 7 bahasa",
+  "seo.tool.f3": "Antarmuka tersedia dalam bahasa Uzbek (Latin dan Kiril), Rusia, Inggris, Kazakh, Kirgiz, dan Tajik.",
+  "seo.tool.related": "Alat lainnya"
+}

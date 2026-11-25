@@ -1,0 +1,24 @@
+{
+  "fs.attach": "Từ tệp",
+  "fs.attachLong": "Tạo từ tệp: PDF, Word, PowerPoint",
+  "fs.drop": "Thả tệp vào đây hoặc chọn tệp",
+  "fs.types": "PDF, DOCX, PPTX, TXT, MD · tối đa {mb} MB",
+  "fs.reading": "Đang đọc tệp…",
+  "fs.words": {
+    "other": "{n} từ"
+  },
+  "fs.pagesN": {
+    "other": "{n} trang"
+  },
+  "fs.removeFile": "Bỏ tệp",
+  "fs.private": "Tệp không bao giờ được tải lên — tệp chỉ được đọc trong trình duyệt của bạn và bị loại bỏ khi bài thuyết trình đã sẵn sàng",
+  "fs.topicOptional": "Chủ đề (không bắt buộc) — nếu không sẽ lấy từ tệp",
+  "fs.planFromFile": "Các mục dàn ý được lấy từ các phần của tệp",
+  "fs.contentNote": "Văn bản trang chiếu giữ nguyên ngôn ngữ của tệp; khi có AI, văn bản sẽ được viết lại bằng ngôn ngữ đã chọn",
+  "fs.err.type": "Loại tệp này không được hỗ trợ: hãy chọn PDF, DOCX, PPTX, TXT hoặc MD",
+  "fs.err.size": "Tệp quá lớn (tối đa {mb} MB)",
+  "fs.err.empty": "Không tìm thấy văn bản đọc được trong tệp (có thể là bản quét)",
+  "fs.err.read": "Không đọc được tệp — tệp có thể bị hỏng hoặc được bảo vệ bằng mật khẩu",
+  "as.missing": "Hình ảnh này được lưu trên một thiết bị khác",
+  "as.missingShort": "Trên thiết bị khác"
+}

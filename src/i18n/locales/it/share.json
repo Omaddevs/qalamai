@@ -1,0 +1,23 @@
+{
+  "share.title": "Condividi",
+  "share.preparing": "Preparazione del link…",
+  "share.linkLabel": "Link di visualizzazione",
+  "share.note": "Chi ha il link può vedere la presentazione, ma non modificarla. Le modifiche successive compaiono automaticamente.",
+  "share.copy": "Copia",
+  "share.copied": "Link copiato",
+  "share.open": "Apri",
+  "share.stop": "Disattiva il link",
+  "share.stopped": "Il link è disattivato e non funziona più",
+  "share.offline": "Impossibile raggiungere il server: il link non è stato creato. Controlla la connessione e riprova.",
+  "share.notSaved": "La presentazione non è stata salvata sul server: {reason}",
+  "view.notFound": "Link non trovato o disattivato",
+  "view.notFoundHint": "Il proprietario potrebbe aver disattivato il link o eliminato la presentazione.",
+  "view.present": "Presenta",
+  "view.prev": "Pagina precedente",
+  "view.next": "Pagina successiva",
+  "view.make": "Crea la tua",
+  "view.empty": "Questa presentazione non ha ancora pagine",
+  "view.pages": "Pagine",
+  "ed.preview.auto": "Questa pagina non ha animazioni: è stato riprodotto un esempio. Seleziona un elemento e aggiungine una in “Animazione”.",
+  "ed.preview.empty": "La pagina è vuota: non c’è niente da riprodurre"
+}

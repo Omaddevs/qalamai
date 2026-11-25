@@ -1,0 +1,12 @@
+{
+  "off.badge": "Çevrimdışı",
+  "off.title": "İnternet bağlantısı yok",
+  "off.text": "Merak etmeyin — çalışmanız bu cihazda kayıtlı. Yeniden çevrimiçi olduğunuzda her şey otomatik olarak eşitlenir.",
+  "off.tip": "Wi‑Fi veya mobil veri bağlantınızı kontrol edin",
+  "off.retry": "Tekrar dene",
+  "off.checking": "Kontrol ediliyor…",
+  "off.still": "Hâlâ çevrimdışı",
+  "off.continue": "Çevrimdışı devam et",
+  "off.banner": "Çevrimdışı — değişiklikler bu cihaza kaydediliyor",
+  "off.back": "Yeniden çevrimiçisiniz"
+}

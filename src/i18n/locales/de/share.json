@@ -1,0 +1,23 @@
+{
+  "share.title": "Teilen",
+  "share.preparing": "Link wird erstellt …",
+  "share.linkLabel": "Ansichtslink",
+  "share.note": "Alle mit dem Link können die Präsentation ansehen, aber nicht bearbeiten. Spätere Änderungen erscheinen automatisch.",
+  "share.copy": "Kopieren",
+  "share.copied": "Link kopiert",
+  "share.open": "Öffnen",
+  "share.stop": "Link deaktivieren",
+  "share.stopped": "Der Link ist deaktiviert und funktioniert nicht mehr",
+  "share.offline": "Der Server ist nicht erreichbar – es wurde kein Link erstellt. Prüfe deine Verbindung und versuche es erneut.",
+  "share.notSaved": "Die Präsentation wurde nicht auf dem Server gespeichert: {reason}",
+  "view.notFound": "Der Link wurde nicht gefunden oder ist deaktiviert",
+  "view.notFoundHint": "Der Eigentümer hat den Link möglicherweise deaktiviert oder die Präsentation gelöscht.",
+  "view.present": "Vorführen",
+  "view.prev": "Vorherige Folie",
+  "view.next": "Nächste Folie",
+  "view.make": "Eigene erstellen",
+  "view.empty": "Diese Präsentation hat noch keine Folien",
+  "view.pages": "Folien",
+  "ed.preview.auto": "Diese Folie hat keine Animation – es wurde ein Beispiel abgespielt. Wähle ein Element aus und füge unter „Animation“ eine hinzu.",
+  "ed.preview.empty": "Die Folie ist leer – nichts abzuspielen"
+}

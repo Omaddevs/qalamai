@@ -1,0 +1,20 @@
+{
+  "fs.attach": "De um arquivo",
+  "fs.attachLong": "Criar a partir de um arquivo: PDF, Word, PowerPoint",
+  "fs.drop": "Solte um arquivo aqui ou escolha um",
+  "fs.types": "PDF, DOCX, PPTX, TXT, MD · até {mb} MB",
+  "fs.reading": "Lendo o arquivo…",
+  "fs.words": { "one": "{n} palavra", "many": "{n} de palavras", "other": "{n} palavras" },
+  "fs.pagesN": { "one": "{n} página", "many": "{n} de páginas", "other": "{n} páginas" },
+  "fs.removeFile": "Remover o arquivo",
+  "fs.private": "O arquivo nunca é enviado — ele é lido só no seu navegador e descartado quando a apresentação fica pronta",
+  "fs.topicOptional": "Tema (opcional) — senão, ele vem do arquivo",
+  "fs.planFromFile": "Os tópicos do roteiro vêm das seções do arquivo",
+  "fs.contentNote": "O texto dos slides fica no idioma do arquivo; com a IA, ele será reescrito no idioma escolhido",
+  "fs.err.type": "Este tipo de arquivo não é compatível: escolha PDF, DOCX, PPTX, TXT ou MD",
+  "fs.err.size": "O arquivo é grande demais (até {mb} MB)",
+  "fs.err.empty": "Nenhum texto legível foi encontrado no arquivo (talvez seja uma digitalização)",
+  "fs.err.read": "Não foi possível ler o arquivo — ele pode estar corrompido ou protegido por senha",
+  "as.missing": "Esta imagem está guardada em outro dispositivo",
+  "as.missingShort": "Em outro dispositivo"
+}

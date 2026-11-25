@@ -1,0 +1,23 @@
+{
+  "seo.tools.title": "파일 도구 — PDF, Word, Excel, 이미지 | QalamAI",
+  "seo.tools.desc": "PDF를 Word, Excel, PowerPoint로 변환하고, PDF를 병합·압축·편집하고, 이미지 배경을 제거하세요. 설치 없이 브라우저에서 바로 할 수 있어요.",
+  "seo.page.tools.h1": "파일 도구",
+  "seo.tools.all": "모든 파일 도구",
+  "seo.crumbs": "탐색 경로",
+  "seo.tool.title": "{tool} 온라인 — 무료 파일 도구 | QalamAI",
+  "seo.tool.desc": "{desc} 설치 없이 브라우저에서 바로 온라인으로 사용하세요.",
+  "seo.tool.cta": "도구 열기",
+  "seo.tool.formats": "파일 형식",
+  "seo.tool.how": "사용 방법",
+  "seo.tool.step1": "무료로 가입하거나 계정에 로그인하세요.",
+  "seo.tool.step2": "파일을 선택하고 필요한 옵션을 설정하세요.",
+  "seo.tool.step3": "완성된 파일을 다운로드하세요.",
+  "seo.tool.why": "왜 QalamAI인가요",
+  "seo.tool.f1t": "파일은 내 곁에",
+  "seo.tool.f1": "도구가 브라우저에서 실행되므로 대부분의 경우 파일이 서버로 전송되지 않아요.",
+  "seo.tool.f2t": "무료로 시작",
+  "seo.tool.f2": "무료 계정으로 하루 최대 {runs}회, 최대 {mb} MB 파일까지 사용할 수 있어요.",
+  "seo.tool.f3t": "7개 언어 지원",
+  "seo.tool.f3": "인터페이스는 우즈베크어(라틴 문자·키릴 문자), 러시아어, 영어, 카자흐어, 키르기스어, 타지크어를 지원해요.",
+  "seo.tool.related": "다른 도구"
+}

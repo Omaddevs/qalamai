@@ -1,0 +1,23 @@
+{
+  "share.title": "Paylaş",
+  "share.preparing": "Bağlantı hazırlanıyor…",
+  "share.linkLabel": "Görüntüleme bağlantısı",
+  "share.note": "Bağlantıya sahip olan herkes sunumu görüntüleyebilir ama düzenleyemez. Sonradan yaptığınız değişiklikler otomatik olarak görünür.",
+  "share.copy": "Kopyala",
+  "share.copied": "Bağlantı kopyalandı",
+  "share.open": "Aç",
+  "share.stop": "Bağlantıyı kapat",
+  "share.stopped": "Bağlantı kapatıldı — artık çalışmıyor",
+  "share.offline": "Sunucuya ulaşılamadı — bağlantı oluşturulmadı. İnternet bağlantınızı kontrol edip tekrar deneyin.",
+  "share.notSaved": "Sunum sunucuya kaydedilmedi: {reason}",
+  "view.notFound": "Bağlantı bulunamadı veya kapatılmış",
+  "view.notFoundHint": "Sahibi bağlantıyı kapatmış ya da sunumu silmiş olabilir.",
+  "view.present": "Sun",
+  "view.prev": "Önceki sayfa",
+  "view.next": "Sonraki sayfa",
+  "view.make": "Kendi sunumunu yap",
+  "view.empty": "Bu sunumda henüz sayfa yok",
+  "view.pages": "Sayfalar",
+  "ed.preview.auto": "Bu sayfada animasyon yok — örnek bir animasyon oynatıldı. Bir öğe seçip “Animasyon” bölümünden ekleyin.",
+  "ed.preview.empty": "Sayfa boş — oynatılacak bir şey yok"
+}

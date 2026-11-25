@@ -1,0 +1,23 @@
+{
+  "share.title": "Chia sẻ",
+  "share.preparing": "Đang chuẩn bị liên kết…",
+  "share.linkLabel": "Liên kết xem",
+  "share.note": "Bất kỳ ai có liên kết đều có thể xem bài thuyết trình nhưng không thể chỉnh sửa. Các thay đổi sau này của bạn sẽ tự động hiển thị.",
+  "share.copy": "Sao chép",
+  "share.copied": "Đã sao chép liên kết",
+  "share.open": "Mở",
+  "share.stop": "Tắt liên kết",
+  "share.stopped": "Liên kết đã tắt — không còn hoạt động nữa",
+  "share.offline": "Không kết nối được máy chủ — chưa tạo được liên kết. Hãy kiểm tra kết nối và thử lại.",
+  "share.notSaved": "Bài thuyết trình chưa được lưu lên máy chủ: {reason}",
+  "view.notFound": "Không tìm thấy liên kết hoặc liên kết đã bị tắt",
+  "view.notFoundHint": "Chủ sở hữu có thể đã tắt liên kết hoặc xóa bài thuyết trình.",
+  "view.present": "Trình chiếu",
+  "view.prev": "Trang trước",
+  "view.next": "Trang sau",
+  "view.make": "Tạo bài của bạn",
+  "view.empty": "Bài thuyết trình này chưa có trang nào",
+  "view.pages": "Trang",
+  "ed.preview.auto": "Trang này chưa có hiệu ứng — đã phát một mẫu thử. Hãy chọn một phần tử và thêm hiệu ứng trong mục “Hoạt ảnh”.",
+  "ed.preview.empty": "Trang trống — không có gì để phát"
+}

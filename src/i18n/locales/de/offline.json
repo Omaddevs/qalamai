@@ -1,0 +1,12 @@
+{
+  "off.badge": "Offline",
+  "off.title": "Keine Internetverbindung",
+  "off.text": "Keine Sorge – deine Arbeit ist auf diesem Gerät gespeichert. Sobald du wieder online bist, wird alles automatisch synchronisiert.",
+  "off.tip": "Prüfe dein WLAN oder deine mobilen Daten",
+  "off.retry": "Erneut versuchen",
+  "off.checking": "Wird geprüft …",
+  "off.still": "Immer noch offline",
+  "off.continue": "Offline weitermachen",
+  "off.banner": "Offline – Änderungen werden auf diesem Gerät gespeichert",
+  "off.back": "Du bist wieder online"
+}

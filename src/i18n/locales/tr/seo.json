@@ -1,0 +1,23 @@
+{
+  "seo.tools.title": "Dosya araçları — PDF, Word, Excel ve görseller | QalamAI",
+  "seo.tools.desc": "PDF’yi Word, Excel ve PowerPoint’e dönüştürün, PDF’leri birleştirin, sıkıştırın ve düzenleyin, görsellerin arka planını kaldırın — doğrudan tarayıcınızda, hiçbir şey kurmadan.",
+  "seo.page.tools.h1": "Dosya araçları",
+  "seo.tools.all": "Tüm dosya araçları",
+  "seo.crumbs": "Gezinti yolu",
+  "seo.tool.title": "{tool} çevrimiçi — ücretsiz dosya aracı | QalamAI",
+  "seo.tool.desc": "{desc} Çevrimiçi, doğrudan tarayıcınızda — hiçbir şey kurmanıza gerek yok.",
+  "seo.tool.cta": "Aracı aç",
+  "seo.tool.formats": "Dosya biçimleri",
+  "seo.tool.how": "Nasıl çalışır?",
+  "seo.tool.step1": "Ücretsiz kaydolun veya hesabınıza giriş yapın.",
+  "seo.tool.step2": "Dosyanızı seçin ve gereken ayarları yapın.",
+  "seo.tool.step3": "Hazır dosyayı indirin.",
+  "seo.tool.why": "Neden QalamAI?",
+  "seo.tool.f1t": "Dosyanız sizde kalır",
+  "seo.tool.f1": "Araç tarayıcınızda çalışır: çoğu durumda dosya hiçbir zaman sunucuya gönderilmez.",
+  "seo.tool.f2t": "Ücretsiz başlayın",
+  "seo.tool.f2": "Ücretsiz hesapla günde {runs} kullanıma kadar, {mb} MB’a kadar dosyalarla çalışabilirsiniz.",
+  "seo.tool.f3t": "7 dilde",
+  "seo.tool.f3": "Arayüz Özbekçe (Latin ve Kiril), Rusça, İngilizce, Kazakça, Kırgızca ve Tacikçe konuşur.",
+  "seo.tool.related": "Diğer araçlar"
+}

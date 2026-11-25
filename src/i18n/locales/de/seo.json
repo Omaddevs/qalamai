@@ -1,0 +1,23 @@
+{
+  "seo.tools.title": "Datei-Tools – PDF, Word, Excel und Bilder | QalamAI",
+  "seo.tools.desc": "PDF in Word, Excel und PowerPoint umwandeln, PDFs zusammenführen, komprimieren und bearbeiten, Bildhintergründe entfernen – direkt im Browser, ohne Installation.",
+  "seo.page.tools.h1": "Datei-Tools",
+  "seo.tools.all": "Alle Datei-Tools",
+  "seo.crumbs": "Brotkrümelnavigation",
+  "seo.tool.title": "{tool} online – kostenloses Datei-Tool | QalamAI",
+  "seo.tool.desc": "{desc} Online, direkt im Browser – ohne Installation.",
+  "seo.tool.cta": "Tool öffnen",
+  "seo.tool.formats": "Dateiformate",
+  "seo.tool.how": "So funktioniert’s",
+  "seo.tool.step1": "Registriere dich kostenlos oder melde dich bei deinem Konto an.",
+  "seo.tool.step2": "Wähle deine Datei und stelle die gewünschten Optionen ein.",
+  "seo.tool.step3": "Lade die fertige Datei herunter.",
+  "seo.tool.why": "Warum QalamAI",
+  "seo.tool.f1t": "Deine Datei bleibt bei dir",
+  "seo.tool.f1": "Das Tool läuft in deinem Browser: In den meisten Fällen wird die Datei überhaupt nicht an einen Server gesendet.",
+  "seo.tool.f2t": "Kostenlos starten",
+  "seo.tool.f2": "Ein kostenloses Konto bietet bis zu {runs} Durchläufe pro Tag mit Dateien bis {mb} MB.",
+  "seo.tool.f3t": "In 7 Sprachen",
+  "seo.tool.f3": "Die Oberfläche gibt es auf Usbekisch (Lateinisch und Kyrillisch), Russisch, Englisch, Kasachisch, Kirgisisch und Tadschikisch.",
+  "seo.tool.related": "Weitere Tools"
+}

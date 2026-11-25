@@ -1,0 +1,23 @@
+{
+  "seo.tools.title": "Herramientas de archivos: PDF, Word, Excel e imágenes | QalamAI",
+  "seo.tools.desc": "Convierte PDF a Word, Excel y PowerPoint; une, comprime y edita PDF; quita el fondo de las imágenes. Todo en tu navegador, sin instalar nada.",
+  "seo.page.tools.h1": "Herramientas de archivos",
+  "seo.tools.all": "Todas las herramientas de archivos",
+  "seo.crumbs": "Ruta de navegación",
+  "seo.tool.title": "{tool} online: herramienta de archivos gratis | QalamAI",
+  "seo.tool.desc": "{desc} Online, directamente en tu navegador y sin instalar nada.",
+  "seo.tool.cta": "Abrir la herramienta",
+  "seo.tool.formats": "Formatos de archivo",
+  "seo.tool.how": "Cómo funciona",
+  "seo.tool.step1": "Regístrate gratis o inicia sesión en tu cuenta.",
+  "seo.tool.step2": "Elige tu archivo y ajusta las opciones que necesites.",
+  "seo.tool.step3": "Descarga el archivo terminado.",
+  "seo.tool.why": "Por qué QalamAI",
+  "seo.tool.f1t": "Tu archivo se queda contigo",
+  "seo.tool.f1": "La herramienta funciona en tu navegador: en la mayoría de los casos, el archivo nunca se envía a un servidor.",
+  "seo.tool.f2t": "Gratis para empezar",
+  "seo.tool.f2": "Una cuenta gratuita permite hasta {runs} usos al día, con archivos de hasta {mb} MB.",
+  "seo.tool.f3t": "En 7 idiomas",
+  "seo.tool.f3": "La interfaz está en uzbeko (latino y cirílico), ruso, inglés, kazajo, kirguís y tayiko.",
+  "seo.tool.related": "Otras herramientas"
+}

@@ -1,0 +1,20 @@
+{
+  "fs.attach": "Da file",
+  "fs.attachLong": "Crea da un file: PDF, Word, PowerPoint",
+  "fs.drop": "Trascina qui un file o sceglilo",
+  "fs.types": "PDF, DOCX, PPTX, TXT, MD · fino a {mb} MB",
+  "fs.reading": "Lettura del file…",
+  "fs.words": { "one": "{n} parola", "many": "{n} di parole", "other": "{n} parole" },
+  "fs.pagesN": { "one": "{n} pagina", "many": "{n} di pagine", "other": "{n} pagine" },
+  "fs.removeFile": "Rimuovi il file",
+  "fs.private": "Il file non viene mai caricato: viene letto solo nel tuo browser ed eliminato quando la presentazione è pronta",
+  "fs.topicOptional": "Argomento (facoltativo): altrimenti viene preso dal file",
+  "fs.planFromFile": "I punti del piano derivano dalle sezioni del file",
+  "fs.contentNote": "Il testo delle slide resta nella lingua del file; con l’IA verrà riscritto in quella scelta",
+  "fs.err.type": "Tipo di file non supportato: scegli PDF, DOCX, PPTX, TXT o MD",
+  "fs.err.size": "Il file è troppo grande (fino a {mb} MB)",
+  "fs.err.empty": "Nel file non c’è testo leggibile (potrebbe essere una scansione)",
+  "fs.err.read": "Impossibile leggere il file: potrebbe essere danneggiato o protetto da password",
+  "as.missing": "Questa immagine è conservata su un altro dispositivo",
+  "as.missingShort": "Su un altro dispositivo"
+}

@@ -1,0 +1,20 @@
+{
+  "fs.attach": "파일에서",
+  "fs.attachLong": "파일로 만들기: PDF, Word, PowerPoint",
+  "fs.drop": "여기에 파일을 끌어다 놓거나 선택하세요",
+  "fs.types": "PDF, DOCX, PPTX, TXT, MD · 최대 {mb} MB",
+  "fs.reading": "파일을 읽는 중…",
+  "fs.words": { "other": "{n}단어" },
+  "fs.pagesN": { "other": "{n}페이지" },
+  "fs.removeFile": "파일 제거",
+  "fs.private": "파일은 업로드되지 않아요. 브라우저에서만 읽고, 프레젠테이션이 완성되면 바로 지워져요",
+  "fs.topicOptional": "주제(선택) — 비워 두면 파일에서 가져와요",
+  "fs.planFromFile": "목차 항목은 파일의 섹션에서 가져와요",
+  "fs.contentNote": "슬라이드 텍스트는 파일의 언어 그대로 유지돼요. AI를 사용하면 선택한 언어로 다시 작성돼요",
+  "fs.err.type": "지원하지 않는 파일 형식이에요. PDF, DOCX, PPTX, TXT 또는 MD를 선택하세요",
+  "fs.err.size": "파일이 너무 커요(최대 {mb} MB)",
+  "fs.err.empty": "파일에서 읽을 수 있는 텍스트를 찾지 못했어요(스캔본일 수 있어요)",
+  "fs.err.read": "파일을 읽지 못했어요. 파일이 손상되었거나 비밀번호로 보호되어 있을 수 있어요",
+  "as.missing": "이 이미지는 다른 기기에 저장되어 있어요",
+  "as.missingShort": "다른 기기에 있음"
+}

@@ -1,0 +1,20 @@
+{
+  "fs.attach": "Aus Datei",
+  "fs.attachLong": "Aus einer Datei erstellen: PDF, Word, PowerPoint",
+  "fs.drop": "Datei hierher ziehen oder auswählen",
+  "fs.types": "PDF, DOCX, PPTX, TXT, MD · bis {mb} MB",
+  "fs.reading": "Datei wird gelesen …",
+  "fs.words": { "one": "{n} Wort", "other": "{n} Wörter" },
+  "fs.pagesN": { "one": "{n} Seite", "other": "{n} Seiten" },
+  "fs.removeFile": "Datei entfernen",
+  "fs.private": "Die Datei wird nie hochgeladen – sie wird nur in deinem Browser gelesen und verworfen, sobald die Präsentation fertig ist",
+  "fs.topicOptional": "Thema (optional) – sonst aus der Datei übernommen",
+  "fs.planFromFile": "Die Gliederungspunkte stammen aus den Abschnitten der Datei",
+  "fs.contentNote": "Der Folientext bleibt in der Sprache der Datei; mit KI wird er in der gewählten Sprache neu geschrieben",
+  "fs.err.type": "Dieser Dateityp wird nicht unterstützt: Wähle PDF, DOCX, PPTX, TXT oder MD",
+  "fs.err.size": "Die Datei ist zu groß (bis {mb} MB)",
+  "fs.err.empty": "In der Datei wurde kein lesbarer Text gefunden (vielleicht ist es ein Scan)",
+  "fs.err.read": "Die Datei konnte nicht gelesen werden – sie ist möglicherweise beschädigt oder passwortgeschützt",
+  "as.missing": "Dieses Bild ist auf einem anderen Gerät gespeichert",
+  "as.missingShort": "Auf anderem Gerät"
+}

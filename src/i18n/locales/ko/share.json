@@ -1,0 +1,23 @@
+{
+  "share.title": "공유",
+  "share.preparing": "링크를 준비하는 중…",
+  "share.linkLabel": "보기 링크",
+  "share.note": "링크가 있는 사람은 누구나 프레젠테이션을 볼 수 있지만 편집할 수는 없어요. 이후에 변경한 내용도 자동으로 반영돼요.",
+  "share.copy": "복사",
+  "share.copied": "링크를 복사했어요",
+  "share.open": "열기",
+  "share.stop": "링크 끄기",
+  "share.stopped": "링크가 꺼졌어요. 더 이상 작동하지 않아요",
+  "share.offline": "서버에 연결할 수 없어 링크를 만들지 못했어요. 연결을 확인하고 다시 시도하세요.",
+  "share.notSaved": "프레젠테이션이 서버에 저장되지 않았어요: {reason}",
+  "view.notFound": "링크를 찾을 수 없거나 꺼져 있어요",
+  "view.notFoundHint": "소유자가 링크를 끄거나 프레젠테이션을 삭제했을 수 있어요.",
+  "view.present": "발표",
+  "view.prev": "이전 페이지",
+  "view.next": "다음 페이지",
+  "view.make": "나만의 프레젠테이션 만들기",
+  "view.empty": "이 프레젠테이션에는 아직 페이지가 없어요",
+  "view.pages": "페이지",
+  "ed.preview.auto": "이 페이지에는 애니메이션이 없어 샘플을 재생했어요. 요소를 선택하고 ‘애니메이션’에서 추가하세요.",
+  "ed.preview.empty": "페이지가 비어 있어 재생할 내용이 없어요"
+}

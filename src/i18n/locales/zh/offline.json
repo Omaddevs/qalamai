@@ -1,0 +1,12 @@
+{
+  "off.badge": "离线",
+  "off.title": "无网络连接",
+  "off.text": "别担心，你的作品已保存在此设备上。恢复联网后，一切将自动同步。",
+  "off.tip": "请检查 Wi‑Fi 或移动数据",
+  "off.retry": "重试",
+  "off.checking": "正在检查…",
+  "off.still": "仍未联网",
+  "off.continue": "继续离线使用",
+  "off.banner": "离线中——更改将保存在此设备上",
+  "off.back": "已恢复联网"
+}

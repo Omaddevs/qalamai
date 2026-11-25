@@ -2,7 +2,7 @@
 // pictures are found while the next slides are still being written.
 import Anthropic from '@anthropic-ai/sdk'
 import { SYSTEM, cleanSlide, deckPrompt, lineReader, localize, parseLine, planSplit, PLAN_FIXED } from './deck.js'
-import { findImage } from './images.js'
+import { pickImage } from './images.js'
 import { FILL_SYSTEM, cardsPrompt, cleanCard, cleanPiece, docPrompt } from './fill.js'
 
 // models that can hand a declined request to another model inside the same call
@@ -29,6 +29,8 @@ export function createAi(cfg, { log } = {}) {
     const local = localize(lang)
     const out = []
     const pictures = []
+    const used = new Set() // picture addresses already on a slide of this deck
+    const cover = {} // the cover's picture request: the deck's subject, a fallback for other slides
     let outline = null
 
     const reader = lineReader((line) => {
@@ -45,12 +47,29 @@ export function createAi(cfg, { log } = {}) {
       const index = out.length
       out.push(slide)
       emit({ type: 'slide', index, slide })
+      if (_img && slide.type === 'title' && !cover.q) Object.assign(cover, _img)
       if (_img) {
+        const about = slide.type === 'title' ? topic || slide.title : `${slide.title} (${topic || 'presentation'})`
         pictures.push(
-          findImage(_img.q, _img.kind, { log }).then((found) => {
-            if (!found || signal?.aborted) return
-            out[index] = { ...out[index], image: found.url, imageCredit: found.credit }
-            emit({ type: 'image', index, image: found.url, credit: found.credit })
+          pickImage({ ..._img, about }, { judge, log })
+            // the same picture on two slides: the later one looks again, without the pictures already used
+            .then((found) => (found && used.has(found.url) ? pickImage({ ..._img, about }, { judge, exclude: new Set(used), log }) : found))
+            // nothing shows this slide's own subject: a picture of the deck's subject (the cover's) will do
+            .then((found) => (found || out[index]?.type !== 'media' || !cover.q ? found : pickImage({ q: cover.q, alt: cover.alt, kind: cover.kind, about }, { judge, exclude: new Set(used), log })))
+            .then((found) => {
+            if (signal?.aborted) return
+            if (found && used.has(found.url)) found = null
+            if (found) used.add(found.url)
+            if (found) {
+              out[index] = { ...out[index], image: found.url, imageCredit: found.credit }
+              emit({ type: 'image', index, image: found.url, credit: found.credit })
+            } else if (out[index].type === 'media') {
+              // no picture that really shows it: a text slide instead of an empty picture frame
+              const { text = '', bullets = [], title } = out[index]
+              const sentences = text.split(/(?<=[.!?])\s+/).map((x) => x.trim()).filter(Boolean)
+              out[index] = { type: 'content', title, bullets: [...sentences, ...bullets].slice(0, 5) }
+              emit({ type: 'slide', index, slide: out[index] })
+            }
           }),
         )
       }
@@ -79,6 +98,31 @@ export function createAi(cfg, { log } = {}) {
     if (out.length < Math.min(3, total)) throw new AiError('AI_EMPTY', 'AI javobi töliq kelmadi — qaytadan urinib köring.')
     log?.info({ model: final.model, slides: out.length, stop: final.stop_reason, usage: final.usage }, 'ai deck done')
     return { slides: out, outline, usage: final.usage, model: final.model }
+  }
+
+  /**
+   * Looks at the candidate pictures and answers which one shows the wanted subject (1-based), 0 for none.
+   * A small model is enough for this; a wrong but similar picture (boxing for judo) must be refused.
+   */
+  async function judge(want, shown) {
+    const content = [
+      { type: 'text', text: `Presentation slide: ${want.about}\nThe picture must show: ${want.q}${want.alt ? ` (also: ${want.alt})` : ''}` },
+      ...shown.flatMap((c, i) => [
+        { type: 'text', text: `Image ${i + 1}${c.title ? ` — file name: ${c.title}` : ''}` },
+        { type: 'image', source: { type: 'base64', media_type: c.media, data: c.data } },
+      ]),
+      {
+        type: 'text',
+        text:
+          want.kind === 'real'
+            ? 'Which image clearly shows exactly this subject — the right person, place, building, sport, animal or object? A similar but different subject is wrong (boxing is not judo, any mosque is not a named mosque). Prefer a sharp, well-composed photo without large text or watermarks. Answer with only {"pick": N}: N is the image number, or 0 if none fits.'
+            : 'Which image best illustrates this idea for the slide — clearly on its subject, so a viewer connects it with the slide at once? A picture of a different subject is wrong (boxing for a judo slide, a random landscape for a cyber-security slide). Prefer a sharp, well-composed photo without large text or watermarks. Answer with only {"pick": N}: N is the image number, or 0 if none fits.',
+      },
+    ]
+    const res = await client.messages.create({ model: cfg.judgeModel, max_tokens: 2000, output_config: { effort: 'low' }, messages: [{ role: 'user', content }] })
+    const text = res.content.filter((b) => b.type === 'text').map((b) => b.text).join(' ')
+    const n = Number(/"pick"\s*:\s*(\d+)/.exec(text)?.[1] ?? /\b(\d+)\b/.exec(text)?.[1] ?? 0)
+    return Number.isInteger(n) && n >= 0 && n <= shown.length ? n : 0
   }
 
   /** One streamed call; every complete output line goes to onLine. Resolves with the final message. */

@@ -66,7 +66,8 @@ SLIDE TYPES (exact field names; keep every text within its limit)
 {"type":"quote","quote":"≤220","author":"≤60"}
 {"type":"end","title":"≤40","subtitle":"≤80"}
 
-IMG is {"q":"English image search phrase, 2–5 words","kind":"real"|"generic"}.
+IMG is {"q":"English image search phrase, 2–5 words","alt":"a second, different English phrase for the same subject","kind":"real"|"generic"}.
+- Both phrases must name the slide's own subject precisely, with the word that tells it apart from similar things: "judo throw competition", never just "martial arts" or "combat sport" (that finds boxing); "Registan Samarkand", never "old mosque".
 - "real": a specific real person, place, building, artwork, animal, plant, object or event. Search phrases that find photos: for historical people use their statue, monument or portrait ("Amir Timur statue Tashkent"); for places the name and city ("Registan Samarkand").
 - The title slide's image shows the topic itself, as recognisably as possible: the person's statue or portrait, the building, the object — never a street, square, park or company merely named after it.
 - "generic": a general idea shown by an everyday photo ("students working on laptops", "wheat field harvest").
@@ -76,7 +77,7 @@ RULES
 - Write every slide text in the requested language. Image search phrases are always English.
 - Be correct. Use only facts you are sure of. A "stats" slide only with well-known real figures; a "quote" slide only with a real quote whose author you know — otherwise choose another type.
 - Write for an audience: short, clear, concrete sentences with real names, dates and examples. No filler, no repetition between slides, no emoji, no markdown symbols (*, #, **).
-- Vary the layout: never the same type on two slides in a row (except "content" for the conclusion). Use "media" (with an image) for about a third of the content slides.
+- Vary the layout: never the same type on two slides in a row (except "content" for the conclusion).
 - Follow the requested slide plan exactly: the slide count, which slides belong to which plan item, and the fixed slides.`
 
 /** Longest document text sent to the model (~40k tokens); longer files are cut at a paragraph. */
@@ -100,6 +101,9 @@ export function deckPrompt({ topic, plans, slides, lang, source = null }) {
     lines.push(`${range}. plan item ${i + 1} (${count} slide${count > 1 ? 's' : ''}); the first of them is titled "${i + 1}. <plan item ${i + 1}>"; choose the best type for each.`)
     n += count
   })
+  const content = split.reduce((a, b) => a + b, 0)
+  const media = Math.min(content, Math.max(1, Math.ceil(content * 0.6)))
+  lines.push(`Pictures: at least ${media} of the ${content} plan-item slides are type "media" (each with an image), spread over the deck.`)
   lines.push(`${n}. "content": the conclusion — title the word for "Conclusion" in the deck language, 3–5 key takeaways.`)
   lines.push(`${n + 1}. "end": "Thank you for your attention!" and "Questions?" in the deck language.`)
   const uz = lang === 'uz' ? `\nWrite Uzbek in the standard Latin alphabet (oʻ, gʻ, sh, ch).` : ''
@@ -141,7 +145,8 @@ const objs = (v, min, max, shape) => {
 const img = (v) => {
   if (!v || typeof v !== 'object') return null
   const q = str(v.q, 100)
-  return q ? { q, kind: v.kind === 'real' ? 'real' : 'generic' } : null
+  const alt = str(v.alt, 100)
+  return q ? { q, ...(alt && alt !== q ? { alt } : {}), kind: v.kind === 'real' ? 'real' : 'generic' } : null
 }
 
 /** A fallback bullet slide from whatever texts a broken slide had. */

@@ -1,20 +1,28 @@
 {
   "fs.attach": "Depuis un fichier",
-  "fs.attachLong": "Créer à partir d'un fichier : PDF, Word, PowerPoint",
+  "fs.attachLong": "Créer à partir d’un fichier : PDF, Word, PowerPoint",
   "fs.drop": "Déposez un fichier ici ou choisissez-en un",
-  "fs.types": "PDF, DOCX, PPTX, TXT, MD · jusqu'à {mb} MB",
+  "fs.types": "PDF, DOCX, PPTX, TXT, MD · jusqu’à {mb} MB",
   "fs.reading": "Lecture du fichier…",
-  "fs.words": { "one": "{n} mot", "many": "{n} de mots", "other": "{n} mots" },
-  "fs.pagesN": { "one": "{n} page", "many": "{n} de pages", "other": "{n} pages" },
+  "fs.words": {
+    "one": "{n} mot",
+    "many": "{n} de mots",
+    "other": "{n} mots"
+  },
+  "fs.pagesN": {
+    "one": "{n} page",
+    "many": "{n} de pages",
+    "other": "{n} pages"
+  },
   "fs.removeFile": "Retirer le fichier",
-  "fs.private": "Le fichier n'est jamais envoyé : il est lu uniquement dans votre navigateur, puis oublié dès que la présentation est prête",
-  "fs.topicOptional": "Sujet (facultatif) : sinon, il est tiré du fichier",
+  "fs.private": "Le fichier n’est jamais envoyé : il est lu uniquement dans votre navigateur, puis oublié dès que la présentation est prête",
+  "fs.topicOptional": "Sujet (facultatif) : sinon, il est tiré du fichier",
   "fs.planFromFile": "Les points du plan proviennent des sections du fichier",
-  "fs.contentNote": "Le texte des diapositives reste dans la langue du fichier ; avec l'IA, il sera réécrit dans la langue choisie",
-  "fs.err.type": "Ce type de fichier n'est pas pris en charge : choisissez PDF, DOCX, PPTX, TXT ou MD",
-  "fs.err.size": "Le fichier est trop volumineux (jusqu'à {mb} MB)",
-  "fs.err.empty": "Aucun texte lisible dans le fichier (il s'agit peut-être d'un scan)",
-  "fs.err.read": "Impossible de lire le fichier : il est peut-être endommagé ou protégé par un mot de passe",
+  "fs.contentNote": "Le texte des diapositives reste dans la langue du fichier ; avec l’IA, il sera réécrit dans la langue choisie",
+  "fs.err.type": "Ce type de fichier n’est pas pris en charge : choisissez PDF, DOCX, PPTX, TXT ou MD",
+  "fs.err.size": "Le fichier est trop volumineux (jusqu’à {mb} MB)",
+  "fs.err.empty": "Aucun texte lisible dans le fichier (il s’agit peut-être d’un scan)",
+  "fs.err.read": "Impossible de lire le fichier : il est peut-être endommagé ou protégé par un mot de passe",
   "as.missing": "Cette image est conservée sur un autre appareil",
   "as.missingShort": "Sur un autre appareil"
 }

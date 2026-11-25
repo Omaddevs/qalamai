@@ -7,17 +7,17 @@
   "share.copied": "Lien copié",
   "share.open": "Ouvrir",
   "share.stop": "Désactiver le lien",
-  "share.stopped": "Le lien est désactivé : il ne fonctionne plus",
-  "share.offline": "Impossible de joindre le serveur : aucun lien n'a été créé. Vérifiez votre connexion et réessayez.",
-  "share.notSaved": "La présentation n'a pas été enregistrée sur le serveur : {reason}",
+  "share.stopped": "Le lien est désactivé : il ne fonctionne plus",
+  "share.offline": "Impossible de joindre le serveur : aucun lien n’a été créé. Vérifiez votre connexion et réessayez.",
+  "share.notSaved": "La présentation n’a pas été enregistrée sur le serveur : {reason}",
   "view.notFound": "Lien introuvable ou désactivé",
   "view.notFoundHint": "Le propriétaire a peut-être désactivé le lien ou supprimé la présentation.",
   "view.present": "Présenter",
   "view.prev": "Page précédente",
   "view.next": "Page suivante",
   "view.make": "Créez la vôtre",
-  "view.empty": "Cette présentation n'a pas encore de pages",
+  "view.empty": "Cette présentation n’a pas encore de pages",
   "view.pages": "Pages",
-  "ed.preview.auto": "Cette page n'a pas d'animation : un exemple a été joué. Sélectionnez un élément et ajoutez-en une dans « Animation ».",
-  "ed.preview.empty": "La page est vide : rien à lire"
+  "ed.preview.auto": "Cette page n’a pas d’animation : un exemple a été joué. Sélectionnez un élément et ajoutez-en une dans « Animation ».",
+  "ed.preview.empty": "La page est vide : rien à lire"
 }

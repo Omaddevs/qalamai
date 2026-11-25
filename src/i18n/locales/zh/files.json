@@ -33,6 +33,8 @@
   "fs.f.margin": "页边距",
   "fs.f.font": "字体",
   "fs.f.academic": "学术排版（大学规范）",
+  "fs.f.gridlines": "网格线",
+  "fs.f.fitWidth": "适应页宽",
   "fs.h.pages": "留空表示全部页面。例如：1-3, 5",
   "fs.h.ranges": "例如：1-3, 4-6, 9",
   "fs.h.dpi": "150 适合屏幕，300 适合打印",

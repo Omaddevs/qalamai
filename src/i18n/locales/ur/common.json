@@ -29,7 +29,7 @@
   "kind.lesson": "سبق",
   "kind.businessDeck": "کاروباری پریزنٹیشن",
   "kind.logo": "لوگو",
-  "kind.bio": "Link in Bio",
+  "kind.bio": "بائیو لنک",
   "kind.resume": "ریزیومے",
   "ago.now": "ابھی ابھی",
   "ago.min": { "one": "{n} منٹ پہلے", "other": "{n} منٹ پہلے" },

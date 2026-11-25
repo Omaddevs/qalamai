@@ -33,6 +33,8 @@
   "fs.f.margin": "여백",
   "fs.f.font": "글꼴",
   "fs.f.academic": "학술 서식(대학 기준)",
+  "fs.f.gridlines": "눈금선",
+  "fs.f.fitWidth": "페이지 너비에 맞춤",
   "fs.h.pages": "모든 페이지는 비워 두세요. 예: 1-3, 5",
   "fs.h.ranges": "예: 1-3, 4-6, 9",
   "fs.h.dpi": "150 — 화면용, 300 — 인쇄용",

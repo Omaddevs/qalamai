@@ -4,12 +4,12 @@
   "fe.open": "Ouvrir",
   "fe.search": "Rechercher",
   "fe.delete": "Supprimer",
-  "fe.confirmDelete": "Supprimer « {name} » ?",
+  "fe.confirmDelete": "Supprimer « {name} » ?",
   "fe.deleted": "Document supprimé",
-  "fe.opened": "« {name} » ouvert",
-  "fe.openFail": "Impossible d'ouvrir « {name} » : choisissez un fichier DOCX, TXT, MD ou HTML",
-  "fe.saveFail": "Enregistrement impossible : le stockage du navigateur est plein",
-  "fe.none": "Aucun document pour l'instant",
+  "fe.opened": "« {name} » ouvert",
+  "fe.openFail": "Impossible d’ouvrir « {name} » : choisissez un fichier DOCX, TXT, MD ou HTML",
+  "fe.saveFail": "Enregistrement impossible : le stockage du navigateur est plein",
+  "fe.none": "Aucun document pour l’instant",
   "fe.formats": "Ouvre les fichiers DOCX · TXT · MD · HTML",
   "fe.emptyTitle": "Ouvrez un fichier ou déposez-le ici",
   "fe.emptyText": "Modifiez des fichiers Word (DOCX), texte (TXT), Markdown et HTML, puis téléchargez-les en PDF ou en Word.",
@@ -20,7 +20,7 @@
   "fe.name": "Nom du document",
   "fe.saved": "Enregistré",
   "fe.saving": "Enregistrement…",
-  "fe.today": "Aujourd'hui, {time}",
+  "fe.today": "Aujourd’hui, {time}",
   "fe.alphabet": "Alphabet",
   "fe.convertAll": "Convertir tout le document",
   "fe.already": "Le document est déjà dans cet alphabet",
@@ -31,7 +31,7 @@
   "fe.exp.word": "Word (.doc)",
   "fe.exp.html": "Page web (.html)",
   "fe.exp.txt": "Texte brut (.txt)",
-  "fe.popupBlocked": "Le navigateur a bloqué la nouvelle fenêtre : autorisez les fenêtres pop-up",
+  "fe.popupBlocked": "Le navigateur a bloqué la nouvelle fenêtre : autorisez les fenêtres pop-up",
   "fe.toolbar": "Mise en forme",
   "fe.undo": "Annuler (Ctrl+Z)",
   "fe.redo": "Rétablir (Ctrl+Y)",
@@ -53,10 +53,22 @@
   "fe.clear": "Effacer la mise en forme",
   "fe.print": "Imprimer",
   "fe.placeholder": "Commencez à écrire…",
-  "fe.words": { "one": "{n} mot", "many": "{n} de mots", "other": "{n} mots" },
-  "fe.chars": { "one": "{n} caractère", "many": "{n} de caractères", "other": "{n} caractères" },
-  "fe.pages": { "one": "~{n} page", "many": "~{n} de pages", "other": "~{n} pages" },
+  "fe.words": {
+    "one": "{n} mot",
+    "many": "{n} de mots",
+    "other": "{n} mots"
+  },
+  "fe.chars": {
+    "one": "{n} caractère",
+    "many": "{n} de caractères",
+    "other": "{n} caractères"
+  },
+  "fe.pages": {
+    "one": "~{n} page",
+    "many": "~{n} de pages",
+    "other": "~{n} pages"
+  },
   "fe.standard": "A4 · Times New Roman 14 · interligne 1,5",
   "fe.dropTitle": "Déposez le fichier ici",
-  "fe.dropText": "DOCX, TXT, MD ou HTML : s'ouvre pour être modifié"
+  "fe.dropText": "DOCX, TXT, MD ou HTML : s’ouvre pour être modifié"
 }

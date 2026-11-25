@@ -1,12 +1,12 @@
 {
   "off.badge": "Hors ligne",
   "off.title": "Pas de connexion Internet",
-  "off.text": "Pas d'inquiétude : votre travail est enregistré sur cet appareil. Tout se synchronise automatiquement dès votre retour en ligne.",
+  "off.text": "Pas d’inquiétude : votre travail est enregistré sur cet appareil. Tout se synchronise automatiquement dès votre retour en ligne.",
   "off.tip": "Vérifiez votre Wi‑Fi ou vos données mobiles",
   "off.retry": "Réessayer",
   "off.checking": "Vérification…",
   "off.still": "Toujours hors ligne",
   "off.continue": "Continuer hors ligne",
-  "off.banner": "Hors ligne : les modifications sont enregistrées sur cet appareil",
+  "off.banner": "Hors ligne : les modifications sont enregistrées sur cet appareil",
   "off.back": "Vous êtes de nouveau en ligne"
 }

@@ -33,6 +33,8 @@
   "fs.f.margin": "Ränder",
   "fs.f.font": "Schrift",
   "fs.f.academic": "Akademische Formatierung (Uni-Standard)",
+  "fs.f.gridlines": "Gitternetzlinien",
+  "fs.f.fitWidth": "An Seitenbreite anpassen",
   "fs.h.pages": "Leer lassen für alle Seiten. Zum Beispiel: 1-3, 5",
   "fs.h.ranges": "Zum Beispiel: 1-3, 4-6, 9",
   "fs.h.dpi": "150 – Bildschirm, 300 – Druck",

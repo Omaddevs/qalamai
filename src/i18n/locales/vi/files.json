@@ -33,6 +33,8 @@
   "fs.f.margin": "Lề",
   "fs.f.font": "Phông chữ",
   "fs.f.academic": "Định dạng học thuật (chuẩn đại học)",
+  "fs.f.gridlines": "Đường lưới",
+  "fs.f.fitWidth": "Vừa chiều rộng trang",
   "fs.h.pages": "Để trống để chọn tất cả các trang. Ví dụ: 1-3, 5",
   "fs.h.ranges": "Ví dụ: 1-3, 4-6, 9",
   "fs.h.dpi": "150 — màn hình, 300 — in ấn",

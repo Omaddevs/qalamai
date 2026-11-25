@@ -33,6 +33,8 @@
   "fs.f.margin": "余白",
   "fs.f.font": "フォント",
   "fs.f.academic": "学術書式（大学の標準）",
+  "fs.f.gridlines": "枠線",
+  "fs.f.fitWidth": "ページ幅に合わせる",
   "fs.h.pages": "空欄にするとすべてのページが対象です。例：1-3, 5",
   "fs.h.ranges": "例：1-3, 4-6, 9",
   "fs.h.dpi": "150：画面用、300：印刷用",

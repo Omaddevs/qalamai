@@ -28,7 +28,7 @@ describe('QalamCoin', () => {
 
   test('registration gives the welcome bonus once, and the account is not premium', async () => {
     const { c, user } = await member()
-    assert.equal(SIGNUP_BONUS, 30, 'the welcome bonus is 30 coins')
+    assert.equal(SIGNUP_BONUS, 40, 'the welcome bonus is 40 coins')
     assert.equal(user.coins, SIGNUP_BONUS)
     assert.equal(user.premium, false)
     assert.equal(user.tier, null)

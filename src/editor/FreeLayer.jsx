@@ -1,6 +1,7 @@
 // Free elements of a page — the Canva layer. Renders every element (text, box, image, shapes) and,
 // in the editor, handles selection, moving with snapping guides, resizing from 8 handles,
 // rotating, marquee selection and double-click editing.
+import AssetImg from '../components/AssetImg.jsx'
 import { useRef, useState } from 'react'
 import { ImagePlus } from 'lucide-react'
 import { Text } from './Text.jsx'
@@ -82,7 +83,7 @@ export function ElementContent({ el, theme, editing, editable, onCommitText, onP
       return (
         <div className="fx-img" style={{ ...paintStyle(el), borderRadius: el.radius ?? (el.src ? '0.6cqw' : '1cqw') }}>
           {el.src ? (
-            <img src={el.src} alt="" draggable={false} style={{ objectFit: el.fit ?? 'cover', ...(el.filter ? { filter: el.filter } : {}) }} />
+            <AssetImg src={el.src} draggable={false} style={{ objectFit: el.fit ?? 'cover', ...(el.filter ? { filter: el.filter } : {}) }} />
           ) : (
             <span className="fx-img-ph">
               <ImagePlus />

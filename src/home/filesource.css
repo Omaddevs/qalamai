@@ -1,0 +1,221 @@
+/* ═════════════ Fayldan taqdimot: attach button, drop zone, file chip ═════════════ */
+
+.fs-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px dashed #d6d2c8;
+  border-radius: 12px;
+  background: #fff;
+  color: #0f1115;
+  font-size: 13.5px;
+  font-weight: 600;
+  transition: border-color 0.2s, background 0.2s, transform 0.2s;
+}
+
+.fs-pill:hover:not(:disabled) {
+  border-style: solid;
+  border-color: #0f1115;
+  background: var(--brand-soft);
+  transform: translateY(-1px);
+}
+
+.fs-pill.busy {
+  cursor: progress;
+  color: #6b7280;
+}
+
+.fs-spin {
+  animation: fs-spin 0.8s linear infinite;
+}
+
+@keyframes fs-spin {
+  to { transform: rotate(1turn); }
+}
+
+/* drop zone (AI taqdimot page) */
+.fs-zone {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px dashed #d9d5cb;
+  border-radius: 16px;
+  background: #faf9f6;
+  color: #0f1115;
+  text-align: left;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.25s;
+}
+
+.fs-zone:hover:not(:disabled),
+.fs-zone.over {
+  border-color: var(--black);
+  border-style: solid;
+  background: var(--brand-soft);
+}
+
+.fs-zone.over {
+  box-shadow: 0 0 0 5px rgba(198, 244, 50, 0.45);
+}
+
+.fs-zone-ic {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--black);
+  color: var(--brand);
+}
+
+.fs-zone-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fs-zone-text b {
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.fs-zone-text small {
+  color: #8a909b;
+  font-size: 12px;
+}
+
+/* the read file */
+.fs-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  max-width: 100%;
+  border: 1px solid var(--brand-strong);
+  background: var(--brand-soft);
+  color: #0f1115;
+  animation: fs-in 0.35s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+
+@keyframes fs-in {
+  from { opacity: 0; transform: scale(0.92); }
+}
+
+.fs-chip.pill {
+  height: 38px;
+  padding: 0 6px 0 5px;
+  border-radius: 12px;
+}
+
+.fs-chip.zone {
+  display: flex;
+  width: 100%;
+  padding: 10px 10px 10px 12px;
+  border-radius: 16px;
+}
+
+.fs-chip-ic {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #fff;
+  color: #0f1115;
+}
+
+.fs-chip.zone .fs-chip-ic {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+}
+
+.fs-pdf .fs-chip-ic { color: #dc2626; }
+.fs-docx .fs-chip-ic { color: #2563eb; }
+.fs-pptx .fs-chip-ic { color: #ea580c; }
+
+.fs-chip-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+.fs-chip-text b {
+  max-width: 170px;
+  overflow: hidden;
+  font-size: 12.5px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fs-chip.zone .fs-chip-text {
+  flex: 1;
+}
+
+.fs-chip.zone .fs-chip-text b {
+  max-width: none;
+  font-size: 14px;
+}
+
+.fs-chip-text small {
+  color: var(--brand-fg);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.fs-chip.zone .fs-chip-text small {
+  font-size: 12px;
+}
+
+.fs-x {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  color: #4b5160;
+}
+
+.fs-x:hover {
+  background: #0f1115;
+  color: var(--brand);
+}
+
+.fs-private {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 8px;
+  color: var(--brand-fg);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.fs-private svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+@media (max-width: 640px) {
+  .hx-tools .fs-pill,
+  .hx-tools .fs-chip.pill {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .fs-chip-text b {
+    max-width: 120px;
+  }
+}

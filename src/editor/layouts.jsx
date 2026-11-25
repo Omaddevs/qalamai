@@ -2,6 +2,8 @@
 // One renderer per layout; the template only supplies theme tokens (colours, fonts, card and
 // image-frame styles) through CSS variables, so every layout works with every template.
 // All sizes are in cqw — the same page scales from a 150 px thumbnail to the full canvas.
+import AssetImg from '../components/AssetImg.jsx'
+import { storeImage } from '../assets.js'
 import { useRef } from 'react'
 import { Check, ImageSquare, Quotes } from '@phosphor-icons/react'
 import { t } from '../i18n/index.js'
@@ -28,18 +30,9 @@ export function patchAt(slide, path, value) {
   return { [head]: rest.length ? setDeep(slide[head], rest, value) : value }
 }
 
-/* ───────── images: picked once, stored with the deck (scaled down, so it syncs) ───────── */
+/* ───────── images: picked once, kept on this device; the deck holds an `asset:` reference ───────── */
 
-export async function downscale(file, max = 1280) {
-  const bmp = await createImageBitmap(file)
-  const k = Math.min(1, max / Math.max(bmp.width, bmp.height))
-  const c = document.createElement('canvas')
-  c.width = Math.round(bmp.width * k)
-  c.height = Math.round(bmp.height * k)
-  c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height)
-  bmp.close?.()
-  return c.toDataURL('image/jpeg', 0.82)
-}
+export const downscale = (file, max = 1280) => storeImage(file, max)
 
 function ImageSlot({ ctx, path, className = '' }) {
   const input = useRef(null)
@@ -59,7 +52,7 @@ function ImageSlot({ ctx, path, className = '' }) {
     >
       <div className="ly-img-in">
         {src ? (
-          <img src={src} alt="" draggable={false} />
+          <AssetImg src={src} draggable={false} />
         ) : (
           <span className="ly-img-ph">
             <ImageSquare weight="duotone" />

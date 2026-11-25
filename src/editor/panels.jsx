@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import AssetImg from '../components/AssetImg.jsx'
 import ProBadge from '../components/ProBadge.jsx'
 import { Search, SlidersHorizontal, Play, CloudUpload, Wand2, X, Check } from 'lucide-react'
 import { CoinPrice } from '../components/Coins.jsx'
@@ -330,7 +331,7 @@ export function UploadsPanel({ uploads, onUpload, onAdd }) {
           <div className="upl-grid">
             {uploads.map((u) => (
               <button key={u.id} className="upl" onClick={() => onAdd(u)}>
-                <img src={u.src} alt={u.name} />
+                <AssetImg src={u.src} alt={u.name} />
               </button>
             ))}
           </div>

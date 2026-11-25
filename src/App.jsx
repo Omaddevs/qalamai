@@ -12,6 +12,7 @@ import { pageByPath, pathOf } from './landing/pages.js'
 import { go } from './nav.js'
 import NotFound from './components/NotFound.jsx'
 import { currentUser, ensureSession, onUser } from './api.js'
+import { slimDesigns } from './slimDesigns.js'
 
 // Each page is its own chunk: a visitor downloads only the page in front of them.
 const PAGES = {
@@ -94,6 +95,15 @@ function Pages() {
 
   // designs changed on another device arrived
   useEffect(() => onSynced((got) => got.designs && setDesigns(loadDesigns())), [])
+
+  // pictures inside designs (old base64, or downloaded from another device) move onto this device
+  const meId = me && !me.isGuest ? me.id : null
+  useEffect(() => {
+    if (!meId) return
+    const slim = () => slimDesigns().then((changed) => changed && setDesigns(loadDesigns())).catch(() => {})
+    slim()
+    return onSynced((got) => got.designs && slim())
+  }, [meId])
 
   useEffect(() => {
     const onHash = () => {

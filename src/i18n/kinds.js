@@ -7,8 +7,6 @@ const KIND_KEYS = {
   Prezentatsiya: 'kind.presentation',
   Referat: 'kind.essay',
   'Kurs işi': 'kind.coursework',
-  'Diplom işi': 'kind.thesis',
-  Dissertatsiya: 'kind.dissertation',
   Dars: 'kind.lesson',
   'Dars işlanma': 'kind.lessonPlan',
   'Biznes reja': 'kind.businessPlan',

@@ -12,6 +12,7 @@ import { api, currentUser, logout, onUser, request } from './api.js'
 import { LOCAL_CHANGE, SYNCED } from './changes.js'
 import { t } from './i18n/index.js'
 import { readDesignsRaw, writeDesignsRaw } from './store.js'
+import { embedAssets, isShared, markShared } from './assets.js'
 import { loadDocs, saveDocs } from './docs.js'
 import { hasProfile, loadProfile, saveProfile } from './profile.js'
 
@@ -49,13 +50,21 @@ const COLLECTIONS = {
     read: () => readDesignsRaw(),
     write: (list) => writeDesignsRaw(list),
     skip: (d) => d.seed, // untouched example decks stay local
-    body: (d) => ({
-      name: clip(d.name, 200) ?? t('design.untitled'),
-      ...(clip(d.kind, 60) ? { kind: clip(d.kind, 60) } : {}),
-      ...(clip(d.templateId, 60) ? { templateId: clip(d.templateId, 60) } : {}),
-      data: stripBlobs(d),
-    }),
-    fromServer: (r) => ({ ...r.data, id: r.id, updatedAt: ms(r.updatedAt) }),
+    // Pictures stay on the device (asset: references); a design shared by link carries small copies.
+    body: async (d) => {
+      const data = stripBlobs(d)
+      if (isShared(d.id)) data.slides = await embedAssets(data.slides)
+      return {
+        name: clip(d.name, 200) ?? t('design.untitled'),
+        ...(clip(d.kind, 60) ? { kind: clip(d.kind, 60) } : {}),
+        ...(clip(d.templateId, 60) ? { templateId: clip(d.templateId, 60) } : {}),
+        data,
+      }
+    },
+    fromServer: (r) => {
+      markShared(r.id, Boolean(r.shareId))
+      return { ...r.data, id: r.id, updatedAt: ms(r.updatedAt) }
+    },
   },
   docs: {
     path: '/documents',
@@ -190,7 +199,7 @@ async function push(c, item, at, known, renames, rejected) {
   let id = item.id
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      const r = await request('PUT', `${c.path}/${encodeURIComponent(id)}`, { json: { ...c.body({ ...item, id }), updatedAt: Math.round(at) } })
+      const r = await request('PUT', `${c.path}/${encodeURIComponent(id)}`, { json: { ...(await c.body({ ...item, id })), updatedAt: Math.round(at) } })
       known[id] = ms(r.updatedAt)
       if (id !== item.id) renames.set(item.id, id)
       return

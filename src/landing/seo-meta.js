@@ -3,7 +3,7 @@
 // file per page and language, and src/seo.js uses the same ones to update <head> when the app
 // moves between pages without a reload, so both always agree.
 import { LANGS, DEFAULT_LANG } from '../../shared/i18n.js'
-import { SIGNUP_BONUS } from '../../shared/coins.js'
+import { COIN_COSTS, SIGNUP_BONUS } from '../../shared/coins.js'
 import { PLAN_LIMITS } from '../../server/src/modules/plans/plans.js'
 
 export const SITE_NAME = 'QalamAI'
@@ -46,7 +46,7 @@ export function pageTexts(page, tr) {
 }
 
 /** Questions shown on the FAQ block, as [question, answer]. */
-export const faqOf = (tr) => Array.from({ length: FAQ_COUNT }, (_, i) => [tr(`lp.faq.q${i + 1}`), tr(`lp.faq.a${i + 1}`, { bonus: SIGNUP_BONUS })])
+export const faqOf = (tr) => Array.from({ length: FAQ_COUNT }, (_, i) => [tr(`lp.faq.q${i + 1}`), tr(`lp.faq.a${i + 1}`, { bonus: SIGNUP_BONUS, p: COIN_COSTS.prezentatsiya.cost, r: COIN_COSTS.referat.cost })])
 
 /** Limits of a free account, quoted on tool pages (the single source is the server's plan table). */
 export const FREE_LIMITS = { runs: PLAN_LIMITS.free.dailyToolRuns, mb: PLAN_LIMITS.free.maxFileMb }

@@ -6,11 +6,12 @@ import Slide from '../editor/Slide.jsx'
 import { getTemplate } from '../editor/templates.js'
 import { CoinIcon } from '../components/Coins.jsx'
 import { ACTION_BY_TYPE, COIN_COSTS, refundCoins, spendCoins } from '../coins.js'
-import { blueprintOf, planDeck, planSplit, PLAN_FIXED, PLAN_MAX } from '../blueprints.js'
+import { blueprintOf, fileDeck, planDeck, planSplit, PLAN_FIXED, PLAN_MAX } from '../blueprints.js'
 import { loadDocProfile } from '../profile.js'
 import { t, tr } from '../i18n/index.js'
 import { DeckLangPicker, buildIn, deckLangs, defaultDeckLang, fallbackOf } from './DeckLang.jsx'
 import GenerateOverlay from './GenerateOverlay.jsx'
+import FileSource, { PrivateNote } from './FileSource.jsx'
 import './aideck.css'
 
 const SLIDES_MIN = 5
@@ -112,10 +113,19 @@ export default function AiDeckView({ initialTopic = '', onCreate, notify }) {
   const area = useRef(null)
   const topicBox = useRef(null)
 
-  const action = ACTION_BY_TYPE.Prezentatsiya
+  // a document to build from: read in the browser, only its text kept in memory until the deck is made
+  const [doc, setDoc] = useState(null)
+  const fileOutline = useMemo(() => (doc ? fileDeck(doc, { slides: SLIDES_MAX }, loadDocProfile()).outline : null), [doc])
+  // with a file, the plan points are the file's sections
+  const planCount = fileOutline ? fileOutline.length : plans
+
+  const action = doc ? 'prezentatsiya-fayl' : ACTION_BY_TYPE.Prezentatsiya
   const cost = COIN_COSTS[action]?.cost
-  const low = minSlides(plans)
+  const low = minSlides(planCount)
   const text = topic.trim()
+  useEffect(() => {
+    if (slides < low) setSlides(low)
+  }, [low, slides])
   const curLang = langs.find((l) => l.id === lang) ?? langs[0]
   const shownIdeas = [0, 1, 2].map((k) => ideas[(ideaPage * 3 + k) % ideas.length])
 
@@ -143,7 +153,7 @@ export default function AiDeckView({ initialTopic = '', onCreate, notify }) {
   const submit = async (e) => {
     e?.preventDefault()
     if (paying) return
-    if (!text) {
+    if (!text && !doc) {
       topicBox.current?.animate?.(
         [{ transform: 'none' }, { transform: 'translateX(-7px)' }, { transform: 'translateX(6px)' }, { transform: 'translateX(-3px)' }, { transform: 'none' }],
         { duration: 380, easing: 'ease-out' },
@@ -165,8 +175,11 @@ export default function AiDeckView({ initialTopic = '', onCreate, notify }) {
       setPaying(false)
     }
     try {
-      const out = await buildIn(lang, () => planDeck(text, { plans, slides }, loadDocProfile()))
-      setGen({ out, paid, topic: text, lang })
+      const out = await buildIn(lang, () =>
+        doc ? fileDeck(doc, { slides, topic: text }, loadDocProfile()) : planDeck(text, { plans, slides }, loadDocProfile()),
+      )
+      setGen({ out, paid, topic: text || out.slides[0]?.title || doc.name, lang, fromFile: Boolean(doc) })
+      setDoc(null) // the document's text is no longer needed: drop it
     } catch (err) {
       if (paid.ref) refundCoins(paid.ref)
       notify?.(t('hx.createFailed'))
@@ -246,31 +259,36 @@ export default function AiDeckView({ initialTopic = '', onCreate, notify }) {
                   <Shuffle size={15} weight="bold" />
                 </button>
               </div>
-              <p className="ad-hint">{t('ad.topicHint')}</p>
+              <p className="ad-hint">{doc ? t('fs.topicOptional') : t('ad.topicHint')}</p>
+              <div className="ad-file">
+                <FileSource doc={doc} onDoc={setDoc} notify={notify} variant="zone" />
+                <PrivateNote />
+              </div>
             </div>
 
             <div className="ad-field">
               <div className="ad-label">
                 <span className="ad-step">02</span>
                 <span id="ad-plans">{t('ad.plans')}</span>
-                <span className="ad-value">{t('ad.plansN', { n: plans })}</span>
+                <span className="ad-value">{t('ad.plansN', { n: planCount })}</span>
               </div>
-              <div className="ad-plans" role="radiogroup" aria-labelledby="ad-plans">
+              <div className={`ad-plans ${doc ? 'locked' : ''}`} role="radiogroup" aria-labelledby="ad-plans" aria-disabled={Boolean(doc)}>
                 {PLAN_NUMS.map((n) => (
                   <button
                     key={n}
                     type="button"
                     role="radio"
-                    aria-checked={n === plans}
-                    className={`ad-plan ${n === plans ? 'on' : n < plans ? 'fill' : ''}`}
+                    aria-checked={n === planCount}
+                    className={`ad-plan ${n === planCount ? 'on' : n < planCount ? 'fill' : ''}`}
                     style={{ '--i': n }}
+                    disabled={Boolean(doc)}
                     onClick={() => pickPlans(n)}
                   >
                     {n}
                   </button>
                 ))}
               </div>
-              <p className="ad-hint">{t('ad.plansHint')}</p>
+              <p className="ad-hint">{doc ? t('fs.planFromFile') : t('ad.plansHint')}</p>
             </div>
 
             <div className="ad-row">
@@ -327,7 +345,7 @@ export default function AiDeckView({ initialTopic = '', onCreate, notify }) {
               <span className="ad-live" aria-hidden="true" />
             </div>
 
-            <Structure plans={plans} slides={slides} lang={curLang} />
+            <Structure plans={planCount} slides={Math.max(slides, low)} lang={curLang} />
 
             <button className="ad-go" disabled={paying}>
               <span className="ad-go-label">{paying ? t('ui.wait') : t('ad.go')}</span>
@@ -358,7 +376,7 @@ export default function AiDeckView({ initialTopic = '', onCreate, notify }) {
           total={gen.out.slides.length}
           renderThumb={(i) => <Slide slide={gen.out.slides[i]} theme={tpl.theme} preview />}
           templateName={tpl.name}
-          note={fallbackOf(gen.lang) ? t('gn.langFallback', { lang: langs.find((l) => l.id === gen.lang)?.name }) : null}
+          note={gen.fromFile ? t('fs.contentNote') : fallbackOf(gen.lang) ? t('gn.langFallback', { lang: langs.find((l) => l.id === gen.lang)?.name }) : null}
           onDone={() => onCreate({ topic: gen.topic, templateId: TEMPLATE, kind: 'Taqdimot', slides: gen.out.slides, ai: true, lang: gen.lang })}
           onCancel={() => {
             if (gen.paid?.ref) refundCoins(gen.paid.ref)

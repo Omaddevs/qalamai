@@ -135,6 +135,92 @@ export function planDeck(topic, { plans: chosen, slides: asked }, pr) {
   return { slides: out, outline: heads.map(([h]) => h) }
 }
 
+/* ───────────── Fayldan taqdimot ─────────────
+ * Built from a document read in the browser (src/home/docSource.js): its headings become the plan,
+ * each section gets its share of the content slides, and the bullets are the section's own key
+ * sentences — so the deck says what the file says. Fixed slide names (Reja, Xulosa …) follow the
+ * chosen language; the content stays in the file's language until the AI backend can rewrite it. */
+const SENT = /(?<=[.!?…])\s+(?=[\p{Lu}0-9«"“(])/u
+const sentences = (text) => text.split(SENT).map((x) => x.trim()).filter((x) => x.length > 2)
+/** A bullet: one sentence, cut at a word boundary, without the full stop. */
+const bullet = (s, n = 140) => {
+  const t = s.replace(/[.;:]$/, '')
+  if (t.length <= n) return t
+  const cut = t.slice(0, n)
+  return `${cut.slice(0, Math.max(cut.lastIndexOf(' '), n * 0.6))}…`
+}
+const CONCLUSION = /^(xulosa|хулоса|xotima|заключение|выводы?|conclusions?|summary|қорытынды|корутунду)/i
+
+/** Document → sections [{ title, sents }] (headings of the top used level split it). */
+function sectionsOf(doc) {
+  // a heading that only repeats the document's title is not a section
+  const blocks = doc.blocks.filter((b) => !(b.kind === 'h' && doc.title && b.text.toLowerCase() === doc.title.toLowerCase()))
+  const heads = blocks.filter((b) => b.kind === 'h')
+  const top = heads.length ? Math.min(...heads.map((h) => h.level)) : 0
+  // a document title (one top-level heading) is not a section: split by the next level down
+  const lone = heads.filter((h) => h.level === top).length === 1 && heads.some((h) => h.level > top)
+  const level = lone ? Math.min(...heads.filter((h) => h.level > top).map((h) => h.level)) : top
+  const out = []
+  let cur = null
+  for (const b of blocks) {
+    if (b.kind === 'h' && b.level <= level) {
+      if (b.level < level) continue
+      cur = { title: b.text, sents: [] }
+      out.push(cur)
+    } else {
+      if (!cur) out.push((cur = { title: '', sents: [] }))
+      cur.sents.push(...(b.kind === 'h' ? [b.text] : sentences(b.text)))
+    }
+  }
+  const secs = out.filter((x) => x.sents.length || x.title)
+  secs.heading = lone ? heads.find((h) => h.level === top).text : null
+  return secs
+}
+
+/** Sentences of a section without headings → n chunks titled by their first sentence. */
+function chunked(sents, n) {
+  const per = Math.max(1, Math.ceil(sents.length / n))
+  return Array.from({ length: Math.min(n, Math.ceil(sents.length / per)) }, (_, i) => {
+    const part = sents.slice(i * per, (i + 1) * per)
+    return { title: bullet(part[0], 60), sents: part.slice(1).length ? part.slice(1) : part }
+  })
+}
+
+export function fileDeck(doc, { slides: asked, topic }, pr) {
+  let secs = sectionsOf(doc)
+  const heading = secs.heading
+  const untitled = secs.filter((x) => !x.title)
+  if (secs.length <= 1 || untitled.length === secs.length) secs = chunked(secs.flatMap((x) => x.sents), Math.max(2, Math.min(8, asked - PLAN_FIXED)))
+  secs = secs.map((x, i) => ({ ...x, title: x.title || bullet(x.sents[0] ?? `${i + 1}`, 60) }))
+  // a "Xulosa" section of the file feeds the conclusion slide
+  const concl = secs.length > 2 && CONCLUSION.test(secs.at(-1).title) ? secs.pop() : null
+  // more sections than the deck can hold → neighbours merge
+  const plans = Math.min(PLAN_MAX, secs.length, Math.max(1, asked - PLAN_FIXED))
+  const merged = Array.from({ length: plans }, (_, i) => {
+    const from = Math.floor((i * secs.length) / plans)
+    const to = Math.floor(((i + 1) * secs.length) / plans)
+    const group = secs.slice(from, to)
+    return { title: group[0].title, sents: group.flatMap((g) => g.sents) }
+  })
+  const count = Math.max(asked, plans + PLAN_FIXED)
+  const title0 = cap((topic || doc.title || heading || doc.name).trim())
+  const out = [title(title0, authorLine(pr) ?? L('p.subtitle', { year: year() })), content(L('p.agenda'), merged.map((m) => bullet(m.title, 80)))]
+  planSplit(plans, count).forEach((n, i) => {
+    const { title: head, sents } = merged[i]
+    const per = Math.max(1, Math.ceil(sents.length / n))
+    for (let k = 0; k < n; k++) {
+      const part = sents.slice(k * per, (k + 1) * per)
+      const picked = (part.length ? part : sents).slice(0, 4).map((x) => bullet(x))
+      out.push(content(k === 0 ? `${i + 1}. ${bullet(head, 80)}` : bullet(head, 80), picked.length ? picked : [bullet(head)]))
+    }
+  })
+  const [summaryTitle] = LL('p.summary')
+  const finals = concl ? concl.sents.slice(0, 4) : merged.slice(0, 4).map((m) => m.sents[0]).filter(Boolean)
+  out.push(content(summaryTitle, finals.map((x) => bullet(x))))
+  const [thanks, questions] = LL('p.thanks')
+  out.push(title(thanks, questions))
+  return { slides: out, outline: merged.map((m) => bullet(m.title, 80)) }
+}
 /* ───────────── Hisobot ─────────────
  * Executive summary → KPIs (plan vs fact) → analysis → risks → next-period targets → actions. */
 export const PERIODS = ['Oylik', 'Çoraklik', 'Yillik']
@@ -216,14 +302,12 @@ function invitation(topic, { event }, pr) {
 /* ───────────── Referat ─────────────
  * Titul → Reja → Kirish (dolzarblik, maqsad, vazifalar, tuzilish) → 2–4 boʻlim → Xulosa →
  * Foydalanilgan adabiyotlar. A4, Times New Roman 14, 1.5 interval. */
-/* Words that name the document; Mustaqil iş, Diplom işi and Dissertatsiya reuse the referat and
- * kurs işi structures with their own title page and sentences. Keys are type ids. */
+/* Words that name the document; Mustaqil iş reuses the referat structure with its own title page
+ * and sentences. Keys are type ids. */
 const WORDS = {
   Referat: { title: 't.referat', role: 't.accepted', k: 'ref', name: 'ref.name' },
   'Mustaqil iş': { title: 't.mustaqil', role: 't.accepted', k: 'mi', name: 'mi.name' }, // i18n-ignore (type id)
   'Kurs işi': { title: 't.kurs', role: 't.supervisor', k: 'ki', name: 'ki.name' }, // i18n-ignore (type id)
-  'Diplom işi': { title: 't.diplom', role: 't.supervisor', k: 'dp', name: 'dp.name' }, // i18n-ignore (type id)
-  Dissertatsiya: { title: 't.dis', role: 't.supervisor', k: 'dis', name: 'dis.name' },
 }
 /** The type's own sentence for `key` when it has one ('mi.struct'), else the base type's ('ref.struct'). */
 const own = (w, base, key) => (w.k !== base ? `${w.k}.${key}` : `${base}.${key}`)
@@ -499,7 +583,7 @@ export const BLUEPRINTS = {
   'Kurs işi': withTexts(
     {
       format: 'doc',
-      controls: [stepper('count', [20, 25, 30, 35, 40], 'page'), choice('chapters', [2, 3], (v) => L('ui.kurs.chapters', { n: v }))],
+      controls: [Object.assign(stepper('count', [20, 25, 30, 35, 40, 50], 'page'), { kind: 'pages', low: 10, high: 100 }), choice('chapters', [2, 3], (v) => L('ui.kurs.chapters', { n: v }))],
       defaults: { count: 30, chapters: 2 },
       lang: true,
       titul: true,
@@ -512,8 +596,8 @@ export const BLUEPRINTS = {
   'Mustaqil iş': withTexts( // i18n-ignore (type id)
     {
       format: 'doc',
-      controls: [Object.assign(stepper('count', [3, 5, 8, 10, 12, 15], 'page'), { kind: 'pages', low: 2, high: 40 })],
-      defaults: { count: 8 },
+      controls: [Object.assign(stepper('count', [5, 10, 15, 20, 25, 30], 'page'), { kind: 'pages', low: 5, high: 30 })],
+      defaults: { count: 10 },
       lang: true,
       titul: true,
       outline: (o) => L('ui.referat.outline', { n: o.count <= 6 ? 2 : o.count <= 12 ? 3 : 4 }),
@@ -521,32 +605,6 @@ export const BLUEPRINTS = {
       build: (topic, o, pr) => referat(topic, o, pr, WORDS['Mustaqil iş']), // i18n-ignore (type id)
     },
     'ui.mi',
-  ),
-  'Diplom işi': withTexts( // i18n-ignore (type id)
-    {
-      format: 'doc',
-      controls: [Object.assign(stepper('count', [50, 60, 70, 80, 90, 100], 'page'), { kind: 'pages', low: 40, high: 150 }), choice('chapters', [2, 3], (v) => L('ui.kurs.chapters', { n: v }))],
-      defaults: { count: 70, chapters: 3 },
-      lang: true,
-      titul: true,
-      outline: (o) => L('ui.kurs.outline', { ch: L('ui.kurs.chapters', { n: o.chapters }) }),
-      meta: (o) => `A4 · ${L('ui.kurs.chapters', { n: o.chapters })} · ${L('pages', { n: o.count })}`,
-      build: (topic, o, pr) => kursIshi(topic, o, pr, WORDS['Diplom işi']), // i18n-ignore (type id)
-    },
-    'ui.dp',
-  ),
-  Dissertatsiya: withTexts(
-    {
-      format: 'doc',
-      controls: [Object.assign(stepper('count', [80, 90, 100, 110, 120, 150], 'page'), { kind: 'pages', low: 60, high: 200 }), choice('chapters', [2, 3], (v) => L('ui.kurs.chapters', { n: v }))],
-      defaults: { count: 100, chapters: 3 },
-      lang: true,
-      titul: true,
-      outline: (o) => L('ui.kurs.outline', { ch: L('ui.kurs.chapters', { n: o.chapters }) }),
-      meta: (o) => `A4 · ${L('ui.kurs.chapters', { n: o.chapters })} · ${L('pages', { n: o.count })}`,
-      build: (topic, o, pr) => kursIshi(topic, o, pr, WORDS.Dissertatsiya),
-    },
-    'ui.dis',
   ),
   'Dars işlanma': withTexts(
     {

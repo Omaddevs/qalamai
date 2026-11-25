@@ -10,7 +10,7 @@ export { ACTION_BY_APP, ACTION_BY_TYPE, COIN_COSTS, COIN_PACKS, CUSTOM_COINS, RE
 
 // Display texts follow the interface language (src/i18n/msg/coins.js); ids and prices stay in shared/coins.js.
 const ACTION_KIND = {
-  prezentatsiya: 'presentation', referat: 'essay', 'kurs-ishi': 'coursework', diplom: 'thesis', dissertatsiya: 'dissertation', 'mustaqil-ish': 'independent', 'dars-ishlanma': 'lessonPlan',
+  prezentatsiya: 'presentation', 'prezentatsiya-fayl': 'presentationFile', referat: 'essay', 'kurs-ishi': 'coursework', diplom: 'thesis', 'mustaqil-ish': 'independent', 'dars-ishlanma': 'lessonPlan',
   'biznes-reja': 'businessPlan', hisobot: 'report', taklifnoma: 'invitation', portfolio: 'portfolio',
   'qayta-yozish': 'rewrite', plagiat: 'plagiarism', tarjima: 'translation', 'pro-shablon': 'proTemplate',
 }

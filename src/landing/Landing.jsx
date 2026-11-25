@@ -3,7 +3,7 @@ import {
   Sparkle, ArrowRight, Play, Plus, List, X, PresentationChart, FileText, GraduationCap, Files, TextAa, Briefcase, TelegramLogo, InstagramLogo, YoutubeLogo, BookOpen, Books, ListNumbers, ChartLineUp, CurrencyCircleDollar, Heart, EnvelopeSimple, ChartBar, Quotes, Confetti,
 } from '@phosphor-icons/react'
 import { QalamNib, Wordmark } from '../components/ui.jsx'
-import { SIGNUP_BONUS } from '../../shared/coins.js'
+import { COIN_COSTS, SIGNUP_BONUS } from '../../shared/coins.js'
 import { COLORS } from '../data.js'
 import { getLang, t } from '../i18n/index.js'
 import { openQalamChat } from '../components/qalamChatBus.js'
@@ -323,7 +323,7 @@ function Templates({ onStart }) {
 /* ───────────────────────── FAQ ───────────────────────── */
 
 const faqList = () =>
-  [1, 2, 3, 4, 5, 6, 7, 8].map((n) => [t(`lp.faq.q${n}`), t(`lp.faq.a${n}`, { bonus: SIGNUP_BONUS })])
+  [1, 2, 3, 4, 5, 6, 7, 8].map((n) => [t(`lp.faq.q${n}`), t(`lp.faq.a${n}`, { bonus: SIGNUP_BONUS, p: COIN_COSTS.prezentatsiya.cost, r: COIN_COSTS.referat.cost })])
 
 function FaqItem({ q, a, id, open, onToggle }) {
   return (

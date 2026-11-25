@@ -56,7 +56,7 @@ function buildGroups({ onAi, onBlank, onKit, onTool }) {
     primary: () => 'open',
   })
   return [
-    { id: 'study', items: ['Referat', 'Mustaqil iş', 'Kurs işi', 'Diplom işi', 'Dissertatsiya', 'Dars işlanma'].map(type) }, // i18n-ignore (type ids)
+    { id: 'study', items: ['Referat', 'Mustaqil iş', 'Kurs işi', 'Dars işlanma'].map(type) }, // i18n-ignore (type ids)
     { id: 'work', items: ['Prezentatsiya', 'Biznes reja', 'Hisobot'].map(type) },
     { id: 'create', items: [...['Taklifnoma', 'Portfolio'].map(type), ...KITS.map(kit)] },
     { id: 'tools', items: TOOLS.map(tool) },

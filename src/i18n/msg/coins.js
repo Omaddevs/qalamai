@@ -2,11 +2,11 @@
 export default {
   // per-action notes (shared/coins.js COIN_COSTS[id].note / .per)
   'coin.note.pro-shablon': { uz: '1 dizaynni yuklab oliş', ru: 'скачивание 1 дизайна', en: 'download of 1 design', kk: '1 дизайнды жүктеу', ky: '1 дизайнды жүктөө', tg: 'боргирии 1 дизайн' },
-  'coin.note.prezentatsiya': { uz: '10–40 slayd', ru: '10–40 слайдов', en: '10–40 slides', kk: '10–40 слайд', ky: '10–40 слайд', tg: '10–40 слайд' },
-  'coin.note.referat': { uz: '12–15 bet', ru: '12–15 страниц', en: '12–15 pages', kk: '12–15 бет', ky: '12–15 бет', tg: '12–15 саҳифа' },
-  'coin.note.kurs-ishi': { uz: '30–40 bet', ru: '30–40 страниц', en: '30–40 pages', kk: '30–40 бет', ky: '30–40 бет', tg: '30–40 саҳифа' },
-  'coin.note.dissertatsiya': { uz: '80–120 bet', ru: '80–120 страниц', en: '80–120 pages', kk: '80–120 бет', ky: '80–120 бет', tg: '80–120 саҳифа' },
-  'coin.note.mustaqil-ish': { uz: '5–10 bet', ru: '5–10 страниц', en: '5–10 pages', kk: '5–10 бет', ky: '5–10 бет', tg: '5–10 саҳифа' },
+  'coin.note.prezentatsiya': { uz: '10–30 slayd', ru: '10–30 слайдов', en: '10–30 slides', kk: '10–30 слайд', ky: '10–30 слайд', tg: '10–30 слайд' },
+  'coin.note.referat': { uz: '5–30 bet', ru: '5–30 страниц', en: '5–30 pages', kk: '5–30 бет', ky: '5–30 бет', tg: '5–30 саҳифа' },
+  'coin.note.kurs-ishi': { uz: '20–50 bet', ru: '20–50 страниц', en: '20–50 pages', kk: '20–50 бет', ky: '20–50 бет', tg: '20–50 саҳифа' },
+  'coin.note.prezentatsiya-fayl': { uz: 'PDF · Word · PowerPoint', ru: 'PDF · Word · PowerPoint', en: 'PDF · Word · PowerPoint', kk: 'PDF · Word · PowerPoint', ky: 'PDF · Word · PowerPoint', tg: 'PDF · Word · PowerPoint' },
+  'coin.note.mustaqil-ish': { uz: '5–30 bet', ru: '5–30 страниц', en: '5–30 pages', kk: '5–30 бет', ky: '5–30 бет', tg: '5–30 саҳифа' },
   'coin.note.diplom': { uz: '70–80 bet', ru: '70–80 страниц', en: '70–80 pages', kk: '70–80 бет', ky: '70–80 бет', tg: '70–80 саҳифа' },
   'coin.note.dars-ishlanma': { uz: '1 dars', ru: '1 урок', en: '1 lesson', kk: '1 сабақ', ky: '1 сабак', tg: '1 дарс' },
   'coin.note.biznes-reja': { uz: '10–15 bet', ru: '10–15 страниц', en: '10–15 pages', kk: '10–15 бет', ky: '10–15 бет', tg: '10–15 саҳифа' },

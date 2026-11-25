@@ -8,13 +8,14 @@ import Slide from '../editor/Slide.jsx'
 import { getTemplate, DEFAULT_TEMPLATE } from '../editor/templates.js'
 import { COLORS } from '../data.js'
 import { loadDocProfile } from '../profile.js'
-import { blueprintOf, docHtml } from '../blueprints.js'
+import { blueprintOf, docHtml, fileDeck } from '../blueprints.js'
 import { CREATE, CatTile } from './create.jsx'
 import { CoinIcon } from '../components/Coins.jsx'
 import { ACTION_BY_TYPE, COIN_COSTS, refundCoins, spendCoins } from '../coins.js'
 import { DeckLangPicker, buildIn, deckLangs, defaultDeckLang, fallbackOf } from './DeckLang.jsx'
 import GenerateOverlay, { headingsOf } from './GenerateOverlay.jsx'
 import TitulSheet, { TitulPill } from './TitulSheet.jsx'
+import FileSource from './FileSource.jsx'
 import './hero.css'
 import { t, tr } from '../i18n/index.js'
 
@@ -254,10 +255,20 @@ export default function Hero({ mode, onMode, q, onQ, inputRef, typeLabel, onType
   const templateId = (useAlt && type.alt) || type.templateId || DEFAULT_TEMPLATE
   const tpl = getTemplate(templateId)
 
-  useEffect(() => setUseAlt(false), [typeLabel])
+  // a document to build the presentation from (read in the browser; only its text is kept, in memory)
+  const [doc, setDoc] = useState(null)
+  const fromFile = Boolean(doc) && type.id === 'Prezentatsiya'
+  useEffect(() => {
+    setUseAlt(false)
+    setDoc(null)
+  }, [typeLabel])
 
   // Live preview = exactly what "Yaratish" will produce (same blueprint, same profile).
-  const built = useMemo(() => (topic && mode === 'ai' ? bp.build(topic, opts, docProfile) : null), [topic, mode, bp, opts, docProfile])
+  const built = useMemo(() => {
+    if (mode !== 'ai') return null
+    if (fromFile) return fileDeck(doc, { slides: opts.count, topic }, docProfile)
+    return topic ? bp.build(topic, opts, docProfile) : null
+  }, [topic, mode, bp, opts, docProfile, fromFile, doc])
 
   const ideas = useMemo(() => {
     const all = ideasList()
@@ -322,12 +333,12 @@ export default function Hero({ mode, onMode, q, onQ, inputRef, typeLabel, onType
     }, 18)
   }
 
-  const action = ACTION_BY_TYPE[type.id]
+  const action = fromFile ? 'prezentatsiya-fayl' : ACTION_BY_TYPE[type.id]
   const cost = COIN_COSTS[action]?.cost
 
   const submit = async (e) => {
     e.preventDefault()
-    if (mode !== 'ai' || !topic || paying) return
+    if (mode !== 'ai' || (!topic && !fromFile) || paying) return
     // pay first; when coins are short the coin shop opens and nothing is created
     setPaying(true)
     let paid = null
@@ -341,9 +352,10 @@ export default function Hero({ mode, onMode, q, onQ, inputRef, typeLabel, onType
       setPaying(false)
     }
     try {
-      const build = () => bp.build(topic, opts, loadDocProfile())
+      const build = fromFile ? () => fileDeck(doc, { slides: opts.count, topic }, loadDocProfile()) : () => bp.build(topic, opts, loadDocProfile())
       const out = await (bp.lang ? buildIn(deckLang, build) : build())
-      setGen({ out, paid, topic, type, bp, templateId, lang: bp.lang ? deckLang : null })
+      setGen({ out, paid, topic: topic || out.slides[0]?.title || doc?.name, type, bp, templateId, lang: bp.lang ? deckLang : null, fromFile })
+      setDoc(null) // the document's text is no longer needed: drop it
     } catch (err) {
       if (paid.ref) refundCoins(paid.ref)
       notify?.(t('hx.createFailed'))
@@ -432,12 +444,12 @@ export default function Hero({ mode, onMode, q, onQ, inputRef, typeLabel, onType
                 }}
                 onFocus={() => setFocused(true)}
                 onBlur={() => setFocused(false)}
-                placeholder={mode === 'search' ? t('hx.searchPh') : focused ? bp.placeholder : ''}
+                placeholder={mode === 'search' ? t('hx.searchPh') : fromFile ? t('fs.topicOptional') : focused ? bp.placeholder : ''}
                 aria-label={mode === 'ai' ? bp.label : t('hx.search')}
                 autoComplete="off"
                 spellCheck={false}
               />
-              {mode === 'ai' && !q && !focused && (
+              {mode === 'ai' && !q && !focused && !fromFile && (
                 <span className="hx-ph" aria-hidden="true">
                   <span className="hx-ph-label">{bp.label}:</span> {typed}
                   <i className="hx-caret" />
@@ -526,7 +538,9 @@ export default function Hero({ mode, onMode, q, onQ, inputRef, typeLabel, onType
                     )}
                   </Dropdown>
 
-                  {bp.controls.map((c) =>
+                  {type.id === 'Prezentatsiya' && <FileSource doc={doc} onDoc={setDoc} notify={notify} />}
+
+                  {bp.controls.filter((c) => !(fromFile && c.key === 'plans')).map((c) =>
                     c.kind === 'pages' ? (
                       <PagesPicker key={`${type.id}-${c.key}`} c={c} value={opts[c.key]} onChange={(v) => setOpt(c.key, v)} />
                     ) : c.kind === 'stepper' ? (
@@ -539,7 +553,7 @@ export default function Hero({ mode, onMode, q, onQ, inputRef, typeLabel, onType
                   {bp.lang && <DeckLangPicker langs={langs} value={deckLang} onChange={setDeckLang} variant="pill" />}
                   {bp.titul && <TitulPill profile={docProfile} onClick={() => setTitulOpen(true)} />}
 
-                  <button className="hx-go" disabled={!topic || paying}>
+                  <button className="hx-go" disabled={(!topic && !fromFile) || paying}>
                     <span className="hx-go-label">{paying ? t('ui.wait') : t('ui.create')}</span>
                     {cost != null && (
                       <span className="hx-go-cost" title={t('hx.coins', { n: cost })}>
@@ -671,7 +685,9 @@ function HeroGenerate({ gen, langs, onCreate, onCreateDoc, onClose, notify }) {
         )
       }
       templateName={isDoc ? 'A4' : tpl.name}
-      note={lang && fallbackOf(lang) ? t('gn.langFallback', { lang: langs.find((l) => l.id === lang)?.name }) : null}
+      note={
+        gen.fromFile ? t('fs.contentNote') : lang && fallbackOf(lang) ? t('gn.langFallback', { lang: langs.find((l) => l.id === lang)?.name }) : null
+      }
       onDone={() => {
         if (isDoc) onCreateDoc({ name: out.name, html: docHtml(out.pages), kind: type.label })
         else onCreate({ topic, templateId, kind: type.kind, slides: out.slides, ai: true, lang })

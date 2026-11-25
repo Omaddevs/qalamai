@@ -1063,3 +1063,20 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ───────────── 01 Topic: build from a file ───────────── */
+.ad-file {
+  margin-top: 14px;
+}
+
+.ad-plans.locked .ad-plan {
+  cursor: default;
+}
+
+.ad-plans.locked .ad-plan:hover {
+  transform: none;
+}
+
+.ad-plans.locked .ad-plan:not(.on):not(.fill) {
+  opacity: 0.45;
+}

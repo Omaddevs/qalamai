@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { preloadDeck } from '../assets.js'
 import {
   LayoutTemplate, Shapes, Type, Briefcase, CloudUpload, CaseSensitive, Folder, LayoutGrid,
   Undo2, Redo2, Download, Share2, Plus, Minus, Trash2, Copy, ChevronLeft, Crown, BringToFront,
@@ -96,6 +97,10 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
   const history = useHistory(initialDeck)
   const { state: deck, set, checkpoint, undo, redo, canUndo, canRedo } = history
   const deckRef = useRef(deck)
+  // pictures live on this device: read them all once, so the slide strip and exports draw at once
+  useEffect(() => {
+    preloadDeck(initialDeck).catch(() => {})
+  }, [initialDeck])
   deckRef.current = deck
 
   /* ───── autosave (debounced; flushed on leave) ───── */
@@ -631,7 +636,7 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
       <UploadsPanel
         uploads={uploads}
         onUpload={async (f) => {
-          const src = await downscale(f) // kept with the design (and synced), unlike a blob: URL
+          const src = await downscale(f) // kept on this device; the design holds an asset: reference
           setUploads((u) => [{ id: newId('u'), name: f.name, src }, ...u])
         }}
         onAdd={(u) => addEl({ kind: 'image', src: u.src, w: 30, h: 40, x: 35, y: 30 })}

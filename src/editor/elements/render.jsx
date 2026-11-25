@@ -5,6 +5,7 @@
 // Sizes: the page is 16:9 and units scale with it (cqw), so an element's own box is
 // (w·16) × (h·9) "page units" (the page is 1600 × 900). Charts and lines draw in those units,
 // so nothing is stretched when the element is resized.
+import AssetImg from '../../components/AssetImg.jsx'
 import { useEffect, useId, useRef } from 'react'
 import { ImagePlus } from 'lucide-react'
 import { formatNumber, t } from '../../i18n/index.js'
@@ -824,7 +825,7 @@ export function FramedImage({ el, editable }) {
   const inner = (
     <div className="fx-img" style={{ ...(mask ?? {}), borderRadius: mask ? 0 : (el.radius ?? 0), ...(el.src ? {} : { background: '#e3e7ee' }) }}>
       {el.src ? (
-        <img src={el.src} alt="" draggable={false} style={{ objectFit: el.fit ?? 'cover', ...(el.filter ? { filter: el.filter } : {}) }} />
+        <AssetImg src={el.src} draggable={false} style={{ objectFit: el.fit ?? 'cover', ...(el.filter ? { filter: el.filter } : {}) }} />
       ) : (
         <span className="fx-img-ph">
           <ImagePlus />

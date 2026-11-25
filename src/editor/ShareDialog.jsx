@@ -1,5 +1,7 @@
 // «Ulaşiş»: a view-only link to the presentation (/v/<shareId>). The design is pushed to the
 // server first, then the server hands out (or reuses) the link id. The link follows later edits.
+import { isShared, markShared } from '../assets.js'
+import { getDesign, saveDesign } from '../store.js'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Check, Copy, ExternalLink, Link2, Loader2 } from 'lucide-react'
 import { Modal } from '../components/ui.jsx'
@@ -29,6 +31,12 @@ async function copyText(text, input) {
  * @param {{ deckId: string, flush: () => void, onClose: () => void, notify: (msg: string) => void }} p
  *   flush: write the editor's latest state to local storage right now (skips the autosave delay)
  */
+/** Marks the design as changed, so the next sync sends it again. */
+const touch = (id) => {
+  const d = getDesign(id)
+  if (d) saveDesign({ ...d, updatedAt: Date.now() })
+}
+
 export default function ShareDialog({ deckId, flush, onClose, notify }) {
   const [state, setState] = useState({ step: 'loading' }) // loading · ready {url} · error {msg}
   const [copied, setCopied] = useState(false)
@@ -44,6 +52,11 @@ export default function ShareDialog({ deckId, flush, onClose, notify }) {
     setState({ step: 'loading' })
     try {
       flush()
+      // a shared design carries its pictures (compressed) — re-send it with them
+      if (!isShared(deckId)) {
+        markShared(deckId, true)
+        touch(deckId)
+      }
       await syncNow()
       const st = syncStatus()
       const refused = st.rejected.find((r) => r.id === deckId)
@@ -78,6 +91,10 @@ export default function ShareDialog({ deckId, flush, onClose, notify }) {
     setBusy(true)
     try {
       await api.del(`/designs/${encodeURIComponent(deckId)}/share`)
+      // no link any more → the server copy goes back to picture references only
+      markShared(deckId, false)
+      touch(deckId)
+      syncNow().catch(() => {})
       notify(t('share.stopped'))
       onClose()
     } catch (e) {

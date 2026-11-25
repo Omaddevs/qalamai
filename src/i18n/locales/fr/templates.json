@@ -112,7 +112,7 @@
   "tpl.sec.0": "Introduction|Actualité du sujet|Buts et objectifs de la recherche|Questions clés",
   "tpl.sec.1": "Notions clés|Termes et définitions importants|Fondements théoriques|Évolution historique",
   "tpl.sec.2": "Analyse|Situation actuelle|Chiffres et statistiques|Forces et faiblesses",
-  "tpl.sec.3": "Études de cas|L'expérience de {country}|Expérience internationale|Comparaison",
+  "tpl.sec.3": "Études de cas|L'expérience de la {country}|Expérience internationale|Comparaison",
   "tpl.sec.4": "Problèmes et solutions|Principaux problèmes|Solutions proposées|Résultats attendus",
   "tpl.sec.5": "Conclusion|Principales conclusions|Recommandations|Merci de votre attention !",
   "tm.startWith": "Commencer avec le modèle {name}",

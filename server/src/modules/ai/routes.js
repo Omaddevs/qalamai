@@ -10,7 +10,7 @@ import { PassThrough } from 'node:stream'
 import { AppError } from '../../lib/errors.js'
 import { ACTION_BY_TYPE } from '../../../../shared/coins.js'
 import { createAi } from './service.js'
-import { DECK_LANGS, PLAN_FIXED, PLAN_MAX, SOURCE_MAX } from './deck.js'
+import { DECK_LANGS, DECK_TYPES, PLAN_FIXED, PLAN_MAX, SOURCE_MAX } from './deck.js'
 import { KIND_NAMES } from './fill.js'
 
 const off = () => new AppError(503, 'AI_OFF', 'AI hozirça ulanmagan')
@@ -91,6 +91,8 @@ export default async function aiRoutes(app) {
             slides: { type: 'integer', minimum: 5, maximum: 30 },
             lang: { type: 'string', enum: DECK_LANGS },
             ref: REF,
+            // the picked design's layout family: page types the model favours where the content fits
+            prefer: { type: 'array', maxItems: 12, items: { type: 'string', enum: DECK_TYPES } },
             // a document read in the browser: only its text comes here, and it is not stored
             source: {
               type: 'object',
@@ -107,13 +109,13 @@ export default async function aiRoutes(app) {
       },
     },
     async (req, reply) => {
-      const { plans, lang, ref, source = null } = req.body
+      const { plans, lang, ref, source = null, prefer = [] } = req.body
       const topic = (req.body.topic ?? '').trim()
       if (topic.length < 2 && !source) throw new AppError(400, 'TOPIC_REQUIRED', 'Mavzuni yozing')
       const slides = Math.max(req.body.slides, plans + PLAN_FIXED)
       const action = source ? 'prezentatsiya-fayl' : 'prezentatsiya'
       return streamJob(req, reply, { action, ref, topic: topic || source.name }, async (send, signal) => {
-        const res = await ai.deck({ topic, plans, slides, lang, source }, { emit: send, signal })
+        const res = await ai.deck({ topic, plans, slides, lang, source, prefer }, { emit: send, signal })
         return { slides: res.slides.length }
       })
     },

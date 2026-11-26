@@ -4,6 +4,7 @@
 // the deck. Pictures are looked up from Claude's English search phrase (images.js).
 import { LANGS } from '../../../../shared/i18n.js'
 import { convert } from '../../../../shared/alifbo.js'
+import { AI_PAGE_TYPES, CHART_KINDS, SLIDE_ICONS } from '../../../../shared/slideIcons.js'
 
 /** Fixed slides around the plan: cover, agenda, conclusion, thanks (same as src/blueprints.js). */
 export const PLAN_FIXED = 4
@@ -64,7 +65,38 @@ SLIDE TYPES (exact field names; keep every text within its limit)
 {"type":"process","title":"≤70","steps":[{"title":"≤35","text":"≤110"}, 3–5 items]}
 {"type":"compare","title":"≤70","left":{"title":"≤35","items":["≤90", 3–4]},"right":{"title":"≤35","items":["≤90", 3–4]}}
 {"type":"quote","quote":"≤220","author":"≤60"}
+{"type":"statement","kicker":"≤40","text":"one strong sentence ≤180","note":"≤120"}
+{"type":"bignum","kicker":"≤40","value":"≤8, e.g. 1370, 87%","label":"what the number is, ≤70","text":"≤200"}
+{"type":"summary","title":"≤60","text":"the key message, ≤220","points":[{"title":"≤40","text":"≤120"}, 3–4 items]}
+{"type":"kpi","title":"≤60","kpis":[{"label":"≤30","value":"≤10","delta":"change, e.g. +12% or −3 (optional)"}, 3–6 items],"text":"≤160 (optional)"}
+{"type":"timeline","title":"≤60","items":[{"date":"≤12, e.g. 1991, XV century, 2020–2024","title":"≤35","text":"≤100"}, 3–6 items, in time order]}
+{"type":"roadmap","title":"≤60","phases":[{"period":"≤16","title":"≤30","items":["≤50", 1–3]}, 3–4 items]}
+{"type":"swot","title":"≤60","quads":[{"title":"Strengths (in the deck language)","items":["≤60", 2–3]}, then Weaknesses, Opportunities, Threats — exactly 4, in this order]}
+{"type":"matrix","title":"≤60","text":"≤160","x":"horizontal axis ≤24","y":"vertical axis ≤24","quads":[{"title":"≤30","text":"≤90"}, exactly 4: top-left, top-right, bottom-left, bottom-right; top-right is the high-x high-y cell]}
+{"type":"pyramid","title":"≤60","levels":[{"title":"≤30","text":"≤90"}, 3–5 items, from the top (narrowest) to the base]}
+{"type":"funnel","title":"≤60","text":"≤160","stages":[{"label":"≤30","value":"≤12"}, 3–5 items, from the widest stage]}
+{"type":"table","title":"≤60","head":["≤24", 2–5 columns],"rows":[["≤40", one cell per column], 2–6 rows],"hi":column index to highlight (optional)}
+{"type":"problem","title":"≤60","problem":{"title":"≤30","text":"≤200"},"solution":{"title":"≤30","text":"≤200"}}
+{"type":"features","title":"≤60","image":IMG,"features":[{"icon":ICON,"title":"≤30","text":"≤90"}, 3–4 items]}
+{"type":"chart","kind":"bar"|"hbar"|"line"|"area"|"donut"|"pie","title":"≤60","text":"≤200","bars":[{"label":"≤20","value":"≤10, a number with its unit"}, 3–7 items]}
+{"type":"photo","kicker":"≤30","title":"≤60","text":"≤160","image":IMG}
+{"type":"chapter","title":"≤50","text":"≤160","image":IMG}
 {"type":"end","title":"≤40","subtitle":"≤80"}
+
+ICON is one of: ${SLIDE_ICONS.join(', ')}.
+
+CHOOSING THE TYPE — the content decides, never the other way round. For each slide find its one key message and the shape of its content, then pick:
+- a single striking figure → "bignum"; 3–6 measured indicators → "kpi" (or "stats" without changes)
+- events with dates → "timeline"; plans or phases ahead → "roadmap"; steps of a method → "process"
+- strengths/weaknesses/opportunities/threats → "swot"; items sorted by two criteria → "matrix"
+- levels of a hierarchy (Maslow, Bloom, a food chain) → "pyramid"; stages that narrow with counts → "funnel"
+- several items compared on the same attributes → "table"; two sides or before/after → "compare"
+- a problem and its answer → "problem"; what a product, tool or method can do → "features"
+- numbers over time → "chart" line/area (bar for few categories); ranking → hbar; parts of a whole that add up to 100% → donut/pie
+- one thesis to remember → "statement"; findings in brief → "summary"; a real quotation → "quote"
+- a visual subject (a place, artwork, building, nature) → "media" or "photo"; opening a big part → "chapter"
+- a short explanation → "media" or "content"; 3–4 parallel ideas → "cards"
+Never squeeze content into a type that does not fit it: a list is not a table, a plain idea is not a chart.
 
 IMG is {"q":"English image search phrase, 2–5 words","alt":"a second, different English phrase for the same subject","kind":"real"|"generic"}.
 - Both phrases must name the slide's own subject precisely, with the word that tells it apart from similar things: "judo throw competition", never just "martial arts" or "combat sport" (that finds boxing); "Registan Samarkand", never "old mosque".
@@ -75,10 +107,13 @@ IMG is {"q":"English image search phrase, 2–5 words","alt":"a second, differen
 
 RULES
 - Write every slide text in the requested language. Image search phrases are always English.
-- Be correct. Use only facts you are sure of. A "stats" slide only with well-known real figures; a "quote" slide only with a real quote whose author you know — otherwise choose another type.
+- Be correct. Use only facts you are sure of. "stats", "kpi", "bignum", "funnel" and "chart" only with well-known real figures (state the year or source in "text" when it matters); never invent numbers to fill a chart — choose another type. A "quote" slide only with a real quote whose author you know. A "donut"/"pie" chart's values must add up to about 100%.
 - Write for an audience: short, clear, concrete sentences with real names, dates and examples. No filler, no repetition between slides, no emoji, no markdown symbols (*, #, **).
-- Vary the layout: never the same type on two slides in a row (except "content" for the conclusion).
+- Vary the layout: never the same type on two slides in a row (except "content" for the conclusion), and use as many different fitting types as the content allows — a deck of only cards and bullets looks generic.
 - Follow the requested slide plan exactly: the slide count, which slides belong to which plan item, and the fixed slides.`
+
+/** Page types the model may write (the "prefer" hint of a design is checked against this). */
+export const DECK_TYPES = AI_PAGE_TYPES
 
 /** Longest document text sent to the model (~40k tokens); longer files are cut at a paragraph. */
 export const SOURCE_MAX = 150_000
@@ -88,7 +123,7 @@ export const SOURCE_MAX = 150_000
  * browser) the deck retells that document and its sections become the plan.
  * @param {{ topic: string, plans: number, slides: number, lang: string, source?: { name: string, text: string, outline?: string[] } }} o
  */
-export function deckPrompt({ topic, plans, slides, lang, source = null }) {
+export function deckPrompt({ topic, plans, slides, lang, source = null, prefer = [] }) {
   const split = planSplit(plans, slides)
   const total = split.reduce((a, b) => a + b, 0) + PLAN_FIXED
   const lines = [
@@ -102,8 +137,8 @@ export function deckPrompt({ topic, plans, slides, lang, source = null }) {
     n += count
   })
   const content = split.reduce((a, b) => a + b, 0)
-  const media = Math.min(content, Math.max(1, Math.ceil(content * 0.6)))
-  lines.push(`Pictures: at least ${media} of the ${content} plan-item slides are type "media" (each with an image), spread over the deck.`)
+  const media = Math.min(content, Math.max(1, Math.ceil(content * 0.45)))
+  lines.push(`Pictures: at least ${media} of the ${content} plan-item slides carry an image ("media", "photo", "chapter" or "features"), spread over the deck; most of them "media".`)
   lines.push(`${n}. "content": the conclusion — title the word for "Conclusion" in the deck language, 3–5 key takeaways.`)
   lines.push(`${n + 1}. "end": "Thank you for your attention!" and "Questions?" in the deck language.`)
   const uz = lang === 'uz' ? `\nWrite Uzbek in the standard Latin alphabet (oʻ, gʻ, sh, ch).` : ''
@@ -116,8 +151,10 @@ Make the presentation from the document above. Use its content: its facts, names
 ${source.outline?.length ? `The plan items are the document's sections, in this order (phrase them in the deck language, short): ${source.outline.map((x) => `"${x}"`).join('; ')}.\n` : ''}${topic ? '' : 'Take the presentation title from the document.\n'}
 `
     : ''
+  const fav = prefer.filter((x) => DECK_TYPES.includes(x) && !['title', 'agenda', 'end'].includes(x))
+  const design = fav.length ? `\nDesign: the chosen design is made for ${fav.map((x) => `"${x}"`).join(', ')} pages — prefer them wherever the content truly fits; never force content into them.` : ''
   return `${doc}Topic: ${topic || '(take it from the document)'}
-Deck language: ${LANG_NAMES[lang] ?? 'English'}${uz}
+Deck language: ${LANG_NAMES[lang] ?? 'English'}${uz}${design}
 Plan items: ${plans}
 Slides: exactly ${total}, in this order:
 ${lines.join('\n')}`
@@ -155,7 +192,7 @@ function asContent(raw) {
   const walk = (v) => {
     if (typeof v === 'string') texts.push(v)
     else if (Array.isArray(v)) v.forEach(walk)
-    else if (v && typeof v === 'object') Object.entries(v).forEach(([k, x]) => k !== 'type' && k !== 'title' && k !== 'image' && walk(x))
+    else if (v && typeof v === 'object') Object.entries(v).forEach(([k, x]) => !NOT_TEXT.has(k) && k !== 'title' && walk(x))
   }
   walk(raw)
   return { type: 'content', title: str(raw?.title, 70), bullets: texts.map((x) => str(x, 120)).filter(Boolean).slice(0, 5) }
@@ -207,6 +244,120 @@ export function cleanSlide(raw) {
       if (quote) return { type: 'quote', quote, author: str(raw.author, 60) }
       break
     }
+    case 'statement': {
+      const text = str(raw.text, 180)
+      if (text) return { type: 'statement', kicker: str(raw.kicker, 40), text, note: str(raw.note, 120) }
+      break
+    }
+    case 'bignum': {
+      const value = str(raw.value, 10)
+      const label = str(raw.label, 70)
+      if (value && label && /\d/.test(value)) return { type: 'bignum', kicker: str(raw.kicker, 40), value, label, text: str(raw.text, 200) }
+      break
+    }
+    case 'summary': {
+      const points = objs(raw.points, 2, 4, (p) => ({ title: str(p.title, 40), text: str(p.text, 120) }))
+      const text = str(raw.text, 220)
+      if (points && text) return { type: 'summary', title, text, points }
+      break
+    }
+    case 'kpi': {
+      const kpis = objs(raw.kpis, 2, 6, (k) => ({ label: str(k.label, 30), value: str(k.value, 10) }))
+      if (kpis) {
+        // the change is optional: keep it where the model gave one
+        raw.kpis.slice(0, kpis.length).forEach((k, i) => {
+          const delta = str(k?.delta, 10)
+          if (delta) kpis[i].delta = delta
+        })
+        return { type: 'kpi', title, kpis, ...(raw.text ? { text: str(raw.text, 160) } : {}) }
+      }
+      break
+    }
+    case 'timeline': {
+      const items = objs(raw.items, 3, 6, (x) => ({ date: str(x.date, 14), title: str(x.title, 35), text: str(x.text, 100) }))
+      if (items) return { type: 'timeline', title, items }
+      break
+    }
+    case 'roadmap': {
+      const phases = objs(raw.phases, 2, 4, (x) => ({ period: str(x.period, 16), title: str(x.title, 30) }))
+      if (phases) {
+        phases.forEach((ph, i) => (ph.items = list(raw.phases[i]?.items, 0, 3, 50)))
+        return { type: 'roadmap', title, phases }
+      }
+      break
+    }
+    case 'swot': {
+      const quads = Array.isArray(raw.quads) ? raw.quads.slice(0, 4).map((q) => ({ title: str(q?.title, 30), items: list(q?.items, 1, 3, 60) })) : []
+      if (quads.length === 4 && quads.every((q) => q.title && q.items.length)) return { type: 'swot', title, quads }
+      break
+    }
+    case 'matrix': {
+      const quads = objs(raw.quads, 4, 4, (q) => ({ title: str(q.title, 30), text: str(q.text, 90) }))
+      const x = str(raw.x, 24)
+      const y = str(raw.y, 24)
+      if (quads && x && y) return { type: 'matrix', title, text: str(raw.text, 160), x, y, quads }
+      break
+    }
+    case 'pyramid': {
+      const levels = objs(raw.levels, 3, 5, (l) => ({ title: str(l.title, 30), text: str(l.text, 90) }))
+      if (levels) return { type: 'pyramid', title, levels }
+      break
+    }
+    case 'funnel': {
+      const stages = objs(raw.stages, 3, 5, (x) => ({ label: str(x.label, 30), value: str(x.value, 12) }))
+      if (stages) return { type: 'funnel', title, text: str(raw.text, 160), stages }
+      break
+    }
+    case 'table': {
+      const head = list(raw.head, 2, 5, 24)
+      const rows = (Array.isArray(raw.rows) ? raw.rows : [])
+        .filter(Array.isArray)
+        .slice(0, 6)
+        .map((r) => head.map((_, c) => str(r[c], 40) || '—'))
+        .filter((r) => r.some((x) => x !== '—'))
+      if (head.length >= 2 && rows.length >= 2) {
+        const hi = Number.isInteger(raw.hi) && raw.hi >= 0 && raw.hi < head.length ? raw.hi : undefined
+        return { type: 'table', title, head, rows, ...(hi != null ? { hi } : {}), ...(raw.note ? { note: str(raw.note, 120) } : {}) }
+      }
+      break
+    }
+    case 'problem': {
+      const side = (v) => (v && typeof v === 'object' ? { title: str(v.title, 30), text: str(v.text, 200) } : null)
+      const problem = side(raw.problem)
+      const solution = side(raw.solution)
+      if (problem?.title && problem.text && solution?.title && solution.text) return { type: 'problem', title, problem, solution }
+      break
+    }
+    case 'features': {
+      const features = objs(raw.features, 3, 4, (f) => ({ title: str(f.title, 30), text: str(f.text, 90) }))
+      if (features) {
+        const asked = features.map((_, i) => String(raw.features[i]?.icon ?? '').toLowerCase())
+        features.forEach((f, i) => {
+          // an unknown name gets an icon no other card of the page uses
+          f.icon = SLIDE_ICONS.includes(asked[i]) ? asked[i] : SLIDE_ICONS.find((n) => !asked.includes(n) && !features.some((g) => g.icon === n))
+        })
+        return { type: 'features', title, image: null, features, _img: img(raw.image) }
+      }
+      break
+    }
+    case 'chart': {
+      const bars = objs(raw.bars, 2, 7, (b) => ({ label: str(b.label, 20), value: str(b.value, 10) }))
+      // a chart needs numbers: values without one would draw an empty plot
+      if (bars && bars.every((b) => /\d/.test(b.value))) {
+        const kind = CHART_KINDS.includes(raw.kind) ? raw.kind : 'bar'
+        return { type: 'chart', kind, title, text: str(raw.text, 200), bars }
+      }
+      break
+    }
+    case 'photo':
+      if (title) return { type: 'photo', kicker: str(raw.kicker, 30), title: str(raw.title, 60), text: str(raw.text, 160), image: null, _img: img(raw.image) }
+      break
+    case 'chapter': {
+      if (!title) break
+      // "2. Causes" → the number goes to the big numeral, the words stay the title
+      const m = /^(\d{1,2})[.)]\s*(.+)$/.exec(title)
+      return { type: 'chapter', title: str(m ? m[2] : title, 50), text: str(raw.text, 160), image: null, ...(m ? { num: Number(m[1]) } : {}), _img: img(raw.image) }
+    }
     case 'end':
       return { type: 'end', title: title || '…', subtitle: str(raw.subtitle, 80) }
     case 'content': {
@@ -219,11 +370,14 @@ export function cleanSlide(raw) {
   return c.bullets.length || c.title ? c : null
 }
 
+// fields that hold ids, not words: the alphabet converter must not touch them ('shield' → 'şield')
+const NOT_TEXT = new Set(['type', 'side', '_img', 'image', 'kind', 'icon', 'hi', 'num'])
+
 /** Every text in a slide through fn (for the Uzbek alphabet). */
 export function mapTexts(v, fn) {
   if (typeof v === 'string') return fn(v)
   if (Array.isArray(v)) return v.map((x) => mapTexts(x, fn))
-  if (v && typeof v === 'object') return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, k === 'type' || k === 'side' || k === '_img' || k === 'image' ? x : mapTexts(x, fn)]))
+  if (v && typeof v === 'object') return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, NOT_TEXT.has(k) ? x : mapTexts(x, fn)]))
   return v
 }
 

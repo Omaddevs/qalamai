@@ -8,6 +8,27 @@ import { FILL_SYSTEM, cardsPrompt, cleanCard, cleanPiece, docPrompt } from './fi
 // models that can hand a declined request to another model inside the same call
 const FALLBACK_MODELS = /^claude-(opus-5-5|sonnet-5-5|fable-5-[12]|opus-5)$/
 
+/** Pages built around a picture: without one they become a page that needs none (withoutPicture). */
+const PICTURE_PAGES = new Set(['media', 'photo', 'chapter', 'features'])
+
+/** The same content on a layout without a picture frame. */
+export function withoutPicture(slide) {
+  const { title = '' } = slide
+  switch (slide.type) {
+    case 'photo':
+      return { type: 'statement', kicker: slide.kicker ?? '', text: title, note: slide.text ?? '' }
+    case 'chapter':
+      return { type: 'section', title, subtitle: slide.text ?? '', ...(slide.num ? { num: slide.num } : {}) }
+    case 'features':
+      return { type: 'cards', title, cards: slide.features.map((f) => ({ title: f.title, text: f.text })) }
+    default: {
+      const { text = '', bullets = [] } = slide
+      const sentences = text.split(/(?<=[.!?])\s+/).map((x) => x.trim()).filter(Boolean)
+      return { type: 'content', title, bullets: [...sentences, ...bullets].slice(0, 5) }
+    }
+  }
+}
+
 export class AiError extends Error {
   constructor(code, message) {
     super(message)
@@ -24,7 +45,7 @@ export function createAi(cfg, { log } = {}) {
    *   { type: 'outline', items } · { type: 'slide', index, slide } · { type: 'image', index, image, credit }
    * and resolves with { slides, usage } when every slide and picture is in.
    */
-  async function deck({ topic, plans, slides, lang, source = null }, { emit, signal }) {
+  async function deck({ topic, plans, slides, lang, source = null, prefer = [] }, { emit, signal }) {
     const total = planSplit(plans, slides).reduce((a, b) => a + b, 0) + PLAN_FIXED
     const local = localize(lang)
     const out = []
@@ -55,7 +76,7 @@ export function createAi(cfg, { log } = {}) {
             // the same picture on two slides: the later one looks again, without the pictures already used
             .then((found) => (found && used.has(found.url) ? pickImage({ ..._img, about }, { judge, exclude: new Set(used), log }) : found))
             // nothing shows this slide's own subject: a picture of the deck's subject (the cover's) will do
-            .then((found) => (found || out[index]?.type !== 'media' || !cover.q ? found : pickImage({ q: cover.q, alt: cover.alt, kind: cover.kind, about }, { judge, exclude: new Set(used), log })))
+            .then((found) => (found || !PICTURE_PAGES.has(out[index]?.type) || !cover.q ? found : pickImage({ q: cover.q, alt: cover.alt, kind: cover.kind, about }, { judge, exclude: new Set(used), log })))
             .then((found) => {
             if (signal?.aborted) return
             if (found && used.has(found.url)) found = null
@@ -63,11 +84,9 @@ export function createAi(cfg, { log } = {}) {
             if (found) {
               out[index] = { ...out[index], image: found.url, imageCredit: found.credit }
               emit({ type: 'image', index, image: found.url, credit: found.credit })
-            } else if (out[index].type === 'media') {
-              // no picture that really shows it: a text slide instead of an empty picture frame
-              const { text = '', bullets = [], title } = out[index]
-              const sentences = text.split(/(?<=[.!?])\s+/).map((x) => x.trim()).filter(Boolean)
-              out[index] = { type: 'content', title, bullets: [...sentences, ...bullets].slice(0, 5) }
+            } else if (PICTURE_PAGES.has(out[index].type)) {
+              // no picture that really shows it: a page that needs none instead of an empty picture frame
+              out[index] = withoutPicture(out[index])
               emit({ type: 'slide', index, slide: out[index] })
             }
           }),
@@ -80,7 +99,7 @@ export function createAi(cfg, { log } = {}) {
       max_tokens: 32000,
       system: SYSTEM,
       output_config: { effort: cfg.effort },
-      messages: [{ role: 'user', content: deckPrompt({ topic, plans, slides, lang, source }) }],
+      messages: [{ role: 'user', content: deckPrompt({ topic, plans, slides, lang, source, prefer }) }],
     }
     const withFallback = FALLBACK_MODELS.test(cfg.model)
     const stream = withFallback

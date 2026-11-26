@@ -1,6 +1,7 @@
 // QalamCoin on the client: the balance (kept on the API user), spending before an AI action,
 // and one global "coin shop" that any screen can open.
 import { useEffect, useState } from 'react'
+import { AI_PAGE_TYPES } from '../shared/slideIcons.js'
 import { ApiError, api, currentUser, ensureSession, onUser, request, streamLines, updateUser } from './api.js'
 import { ACTION_BY_APP, ACTION_BY_TYPE, COIN_COSTS, COIN_PACKS, CUSTOM_COINS, RECEIPT_MAX_MB, SIGNUP_BONUS, coinRate, costOf, priceFor } from '../shared/coins.js'
 import { FREE_FEATURES as FREE, PREMIUM_PERKS as PREMIUM } from '../shared/coins.js'
@@ -87,9 +88,9 @@ export async function spendCoins(action, { qty = 1, topic, ref: fixedRef } = {})
  * start · outline · slide · image · done · error). Resolves true when it ran; null when it couldn't
  * be paid (the coin shop opens) — the server gives the coins back itself if the writing fails.
  */
-export function aiDeck({ topic, plans, slides, lang, source = null }, opts = {}) {
+export function aiDeck({ topic, plans, slides, lang, source = null, prefer = [] }, opts = {}) {
   const action = source ? 'prezentatsiya-fayl' : 'prezentatsiya'
-  return aiStream('/ai/deck', { topic: topic.slice(0, 300), plans, slides, lang, ...(source ? { source } : {}) }, action, opts)
+  return aiStream('/ai/deck', { topic: topic.slice(0, 300), plans, slides, lang, ...(source ? { source } : {}), ...(prefer.length ? { prefer: prefer.filter((x) => AI_PAGE_TYPES.includes(x)).slice(0, 12) } : {}) }, action, opts)
 }
 
 /**

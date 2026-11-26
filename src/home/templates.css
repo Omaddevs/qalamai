@@ -860,3 +860,5 @@
 .tv-cat.soon { cursor: default; }
 .tv-cat.soon:hover { transform: none; box-shadow: none; }
 .tv-cat.soon .tv-cat-count { color: #a1a6ae; }
+/* the premium collection (src/editor/templates.js → PREMIUM) */
+.tg-badge.tg-premium { background: #0f1115; color: #c6f432; font-weight: 700; letter-spacing: 0.03em; }

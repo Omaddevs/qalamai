@@ -1080,3 +1080,40 @@
 .ad-plans.locked .ad-plan:not(.on):not(.fill) {
   opacity: 0.45;
 }
+
+/* ───────────── 05 · design picker (premium collection first) ───────────── */
+.ad-designs-wrap { display: flex; flex-direction: column; gap: 10px; }
+.ad-designs {
+  display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x proximity; padding: 4px 2px 10px; margin: -4px -2px 0;
+  scrollbar-width: thin; scrollbar-color: #d6d2c8 transparent;
+}
+.ad-designs > .ad-design { flex: 0 0 168px; scroll-snap-align: start; }
+.ad-design {
+  display: flex; flex-direction: column; gap: 7px; padding: 6px; border: 0; border-radius: 14px; background: transparent;
+  cursor: pointer; text-align: start; font: inherit; color: var(--ink); transition: background 0.2s;
+}
+.ad-design:hover { background: rgba(15, 17, 21, 0.04); }
+.ad-design:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.ad-design-thumb {
+  position: relative; display: block; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; container-type: inline-size;
+  box-shadow: 0 0 0 1px var(--rule), 0 8px 18px -12px rgba(15, 17, 21, 0.35); transition: box-shadow 0.2s, transform 0.25s;
+}
+.ad-design-thumb .slide { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.ad-design:hover .ad-design-thumb { transform: translateY(-2px); }
+.ad-design.on .ad-design-thumb { box-shadow: 0 0 0 3px var(--brand, #c6f432), 0 0 0 4px rgba(15, 17, 21, 0.15), 0 12px 24px -14px rgba(120, 160, 0, 0.7); }
+.ad-design-pro {
+  position: absolute; top: 6px; inset-inline-start: 6px; padding: 2px 7px; border-radius: 999px;
+  background: rgba(15, 17, 21, 0.78); color: #fff; font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em; backdrop-filter: blur(4px);
+}
+.ad-design-name { padding: 0 2px; font-size: 13.5px; font-weight: 600; }
+.ad-design.on .ad-design-name { color: var(--ink); }
+.ad-design.on .ad-design-name::before { content: '✓ '; color: #5b7a00; }
+.ad-design-more {
+  align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; border: 1px solid var(--rule); border-radius: 10px;
+  background: #fff; font: inherit; font-size: 13.5px; font-weight: 600; color: var(--ink); cursor: pointer;
+}
+.ad-design-more span { color: var(--ink-3); font-weight: 500; }
+.ad-design-more:hover { border-color: #d6d2c8; }
+@media (max-width: 640px) {
+  .ad-designs > .ad-design { flex-basis: 140px; }
+}

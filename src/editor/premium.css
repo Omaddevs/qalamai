@@ -1,0 +1,111 @@
+/* ═════════ Premium templates: typography and detail per skin (premiumDecors.jsx draws the backgrounds) ═════════ */
+
+/* Monolit — Swiss: tight grotesk, square red marks, no rounding */
+.slide[data-skin='monolith'] .ly-h,
+.slide[data-skin='monolith'] .ly-cover-title,
+.slide[data-skin='monolith'] .ly-end-title { letter-spacing: -0.045em; line-height: 0.98; }
+.slide[data-skin='monolith'] .ly-cover-title { font-size: calc(7.4cqw * var(--ts)); }
+.slide[data-skin='monolith'] .c-left .ly-cover-text { max-width: 56%; }
+.slide[data-skin='monolith'] .ly-rule { width: 1.6cqw; height: 1.6cqw; border-radius: 0; }
+.slide[data-skin='monolith'] .ly-kicker { color: var(--tx); letter-spacing: 0.18em; }
+.slide[data-skin='monolith'] .ly-dot { border-radius: 0; }
+.slide[data-skin='monolith'] .ly-card,
+.slide[data-skin='monolith'] .ly-stat { border-width: 0; border-top: 0.25cqw solid var(--tx); background: transparent; padding-inline: 0; }
+.slide[data-skin='monolith'] .ly-stat-v { letter-spacing: -0.05em; }
+
+/* Noir — high-contrast serif italics in champagne gold */
+.slide[data-skin='noir'] .ly-h,
+.slide[data-skin='noir'] .ly-cover-title,
+.slide[data-skin='noir'] .ly-end-title,
+.slide[data-skin='noir'] .ly-quote-text { font-style: italic; letter-spacing: -0.01em; }
+.slide[data-skin='noir'] .ly-cover-title { font-size: calc(7cqw * var(--ts)); line-height: 0.95; }
+.slide[data-skin='noir'] .ly-rule { width: 14cqw; height: 0.08cqw; background: linear-gradient(90deg, transparent, var(--acc), transparent); }
+.slide[data-skin='noir'] .ly-kicker { letter-spacing: 0.42em; font-weight: 500; }
+.slide[data-skin='noir'] .ly-sub,
+.slide[data-skin='noir'] .ly-p { font-weight: 300; letter-spacing: 0.01em; }
+.slide[data-skin='noir'] .ly-num,
+.slide[data-skin='noir'] .ly-stat-v { font-style: italic; }
+.slide[data-skin='noir'] .ly-step-dot { background: transparent; border: 0.1cqw solid var(--acc); color: var(--acc); box-shadow: none; }
+
+/* Avrora — wide geometric display, luminous gradient titles, frosted glass */
+.slide[data-skin='aurora'] .ly-h,
+.slide[data-skin='aurora'] .ly-cover-title,
+.slide[data-skin='aurora'] .ly-end-title { letter-spacing: -0.03em; }
+.slide[data-skin='aurora'] .ly-cover-title,
+.slide[data-skin='aurora'] .ly-end-title { background: linear-gradient(100deg, #ffffff 20%, #c4b5fd 60%, #5eead4 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.slide[data-skin='aurora'] .ly-rule { width: 8cqw; height: 0.25cqw; background: linear-gradient(90deg, var(--acc), var(--acc2)); }
+.slide[data-skin='aurora'] .ly-card,
+.slide[data-skin='aurora'] .ly-stat,
+.slide[data-skin='aurora'] .ly-col { backdrop-filter: blur(1cqw); box-shadow: inset 0 0.08cqw 0 rgba(255, 255, 255, 0.08); }
+.slide[data-skin='aurora'] .ly-kicker { align-self: center; padding: 0.45cqw 1.2cqw; border-radius: 9cqw; border: 0.07cqw solid rgba(255, 255, 255, 0.2); color: var(--tx); letter-spacing: 0.14em; }
+.slide[data-skin='aurora'] .ly-stat-v { background: linear-gradient(90deg, var(--acc), var(--acc2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* Terrakota — soft display serif, warm earthy cards */
+.slide[data-skin='terra'] .ly-cover-title { font-size: calc(6.8cqw * var(--ts)); line-height: 1; }
+.slide[data-skin='terra'] .c-left .ly-cover-text { max-width: 56%; }
+.slide[data-skin='terra'] .ly-rule { width: 3cqw; height: 1.5cqw; border-radius: 3cqw 3cqw 0 0; }
+.slide[data-skin='terra'] .ly-kicker { color: var(--acc); letter-spacing: 0.2em; }
+.slide[data-skin='terra'] .ly-card { box-shadow: 0 1.2cqw 2.4cqw -1.6cqw rgba(107, 58, 30, 0.35); }
+
+/* Chizma — engineering caps, mono labels, dashed drafting lines */
+.slide[data-skin='blueprint'] .ly-h,
+.slide[data-skin='blueprint'] .ly-cover-title,
+.slide[data-skin='blueprint'] .ly-end-title { letter-spacing: 0.01em; }
+.slide[data-skin='blueprint'] .ly-kicker,
+.slide[data-skin='blueprint'] .ly-num { font-family: 'IBM Plex Mono', ui-monospace, monospace; letter-spacing: 0.08em; }
+.slide[data-skin='blueprint'] .ly-rule { width: 12cqw; height: 0; border-radius: 0; background: none; border-top: 0.16cqw dashed var(--acc); }
+.slide[data-skin='blueprint'] .ly-card,
+.slide[data-skin='blueprint'] .ly-stat,
+.slide[data-skin='blueprint'] .ly-col { border-style: dashed; }
+.slide[data-skin='blueprint'] .ly-dot { border-radius: 0; width: 0.8cqw; height: 0.8cqw; background: transparent; border: 0.14cqw solid var(--acc); }
+
+/* Pastel — friendly bold sans, pill kicker, soft floating cards */
+.slide[data-skin='pastel'] .ly-h,
+.slide[data-skin='pastel'] .ly-cover-title,
+.slide[data-skin='pastel'] .ly-end-title { letter-spacing: -0.035em; }
+.slide[data-skin='pastel'] .ly-kicker { align-self: center; padding: 0.5cqw 1.3cqw; border-radius: 9cqw; background: #ffffff; color: var(--acc); letter-spacing: 0.06em; box-shadow: 0 0.6cqw 1.4cqw -0.8cqw rgba(124, 92, 255, 0.5); }
+.slide[data-skin='pastel'] .ly-rule { display: none; }
+.slide[data-skin='pastel'] .ly-card,
+.slide[data-skin='pastel'] .ly-stat { box-shadow: 0 1.6cqw 3cqw -2cqw rgba(60, 40, 140, 0.35); }
+
+/* Jurnal — magazine serif headlines, red kicker, heavy rules */
+.slide[data-skin='editorial'] .ly-h,
+.slide[data-skin='editorial'] .ly-cover-title,
+.slide[data-skin='editorial'] .ly-end-title { letter-spacing: -0.035em; line-height: 0.98; }
+.slide[data-skin='editorial'] .ly-cover-title { font-size: calc(7.2cqw * var(--ts)); font-style: italic; }
+.slide[data-skin='editorial'] .ly-kicker { color: var(--acc); letter-spacing: 0.26em; }
+.slide[data-skin='editorial'] .ly-rule { width: 100%; max-width: 30cqw; height: 0.3cqw; border-radius: 0; background: var(--tx); }
+.slide[data-skin='editorial'] .ly-quote-text { font-style: italic; }
+.slide[data-skin='editorial'] .ly-quote-mark { color: var(--acc); }
+.slide[data-skin='editorial'] .ly-card { border-top: 0.3cqw solid var(--tx); }
+
+/* O‘rmon — botanical serif italics, sage hairlines */
+.slide[data-skin='forest'] .ly-h,
+.slide[data-skin='forest'] .ly-cover-title,
+.slide[data-skin='forest'] .ly-end-title,
+.slide[data-skin='forest'] .ly-quote-text { font-style: italic; letter-spacing: 0; }
+.slide[data-skin='forest'] .ly-cover-title { font-size: calc(6.8cqw * var(--ts)); }
+.slide[data-skin='forest'] .ly-rule { width: 10cqw; height: 0.08cqw; background: var(--acc2); }
+.slide[data-skin='forest'] .ly-kicker { color: var(--acc2); letter-spacing: 0.36em; font-weight: 600; }
+.slide[data-skin='forest'] .ly-step-dot { background: transparent; border: 0.1cqw solid var(--acc); color: var(--acc); box-shadow: none; }
+
+/* Neon — heavy display caps with glow, neon borders */
+.slide[data-skin='neon'] .ly-cover-title,
+.slide[data-skin='neon'] .ly-end-title { letter-spacing: 0.01em; text-shadow: 0 0 2cqw rgba(198, 244, 50, 0.45); }
+.slide[data-skin='neon'] .ly-h { letter-spacing: 0.01em; }
+.slide[data-skin='neon'] .ly-rule { width: 10cqw; height: 0.22cqw; background: linear-gradient(90deg, var(--acc2), var(--acc)); box-shadow: 0 0 1.2cqw var(--acc); }
+.slide[data-skin='neon'] .ly-kicker { font-family: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace; letter-spacing: 0.12em; }
+.slide[data-skin='neon'] .ly-card,
+.slide[data-skin='neon'] .ly-stat,
+.slide[data-skin='neon'] .ly-col { box-shadow: 0 0 1.6cqw -0.6cqw rgba(198, 244, 50, 0.6), inset 0 0 1.2cqw -0.8cqw rgba(34, 211, 238, 0.5); }
+.slide[data-skin='neon'] .ly-stat-v,
+.slide[data-skin='neon'] .ly-num { text-shadow: 0 0 1cqw rgba(198, 244, 50, 0.6); }
+
+/* Executive — confident corporate sans, teal accents */
+.slide[data-skin='executive'] .ly-h,
+.slide[data-skin='executive'] .ly-cover-title,
+.slide[data-skin='executive'] .ly-end-title { letter-spacing: -0.03em; }
+.slide[data-skin='executive'] .ly-rule { width: 5cqw; height: 0.45cqw; border-radius: 0; }
+.slide[data-skin='executive'] .ly-kicker { letter-spacing: 0.16em; }
+.slide[data-skin='executive'] .ly-card,
+.slide[data-skin='executive'] .ly-stat { border-inline-start: 0.4cqw solid var(--acc); }

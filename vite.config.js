@@ -143,6 +143,7 @@ function seo(siteUrl) {
       // dev server: the page and language the address asks for, as production would serve it
       order: 'post',
       handler(html, ctx) {
+        if (!html.includes('<!-- %STATIC% -->')) return html // another HTML page (not the app shell)
         const u = new URL(ctx.originalUrl ?? '/', 'http://x')
         const known = ['/', '/index.html'].includes(u.pathname) ? null : ALL_PAGES.find((p) => p.path === u.pathname.replace(/\/+$/, ''))
         // /admin and shared presentations (/v/<id>) are app screens, served the plain index.html

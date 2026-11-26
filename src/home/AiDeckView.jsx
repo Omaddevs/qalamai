@@ -3,7 +3,7 @@ import {
   ArrowRight, Sparkle, Shuffle, Minus, Plus, ListNumbers, Stack, Translate, Lightbulb, X, PresentationChart,
 } from '@phosphor-icons/react'
 import Slide from '../editor/Slide.jsx'
-import { getTemplate } from '../editor/templates.js'
+import { getTemplate, sampleDeck, templatesFor } from '../editor/templates.js'
 import { CoinIcon } from '../components/Coins.jsx'
 import { ACTION_BY_TYPE, COIN_COSTS, aiDeck, refundCoins, spendCoins } from '../coins.js'
 import { ApiError } from '../api.js'
@@ -18,7 +18,55 @@ import './aideck.css'
 const SLIDES_MIN = 5
 const SLIDES_MAX = 30
 const TOPIC_MAX = 300
-const TEMPLATE = 'pitch'
+// the design picked last time (premium collection first in the picker)
+const TPL_KEY = 'qalam.aideck.template'
+const DEFAULT_TPL = 'executive' // premium, suits business and study topics alike
+const savedTemplate = () => {
+  try {
+    const id = localStorage.getItem(TPL_KEY)
+    return id && templatesFor('Prezentatsiya').some((x) => x.id === id) ? id : DEFAULT_TPL
+  } catch {
+    return DEFAULT_TPL
+  }
+}
+
+/** Design picker: the premium collection, then (on request) every other presentation template. */
+function DesignPicker({ value, onChange }) {
+  const all = templatesFor('Prezentatsiya')
+  const premium = all.filter((x) => x.premium)
+  const rest = all.filter((x) => !x.premium)
+  const [more, setMore] = useState(false)
+  const picked = all.find((x) => x.id === value)
+  // the premium ones; a non-premium design picked before stays in front
+  const list = more ? [...premium, ...rest] : picked && !picked.premium ? [picked, ...premium] : premium
+  const strip = useRef(null)
+  useEffect(() => {
+    strip.current?.querySelector('.ad-design.on')?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+  }, [])
+  return (
+    <div className="ad-designs-wrap">
+      <div className="ad-designs" role="radiogroup" aria-label={t('ad.design')} ref={strip}>
+        {list.map((tpl) => {
+          const page = sampleDeck(tpl, 1)[0]
+          return (
+            <button key={tpl.id} type="button" role="radio" aria-checked={tpl.id === value} className={`ad-design${tpl.id === value ? ' on' : ''}`} onClick={() => onChange(tpl.id)}>
+              <span className="ad-design-thumb">
+                {page && <Slide slide={page} theme={tpl.theme} index={0} preview />}
+                {tpl.premium && <span className="ad-design-pro">{t('tpl.premium')}</span>}
+              </span>
+              <span className="ad-design-name">{tpl.name}</span>
+            </button>
+          )
+        })}
+      </div>
+      {!more && rest.length > 0 && (
+        <button type="button" className="ad-design-more" onClick={() => setMore(true)}>
+          {t('ad.designAll')} <span>+{rest.length}</span>
+        </button>
+      )}
+    </div>
+  )
+}
 const PLAN_NUMS = Array.from({ length: PLAN_MAX }, (_, i) => i + 1)
 // one soft colour per plan item, cycling (lime first — the brand)
 const HUES = ['#c6f432', '#b9a7fb', '#fbbf8c', '#8fd3f4', '#f9a8d4', '#86efac']
@@ -120,6 +168,15 @@ export default function AiDeckView({ initialTopic = '', onCreate, notify }) {
   const [plans, setPlans] = useState(4)
   const [slides, setSlides] = useState(10)
   const [lang, setLang] = useState(defaultDeckLang)
+  const [tplId, setTplId] = useState(savedTemplate)
+  const pickTemplate = (id) => {
+    setTplId(id)
+    try {
+      localStorage.setItem(TPL_KEY, id)
+    } catch {
+      /* the choice just isn't remembered */
+    }
+  }
   const [gen, setGen] = useState(null)
   const [ideaPage, setIdeaPage] = useState(0)
   const [bumped, setBumped] = useState(0)
@@ -265,7 +322,7 @@ export default function AiDeckView({ initialTopic = '', onCreate, notify }) {
     }
   }
 
-  const tpl = getTemplate(TEMPLATE)
+  const tpl = getTemplate(tplId)
 
   const lowPct = ((low - SLIDES_MIN) / (SLIDES_MAX - SLIDES_MIN)) * 100
   const valPct = ((slides - SLIDES_MIN) / (SLIDES_MAX - SLIDES_MIN)) * 100
@@ -409,6 +466,16 @@ export default function AiDeckView({ initialTopic = '', onCreate, notify }) {
                 <DeckLangPicker langs={langs} value={lang} onChange={setLang} />
               </div>
             </div>
+
+            <div className="ad-field">
+              <div className="ad-label">
+                <span className="ad-step">05</span>
+                <span>{t('ad.design')}</span>
+                <span className="ad-value">{tpl.name}</span>
+              </div>
+              <DesignPicker value={tplId} onChange={pickTemplate} />
+              <p className="ad-hint">{t('ad.designHint')}</p>
+            </div>
           </div>
 
           {/* ───── Live structure + create ───── */}
@@ -458,7 +525,7 @@ export default function AiDeckView({ initialTopic = '', onCreate, notify }) {
           templateName={tpl.name}
           onDone={() =>
             // from a file without a typed topic, the deck is named by its cover title, not the file name
-            onCreate({ topic: (gen.named ? gen.topic : gen.slides[0]?.title) || gen.topic, templateId: TEMPLATE, kind: 'Taqdimot', slides: gen.slides.filter(Boolean), ai: true, lang: gen.lang })
+            onCreate({ topic: (gen.named ? gen.topic : gen.slides[0]?.title) || gen.topic, templateId: tplId, kind: 'Taqdimot', slides: gen.slides.filter(Boolean), ai: true, lang: gen.lang })
           }
           onCancel={() => {
             // the server stops writing and gives the coins back
@@ -479,7 +546,7 @@ export default function AiDeckView({ initialTopic = '', onCreate, notify }) {
           renderThumb={(i) => <Slide slide={gen.out.slides[i]} theme={tpl.theme} preview />}
           templateName={tpl.name}
           note={gen.fromFile ? t('fs.contentNote') : fallbackOf(gen.lang) ? t('gn.langFallback', { lang: langs.find((l) => l.id === gen.lang)?.name }) : null}
-          onDone={() => onCreate({ topic: gen.topic, templateId: TEMPLATE, kind: 'Taqdimot', slides: gen.out.slides, ai: true, lang: gen.lang })}
+          onDone={() => onCreate({ topic: gen.topic, templateId: tplId, kind: 'Taqdimot', slides: gen.out.slides, ai: true, lang: gen.lang })}
           onCancel={() => {
             if (gen.paid?.ref) refundCoins(gen.paid.ref)
             setGen(null)

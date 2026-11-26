@@ -39,6 +39,11 @@ export default function Slide({
   useEffect(() => {
     if (fontKey) loadFonts(fontKey.split('|'))
   }, [fontKey])
+  // a template that uses catalog fonts (the premium ones) loads them with its first page
+  const themeFonts = theme.fonts?.join('|') ?? ''
+  useEffect(() => {
+    if (themeFonts) loadFonts(themeFonts.split('|'))
+  }, [themeFonts])
   // A detached page keeps the look (light/dark alternation) of the position it was made at.
   const at = slide.themeIndex ?? index ?? 0
   const th = theme.alt && at % 2 === 1 ? { ...theme, ...theme.alt } : theme

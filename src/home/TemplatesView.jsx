@@ -101,6 +101,7 @@ function TemplateTile({ tpl, i, onPreview, onUse }) {
           <Slide slide={deck[idx]} theme={tpl.theme} index={idx} preview />
         </div>
         <span className="tg-badges">
+          {tpl.premium && <span className="tg-badge tg-premium">{t('tpl.premium')}</span>}
           {tpl.pro && (
             <ProBadge size="sm" className="tg-pro" />
           )}

@@ -43,7 +43,189 @@ export const CATEGORIES = ['all', 'talim', 'biznes', 'ijod'].map((id) => ({
  */
 const classic = { box: { l: 10, t: 30, w: 80 }, content: { l: 10, t: 14, w: 80 } }
 
+/*
+ * Premium collection: ten designer-grade decks, each with its own font pairing from the catalog
+ * (src/editor/fonts.js — they draw Ö Ğ Ş Ç and Cyrillic), palette, background (premiumDecors.jsx)
+ * and typographic details (premium.css). Shown first; `premium` marks them in pickers.
+ */
+const P = {
+  geologica: "'Geologica', system-ui, sans-serif",
+  onest: "'Onest', system-ui, sans-serif",
+  cormorantG: "'Cormorant Garamond', Georgia, serif",
+  cormorant: "'Cormorant', Georgia, serif",
+  jost: "'Jost', system-ui, sans-serif",
+  unbounded: "'Unbounded', system-ui, sans-serif",
+  manrope: "'Manrope', system-ui, sans-serif",
+  yeseva: "'Yeseva One', Georgia, serif",
+  commissioner: "'Commissioner', system-ui, sans-serif",
+  exo: "'Exo 2', system-ui, sans-serif",
+  plex: "'IBM Plex Sans', system-ui, sans-serif",
+  wix: "'Wix Madefor Display', system-ui, sans-serif",
+  golos: "'Golos Text', system-ui, sans-serif",
+  playfair: "'Playfair Display', Georgia, serif",
+  raleway: "'Raleway', system-ui, sans-serif",
+  nunitoSans: "'Nunito Sans', system-ui, sans-serif",
+  dela: "'Dela Gothic One', system-ui, sans-serif",
+  rubik: "'Rubik', system-ui, sans-serif",
+  montserrat: "'Montserrat', system-ui, sans-serif",
+  sourceSans: "'Source Sans 3', system-ui, sans-serif",
+}
+
+// fonts the backgrounds use besides the title and body fonts
+const EXTRA_FONTS = { blueprint: ["'IBM Plex Mono', monospace"], neon: ["'JetBrains Mono', monospace"] }
+
+const PREMIUM = [
+  {
+    id: 'monolith',
+    cat: 'biznes',
+    pages: ['title', 'agenda', 'section', 'cards', 'stats', 'media', 'process', 'quote', 'compare', 'end'],
+    theme: {
+      layouts: true, skin: 'monolith', decor: 'monolith', frame: 'round', cover: 'left',
+      bg: '#f3f0e8', text: '#111111', muted: '#56524b', accent: '#e63a1f', accent2: '#111111', onAccent: '#ffffff',
+      titleFont: P.geologica, bodyFont: P.onest, titleWeight: 800, titleScale: 1.1,
+      card: '#ffffff', cardText: '#111111', cardBorder: 'rgba(17,17,17,.12)', radius: 0,
+      placeholder: 'linear-gradient(135deg, #e3ded3, #cbc4b5)',
+      area: { l: 6, t: 15, w: 88, h: 75 }, ...classic,
+    },
+  },
+  {
+    id: 'noir',
+    cat: 'ijod',
+    pages: ['title', 'agenda', 'media', 'quote', 'cards', 'stats', 'team', 'process', 'end'],
+    theme: {
+      layouts: true, skin: 'noir', decor: 'noir', frame: 'gold', cover: 'center', center: true,
+      bg: 'radial-gradient(ellipse at 50% 0%, #1d1a17 0%, #0d0c0b 60%, #070707 100%)',
+      text: '#f2ead8', muted: 'rgba(242,234,216,.66)', accent: '#d4b26a', accent2: '#8c7340', onAccent: '#0b0b0c',
+      titleFont: P.cormorantG, bodyFont: P.jost, titleWeight: 500, titleScale: 1.35, bodyScale: 1.02,
+      card: 'rgba(255,255,255,.035)', cardText: '#f2ead8', cardBorder: 'rgba(212,178,106,.35)', radius: 0.2,
+      placeholder: 'linear-gradient(135deg, #2a241b, #14110d)',
+      area: { l: 10, t: 13, w: 80, h: 74 }, ...classic,
+    },
+  },
+  {
+    id: 'borealis',
+    cat: 'biznes',
+    pages: ['title', 'agenda', 'cards', 'stats', 'media', 'process', 'chart', 'quote', 'end'],
+    theme: {
+      layouts: true, skin: 'aurora', decor: 'aurora', frame: 'glow', cover: 'center', center: true,
+      bg: '#060916', text: '#f4f6ff', muted: 'rgba(226,232,255,.66)', accent: '#5eead4', accent2: '#a78bfa', onAccent: '#060916',
+      titleFont: P.unbounded, bodyFont: P.manrope, titleWeight: 600, titleScale: 0.92,
+      card: 'rgba(255,255,255,.06)', cardText: '#f4f6ff', cardBorder: 'rgba(255,255,255,.12)', radius: 1.6,
+      placeholder: 'linear-gradient(135deg, rgba(94,234,212,.25), rgba(167,139,250,.2))',
+      area: { l: 6, t: 14, w: 88, h: 76 }, ...classic,
+    },
+  },
+  {
+    id: 'terra',
+    cat: 'ijod',
+    pages: ['title', 'agenda', 'media', 'cards', 'process', 'stats', 'quote', 'team', 'end'],
+    theme: {
+      layouts: true, skin: 'terra', decor: 'terra', frame: 'arch', cover: 'left',
+      bg: '#efe5d6', text: '#2b1d14', muted: '#6b5444', accent: '#c2593a', accent2: '#d99a3d', onAccent: '#fff8ef',
+      titleFont: P.yeseva, bodyFont: P.commissioner, titleWeight: 400, titleScale: 1.08,
+      card: '#f8f1e6', cardText: '#2b1d14', cardBorder: 'rgba(194,89,58,.22)', radius: 1.4,
+      placeholder: 'linear-gradient(160deg, #e7c3a8, #c98b6b)',
+      area: { l: 6, t: 14, w: 88, h: 76 }, ...classic,
+    },
+  },
+  {
+    id: 'blueprint',
+    cat: 'talim',
+    pages: ['title', 'agenda', 'process', 'cards', 'chart', 'stats', 'compare', 'media', 'end'],
+    theme: {
+      layouts: true, skin: 'blueprint', decor: 'blueprint', frame: 'round', cover: 'left', upper: true,
+      bg: '#0d3b8c', text: '#ffffff', muted: 'rgba(220,232,255,.8)', accent: '#ffd23f', accent2: '#7cc4ff', onAccent: '#0d3b8c',
+      titleFont: P.exo, bodyFont: P.plex, titleWeight: 800, titleScale: 1.02,
+      card: 'rgba(255,255,255,.04)', cardText: '#ffffff', cardBorder: 'rgba(255,255,255,.55)', radius: 0.15,
+      placeholder: 'repeating-linear-gradient(45deg, rgba(255,255,255,.1) 0 0.6cqw, transparent 0.6cqw 1.4cqw)',
+      area: { l: 7, t: 14, w: 86, h: 72 }, ...classic,
+    },
+  },
+  {
+    id: 'pastel',
+    cat: 'talim',
+    pages: ['title', 'agenda', 'cards', 'media', 'stats', 'team', 'process', 'quote', 'end'],
+    theme: {
+      layouts: true, skin: 'pastel', decor: 'pastel', frame: 'round', cover: 'center', center: true,
+      bg: '#f6f2ff', text: '#231942', muted: '#5e5480', accent: '#7c5cff', accent2: '#ff8a65', onAccent: '#ffffff',
+      titleFont: P.wix, bodyFont: P.golos, titleWeight: 800, titleScale: 1.08,
+      card: 'rgba(255,255,255,.8)', cardText: '#231942', cardBorder: 'rgba(124,92,255,.12)', radius: 2.2,
+      placeholder: 'linear-gradient(135deg, #ffe1d2, #e6dcff)',
+      area: { l: 6, t: 14, w: 88, h: 76 }, ...classic,
+    },
+  },
+  {
+    id: 'editorial',
+    cat: 'ijod',
+    pages: ['title', 'media', 'quote', 'cards', 'media:1', 'stats', 'compare', 'team', 'end'],
+    theme: {
+      layouts: true, skin: 'editorial', decor: 'editorial', frame: 'tall', cover: 'split',
+      bg: '#ffffff', text: '#111111', muted: '#5a5a5a', accent: '#e4002b', accent2: '#111111', onAccent: '#ffffff',
+      titleFont: P.playfair, bodyFont: P.raleway, titleWeight: 800, titleScale: 1.15,
+      card: '#f6f4f0', cardText: '#111111', cardBorder: 'transparent', radius: 0,
+      placeholder: 'linear-gradient(135deg, #ebe8e2, #cfcac2)',
+      area: { l: 5, t: 15, w: 90, h: 76 }, ...classic,
+    },
+  },
+  {
+    id: 'forest',
+    cat: 'talim',
+    pages: ['title', 'agenda', 'media', 'cards', 'quote', 'process', 'stats', 'team', 'end'],
+    theme: {
+      layouts: true, skin: 'forest', decor: 'forest', frame: 'arch', cover: 'center', center: true,
+      bg: 'radial-gradient(ellipse at 50% 30%, #17382a 0%, #0e2419 55%, #08170f 100%)',
+      text: '#f1ecdf', muted: 'rgba(241,236,223,.7)', accent: '#e8c87a', accent2: '#a8c3a0', onAccent: '#0e2419',
+      titleFont: P.cormorant, bodyFont: P.nunitoSans, titleWeight: 600, titleScale: 1.32,
+      card: 'rgba(255,255,255,.05)', cardText: '#f1ecdf', cardBorder: 'rgba(168,195,160,.3)', radius: 1,
+      placeholder: 'linear-gradient(160deg, #2c5a43, #13301f)',
+      area: { l: 10, t: 13, w: 80, h: 74 }, ...classic,
+    },
+  },
+  {
+    id: 'neon',
+    cat: 'biznes',
+    pages: ['title', 'agenda', 'stats', 'cards', 'chart', 'process', 'media', 'compare', 'end'],
+    theme: {
+      layouts: true, skin: 'neon', decor: 'neon', frame: 'glow', cover: 'center', center: true, upper: true,
+      bg: '#05060b', text: '#f5f7ff', muted: 'rgba(220,226,255,.62)', accent: '#c6f432', accent2: '#22d3ee', onAccent: '#05060b',
+      titleFont: P.dela, bodyFont: P.rubik, titleWeight: 400, titleScale: 0.88,
+      card: 'rgba(198,244,50,.05)', cardText: '#f5f7ff', cardBorder: 'rgba(198,244,50,.35)', radius: 0.8,
+      placeholder: 'linear-gradient(135deg, rgba(34,211,238,.2), rgba(198,244,50,.15))',
+      area: { l: 6, t: 14, w: 88, h: 74 }, ...classic,
+    },
+  },
+  {
+    id: 'executive',
+    cat: 'biznes',
+    pages: ['title', 'agenda', 'stats', 'cards', 'media', 'chart', 'process', 'team', 'compare', 'end'],
+    theme: {
+      layouts: true, skin: 'executive', decor: 'executive', frame: 'round', cover: 'split',
+      bg: '#ffffff', text: '#0a2540', muted: '#4a5d75', accent: '#00a38c', accent2: '#0a2540', onAccent: '#ffffff',
+      titleFont: P.montserrat, bodyFont: P.sourceSans, titleWeight: 800, titleScale: 1.02,
+      card: '#f4f7fb', cardText: '#0a2540', cardBorder: 'rgba(10,37,64,.08)', radius: 0.6,
+      placeholder: 'linear-gradient(135deg, #dbe5f0, #b8c9dc)',
+      // every second page is the navy one
+      alt: {
+        bg: '#0a2540', text: '#ffffff', muted: 'rgba(255,255,255,.72)',
+        card: 'rgba(255,255,255,.06)', cardText: '#ffffff', cardBorder: 'rgba(255,255,255,.12)',
+        placeholder: 'linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.04))',
+      },
+      area: { l: 6, t: 14, w: 88, h: 76 }, ...classic,
+    },
+  },
+].map((tpl) => ({
+  ...tpl,
+  types: ['Prezentatsiya'],
+  premium: true,
+  // catalog fonts the page needs (Slide.jsx loads them when the page is shown)
+  theme: { ...tpl.theme, fonts: [tpl.theme.titleFont, tpl.theme.bodyFont, ...(EXTRA_FONTS[tpl.id] ?? [])] },
+}))
+
+/** The premium collection's ids, in their order. */
+export const PREMIUM_IDS = PREMIUM.map((tpl) => tpl.id)
+
 export const TEMPLATES = [
+  ...PREMIUM,
   {
     id: 'gallery',
     types: ['Prezentatsiya'],

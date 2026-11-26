@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { t } from '../i18n/index.js'
 import Slide from './Slide.jsx'
-import { LAYOUTS, samplePage } from './layouts.jsx'
+import { PICKS, samplePage } from './layouts.jsx'
 import './layout-picker.css'
 
 /**
@@ -12,7 +12,7 @@ import './layout-picker.css'
 export default function LayoutPicker({ anchor, theme, onPick, onClose }) {
   const panel = useRef(null)
   const [pos, setPos] = useState(null)
-  const pages = useMemo(() => ['blank', ...LAYOUTS].map((type) => ({ type, slide: { ...samplePage(type), id: `pick-${type}`, elements: [] } })), [])
+  const pages = useMemo(() => ['blank', ...PICKS].map((type) => ({ type, slide: { ...samplePage(type), id: `pick-${type}`, elements: [] } })), [])
 
   useLayoutEffect(() => {
     const r = anchor.getBoundingClientRect()

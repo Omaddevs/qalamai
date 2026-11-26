@@ -369,9 +369,16 @@ export default function FreeLayer({
   }
 
   const single = editable && selected.length === 1 ? elements.find((x) => x.id === selected[0]) : null
-  // «Körish» on a page without animations: everything rises in, top to bottom
-  const sample = autoAnim
-    ? new Map([...elements].sort((a, b) => a.y - b.y || a.x - b.x).map((e, i) => [e.id, { type: 'rise', delay: Math.min(i * 0.1, 1.5), dur: 0.7 }]))
+  // «Körish» or a deck motion preset on a page without animations: the content comes in, top to
+  // bottom; the background artwork (decor layers) stays where it is
+  const pre = autoAnim === true ? { type: 'rise', dur: 0.7, step: 0.1 } : autoAnim || null
+  const sample = pre
+    ? new Map(
+        [...elements]
+          .filter((e) => !e.decor && !e.bg)
+          .sort((a, b) => a.y - b.y || a.x - b.x)
+          .map((e, i) => [e.id, { type: pre.type, delay: Math.min(i * pre.step, 1.6), dur: pre.dur }]),
+      )
     : null
 
   return (
@@ -385,7 +392,7 @@ export default function FreeLayer({
           <div
             key={el.id}
             data-eid={el.id}
-            className={`fx-el k-${el.kind} ${isSel ? 'sel' : ''} ${editing ? 'editing' : ''} ${el.locked ? 'locked' : ''} ${el.bg ? 'bg' : ''}`}
+            className={`fx-el k-${el.kind} ${el.kind === 'text' && el.h != null ? 'has-h' : ''} ${isSel ? 'sel' : ''} ${editing ? 'editing' : ''} ${el.locked ? 'locked' : ''} ${el.bg ? 'bg' : ''}`}
             style={{
               left: `${el.x}%`,
               top: `${el.y}%`,

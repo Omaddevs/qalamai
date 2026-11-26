@@ -17,7 +17,7 @@ function Monolith({ theme, index }) {
       <div style={abs({ left: '6%', right: '6%', top: '7.5%', height: '0.06cqw', background: theme.text })} />
       <div style={abs({ left: '6%', right: '6%', top: '4%', display: 'flex', alignItems: 'center', fontSize: '0.95cqw', fontWeight: 600, letterSpacing: '0.16em', color: theme.text })}>
         <span style={{ width: '0.9cqw', height: '0.9cqw', background: theme.accent, marginInlineEnd: '0.8cqw' }} />
-        QALAMAI
+        <span>QALAMAI</span>
         <span style={{ flex: 1 }} />
         <span style={{ fontVariantNumeric: 'tabular-nums' }}>{num(index)}</span>
       </div>
@@ -76,7 +76,7 @@ function Aurora({ theme, index, cover }) {
       <div style={abs({ inset: 0, backgroundImage: 'radial-gradient(rgba(255,255,255,.16) 0.08cqw, transparent 0.09cqw)', backgroundSize: '2.2cqw 2.2cqw', maskImage: 'radial-gradient(ellipse at 50% 50%, #000 20%, transparent 75%)', WebkitMaskImage: 'radial-gradient(ellipse at 50% 50%, #000 20%, transparent 75%)' })} />
       <div style={abs({ left: '5%', right: '5%', top: '5%', display: 'flex', alignItems: 'center', gap: '0.8cqw', fontSize: '0.95cqw', fontWeight: 600, color: theme.muted })}>
         <span style={{ width: '1.6cqw', height: '1.6cqw', borderRadius: '50%', background: 'conic-gradient(from 90deg, #2dd4bf, #8b5cf6, #f472b6, #2dd4bf)' }} />
-        QalamAI
+        <span>QalamAI</span>
         <span style={{ flex: 1 }} />
         <span style={{ padding: '0.3cqw 0.9cqw', borderRadius: '9cqw', border: '0.07cqw solid rgba(255,255,255,.2)', fontVariantNumeric: 'tabular-nums' }}>{num(index)}</span>
       </div>
@@ -244,7 +244,7 @@ function Executive({ theme, index }) {
       )}
       <div style={abs({ [cover ? 'left' : 'right']: '4%', bottom: '6%', width: '12cqw', height: '8cqw', backgroundImage: `radial-gradient(${theme.accent}66 0.18cqw, transparent 0.2cqw)`, backgroundSize: '1.2cqw 1.2cqw' })} />
       <div style={abs({ left: '5%', top: '4.2%', fontSize: '0.95cqw', fontWeight: 800, letterSpacing: '0.12em', color: navy })}>
-        QALAMAI<span style={{ color: theme.accent }}>.</span>
+        <span>QALAMAI</span><span style={{ color: theme.accent }}>.</span>
       </div>
       {!cover && <div style={abs({ right: '5%', top: '4.2%', fontSize: '0.95cqw', fontWeight: 600, color: theme.muted, fontVariantNumeric: 'tabular-nums' })}>{num(index)}</div>}
     </div>

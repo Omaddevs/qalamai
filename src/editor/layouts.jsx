@@ -2,76 +2,21 @@
 // One renderer per layout; the template only supplies theme tokens (colours, fonts, card and
 // image-frame styles) through CSS variables, so every layout works with every template.
 // All sizes are in cqw — the same page scales from a 150 px thumbnail to the full canvas.
-import AssetImg from '../components/AssetImg.jsx'
-import { storeImage } from '../assets.js'
-import { useRef } from 'react'
-import { Check, ImageSquare, Quotes } from '@phosphor-icons/react'
+import { Check, Quotes } from '@phosphor-icons/react'
 import { t } from '../i18n/index.js'
-import { Text } from './Text.jsx'
+import { Bullets, Heading, ImageSlot, T, patchAt, valueOf } from './layoutKit.jsx'
+import { ChartBody, CHART_KINDS } from './charts.jsx'
+import { PRO_LAYOUTS, PRO_RENDER, proSample } from './layoutsPro.jsx'
 import './layouts.css'
+import './layouts-pro.css'
+
+export { downscale, patchAt } from './layoutKit.jsx'
 
 /** Layouts a page can have. 'title' and 'content' are the classic two; the rest are structured. */
-export const LAYOUTS = ['title', 'content', 'agenda', 'section', 'media', 'cards', 'stats', 'process', 'team', 'quote', 'chart', 'quiz', 'compare', 'end']
+export const LAYOUTS = ['title', 'content', 'agenda', 'section', 'media', 'cards', 'stats', 'process', 'team', 'quote', 'chart', 'quiz', 'compare', 'end', ...PRO_LAYOUTS]
 
-/* ───────── nested field paths: "cards.1.title" ───────── */
-
-const get = (obj, path) => path.split('.').reduce((o, k) => (o == null ? o : o[k]), obj)
-
-function setDeep(node, keys, value) {
-  const [k, ...rest] = keys
-  const copy = Array.isArray(node) ? [...node] : { ...(node ?? {}) }
-  copy[k] = rest.length ? setDeep(copy[k], rest, value) : value
-  return copy
-}
-
-/** Patch for the slide's top-level field that contains `path`. */
-export function patchAt(slide, path, value) {
-  const [head, ...rest] = path.split('.')
-  return { [head]: rest.length ? setDeep(slide[head], rest, value) : value }
-}
-
-/* ───────── images: picked once, kept on this device; the deck holds an `asset:` reference ───────── */
-
-export const downscale = (file, max = 1280) => storeImage(file, max)
-
-function ImageSlot({ ctx, path, className = '' }) {
-  const input = useRef(null)
-  const src = get(ctx.slide, path)
-  const pick = async (e) => {
-    const f = e.target.files?.[0]
-    e.target.value = ''
-    if (f?.type.startsWith('image/')) ctx.set(path, await downscale(f))
-  }
-  return (
-    <div
-      className={`ly-img f-${ctx.theme.frame ?? 'round'} ${src ? '' : 'empty'} ${className}`}
-      data-path={path}
-      onClick={ctx.editable ? () => input.current?.click() : undefined}
-      role={ctx.editable ? 'button' : undefined}
-      title={ctx.editable ? t('ly.addImage') : undefined}
-    >
-      <div className="ly-img-in">
-        {src ? (
-          <AssetImg src={src} draggable={false} />
-        ) : (
-          <span className="ly-img-ph">
-            <ImageSquare weight="duotone" />
-            {ctx.editable && <small>{t('ly.addImage')}</small>}
-          </span>
-        )}
-      </div>
-      {ctx.editable && <input ref={input} type="file" accept="image/*" hidden onChange={pick} />}
-    </div>
-  )
-}
-
-/* ───────── editable text bound to a path ───────── */
-
-function T({ ctx, path, as = 'div', className }) {
-  return <Text as={as} className={className} path={path} value={get(ctx.slide, path) ?? ''} editable={ctx.editable} onCommit={(v) => ctx.set(path, v)} />
-}
-
-const Heading = ({ ctx, path = 'title' }) => <T ctx={ctx} path={path} className="ly-h" />
+/** Entries of the "add page" menu: every layout, plus the other chart kinds ('chart:line' …). */
+export const PICKS = [...LAYOUTS.slice(0, 11), ...CHART_KINDS.filter((k) => k !== 'bar').map((k) => `chart:${k}`), ...LAYOUTS.slice(11)]
 
 /* ───────── layouts ───────── */
 
@@ -87,20 +32,6 @@ function Cover({ ctx }) {
         <T ctx={ctx} path="subtitle" className="ly-sub" />
       </div>
     </div>
-  )
-}
-
-function Bullets({ ctx, path = 'bullets' }) {
-  const list = get(ctx.slide, path) ?? []
-  return (
-    <ul className="ly-bullets">
-      {list.map((_, i) => (
-        <li key={i}>
-          <span className="ly-dot" />
-          <T ctx={ctx} path={`${path}.${i}`} as="span" />
-        </li>
-      ))}
-    </ul>
   )
 }
 
@@ -240,8 +171,10 @@ function Quote({ ctx }) {
 }
 
 function Chart({ ctx }) {
+  const kind = ctx.slide.kind ?? 'bar'
+  if (kind !== 'bar') return <ChartBody ctx={ctx} kind={kind} />
   const bars = ctx.slide.bars ?? []
-  const max = Math.max(1, ...bars.map((b) => parseFloat(b.value) || 0))
+  const max = Math.max(1, ...bars.map((b) => valueOf(b.value) || 0))
   return (
     <div className="ly ly-chart">
       <div className="ly-chart-text">
@@ -252,7 +185,7 @@ function Chart({ ctx }) {
         {bars.map((b, i) => (
           <div key={i} className="ly-bar">
             <T ctx={ctx} path={`bars.${i}.value`} className="ly-bar-v" />
-            <span className="ly-bar-fill" style={{ height: `${((parseFloat(b.value) || 0) / max) * 100}%` }} />
+            <span className="ly-bar-fill" style={{ height: `${(Math.max(0, valueOf(b.value) || 0) / max) * 100}%` }} />
             <T ctx={ctx} path={`bars.${i}.label`} className="ly-bar-l" />
           </div>
         ))}
@@ -335,6 +268,7 @@ const RENDER = {
   quiz: Quiz,
   compare: Compare,
   end: End,
+  ...PRO_RENDER,
 }
 
 /**
@@ -353,7 +287,16 @@ export function LayoutBody({ slide, theme, index, editable, onChange }) {
   }
   const a = theme.area ?? { l: 7, t: 10, w: 86, h: 80 }
   return (
-    <div className="ly-area" style={{ left: `${a.l}%`, top: `${a.t}%`, width: `${a.w}%`, height: `${a.h}%` }}>
+    // --al … --ah: the area in % of the page, so full-bleed pictures can reach the page edges
+    <div
+      className="ly-area"
+      data-layout={slide.type}
+      style={{
+        left: `${a.l}%`, top: `${a.t}%`, width: `${a.w}%`, height: `${a.h}%`, '--al': a.l, '--at': a.t, '--aw': a.w, '--ah': a.h,
+        // quality.js may set `fit` (< 1) on a page whose text runs over: every type size scales down together
+        ...(slide.fit > 0 && slide.fit < 1 ? { '--ts': (theme.titleScale ?? 1) * slide.fit, '--bs': (theme.bodyScale ?? 1) * slide.fit, '--fit': slide.fit } : {}),
+      }}
+    >
       <Render ctx={ctx} />
     </div>
   )
@@ -393,7 +336,11 @@ const pairs = (key, a, b) => {
 }
 
 /** A filled page of the given layout, in the interface language. `v` picks a variant. */
-export function samplePage(type, v = 0) {
+export function samplePage(entry, v = 0) {
+  const [type, variant] = String(entry).split(':')
+  if (variant != null) return type === 'chart' ? chartSample(variant) : samplePage(type, Number(variant) || 0)
+  const pro = proSample(type, v)
+  if (pro) return pro
   switch (type) {
     // an empty white page (Canva's new page): filled by hand with text, photos, elements
     case 'blank':
@@ -421,6 +368,7 @@ export function samplePage(type, v = 0) {
       return { type, quote, author }
     }
     case 'chart': {
+      if (v) return chartSample(CHART_KINDS[v % CHART_KINDS.length])
       const xs = parts('ly.chart.items')
       const bars = []
       for (let i = 0; i + 1 < xs.length; i += 2) bars.push({ label: xs[i], value: xs[i + 1] })
@@ -446,5 +394,21 @@ export function samplePage(type, v = 0) {
     }
     default:
       return { type: 'title', kicker: t('ly.kicker'), title: '', subtitle: '', image: null }
+  }
+}
+
+/** A sample chart page of the given kind: a series over time for bars and lines, shares for the rest. */
+function chartSample(kind) {
+  const share = kind === 'donut' || kind === 'pie' || kind === 'hbar'
+  const xs = parts(share ? 'ly.chart.share' : 'ly.chart.items')
+  const bars = []
+  for (let i = 0; i + 1 < xs.length; i += 2) bars.push({ label: xs[i], value: xs[i + 1] })
+  return {
+    type: 'chart',
+    kind,
+    title: t(share ? 'ly.chart.shareTitle' : 'ly.chart.title'),
+    text: t(share ? 'ly.chart.shareText' : 'ly.chart.text'),
+    bars,
+    ...(share ? { unit: '%' } : {}),
   }
 }

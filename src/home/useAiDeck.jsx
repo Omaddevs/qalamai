@@ -4,6 +4,7 @@
 import { useRef, useState } from 'react'
 import Slide from '../editor/Slide.jsx'
 import { getTemplate } from '../editor/templates.js'
+import { fitDeck } from '../editor/quality.js'
 import { ApiError } from '../api.js'
 import { aiDeck } from '../coins.js'
 import { PLAN_FIXED, PLAN_MAX } from '../blueprints.js'
@@ -46,7 +47,8 @@ export function useAiDeck(notify) {
     const patch = (fn) => setGen((g) => (g?.live ? fn(g) : g))
     try {
       const ran = await aiDeck(
-        { topic, plans: usePlans, slides: total, lang, source },
+        // the design's layout family steers which page types the AI favours
+        { topic, plans: usePlans, slides: total, lang, source, prefer: getTemplate(templateId)?.prefer ?? [] },
         {
           signal: ctl.signal,
           onEvent: (ev) => {
@@ -104,10 +106,12 @@ export function useAiDeck(notify) {
         total={gen.total}
         renderThumb={(i) => (gen.slides[i] ? <Slide slide={gen.slides[i]} theme={tpl.theme} index={i} preview /> : null)}
         templateName={tpl.name}
-        onDone={() => {
+        onDone={async () => {
           // from a file without a typed topic, the deck is named by its cover title, not the file name
           const name = (gen.named ? gen.topic : gen.slides[0]?.title) || gen.topic
-          onCreate({ topic: name, templateId: gen.templateId, kind: gen.kind, slides: gen.slides.filter(Boolean), ai: true, lang: gen.lang })
+          // pages whose text runs over get a smaller type size (quality.js) before the editor opens
+          const { slides } = await fitDeck(gen.slides.filter(Boolean), tpl.theme).catch(() => ({ slides: gen.slides.filter(Boolean) }))
+          onCreate({ topic: name, templateId: gen.templateId, kind: gen.kind, slides, ai: true, lang: gen.lang })
           setGen(null)
           onClose?.()
         }}

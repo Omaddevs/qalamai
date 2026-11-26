@@ -47,5 +47,11 @@
   "gn.open": "Abrir agora",
   "gn.tip": "Cada slide pode ser alterado depois no editor",
   "gn.tipDoc": "O texto pode ser alterado depois no editor de arquivos",
-  "gn.langFallback": "{lang}: por enquanto, texto de exemplo em inglês — a IA vai escrevê-lo neste idioma"
+  "gn.langFallback": "{lang}: por enquanto, texto de exemplo em inglês — a IA vai escrevê-lo neste idioma",
+  "ad.family.all": "Tudo",
+  "ad.family.business": "Negócios",
+  "ad.family.education": "Educação e pesquisa",
+  "ad.family.creative": "Criativo",
+  "ad.family.tech": "Tecnologia",
+  "ad.family.industry": "Setores"
 }

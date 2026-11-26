@@ -1,0 +1,20 @@
+{
+  "mo.button": "动效",
+  "mo.title": "整套演示的动效",
+  "mo.preset": "内容入场",
+  "mo.preset.none": "无",
+  "mo.preset.minimal": "简约",
+  "mo.preset.professional": "专业",
+  "mo.preset.cinematic": "电影感",
+  "mo.preset.dynamic": "动感",
+  "mo.presetNote": "在没有自定义动画的页面上播放。为元素设置的动画优先。",
+  "mo.transition": "翻页过渡",
+  "mo.tr.none": "无",
+  "mo.tr.fade": "淡入淡出",
+  "mo.tr.slide": "滑入",
+  "mo.tr.push": "推移",
+  "mo.tr.zoom": "缩放",
+  "mo.tr.reveal": "揭开",
+  "mo.reduced": "系统要求减少动效：演示时效果已关闭。",
+  "mo.exportNote": "下载的文件（PDF、PPTX、图片）为静态页面；动效在演示模式中播放。"
+}

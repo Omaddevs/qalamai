@@ -47,5 +47,11 @@
   "gn.open": "ابھی کھولیں",
   "gn.tip": "ہر سلائیڈ بعد میں ایڈیٹر میں بدلی جا سکتی ہے",
   "gn.tipDoc": "متن بعد میں فائل ایڈیٹر میں بدلا جا سکتا ہے",
-  "gn.langFallback": "{lang}: فی الحال نمونے کا متن انگریزی میں ہے — AI اسے اسی زبان میں لکھے گا"
+  "gn.langFallback": "{lang}: فی الحال نمونے کا متن انگریزی میں ہے — AI اسے اسی زبان میں لکھے گا",
+  "ad.family.all": "سب",
+  "ad.family.business": "کاروبار",
+  "ad.family.education": "تعلیم و تحقیق",
+  "ad.family.creative": "تخلیقی",
+  "ad.family.tech": "ٹیکنالوجی",
+  "ad.family.industry": "صنعتیں"
 }

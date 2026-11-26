@@ -1,0 +1,20 @@
+{
+  "mo.button": "모션",
+  "mo.title": "전체 프레젠테이션 모션",
+  "mo.preset": "콘텐츠 등장",
+  "mo.preset.none": "없음",
+  "mo.preset.minimal": "미니멀",
+  "mo.preset.professional": "프로페셔널",
+  "mo.preset.cinematic": "시네마틱",
+  "mo.preset.dynamic": "다이내믹",
+  "mo.presetNote": "자체 애니메이션이 없는 페이지에서 재생돼요. 요소에 지정한 애니메이션이 우선이에요.",
+  "mo.transition": "페이지 전환",
+  "mo.tr.none": "없음",
+  "mo.tr.fade": "페이드",
+  "mo.tr.slide": "슬라이드",
+  "mo.tr.push": "밀어내기",
+  "mo.tr.zoom": "확대",
+  "mo.tr.reveal": "드러내기",
+  "mo.reduced": "시스템에서 동작 줄이기가 켜져 있어 발표 중에는 효과가 꺼져요.",
+  "mo.exportNote": "다운로드(PDF, PPTX, 이미지)는 정지된 페이지예요. 모션은 발표 모드에서 재생돼요."
+}

@@ -1,6 +1,7 @@
 // Designs persisted in localStorage (per browser). Seeded with examples on first run.
 import { convert } from './lib/alifbo.js'
 import { generateSlides, getTemplate, newId, templatePages } from './editor/templates.js'
+import { MOTIONS } from './editor/motion.js'
 import { authorLine } from './profile.js'
 import { formatDate, t } from './i18n/index.js'
 import { markChanged } from './changes.js'
@@ -9,7 +10,12 @@ const KEY = 'qalamai.designs.v1'
 
 export const KIND_BY_CAT = {
   talim: 'Taqdimot',
+  ilmiy: 'Taqdimot',
   biznes: 'Biznes taqdimot',
+  moliya: 'Biznes taqdimot',
+  marketing: 'Biznes taqdimot',
+  texno: 'Biznes taqdimot',
+  soha: 'Biznes taqdimot',
   ijod: 'Portfolio',
   taklifnoma: 'Taklifnoma',
 }
@@ -43,6 +49,8 @@ export function newDeck({ topic, templateId = 'pitch', count = 6, kind, slides: 
     kind: kind ?? KIND_BY_CAT[tpl.cat] ?? 'Taqdimot',
     templateId: tpl.id,
     accent: null,
+    // the design's motion preset and its page transition (Harakat panel, motion.js)
+    ...(tpl.motion ? { motion: tpl.motion, transition: MOTIONS[tpl.motion]?.transition } : {}),
     slides,
     updatedAt: Date.now(),
   }

@@ -3,13 +3,34 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import Slide from './Slide.jsx'
+import { TRANSITION_DUR, reducedMotion } from './motion.js'
 
-/** Full-screen slideshow. → / Space / click: next · ←: back · Esc: leave. */
-export function Present({ slides, theme, start = 0, onClose }) {
-  const [i, setI] = useState(start)
+/**
+ * Full-screen slideshow. → / Space / click: next · ←: back · Esc: leave.
+ * `transition` (motion.js TRANSITIONS) runs between pages; `motion` (a MOTIONS preset) brings in the
+ * content of pages that have no animations of their own.
+ */
+export function Present({ slides, theme, start = 0, transition = 'fade', motion = null, onClose }) {
+  const [view, setView] = useState({ i: start, from: null, dir: 1, n: 0 })
   const box = useRef(null)
-  const next = useCallback(() => setI((x) => Math.min(slides.length - 1, x + 1)), [slides.length])
-  const prev = useCallback(() => setI((x) => Math.max(0, x - 1)), [])
+  const tr = reducedMotion() ? 'none' : transition
+  const dur = TRANSITION_DUR[tr] ?? 0
+  const go = useCallback(
+    (step) =>
+      setView((v) => {
+        const i = Math.min(slides.length - 1, Math.max(0, v.i + step))
+        return i === v.i ? v : { i, from: dur ? v.i : null, dir: step > 0 ? 1 : -1, n: v.n + 1 }
+      }),
+    [slides.length, dur],
+  )
+  const next = useCallback(() => go(1), [go])
+  const prev = useCallback(() => go(-1), [go])
+  // the old page is dropped once the transition is over
+  useEffect(() => {
+    if (view.from == null) return
+    const tm = setTimeout(() => setView((v) => (v.n === view.n ? { ...v, from: null } : v)), dur * 1000 + 60)
+    return () => clearTimeout(tm)
+  }, [view.n, view.from, dur])
 
   useEffect(() => {
     box.current?.requestFullscreen?.().catch(() => {})
@@ -31,10 +52,19 @@ export function Present({ slides, theme, start = 0, onClose }) {
     }
   }, [next, prev, onClose])
 
+  const { i, from } = view
+  const moving = from != null && slides[from]
   return createPortal(
     <div className="present" ref={box} onClick={next}>
-      <div className="present-stage">
-        <Slide key={slides[i].id} slide={slides[i]} theme={theme} index={i} playing />
+      <div className="present-stage" data-tr={tr} style={{ '--pt-dur': `${dur}s`, '--pt-dir': view.dir }}>
+        {moving && (
+          <div key={`out-${view.n}`} className="pt-page out">
+            <Slide slide={slides[from]} theme={theme} index={from} />
+          </div>
+        )}
+        <div key={`in-${view.n}`} className={`pt-page ${moving ? 'in' : ''}`}>
+          <Slide key={slides[i].id} slide={slides[i]} theme={theme} index={i} playing motion={motion} />
+        </div>
       </div>
       <div className="present-bar" onClick={(e) => e.stopPropagation()}>
         <button type="button" onClick={prev} disabled={i === 0} aria-label="Oldingi">

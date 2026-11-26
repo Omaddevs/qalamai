@@ -59,5 +59,11 @@
   "gn.open": "Ouvrir maintenant",
   "gn.tip": "Chaque diapositive reste modifiable ensuite dans l’éditeur",
   "gn.tipDoc": "Le texte reste modifiable ensuite dans l’éditeur de fichiers",
-  "gn.langFallback": "{lang} : texte d’exemple en anglais pour l’instant ; l’IA le rédigera dans cette langue"
+  "gn.langFallback": "{lang} : texte d’exemple en anglais pour l’instant ; l’IA le rédigera dans cette langue",
+  "ad.family.all": "Tout",
+  "ad.family.business": "Business",
+  "ad.family.education": "Éducation et recherche",
+  "ad.family.creative": "Créatif",
+  "ad.family.tech": "Technologie",
+  "ad.family.industry": "Secteurs"
 }

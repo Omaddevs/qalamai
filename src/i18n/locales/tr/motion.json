@@ -1,0 +1,20 @@
+{
+  "mo.button": "Hareket",
+  "mo.title": "Tüm sunum için hareket",
+  "mo.preset": "İçeriğin girişi",
+  "mo.preset.none": "Yok",
+  "mo.preset.minimal": "Sade",
+  "mo.preset.professional": "Profesyonel",
+  "mo.preset.cinematic": "Sinematik",
+  "mo.preset.dynamic": "Dinamik",
+  "mo.presetNote": "Kendi animasyonu olmayan sayfalarda oynar. Bir öğeye verilen animasyon önceliklidir.",
+  "mo.transition": "Sayfa geçişi",
+  "mo.tr.none": "Yok",
+  "mo.tr.fade": "Solma",
+  "mo.tr.slide": "Kaydırma",
+  "mo.tr.push": "İtme",
+  "mo.tr.zoom": "Yakınlaştırma",
+  "mo.tr.reveal": "Açılma",
+  "mo.reduced": "Sisteminiz daha az hareket istiyor: sunumda efektler kapalı.",
+  "mo.exportNote": "İndirilen dosyalar (PDF, PPTX, görsel) sabit sayfayı gösterir; hareket sunum modunda oynar."
+}

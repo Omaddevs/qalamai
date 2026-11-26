@@ -1,0 +1,21 @@
+{
+  "q.button": "Kualitas",
+  "q.title": "Kualitas presentasi",
+  "q.checking": "Memeriksa…",
+  "q.found": "{n} catatan",
+  "q.none": "Semua baik — tidak ada yang perlu diperbaiki",
+  "q.fix": "Perbaiki otomatis",
+  "q.fixed": "Teks kini muat di {n} halaman",
+  "q.hint": "Perbaikan otomatis hanya mengecilkan huruf: kata dan angka tidak berubah.",
+  "q.overflow": "Teks keluar dari halaman",
+  "q.dense": "Teks terlalu banyak — sebaiknya dibagi menjadi dua halaman",
+  "q.repeat": "Dua halaman berturut-turut dengan komposisi sama",
+  "q.typeShare": "Satu tata letak mendominasi presentasi ({n})",
+  "q.empty": "Judul kosong",
+  "q.image": "Bingkai gambar kosong — tambahkan gambar",
+  "q.chart": "Nilai diagram bukan angka",
+  "q.chartSum": "Jumlah bagian diagram lingkaran {n}% (seharusnya 100%)",
+  "q.small": "Teks banyak diperkecil — sebaiknya dipersingkat",
+  "q.offPage": "Elemen keluar dari halaman ({n})",
+  "q.contrast": "Warna aksen terlalu mirip latar — kontras rendah"
+}

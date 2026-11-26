@@ -4,6 +4,7 @@
 import { useId } from 'react'
 import { t } from '../i18n/index.js'
 import { PREMIUM_DECORS } from './premiumDecors.jsx'
+import { StudioDecor } from './studioDecor.jsx'
 
 const abs = (s) => ({ position: 'absolute', pointerEvents: 'none', ...s })
 
@@ -760,7 +761,7 @@ function Saas({ theme, index }) {
   )
 }
 
-const DECORS = { ...PREMIUM_DECORS, sunrise: Sunrise, flame: Flame, saas: Saas,  stage: Stage, splash: Splash, club: Club, training: Training, roadmap: Roadmap, workshop: Workshop, strategy: Strategy,  gallery: Gallery, book: Book, quiz: Quiz, law: Law, pitch: Pitch, brand: Brand, velvet: Velvet, agency: Agency, rights: Rights, skyline: Skyline, kids: Kids, crayon: Crayon, sketch: Sketch, chalkboard: Chalkboard, doodle: Doodle }
+const DECORS = { ...PREMIUM_DECORS, studio: StudioDecor, sunrise: Sunrise, flame: Flame, saas: Saas,  stage: Stage, splash: Splash, club: Club, training: Training, roadmap: Roadmap, workshop: Workshop, strategy: Strategy,  gallery: Gallery, book: Book, quiz: Quiz, law: Law, pitch: Pitch, brand: Brand, velvet: Velvet, agency: Agency, rights: Rights, skyline: Skyline, kids: Kids, crayon: Crayon, sketch: Sketch, chalkboard: Chalkboard, doodle: Doodle }
 
 export function NewDecor({ kind, cover, theme, index }) {
   const D = DECORS[kind]

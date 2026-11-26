@@ -150,4 +150,10 @@ export default {
     ky: '{lang}: азырынча англисче үлгү текст — AI кошулганда ушул тилде жазылат',
     tg: '{lang}: ҳоло матни намунавӣ бо англисӣ — бо AI бо ҳамин забон навишта мешавад',
   },
+  'ad.family.all': { uz: "Hammasi", ru: "Все", en: "All", kk: "Барлығы", ky: "Баары", tg: "Ҳама" },
+  'ad.family.business': { uz: "Biznes", ru: "Бизнес", en: "Business", kk: "Бизнес", ky: "Бизнес", tg: "Тиҷорат" },
+  'ad.family.education': { uz: "Taʼlim va fan", ru: "Образование и наука", en: "Education & research", kk: "Білім және ғылым", ky: "Билим жана илим", tg: "Маориф ва илм" },
+  'ad.family.creative': { uz: "Ijod", ru: "Творчество", en: "Creative", kk: "Шығармашылық", ky: "Чыгармачылык", tg: "Эҷод" },
+  'ad.family.tech': { uz: "Texnologiya", ru: "Технологии", en: "Technology", kk: "Технология", ky: "Технология", tg: "Технология" },
+  'ad.family.industry': { uz: "Sohalar", ru: "Отрасли", en: "Industries", kk: "Салалар", ky: "Тармактар", tg: "Соҳаҳо" },
 }

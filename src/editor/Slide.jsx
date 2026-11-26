@@ -5,6 +5,7 @@ import { LayoutBody, themeVars } from './layouts.jsx'
 import { NewDecor } from './decors.jsx'
 import FreeLayer from './FreeLayer.jsx'
 import './canva.css'
+import './studio.css'
 
 // Page backgrounds live in decors.jsx, structured page layouts in layouts.jsx.
 
@@ -30,6 +31,7 @@ export default function Slide({
   onPickImage,
   playing = false,
   autoAnim = false,
+  motion = null,
   preview = false,
   className = '',
 }) {
@@ -61,7 +63,14 @@ export default function Slide({
       ref={root}
       className={`slide ${playing ? 'playing' : ''} ${className}`}
       data-skin={theme.skin}
-      style={{ background: slide.bg ?? theme.bg, color: theme.text, fontFamily: theme.bodyFont, ...themeVars(theme) }}
+      data-card={theme.cardStyle}
+      data-rule={theme.ruleStyle}
+      data-head={theme.headStyle}
+      data-kick={theme.kickerStyle}
+      data-photo={theme.photoStyle}
+      // a page still drawn by its layout (not yet detached) plays the deck preset on its blocks
+      data-motion={playing && motion && !free && structured ? motion.type : undefined}
+      style={{ background: slide.bg ?? theme.bg, color: theme.text, fontFamily: theme.bodyFont, ...themeVars(theme), ...(motion ? { '--m-dur': `${motion.dur}s`, '--m-step': `${motion.step}s` } : {}) }}
     >
       <div className="slide-inner">
         {/* the template's background artwork; once on the canvas it becomes elements (decorFree) */}
@@ -167,7 +176,8 @@ export default function Slide({
           onCommitStart={onElCommitStart}
           onCommitText={onTextCommit}
           onPickImage={onPickImage}
-          autoAnim={playing && autoAnim}
+          // the page's own element animations win; a deck preset only fills a page that has none
+          autoAnim={playing && (autoAnim || (!slide.elements?.some((e) => e.anim?.type) && motion)) ? autoAnim || motion : false}
         />
       </div>
     </div>

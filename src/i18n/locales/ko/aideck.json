@@ -47,5 +47,11 @@
   "gn.open": "지금 열기",
   "gn.tip": "모든 슬라이드는 나중에 편집기에서 바꿀 수 있어요",
   "gn.tipDoc": "텍스트는 나중에 파일 편집기에서 바꿀 수 있어요",
-  "gn.langFallback": "{lang}: 지금은 영어 샘플 텍스트예요. AI가 이 언어로 작성할 거예요"
+  "gn.langFallback": "{lang}: 지금은 영어 샘플 텍스트예요. AI가 이 언어로 작성할 거예요",
+  "ad.family.all": "전체",
+  "ad.family.business": "비즈니스",
+  "ad.family.education": "교육·연구",
+  "ad.family.creative": "크리에이티브",
+  "ad.family.tech": "기술",
+  "ad.family.industry": "산업"
 }

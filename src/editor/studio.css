@@ -1,0 +1,77 @@
+/* ═════════ Design-system skin tokens (studio.js) ═════════
+ * A design picks one value per axis; Slide.jsx puts them on the page as data attributes:
+ *   data-card  — how cards, tiles and panels are drawn
+ *   data-rule  — the accent rule under titles
+ *   data-head  — the character of headings
+ *   data-kick  — the small label above titles
+ *   data-photo — the treatment of photos
+ * They apply to every layout (layouts.css + layouts-pro.css), so one token restyles all pages. */
+
+/* every boxed block the layouts draw (the highlighted ones keep their accent fill) */
+.slide[data-card] :is(.ly-card, .ly-stat, .ly-col, .ly-kpi-tile, .ly-swot-q, .ly-matrix-q:not(.q1), .ly-prob-card.bad, .ly-plan:not(.hi)) { transition: none; }
+
+.slide[data-card='line'] :is(.ly-card, .ly-stat, .ly-col, .ly-kpi-tile, .ly-swot-q, .ly-matrix-q:not(.q1), .ly-prob-card.bad, .ly-plan:not(.hi)) {
+  border-width: 0; border-top: 0.22cqw solid var(--tx); border-radius: 0; background: transparent; padding-left: 0; padding-right: 0; box-shadow: none;
+}
+.slide[data-card='outline'] :is(.ly-card, .ly-stat, .ly-col, .ly-kpi-tile, .ly-swot-q, .ly-matrix-q:not(.q1), .ly-prob-card.bad, .ly-plan:not(.hi)) {
+  border: 0.12cqw solid color-mix(in srgb, var(--acc) 70%, transparent); background: transparent; box-shadow: none;
+}
+.slide[data-card='shadow'] :is(.ly-card, .ly-stat, .ly-col, .ly-kpi-tile, .ly-swot-q, .ly-matrix-q:not(.q1), .ly-prob-card.bad, .ly-plan:not(.hi)) {
+  border-color: transparent; box-shadow: 0 0.2cqw 0.4cqw rgba(15, 23, 42, 0.05), 0 1.4cqw 3cqw -1.2cqw rgba(15, 23, 42, 0.22);
+}
+.slide[data-card='glass'] :is(.ly-card, .ly-stat, .ly-col, .ly-kpi-tile, .ly-swot-q, .ly-matrix-q:not(.q1), .ly-prob-card.bad, .ly-plan:not(.hi)) {
+  backdrop-filter: blur(1cqw); box-shadow: inset 0 0.08cqw 0 rgba(255, 255, 255, 0.12), 0 1.4cqw 3cqw -1.6cqw rgba(0, 0, 0, 0.5);
+}
+.slide[data-card='left'] :is(.ly-card, .ly-stat, .ly-col, .ly-kpi-tile, .ly-swot-q, .ly-matrix-q:not(.q1), .ly-prob-card.bad, .ly-plan:not(.hi)) {
+  border-width: 0; border-left: 0.4cqw solid var(--acc); border-radius: 0;
+}
+.slide[data-card='tint'] :is(.ly-card, .ly-stat, .ly-col, .ly-kpi-tile, .ly-plan:not(.hi)) {
+  border-color: transparent; background: color-mix(in srgb, var(--acc) 11%, transparent);
+}
+.slide[data-card='brutal'] :is(.ly-card, .ly-stat, .ly-col, .ly-kpi-tile, .ly-swot-q, .ly-matrix-q, .ly-prob-card, .ly-plan) {
+  border: 0.22cqw solid var(--tx); border-radius: 0; box-shadow: 0.6cqw 0.6cqw 0 var(--tx);
+}
+.slide[data-card='notch'] :is(.ly-card, .ly-stat, .ly-col, .ly-kpi-tile, .ly-swot-q, .ly-matrix-q, .ly-prob-card, .ly-plan) {
+  border-radius: 0; clip-path: polygon(0 0, calc(100% - 1.6cqw) 0, 100% 1.6cqw, 100% 100%, 1.6cqw 100%, 0 calc(100% - 1.6cqw));
+}
+
+/* the rule under titles */
+.slide[data-rule='none'] .ly-rule { display: none; }
+.slide[data-rule='square'] .ly-rule { width: 1.4cqw; height: 1.4cqw; border-radius: 0; }
+.slide[data-rule='long'] .ly-rule { width: 16cqw; height: 0.1cqw; }
+.slide[data-rule='double'] .ly-rule { width: 10cqw; height: 0.55cqw; background: none; border-top: 0.12cqw solid var(--acc); border-bottom: 0.12cqw solid var(--acc); border-radius: 0; }
+.slide[data-rule='dash'] .ly-rule { width: 12cqw; height: 0; background: none; border-top: 0.18cqw dashed var(--acc); border-radius: 0; }
+.slide[data-rule='gradient'] .ly-rule { width: 10cqw; height: 0.35cqw; background: linear-gradient(90deg, var(--acc), var(--acc2)); }
+.slide[data-rule='dot'] .ly-rule { width: 1cqw; height: 1cqw; border-radius: 50%; }
+
+/* headings */
+.slide[data-head='tight'] :is(.ly-h, .ly-cover-title, .ly-end-title, .ly-statement-text, .ly-photo-title) { letter-spacing: -0.045em; line-height: 0.98; }
+.slide[data-head='italic'] :is(.ly-h, .ly-cover-title, .ly-end-title, .ly-quote-text, .ly-statement-text, .ly-photo-title) { font-style: italic; letter-spacing: -0.01em; }
+.slide[data-head='caps'] :is(.ly-h, .ly-cover-title, .ly-end-title, .ly-photo-title, .ly-card-title) { text-transform: uppercase; letter-spacing: 0.04em; }
+.slide[data-head='wide'] :is(.ly-h, .ly-cover-title, .ly-end-title, .ly-photo-title) { text-transform: uppercase; letter-spacing: 0.16em; line-height: 1.12; }
+.slide[data-head='light'] :is(.ly-h, .ly-cover-title, .ly-end-title, .ly-statement-text) { font-weight: 300; letter-spacing: -0.03em; }
+.slide[data-head='light'] .ly-cover-title { font-size: calc(7cqw * var(--ts)); }
+.slide[data-head='gradient'] :is(.ly-cover-title, .ly-end-title, .ly-bignum-v) { background: linear-gradient(100deg, var(--tx) 10%, var(--acc) 60%, var(--acc2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.slide[data-head='outline'] :is(.ly-cover-title, .ly-end-title) { color: transparent; -webkit-text-stroke: 0.14cqw var(--tx); }
+.slide[data-head='outline'] .ly-big-num { color: transparent; -webkit-text-stroke: 0.14cqw var(--acc); }
+
+/* the small label above titles */
+.slide[data-kick='mono'] :is(.ly-kicker, .ly-num, .ly-road-period, .ly-kpi-l, .ly-tbl th, .ly-tl-date) { font-family: 'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace; letter-spacing: 0.04em; }
+.slide[data-kick='pill'] .ly-kicker { align-self: flex-start; padding: 0.45cqw 1.2cqw; border-radius: 9cqw; background: color-mix(in srgb, var(--acc) 16%, transparent); letter-spacing: 0.1em; }
+.slide[data-kick='pill'] .c-center .ly-kicker { align-self: center; }
+.slide[data-kick='line'] .ly-kicker { padding-bottom: 0.6cqw; border-bottom: 0.1cqw solid var(--acc); align-self: flex-start; }
+.slide[data-kick='plain'] .ly-kicker { color: var(--mu); letter-spacing: 0.2em; }
+
+/* photos */
+.slide[data-photo='mono'] .ly-img img { filter: grayscale(1) contrast(1.08); }
+.slide[data-photo='warm'] .ly-img img { filter: sepia(0.22) saturate(1.1) contrast(1.03); }
+.slide[data-photo='cool'] .ly-img img { filter: saturate(0.85) hue-rotate(-8deg) contrast(1.05); }
+.slide[data-photo='vivid'] .ly-img img { filter: saturate(1.25) contrast(1.06); }
+.slide[data-photo='film'] .ly-img img { filter: contrast(1.15) saturate(0.8) brightness(0.92); }
+
+/* columns of the classic chart: the accent fading down, not a blend of two unrelated colours */
+.slide[data-card] .ly-bar-fill { background: linear-gradient(180deg, var(--acc), color-mix(in srgb, var(--acc) 55%, transparent)); }
+/* stepped shapes (funnel, pyramid, roadmap) as one tonal ramp of the accent, not a blend of two hues */
+.slide[data-card] .ly-funnel-bar,
+.slide[data-card] .ly-pyr-band,
+.slide[data-card] .ly-road-head { background: color-mix(in srgb, var(--acc) calc(100% - var(--k) * 42%), var(--tx)); }

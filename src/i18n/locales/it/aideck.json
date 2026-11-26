@@ -47,5 +47,11 @@
   "gn.open": "Apri ora",
   "gn.tip": "Ogni slide si può modificare in seguito nell’editor",
   "gn.tipDoc": "Il testo si può modificare in seguito nell’editor di file",
-  "gn.langFallback": "{lang}: per ora testo di esempio in inglese, l’IA lo scriverà in questa lingua"
+  "gn.langFallback": "{lang}: per ora testo di esempio in inglese, l’IA lo scriverà in questa lingua",
+  "ad.family.all": "Tutti",
+  "ad.family.business": "Business",
+  "ad.family.education": "Istruzione e ricerca",
+  "ad.family.creative": "Creativo",
+  "ad.family.tech": "Tecnologia",
+  "ad.family.industry": "Settori"
 }

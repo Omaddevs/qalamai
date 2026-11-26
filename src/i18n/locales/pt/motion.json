@@ -1,0 +1,20 @@
+{
+  "mo.button": "Movimento",
+  "mo.title": "Movimento para toda a apresentação",
+  "mo.preset": "Entrada do conteúdo",
+  "mo.preset.none": "Nenhum",
+  "mo.preset.minimal": "Mínimo",
+  "mo.preset.professional": "Profissional",
+  "mo.preset.cinematic": "Cinematográfico",
+  "mo.preset.dynamic": "Dinâmico",
+  "mo.presetNote": "Toca nas páginas sem animações próprias. A animação definida em um elemento tem prioridade.",
+  "mo.transition": "Transição de página",
+  "mo.tr.none": "Nenhuma",
+  "mo.tr.fade": "Esmaecer",
+  "mo.tr.slide": "Deslizar",
+  "mo.tr.push": "Empurrar",
+  "mo.tr.zoom": "Zoom",
+  "mo.tr.reveal": "Revelar",
+  "mo.reduced": "Seu sistema pede menos movimento: os efeitos ficam desligados ao apresentar.",
+  "mo.exportNote": "Downloads (PDF, PPTX, imagens) mostram a página parada; o movimento aparece ao apresentar."
+}

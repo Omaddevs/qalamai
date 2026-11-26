@@ -4,6 +4,8 @@ import {
 } from '@phosphor-icons/react'
 import Slide from '../editor/Slide.jsx'
 import { getTemplate, sampleDeck, templatesFor } from '../editor/templates.js'
+import { GROUPS } from '../editor/studio.js'
+import { fitDeck } from '../editor/quality.js'
 import { CoinIcon } from '../components/Coins.jsx'
 import { ACTION_BY_TYPE, COIN_COSTS, aiDeck, refundCoins, spendCoins } from '../coins.js'
 import { ApiError } from '../api.js'
@@ -30,34 +32,58 @@ const savedTemplate = () => {
   }
 }
 
-/** Design picker: the premium collection, then (on request) every other presentation template. */
+const FAMILIES = ['all', ...GROUPS]
+
+/** A design thumbnail drawn once it scrolls near view (fifty live pages would load fifty font pairs). */
+function DesignThumb({ tpl }) {
+  const ref = useRef(null)
+  const [seen, setSeen] = useState(false)
+  useEffect(() => {
+    if (seen || !ref.current) return
+    if (typeof IntersectionObserver !== 'function') return setSeen(true)
+    const io = new IntersectionObserver((es) => es.some((e) => e.isIntersecting) && setSeen(true), { rootMargin: '0px 300px' })
+    io.observe(ref.current)
+    return () => io.disconnect()
+  }, [seen])
+  const page = seen ? sampleDeck(tpl, 1)[0] : null
+  return (
+    <span className="ad-design-thumb" ref={ref} style={seen ? undefined : { background: tpl.theme.bg }}>
+      {page && <Slide slide={page} theme={tpl.theme} index={0} preview />}
+      {tpl.premium && <span className="ad-design-pro">{t('tpl.premium')}</span>}
+    </span>
+  )
+}
+
+/** Design picker: the collection by family, then (on request) every other presentation template. */
 function DesignPicker({ value, onChange }) {
   const all = templatesFor('Prezentatsiya')
-  const premium = all.filter((x) => x.premium)
+  const [family, setFamily] = useState('all')
+  const premium = all.filter((x) => x.premium && (family === 'all' || x.group === family))
   const rest = all.filter((x) => !x.premium)
   const [more, setMore] = useState(false)
   const picked = all.find((x) => x.id === value)
-  // the premium ones; a non-premium design picked before stays in front
-  const list = more ? [...premium, ...rest] : picked && !picked.premium ? [picked, ...premium] : premium
+  // the collection; a design picked before stays in front when the family filter hides it
+  const list = more ? [...premium, ...rest] : picked && !premium.includes(picked) ? [picked, ...premium] : premium
   const strip = useRef(null)
   useEffect(() => {
     strip.current?.querySelector('.ad-design.on')?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
   }, [])
   return (
     <div className="ad-designs-wrap">
+      <div className="ad-families" role="tablist" aria-label={t('ad.design')}>
+        {FAMILIES.map((f) => (
+          <button key={f} type="button" role="tab" aria-selected={family === f} className={family === f ? 'on' : ''} onClick={() => { setFamily(f); strip.current?.scrollTo({ left: 0 }) }}>
+            {t(`ad.family.${f}`)}
+          </button>
+        ))}
+      </div>
       <div className="ad-designs" role="radiogroup" aria-label={t('ad.design')} ref={strip}>
-        {list.map((tpl) => {
-          const page = sampleDeck(tpl, 1)[0]
-          return (
-            <button key={tpl.id} type="button" role="radio" aria-checked={tpl.id === value} className={`ad-design${tpl.id === value ? ' on' : ''}`} onClick={() => onChange(tpl.id)}>
-              <span className="ad-design-thumb">
-                {page && <Slide slide={page} theme={tpl.theme} index={0} preview />}
-                {tpl.premium && <span className="ad-design-pro">{t('tpl.premium')}</span>}
-              </span>
-              <span className="ad-design-name">{tpl.name}</span>
-            </button>
-          )
-        })}
+        {list.map((tpl) => (
+          <button key={tpl.id} type="button" role="radio" aria-checked={tpl.id === value} className={`ad-design${tpl.id === value ? ' on' : ''}`} onClick={() => onChange(tpl.id)}>
+            <DesignThumb tpl={tpl} />
+            <span className="ad-design-name">{tpl.name}</span>
+          </button>
+        ))}
       </div>
       {!more && rest.length > 0 && (
         <button type="button" className="ad-design-more" onClick={() => setMore(true)}>
@@ -277,7 +303,7 @@ export default function AiDeckView({ initialTopic = '', onCreate, notify }) {
     const patch = (fn) => setGen((g) => (g?.live ? fn(g) : g))
     try {
       const ran = await aiDeck(
-        { topic: text, plans: usePlans, slides: total, lang, source },
+        { topic: text, plans: usePlans, slides: total, lang, source, prefer: getTemplate(tplId)?.prefer ?? [] },
         {
           signal: ctl.signal,
           onEvent: (ev) => {
@@ -523,10 +549,12 @@ export default function AiDeckView({ initialTopic = '', onCreate, notify }) {
           total={gen.total}
           renderThumb={(i) => (gen.slides[i] ? <Slide slide={gen.slides[i]} theme={tpl.theme} index={i} preview /> : null)}
           templateName={tpl.name}
-          onDone={() =>
+          onDone={async () => {
+            // pages whose text runs over get a smaller type size (quality.js) before the editor opens
+            const { slides } = await fitDeck(gen.slides.filter(Boolean), tpl.theme).catch(() => ({ slides: gen.slides.filter(Boolean) }))
             // from a file without a typed topic, the deck is named by its cover title, not the file name
-            onCreate({ topic: (gen.named ? gen.topic : gen.slides[0]?.title) || gen.topic, templateId: tplId, kind: 'Taqdimot', slides: gen.slides.filter(Boolean), ai: true, lang: gen.lang })
-          }
+            onCreate({ topic: (gen.named ? gen.topic : gen.slides[0]?.title) || gen.topic, templateId: tplId, kind: 'Taqdimot', slides, ai: true, lang: gen.lang })
+          }}
           onCancel={() => {
             // the server stops writing and gives the coins back
             stop.current?.abort()

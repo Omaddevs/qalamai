@@ -5,6 +5,11 @@ export default {
   'tpl.cat.talim': { uz: 'Taʼlim', ru: 'Образование', en: 'Education', kk: 'Білім', ky: 'Билим', tg: 'Маориф' },
   'tpl.cat.biznes': { uz: 'Biznes', ru: 'Бизнес', en: 'Business', kk: 'Бизнес', ky: 'Бизнес', tg: 'Тиҷорат' },
   'tpl.cat.ijod': { uz: 'Ijod', ru: 'Творчество', en: 'Creative', kk: 'Шығармашылық', ky: 'Чыгармачылык', tg: 'Эҷод' },
+  'tpl.cat.ilmiy': { uz: "Ilmiy", ru: "Наука", en: "Research", kk: "Ғылым", ky: "Илим", tg: "Илмӣ" },
+  'tpl.cat.texno': { uz: "Texnologiya", ru: "Технологии", en: "Technology", kk: "Технология", ky: "Технология", tg: "Технология" },
+  'tpl.cat.marketing': { uz: "Marketing", ru: "Маркетинг", en: "Marketing", kk: "Маркетинг", ky: "Маркетинг", tg: "Маркетинг" },
+  'tpl.cat.moliya': { uz: "Moliya", ru: "Финансы", en: "Finance", kk: "Қаржы", ky: "Финансы", tg: "Молия" },
+  'tpl.cat.soha': { uz: "Sohalar", ru: "Отрасли", en: "Industries", kk: "Салалар", ky: "Тармактар", tg: "Соҳаҳо" },
   'tpl.cat.taklifnoma': { uz: 'Taklifnoma', ru: 'Приглашения', en: 'Invitations', kk: 'Шақырулар', ky: 'Чакыруулар', tg: 'Даъватномаҳо' },
 
 

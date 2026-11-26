@@ -3,6 +3,7 @@
 // design scales from a 150 px thumbnail to the full canvas.
 import { getLang, t } from '../i18n/index.js'
 import { samplePage } from './layouts.jsx'
+import { STUDIO } from './studio.js'
 
 const F = {
   sans: "'Inter', system-ui, sans-serif",
@@ -29,7 +30,7 @@ const F = {
   heebo: "'Heebo', 'Inter', system-ui, sans-serif",
 }
 
-export const CATEGORIES = ['all', 'talim', 'biznes', 'ijod'].map((id) => ({
+export const CATEGORIES = ['all', 'biznes', 'talim', 'ilmiy', 'texno', 'ijod', 'marketing', 'moliya', 'soha'].map((id) => ({
   id,
   get label() {
     return t(`tpl.cat.${id}`)
@@ -74,6 +75,20 @@ const P = {
 // fonts the backgrounds use besides the title and body fonts
 const EXTRA_FONTS = { blueprint: ["'IBM Plex Mono', monospace"], neon: ["'JetBrains Mono', monospace"] }
 
+// the ten decks' place in the collection: family and the layouts the AI favours for each
+const PREMIUM_FAMILY = {
+  monolith: { group: 'business', motion: 'minimal', prefer: ['statement', 'kpi', 'table', 'timeline', 'summary'] },
+  noir: { group: 'creative', motion: 'cinematic', prefer: ['photo', 'quote', 'statement', 'gallery', 'media'] },
+  borealis: { group: 'tech', motion: 'professional', prefer: ['features', 'chart', 'kpi', 'roadmap', 'process'] },
+  terra: { group: 'education', motion: 'professional', prefer: ['timeline', 'media', 'quote', 'chapter', 'cards'] },
+  blueprint: { group: 'education', motion: 'professional', prefer: ['process', 'chart', 'table', 'pyramid', 'compare'] },
+  pastel: { group: 'education', motion: 'dynamic', prefer: ['cards', 'process', 'media', 'quiz', 'timeline'] },
+  editorial: { group: 'creative', motion: 'cinematic', prefer: ['photo', 'statement', 'media', 'quote', 'gallery'] },
+  forest: { group: 'industry', motion: 'professional', prefer: ['media', 'kpi', 'timeline', 'statement', 'process'] },
+  neon: { group: 'tech', motion: 'dynamic', prefer: ['kpi', 'chart', 'features', 'roadmap', 'statement'] },
+  executive: { group: 'business', motion: 'professional', prefer: ['kpi', 'summary', 'chart', 'matrix', 'table'] },
+}
+
 const PREMIUM = [
   {
     id: 'monolith',
@@ -109,7 +124,7 @@ const PREMIUM = [
     theme: {
       layouts: true, skin: 'aurora', decor: 'aurora', frame: 'glow', cover: 'center', center: true,
       bg: '#060916', text: '#f4f6ff', muted: 'rgba(226,232,255,.66)', accent: '#5eead4', accent2: '#a78bfa', onAccent: '#060916',
-      titleFont: P.unbounded, bodyFont: P.manrope, titleWeight: 600, titleScale: 0.92,
+      titleFont: P.unbounded, bodyFont: P.manrope, titleWeight: 600, titleScale: 0.92, titleWidth: 1.3,
       card: 'rgba(255,255,255,.06)', cardText: '#f4f6ff', cardBorder: 'rgba(255,255,255,.12)', radius: 1.6,
       placeholder: 'linear-gradient(135deg, rgba(94,234,212,.25), rgba(167,139,250,.2))',
       area: { l: 6, t: 14, w: 88, h: 76 }, ...classic,
@@ -188,7 +203,7 @@ const PREMIUM = [
     theme: {
       layouts: true, skin: 'neon', decor: 'neon', frame: 'glow', cover: 'center', center: true, upper: true,
       bg: '#05060b', text: '#f5f7ff', muted: 'rgba(220,226,255,.62)', accent: '#c6f432', accent2: '#22d3ee', onAccent: '#05060b',
-      titleFont: P.dela, bodyFont: P.rubik, titleWeight: 400, titleScale: 0.88,
+      titleFont: P.dela, bodyFont: P.rubik, titleWeight: 400, titleScale: 0.88, titleWidth: 1.3,
       card: 'rgba(198,244,50,.05)', cardText: '#f5f7ff', cardBorder: 'rgba(198,244,50,.35)', radius: 0.8,
       placeholder: 'linear-gradient(135deg, rgba(34,211,238,.2), rgba(198,244,50,.15))',
       area: { l: 6, t: 14, w: 88, h: 74 }, ...classic,
@@ -206,7 +221,7 @@ const PREMIUM = [
       placeholder: 'linear-gradient(135deg, #dbe5f0, #b8c9dc)',
       // every second page is the navy one
       alt: {
-        bg: '#0a2540', text: '#ffffff', muted: 'rgba(255,255,255,.72)',
+        bg: '#0a2540', text: '#ffffff', muted: 'rgba(255,255,255,.72)', accent2: '#8fb4d9',
         card: 'rgba(255,255,255,.06)', cardText: '#ffffff', cardBorder: 'rgba(255,255,255,.12)',
         placeholder: 'linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.04))',
       },
@@ -217,15 +232,17 @@ const PREMIUM = [
   ...tpl,
   types: ['Prezentatsiya'],
   premium: true,
+  ...PREMIUM_FAMILY[tpl.id],
   // catalog fonts the page needs (Slide.jsx loads them when the page is shown)
   theme: { ...tpl.theme, fonts: [tpl.theme.titleFont, tpl.theme.bodyFont, ...(EXTRA_FONTS[tpl.id] ?? [])] },
 }))
 
-/** The premium collection's ids, in their order. */
-export const PREMIUM_IDS = PREMIUM.map((tpl) => tpl.id)
+/** The premium collection's ids, in their order (the ten decks, then the design systems). */
+export const PREMIUM_IDS = [...PREMIUM, ...STUDIO].map((tpl) => tpl.id)
 
 export const TEMPLATES = [
   ...PREMIUM,
+  ...STUDIO,
   {
     id: 'gallery',
     types: ['Prezentatsiya'],
@@ -699,7 +716,8 @@ export const templateIdOf = (id) => getTemplate(id).id
 export function templatePages(tpl, { title, subtitle } = {}) {
   return tpl.pages.map((entry, i) => {
     const [type, v] = entry.split(':')
-    const page = samplePage(type, Number(v) || 0)
+    // 'media:1' is a numbered variant; 'chart:line' a named one that samplePage reads itself
+    const page = v != null && Number.isNaN(Number(v)) ? samplePage(entry) : samplePage(type, Number(v) || 0)
     if (i === 0) {
       page.title = title || tpl.sample.title
       page.subtitle = subtitle ?? tpl.sample.subtitle

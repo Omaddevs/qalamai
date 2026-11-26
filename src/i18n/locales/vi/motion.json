@@ -1,0 +1,20 @@
+{
+  "mo.button": "Chuyển động",
+  "mo.title": "Chuyển động cho cả bài trình bày",
+  "mo.preset": "Nội dung xuất hiện",
+  "mo.preset.none": "Không",
+  "mo.preset.minimal": "Tối giản",
+  "mo.preset.professional": "Chuyên nghiệp",
+  "mo.preset.cinematic": "Điện ảnh",
+  "mo.preset.dynamic": "Năng động",
+  "mo.presetNote": "Chạy trên các trang không có hiệu ứng riêng. Hiệu ứng đặt cho phần tử được ưu tiên.",
+  "mo.transition": "Chuyển trang",
+  "mo.tr.none": "Không",
+  "mo.tr.fade": "Mờ dần",
+  "mo.tr.slide": "Trượt",
+  "mo.tr.push": "Đẩy",
+  "mo.tr.zoom": "Phóng to",
+  "mo.tr.reveal": "Hé lộ",
+  "mo.reduced": "Hệ thống của bạn yêu cầu giảm chuyển động: hiệu ứng tắt khi trình chiếu.",
+  "mo.exportNote": "Tệp tải về (PDF, PPTX, ảnh) là trang tĩnh; chuyển động chạy khi trình chiếu."
+}

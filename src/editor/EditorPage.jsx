@@ -18,6 +18,10 @@ import { downscale, patchAt, samplePage } from './layouts.jsx'
 import Toolbar, { ColorPop, Pop } from './Toolbar.jsx'
 import { detachDecor, detachPage } from './detach.js'
 import { Present, PrintDeck } from './Present.jsx'
+import { motionOf, transitionOf } from './motion.js'
+import MotionPanel from './MotionPanel.jsx'
+import QualityPanel from './QualityPanel.jsx'
+import { fitDeck } from './quality.js'
 import ShareDialog from './ShareDialog.jsx'
 import ProBadge from '../components/ProBadge.jsx'
 import LayoutPicker from './LayoutPicker.jsx'
@@ -83,7 +87,7 @@ function fillBlank(slides, tpl) {
 }
 
 // Every user-visible string on a page (any layout), not ids, image data or layout settings.
-const NOT_TEXT = new Set(['id', 'type', 'image', 'src', 'side', 'answer', 'num', 'elements'])
+const NOT_TEXT = new Set(['id', 'type', 'image', 'src', 'side', 'answer', 'num', 'elements', 'kind', 'icon', 'hi'])
 function convertTexts(node, c) {
   if (typeof node === 'string') return c(node)
   if (Array.isArray(node)) return node.map((x) => convertTexts(x, c))
@@ -340,9 +344,11 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
   const preview = () => {
     if (!slide.elements.length && slide.free) return notify(t('ed.preview.empty'))
     const own = slide.elements.some((e) => e.anim?.type)
-    setAutoAnim(!own)
+    // with a deck motion preset the page plays that; without one, a sample entrance and a hint
+    const preset = Boolean(motionOf(deckRef.current))
+    setAutoAnim(!own && !preset)
     setPlayKey((k) => k + 1)
-    if (!own) notify(t('ed.preview.auto'))
+    if (!own && !preset) notify(t('ed.preview.auto'))
   }
   // the sample entrance is only for that one play — elements added afterwards must not get it
   useEffect(() => {
@@ -547,7 +553,7 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
     setAiBusy({ written: 0, total })
     try {
       const ran = await aiDeck(
-        { topic, plans, slides: total, lang: getLang() },
+        { topic, plans, slides: total, lang: getLang(), prefer: tpl.prefer ?? [] },
         {
           onEvent: (ev) => {
             if (ev.type === 'slide') {
@@ -566,7 +572,13 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
           },
         },
       )
-      if (ran) return
+      if (ran) {
+        // pages whose text runs over get a smaller type size (quality.js); pages already on the canvas keep theirs
+        const { slides: fitted } = await fitDeck(got.filter(Boolean), theme).catch(() => ({ slides: [] }))
+        const fitOf = new Map(fitted.map((x) => [x.id, x.fit]))
+        set((d) => ({ ...d, slides: d.slides.map((x) => (!x.free && fitOf.get(x.id) ? { ...x, fit: fitOf.get(x.id) } : x)) }), true)
+        return
+      }
     } catch (err) {
       if (!(err instanceof ApiError && err.code === 'AI_OFF')) {
         notify(err.message)
@@ -846,6 +858,20 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
                 <button className="ed-ibtn wide" onClick={preview} title="Sahifa animatsiyasini körish">
                   <Play size={15} /> Körish
                 </button>
+                <MotionPanel deck={deck} onChange={(patch) => set((d) => ({ ...d, ...patch }))} onPreview={preview} />
+                <QualityPanel
+                  deck={deck}
+                  theme={theme}
+                  onGo={(i) => {
+                    setCurrent(i)
+                    setSelectedId(null)
+                  }}
+                  // only the type-size fit is taken over, by page id: edits made meanwhile stay
+                  onApply={(fitted) => {
+                    const fitOf = new Map(fitted.map((x) => [x.id, x.fit]))
+                    set((d) => ({ ...d, slides: d.slides.map((x) => (!x.free && fitOf.has(x.id) ? { ...x, fit: fitOf.get(x.id) } : x)) }))
+                  }}
+                />
               </span>
             )}
           </div>
@@ -878,6 +904,7 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
                 }}
                 playing={playKey > 0}
                 autoAnim={autoAnim}
+                motion={motionOf(deck)}
               />
             </div>
             {!editingId && (
@@ -944,7 +971,7 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
         </main>
       </div>
 
-      {presenting && <Present slides={deck.slides} theme={theme} start={slideIdx} onClose={closePresent} />}
+      {presenting && <Present slides={deck.slides} theme={theme} start={slideIdx} transition={transitionOf(deck)} motion={motionOf(deck)} onClose={closePresent} />}
       {sharing && <ShareDialog deckId={deck.id} flush={flushSave} onClose={() => setSharing(false)} notify={notify} />}
       {printing && <PrintDeck slides={deck.slides} theme={theme} watermark={!premium} onDone={donePrinting} />}
       {proAsk && (

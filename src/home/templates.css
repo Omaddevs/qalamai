@@ -862,3 +862,7 @@
 .tv-cat.soon .tv-cat-count { color: #a1a6ae; }
 /* the premium collection (src/editor/templates.js → PREMIUM) */
 .tg-badge.tg-premium { background: #0f1115; color: #c6f432; font-weight: 700; letter-spacing: 0.03em; }
+
+/* a design's palette under its name */
+.tg-meta .tg-swatches { display: flex; gap: 4px; margin-top: 6px; }
+.tg-meta .tg-swatches i { width: 12px; height: 12px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12); }

@@ -1,0 +1,20 @@
+{
+  "mo.button": "Bewegung",
+  "mo.title": "Bewegung für die ganze Präsentation",
+  "mo.preset": "Einblenden des Inhalts",
+  "mo.preset.none": "Keine",
+  "mo.preset.minimal": "Minimal",
+  "mo.preset.professional": "Professionell",
+  "mo.preset.cinematic": "Filmisch",
+  "mo.preset.dynamic": "Dynamisch",
+  "mo.presetNote": "Läuft auf Seiten ohne eigene Animationen. Eine Animation an einem Element hat Vorrang.",
+  "mo.transition": "Seitenübergang",
+  "mo.tr.none": "Keiner",
+  "mo.tr.fade": "Überblenden",
+  "mo.tr.slide": "Schieben",
+  "mo.tr.push": "Verdrängen",
+  "mo.tr.zoom": "Zoom",
+  "mo.tr.reveal": "Aufdecken",
+  "mo.reduced": "Dein System wünscht weniger Bewegung: Effekte sind beim Präsentieren aus.",
+  "mo.exportNote": "Downloads (PDF, PPTX, Bilder) zeigen die ruhende Seite; Bewegung läuft im Präsentationsmodus."
+}

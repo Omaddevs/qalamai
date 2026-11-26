@@ -1,0 +1,21 @@
+{
+  "q.button": "Chất lượng",
+  "q.title": "Chất lượng bài trình bày",
+  "q.checking": "Đang kiểm tra…",
+  "q.found": "{n} ghi chú",
+  "q.none": "Mọi thứ ổn — không có gì cần sửa",
+  "q.fix": "Tự động sửa",
+  "q.fixed": "Văn bản đã vừa trên {n} trang",
+  "q.hint": "Tự động sửa chỉ thu nhỏ chữ: từ ngữ và số liệu không thay đổi.",
+  "q.overflow": "Văn bản tràn khỏi trang",
+  "q.dense": "Quá nhiều chữ — nên chia thành hai trang",
+  "q.repeat": "Hai trang liên tiếp có cùng bố cục",
+  "q.typeShare": "Một bố cục chiếm phần lớn bài ({n})",
+  "q.empty": "Tiêu đề trống",
+  "q.image": "Khung ảnh trống — hãy thêm ảnh",
+  "q.chart": "Giá trị biểu đồ không phải là số",
+  "q.chartSum": "Tổng các phần của biểu đồ tròn là {n}% (phải là 100%)",
+  "q.small": "Chữ đã bị thu nhỏ nhiều — nên rút gọn",
+  "q.offPage": "Phần tử tràn khỏi trang ({n})",
+  "q.contrast": "Màu nhấn quá gần màu nền — độ tương phản thấp"
+}

@@ -1,0 +1,20 @@
+{
+  "mo.button": "मोशन",
+  "mo.title": "पूरी प्रस्तुति के लिए मोशन",
+  "mo.preset": "सामग्री का प्रवेश",
+  "mo.preset.none": "कोई नहीं",
+  "mo.preset.minimal": "न्यूनतम",
+  "mo.preset.professional": "पेशेवर",
+  "mo.preset.cinematic": "सिनेमाई",
+  "mo.preset.dynamic": "गतिशील",
+  "mo.presetNote": "जिन पेजों पर अपना एनिमेशन नहीं है, वहाँ चलता है। किसी एलिमेंट पर लगाया एनिमेशन प्राथमिक है।",
+  "mo.transition": "पेज ट्रांज़िशन",
+  "mo.tr.none": "कोई नहीं",
+  "mo.tr.fade": "फ़ेड",
+  "mo.tr.slide": "स्लाइड",
+  "mo.tr.push": "पुश",
+  "mo.tr.zoom": "ज़ूम",
+  "mo.tr.reveal": "रिवील",
+  "mo.reduced": "आपका सिस्टम कम मोशन चाहता है: प्रस्तुति में इफ़ेक्ट बंद हैं।",
+  "mo.exportNote": "डाउनलोड (PDF, PPTX, इमेज) में पेज स्थिर रहता है; मोशन प्रस्तुति मोड में चलता है।"
+}

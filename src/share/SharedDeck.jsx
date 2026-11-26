@@ -8,6 +8,7 @@ import { t } from '../i18n/index.js'
 import { applySeo, NOINDEX } from '../seo.js'
 import Slide from '../editor/Slide.jsx'
 import { Present } from '../editor/Present.jsx'
+import { motionOf, transitionOf } from '../editor/motion.js'
 import { getTemplate } from '../editor/templates.js'
 import '../editor/editor.css'
 import './shared.css'
@@ -157,7 +158,7 @@ export default function SharedDeck({ shareId }) {
         </>
       )}
 
-      {presenting && <Present slides={slides} theme={theme} start={at} onClose={closePresent} />}
+      {presenting && <Present slides={slides} theme={theme} start={at} transition={transitionOf(design?.deck)} motion={motionOf(design?.deck)} onClose={closePresent} />}
     </div>
   )
 }

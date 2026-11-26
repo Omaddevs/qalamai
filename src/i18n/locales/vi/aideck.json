@@ -53,5 +53,11 @@
   "gn.open": "Mở ngay",
   "gn.tip": "Mọi trang chiếu đều có thể chỉnh sửa sau trong trình chỉnh sửa",
   "gn.tipDoc": "Văn bản có thể chỉnh sửa sau trong trình chỉnh sửa tệp",
-  "gn.langFallback": "{lang}: tạm thời là văn bản mẫu bằng tiếng Anh — AI sẽ viết bằng ngôn ngữ này"
+  "gn.langFallback": "{lang}: tạm thời là văn bản mẫu bằng tiếng Anh — AI sẽ viết bằng ngôn ngữ này",
+  "ad.family.all": "Tất cả",
+  "ad.family.business": "Kinh doanh",
+  "ad.family.education": "Giáo dục & nghiên cứu",
+  "ad.family.creative": "Sáng tạo",
+  "ad.family.tech": "Công nghệ",
+  "ad.family.industry": "Ngành nghề"
 }

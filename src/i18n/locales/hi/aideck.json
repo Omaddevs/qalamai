@@ -47,5 +47,11 @@
   "gn.open": "अभी खोलें",
   "gn.tip": "बाद में एडिटर में हर स्लाइड बदली जा सकती है",
   "gn.tipDoc": "बाद में फ़ाइल एडिटर में टेक्स्ट बदला जा सकता है",
-  "gn.langFallback": "{lang}: फ़िलहाल नमूना टेक्स्ट अंग्रेज़ी में है — AI इसे इसी भाषा में लिखेगा"
+  "gn.langFallback": "{lang}: फ़िलहाल नमूना टेक्स्ट अंग्रेज़ी में है — AI इसे इसी भाषा में लिखेगा",
+  "ad.family.all": "सभी",
+  "ad.family.business": "व्यवसाय",
+  "ad.family.education": "शिक्षा और शोध",
+  "ad.family.creative": "रचनात्मक",
+  "ad.family.tech": "तकनीक",
+  "ad.family.industry": "उद्योग"
 }

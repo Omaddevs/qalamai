@@ -1,0 +1,20 @@
+{
+  "mo.button": "Animation",
+  "mo.title": "Animation de toute la présentation",
+  "mo.preset": "Apparition du contenu",
+  "mo.preset.none": "Aucune",
+  "mo.preset.minimal": "Minimale",
+  "mo.preset.professional": "Professionnelle",
+  "mo.preset.cinematic": "Cinématique",
+  "mo.preset.dynamic": "Dynamique",
+  "mo.presetNote": "S’applique aux pages sans animation propre. Une animation définie sur un élément est prioritaire.",
+  "mo.transition": "Transition entre pages",
+  "mo.tr.none": "Aucune",
+  "mo.tr.fade": "Fondu",
+  "mo.tr.slide": "Glissement",
+  "mo.tr.push": "Poussée",
+  "mo.tr.zoom": "Zoom",
+  "mo.tr.reveal": "Dévoilement",
+  "mo.reduced": "Votre système demande moins d’animations : les effets sont désactivés pendant la présentation.",
+  "mo.exportNote": "Les téléchargements (PDF, PPTX, images) montrent la page fixe ; l’animation se joue en mode présentation."
+}

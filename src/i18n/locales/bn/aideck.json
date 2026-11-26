@@ -47,5 +47,11 @@
   "gn.open": "এখনই খুলুন",
   "gn.tip": "পরে এডিটরে প্রতিটি স্লাইড বদলানো যাবে",
   "gn.tipDoc": "পরে ফাইল এডিটরে টেক্সট বদলানো যাবে",
-  "gn.langFallback": "{lang}: আপাতত ইংরেজিতে নমুনা টেক্সট — এআই এটি এই ভাষায় লিখবে"
+  "gn.langFallback": "{lang}: আপাতত ইংরেজিতে নমুনা টেক্সট — এআই এটি এই ভাষায় লিখবে",
+  "ad.family.all": "সব",
+  "ad.family.business": "ব্যবসা",
+  "ad.family.education": "শিক্ষা ও গবেষণা",
+  "ad.family.creative": "সৃজনশীল",
+  "ad.family.tech": "প্রযুক্তি",
+  "ad.family.industry": "শিল্পখাত"
 }

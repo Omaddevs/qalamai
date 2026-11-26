@@ -1,0 +1,21 @@
+{
+  "q.button": "Qualité",
+  "q.title": "Qualité de la présentation",
+  "q.checking": "Vérification…",
+  "q.found": "{n} remarques",
+  "q.none": "Tout va bien — rien à corriger",
+  "q.fix": "Correction auto",
+  "q.fixed": "Le texte tient maintenant sur {n} pages",
+  "q.hint": "La correction automatique réduit seulement la taille du texte : mots et chiffres restent inchangés.",
+  "q.overflow": "Le texte déborde de la page",
+  "q.dense": "Trop de texte — mieux vaut le répartir sur deux pages",
+  "q.repeat": "Deux pages d’affilée avec la même composition",
+  "q.typeShare": "Une même mise en page occupe une grande partie de la présentation ({n})",
+  "q.empty": "Le titre est vide",
+  "q.image": "Le cadre photo est vide — ajoutez une image",
+  "q.chart": "Les valeurs du graphique ne sont pas des nombres",
+  "q.chartSum": "Les parts du camembert totalisent {n} % (il faut 100 %)",
+  "q.small": "Le texte est très réduit — mieux vaut le raccourcir",
+  "q.offPage": "Un élément dépasse de la page ({n})",
+  "q.contrast": "La couleur d’accent est trop proche du fond — contraste faible"
+}

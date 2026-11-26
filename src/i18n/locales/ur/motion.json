@@ -1,0 +1,20 @@
+{
+  "mo.button": "موشن",
+  "mo.title": "پوری پریزنٹیشن کے لیے موشن",
+  "mo.preset": "مواد کی آمد",
+  "mo.preset.none": "کوئی نہیں",
+  "mo.preset.minimal": "کم سے کم",
+  "mo.preset.professional": "پیشہ ورانہ",
+  "mo.preset.cinematic": "سنیمائی",
+  "mo.preset.dynamic": "متحرک",
+  "mo.presetNote": "ان صفحات پر چلتا ہے جن کی اپنی اینیمیشن نہیں۔ کسی عنصر پر لگی اینیمیشن کو ترجیح ہے۔",
+  "mo.transition": "صفحے کی تبدیلی",
+  "mo.tr.none": "کوئی نہیں",
+  "mo.tr.fade": "فیڈ",
+  "mo.tr.slide": "سلائیڈ",
+  "mo.tr.push": "پش",
+  "mo.tr.zoom": "زوم",
+  "mo.tr.reveal": "ریویل",
+  "mo.reduced": "آپ کا سسٹم کم حرکت چاہتا ہے: پریزنٹیشن میں اثرات بند ہیں۔",
+  "mo.exportNote": "ڈاؤن لوڈ (PDF، PPTX، تصاویر) میں صفحہ ساکن رہتا ہے؛ موشن پریزنٹیشن موڈ میں چلتا ہے۔"
+}

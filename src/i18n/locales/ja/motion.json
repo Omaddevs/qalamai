@@ -1,0 +1,20 @@
+{
+  "mo.button": "モーション",
+  "mo.title": "プレゼン全体のモーション",
+  "mo.preset": "コンテンツの登場",
+  "mo.preset.none": "なし",
+  "mo.preset.minimal": "ミニマル",
+  "mo.preset.professional": "プロフェッショナル",
+  "mo.preset.cinematic": "シネマティック",
+  "mo.preset.dynamic": "ダイナミック",
+  "mo.presetNote": "独自のアニメーションがないページで再生されます。要素に設定したアニメーションが優先されます。",
+  "mo.transition": "ページ切り替え",
+  "mo.tr.none": "なし",
+  "mo.tr.fade": "フェード",
+  "mo.tr.slide": "スライド",
+  "mo.tr.push": "プッシュ",
+  "mo.tr.zoom": "ズーム",
+  "mo.tr.reveal": "リビール",
+  "mo.reduced": "システムで視差効果を減らす設定になっています：発表中は効果がオフです。",
+  "mo.exportNote": "ダウンロード（PDF・PPTX・画像）は静止したページです。モーションは発表モードで再生されます。"
+}

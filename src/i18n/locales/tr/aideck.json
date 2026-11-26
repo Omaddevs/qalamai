@@ -47,5 +47,11 @@
   "gn.open": "Şimdi aç",
   "gn.tip": "Her slaytı daha sonra düzenleyicide değiştirebilirsiniz",
   "gn.tipDoc": "Metni daha sonra dosya düzenleyicisinde değiştirebilirsiniz",
-  "gn.langFallback": "{lang}: şimdilik İngilizce örnek metin — yapay zekâ bu dilde yazacak"
+  "gn.langFallback": "{lang}: şimdilik İngilizce örnek metin — yapay zekâ bu dilde yazacak",
+  "ad.family.all": "Tümü",
+  "ad.family.business": "İş",
+  "ad.family.education": "Eğitim ve araştırma",
+  "ad.family.creative": "Yaratıcı",
+  "ad.family.tech": "Teknoloji",
+  "ad.family.industry": "Sektörler"
 }

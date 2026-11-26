@@ -1,0 +1,21 @@
+// The deck motion panel (src/editor/MotionPanel.jsx): entrance presets and page transitions.
+export default {
+  'mo.button': { uz: "Harakat", ru: "Движение", en: "Motion", kk: "Қозғалыс", ky: "Кыймыл", tg: "Ҳаракат" },
+  'mo.title': { uz: "Butun taqdimot uçun harakat", ru: "Движение для всей презентации", en: "Motion for the whole deck", kk: "Бүкіл таныстырылымға қозғалыс", ky: "Бүт презентация үчүн кыймыл", tg: "Ҳаракат барои тамоми муаррифӣ" },
+  'mo.preset': { uz: "Kontentning kirişi", ru: "Появление содержимого", en: "Content entrance", kk: "Мазмұнның шығуы", ky: "Мазмундун чыгышы", tg: "Пайдоиши мундариҷа" },
+  'mo.preset.none': { uz: "Yöq", ru: "Нет", en: "None", kk: "Жоқ", ky: "Жок", tg: "Не" },
+  'mo.preset.minimal': { uz: "Minimal", ru: "Минимальное", en: "Minimal", kk: "Минималды", ky: "Минималдуу", tg: "Минималӣ" },
+  'mo.preset.professional': { uz: "Professional", ru: "Профессиональное", en: "Professional", kk: "Кәсіби", ky: "Кесипкөй", tg: "Касбӣ" },
+  'mo.preset.cinematic': { uz: "Kinematik", ru: "Кинематографичное", en: "Cinematic", kk: "Кинематографиялық", ky: "Кинематографиялык", tg: "Синамоӣ" },
+  'mo.preset.dynamic': { uz: "Dinamik", ru: "Динамичное", en: "Dynamic", kk: "Серпінді", ky: "Динамикалуу", tg: "Динамикӣ" },
+  'mo.presetNote': { uz: "Öz animatsiyasi yöq sahifalarda ijro etiladi. Elementga animatsiya qöysangiz, öşa ustun turadi.", ru: "Играет на слайдах без собственной анимации. Анимация, заданная элементу, важнее.", en: "Plays on pages without their own animations. An animation set on an element takes priority.", kk: "Өз анимациясы жоқ беттерде ойнатылады. Элементке берілген анимация басым.", ky: "Өз анимациясы жок беттерде ойнотулат. Элементке коюлган анимация артык.", tg: "Дар саҳифаҳое, ки аниматсияи худ надоранд, иҷро мешавад. Аниматсияи элемент афзалтар аст." },
+  'mo.transition': { uz: "Sahifa almaşinuvi", ru: "Переход между слайдами", en: "Page transition", kk: "Бет ауысуы", ky: "Бет алмашуусу", tg: "Гузариши саҳифа" },
+  'mo.tr.none': { uz: "Yöq", ru: "Нет", en: "None", kk: "Жоқ", ky: "Жок", tg: "Не" },
+  'mo.tr.fade': { uz: "Sönib-yoniş", ru: "Растворение", en: "Fade", kk: "Сөну", ky: "Өчүү", tg: "Хирашавӣ" },
+  'mo.tr.slide': { uz: "Siljiş", ru: "Сдвиг", en: "Slide", kk: "Жылжу", ky: "Жылуу", tg: "Лағжиш" },
+  'mo.tr.push': { uz: "Itariş", ru: "Выталкивание", en: "Push", kk: "Итеру", ky: "Түртүү", tg: "Тела додан" },
+  'mo.tr.zoom': { uz: "Yaqinlaşiş", ru: "Приближение", en: "Zoom", kk: "Жақындау", ky: "Жакындоо", tg: "Наздикшавӣ" },
+  'mo.tr.reveal': { uz: "Oçiliş", ru: "Открытие", en: "Reveal", kk: "Ашылу", ky: "Ачылуу", tg: "Кушодашавӣ" },
+  'mo.reduced': { uz: "Tizimingiz kamroq harakat söragan: taqdimotda effektlar öçiq.", ru: "Система просит меньше движения: в показе эффекты отключены.", en: "Your system asks for less motion: effects are off while presenting.", kk: "Жүйеңіз азырақ қозғалыс сұрайды: көрсетілімде әсерлер өшірулі.", ky: "Системаңыз азыраак кыймыл сурайт: көрсөтүүдө эффекттер өчүк.", tg: "Системаи шумо ҳаракати камтар мехоҳад: ҳангоми намоиш эффектҳо хомӯшанд." },
+  'mo.exportNote': { uz: "Yuklab olinganda (PDF, PPTX, rasm) sahifa harakatsiz böladi; harakat taqdimot rejimida ijro etiladi.", ru: "В скачанных файлах (PDF, PPTX, изображения) слайд неподвижен; движение играет в режиме показа.", en: "Downloads (PDF, PPTX, images) show the still page; motion plays when presenting.", kk: "Жүктелген файлдарда (PDF, PPTX, сурет) бет қозғалыссыз; қозғалыс көрсету режимінде ойнайды.", ky: "Жүктөлгөн файлдарда (PDF, PPTX, сүрөт) бет кыймылсыз; кыймыл көрсөтүү режиминде ойнойт.", tg: "Дар файлҳои боргиришуда (PDF, PPTX, тасвир) саҳифа беҳаракат аст; ҳаракат дар реҷаи намоиш иҷро мешавад." },
+}

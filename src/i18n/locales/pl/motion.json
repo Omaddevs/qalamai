@@ -1,0 +1,20 @@
+{
+  "mo.button": "Ruch",
+  "mo.title": "Ruch dla całej prezentacji",
+  "mo.preset": "Pojawianie się treści",
+  "mo.preset.none": "Brak",
+  "mo.preset.minimal": "Minimalny",
+  "mo.preset.professional": "Profesjonalny",
+  "mo.preset.cinematic": "Filmowy",
+  "mo.preset.dynamic": "Dynamiczny",
+  "mo.presetNote": "Działa na stronach bez własnych animacji. Animacja ustawiona na elemencie ma pierwszeństwo.",
+  "mo.transition": "Przejście stron",
+  "mo.tr.none": "Brak",
+  "mo.tr.fade": "Zanikanie",
+  "mo.tr.slide": "Przesunięcie",
+  "mo.tr.push": "Wypchnięcie",
+  "mo.tr.zoom": "Zbliżenie",
+  "mo.tr.reveal": "Odsłonięcie",
+  "mo.reduced": "Twój system prosi o mniej ruchu: efekty są wyłączone podczas prezentacji.",
+  "mo.exportNote": "Pobrane pliki (PDF, PPTX, obrazy) pokazują nieruchomą stronę; ruch działa w trybie prezentacji."
+}

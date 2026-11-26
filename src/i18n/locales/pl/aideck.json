@@ -47,5 +47,11 @@
   "gn.open": "Otwórz teraz",
   "gn.tip": "Każdy slajd możesz później zmienić w edytorze",
   "gn.tipDoc": "Tekst możesz później zmienić w edytorze plików",
-  "gn.langFallback": "{lang}: na razie przykładowy tekst po angielsku — AI napisze go w tym języku"
+  "gn.langFallback": "{lang}: na razie przykładowy tekst po angielsku — AI napisze go w tym języku",
+  "ad.family.all": "Wszystkie",
+  "ad.family.business": "Biznes",
+  "ad.family.education": "Edukacja i nauka",
+  "ad.family.creative": "Kreatywne",
+  "ad.family.tech": "Technologia",
+  "ad.family.industry": "Branże"
 }

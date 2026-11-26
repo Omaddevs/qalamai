@@ -47,5 +47,11 @@
   "gn.open": "立即打开",
   "gn.tip": "之后可在编辑器中修改每一张幻灯片",
   "gn.tipDoc": "之后可在文件编辑器中修改文本",
-  "gn.langFallback": "{lang}：暂以英文示例文本显示，AI 将用该语言撰写"
+  "gn.langFallback": "{lang}：暂以英文示例文本显示，AI 将用该语言撰写",
+  "ad.family.all": "全部",
+  "ad.family.business": "商务",
+  "ad.family.education": "教育与科研",
+  "ad.family.creative": "创意",
+  "ad.family.tech": "科技",
+  "ad.family.industry": "行业"
 }

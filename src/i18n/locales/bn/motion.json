@@ -1,0 +1,20 @@
+{
+  "mo.button": "মোশন",
+  "mo.title": "পুরো উপস্থাপনার মোশন",
+  "mo.preset": "কনটেন্টের প্রবেশ",
+  "mo.preset.none": "নেই",
+  "mo.preset.minimal": "ন্যূনতম",
+  "mo.preset.professional": "পেশাদার",
+  "mo.preset.cinematic": "সিনেমাটিক",
+  "mo.preset.dynamic": "গতিশীল",
+  "mo.presetNote": "যেসব পাতায় নিজস্ব অ্যানিমেশন নেই সেখানে চলে। কোনো উপাদানে দেওয়া অ্যানিমেশন অগ্রাধিকার পায়।",
+  "mo.transition": "পাতা পরিবর্তন",
+  "mo.tr.none": "নেই",
+  "mo.tr.fade": "ফেড",
+  "mo.tr.slide": "স্লাইড",
+  "mo.tr.push": "পুশ",
+  "mo.tr.zoom": "জুম",
+  "mo.tr.reveal": "রিভিল",
+  "mo.reduced": "আপনার সিস্টেম কম মোশন চায়: উপস্থাপনার সময় ইফেক্ট বন্ধ।",
+  "mo.exportNote": "ডাউনলোডে (PDF, PPTX, ছবি) পাতা স্থির থাকে; মোশন উপস্থাপনা মোডে চলে।"
+}

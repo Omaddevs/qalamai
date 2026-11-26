@@ -1,0 +1,20 @@
+{
+  "mo.button": "Gerak",
+  "mo.title": "Gerak untuk seluruh presentasi",
+  "mo.preset": "Kemunculan konten",
+  "mo.preset.none": "Tidak ada",
+  "mo.preset.minimal": "Minimal",
+  "mo.preset.professional": "Profesional",
+  "mo.preset.cinematic": "Sinematik",
+  "mo.preset.dynamic": "Dinamis",
+  "mo.presetNote": "Diputar di halaman tanpa animasi sendiri. Animasi yang diatur pada elemen lebih diutamakan.",
+  "mo.transition": "Transisi halaman",
+  "mo.tr.none": "Tidak ada",
+  "mo.tr.fade": "Pudar",
+  "mo.tr.slide": "Geser",
+  "mo.tr.push": "Dorong",
+  "mo.tr.zoom": "Zoom",
+  "mo.tr.reveal": "Singkap",
+  "mo.reduced": "Sistem Anda meminta gerak lebih sedikit: efek dimatikan saat presentasi.",
+  "mo.exportNote": "Unduhan (PDF, PPTX, gambar) menampilkan halaman diam; gerak diputar saat presentasi."
+}

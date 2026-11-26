@@ -47,5 +47,11 @@
   "gn.open": "Jetzt öffnen",
   "gn.tip": "Jede Folie lässt sich danach im Editor ändern",
   "gn.tipDoc": "Der Text lässt sich danach im Datei-Editor ändern",
-  "gn.langFallback": "{lang}: vorerst Beispieltext auf Englisch – die KI schreibt ihn in dieser Sprache"
+  "gn.langFallback": "{lang}: vorerst Beispieltext auf Englisch – die KI schreibt ihn in dieser Sprache",
+  "ad.family.all": "Alle",
+  "ad.family.business": "Business",
+  "ad.family.education": "Bildung & Forschung",
+  "ad.family.creative": "Kreativ",
+  "ad.family.tech": "Technologie",
+  "ad.family.industry": "Branchen"
 }

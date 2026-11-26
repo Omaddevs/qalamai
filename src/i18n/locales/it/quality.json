@@ -1,0 +1,21 @@
+{
+  "q.button": "Qualità",
+  "q.title": "Qualità della presentazione",
+  "q.checking": "Controllo in corso…",
+  "q.found": "{n} osservazioni",
+  "q.none": "Tutto a posto — niente da correggere",
+  "q.fix": "Correzione automatica",
+  "q.fixed": "Il testo ora entra in {n} pagine",
+  "q.hint": "La correzione automatica riduce solo il carattere: parole e numeri non cambiano.",
+  "q.overflow": "Il testo esce dalla pagina",
+  "q.dense": "Troppo testo — meglio dividerlo in due pagine",
+  "q.repeat": "Due pagine di fila con la stessa composizione",
+  "q.typeShare": "Un solo layout occupa gran parte della presentazione ({n})",
+  "q.empty": "Il titolo è vuoto",
+  "q.image": "La cornice dell’immagine è vuota — aggiungi un’immagine",
+  "q.chart": "I valori del grafico non sono numeri",
+  "q.chartSum": "Le fette del grafico a torta sommano {n}% (dovrebbero essere 100%)",
+  "q.small": "Il testo è molto ridotto — meglio accorciarlo",
+  "q.offPage": "Un elemento esce dalla pagina ({n})",
+  "q.contrast": "Il colore d’accento è troppo simile allo sfondo — contrasto basso"
+}

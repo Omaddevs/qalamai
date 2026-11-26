@@ -47,5 +47,11 @@
   "gn.open": "Buka sekarang",
   "gn.tip": "Setiap slide dapat diubah di editor setelahnya",
   "gn.tipDoc": "Teksnya dapat diubah di editor file setelahnya",
-  "gn.langFallback": "{lang}: untuk sementara teks contoh dalam bahasa Inggris — AI akan menulisnya dalam bahasa ini"
+  "gn.langFallback": "{lang}: untuk sementara teks contoh dalam bahasa Inggris — AI akan menulisnya dalam bahasa ini",
+  "ad.family.all": "Semua",
+  "ad.family.business": "Bisnis",
+  "ad.family.education": "Pendidikan & riset",
+  "ad.family.creative": "Kreatif",
+  "ad.family.tech": "Teknologi",
+  "ad.family.industry": "Industri"
 }

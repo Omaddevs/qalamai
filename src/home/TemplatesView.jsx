@@ -36,7 +36,8 @@ const readRecent = () => {
 /* ───────────── Header wall: three columns of templates drifting in opposite directions ───────────── */
 function Wall() {
   const cols = useMemo(() => {
-    const a = TEMPLATES
+    // a curated slice: every template here would mean hundreds of live pages (and their fonts)
+    const a = TEMPLATES.filter((x) => x.premium).filter((_, i) => i % 3 === 0).slice(0, 18)
     return [a, [...a].reverse(), [...a.slice(6), ...a.slice(0, 6)]]
   }, [])
   return (
@@ -90,22 +91,48 @@ function CategoryCard({ c, i, onCreate }) {
   )
 }
 
+/* ───────────── A design's palette: page, text and its two accents ───────────── */
+function Swatches({ theme }) {
+  const page = /^(#|rgb)/.test(theme.bg) ? theme.bg : (/(#[0-9a-f]{3,8})/i.exec(theme.bg)?.[1] ?? theme.bg)
+  const colors = [...new Set([page, theme.text, theme.accent, theme.accent2].filter(Boolean))]
+  return (
+    <span className="tg-swatches" aria-hidden="true">
+      {colors.map((c) => <i key={c} style={{ background: c }} />)}
+    </span>
+  )
+}
+
 /* ───────────── Gallery card ───────────── */
+/** True once the element has come near the viewport: pages (and their fonts) are drawn only then. */
+function useSeen() {
+  const ref = useRef(null)
+  const [seen, setSeen] = useState(false)
+  useEffect(() => {
+    if (seen || !ref.current) return
+    if (typeof IntersectionObserver !== 'function') return setSeen(true)
+    const io = new IntersectionObserver((es) => es.some((e) => e.isIntersecting) && setSeen(true), { rootMargin: '400px 0px' })
+    io.observe(ref.current)
+    return () => io.disconnect()
+  }, [seen])
+  return [ref, seen]
+}
+
 function TemplateTile({ tpl, i, onPreview, onUse }) {
   const deck = sampleDeck(tpl)
   const { idx, start, stop } = useHoverPreview(deck.length)
+  const [ref, seen] = useSeen()
   return (
-    <div className="tg-card" style={{ '--i': Math.min(i, 12) }} onPointerEnter={start} onPointerLeave={stop}>
+    <div ref={ref} className="tg-card" style={{ '--i': Math.min(i, 12) }} onPointerEnter={start} onPointerLeave={stop}>
       <button className="tg-thumb" onClick={() => onPreview(tpl.id)} aria-label={t('tv.see', { name: tpl.name })}>
         <div className="dz-frame" key={idx}>
-          <Slide slide={deck[idx]} theme={tpl.theme} index={idx} preview />
+          {seen ? <Slide slide={deck[idx]} theme={tpl.theme} index={idx} preview /> : <div className="slide" style={{ background: tpl.theme.bg }} />}
         </div>
         <span className="tg-badges">
           {tpl.premium && <span className="tg-badge tg-premium">{t('tpl.premium')}</span>}
           {tpl.pro && (
             <ProBadge size="sm" className="tg-pro" />
           )}
-          {tpl.video && (
+          {(tpl.video || tpl.motion) && (
             <span className="tg-badge">
               <Play size={10} weight="fill" /> {t('tv.anim')}
             </span>
@@ -128,6 +155,7 @@ function TemplateTile({ tpl, i, onPreview, onUse }) {
           <span>
             {catLabel(tpl.cat)} · {deck.length} slayd
           </span>
+          {tpl.premium && <Swatches theme={tpl.theme} />}
         </div>
         <button className="tg-use" onClick={() => onUse(tpl.id)}>
           {t('tv.use')} <ArrowRight size={13} weight="bold" />

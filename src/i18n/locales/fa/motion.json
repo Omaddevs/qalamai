@@ -1,0 +1,20 @@
+{
+  "mo.button": "حرکت",
+  "mo.title": "حرکت برای کل ارائه",
+  "mo.preset": "ورود محتوا",
+  "mo.preset.none": "هیچ",
+  "mo.preset.minimal": "ساده",
+  "mo.preset.professional": "حرفه‌ای",
+  "mo.preset.cinematic": "سینمایی",
+  "mo.preset.dynamic": "پویا",
+  "mo.presetNote": "در صفحه‌هایی که پویانمایی خود را ندارند پخش می‌شود. پویانمایی تعیین‌شده برای یک عنصر اولویت دارد.",
+  "mo.transition": "گذار صفحه",
+  "mo.tr.none": "هیچ",
+  "mo.tr.fade": "محو",
+  "mo.tr.slide": "لغزش",
+  "mo.tr.push": "هل دادن",
+  "mo.tr.zoom": "بزرگ‌نمایی",
+  "mo.tr.reveal": "آشکارسازی",
+  "mo.reduced": "سیستم شما حرکت کمتر خواسته است: هنگام ارائه جلوه‌ها خاموش‌اند.",
+  "mo.exportNote": "فایل‌های دانلودی (PDF، PPTX، تصویر) صفحه را ثابت نشان می‌دهند؛ حرکت در حالت ارائه پخش می‌شود."
+}

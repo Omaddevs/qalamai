@@ -1,0 +1,21 @@
+{
+  "q.button": "Jakość",
+  "q.title": "Jakość prezentacji",
+  "q.checking": "Sprawdzanie…",
+  "q.found": "Uwagi: {n}",
+  "q.none": "Wszystko w porządku — nic do poprawy",
+  "q.fix": "Popraw automatycznie",
+  "q.fixed": "Tekst mieści się teraz na {n} stronach",
+  "q.hint": "Automatyczna poprawka tylko zmniejsza czcionkę: słowa i liczby się nie zmieniają.",
+  "q.overflow": "Tekst wychodzi poza stronę",
+  "q.dense": "Za dużo tekstu — lepiej podzielić na dwie strony",
+  "q.repeat": "Dwie strony z rzędu w tej samej kompozycji",
+  "q.typeShare": "Jeden układ zajmuje dużą część prezentacji ({n})",
+  "q.empty": "Tytuł jest pusty",
+  "q.image": "Ramka zdjęcia jest pusta — dodaj obraz",
+  "q.chart": "Wartości wykresu nie są liczbami",
+  "q.chartSum": "Udziały wykresu kołowego sumują się do {n}% (powinno być 100%)",
+  "q.small": "Tekst jest mocno pomniejszony — lepiej go skrócić",
+  "q.offPage": "Element wychodzi poza stronę ({n})",
+  "q.contrast": "Kolor akcentu jest zbyt podobny do tła — niski kontrast"
+}

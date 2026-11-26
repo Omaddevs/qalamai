@@ -1,0 +1,20 @@
+{
+  "mo.button": "الحركة",
+  "mo.title": "الحركة لكامل العرض",
+  "mo.preset": "ظهور المحتوى",
+  "mo.preset.none": "بلا",
+  "mo.preset.minimal": "بسيطة",
+  "mo.preset.professional": "احترافية",
+  "mo.preset.cinematic": "سينمائية",
+  "mo.preset.dynamic": "ديناميكية",
+  "mo.presetNote": "تعمل في الصفحات التي لا تحتوي على حركات خاصة بها. الحركة المحددة للعنصر لها الأولوية.",
+  "mo.transition": "الانتقال بين الصفحات",
+  "mo.tr.none": "بلا",
+  "mo.tr.fade": "تلاشٍ",
+  "mo.tr.slide": "انزلاق",
+  "mo.tr.push": "دفع",
+  "mo.tr.zoom": "تكبير",
+  "mo.tr.reveal": "كشف",
+  "mo.reduced": "يطلب نظامك حركة أقل: التأثيرات متوقفة أثناء العرض.",
+  "mo.exportNote": "الملفات المنزّلة (PDF وPPTX والصور) تعرض الصفحة ثابتة؛ الحركة تعمل في وضع العرض."
+}

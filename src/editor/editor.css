@@ -1277,7 +1277,29 @@
 
 /* ═════════════ Presenting ═════════════ */
 .present { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: #000; cursor: pointer; }
-.present-stage { width: min(100vw, 100vh * 16 / 9); }
+.present-stage { position: relative; width: min(100vw, 100vh * 16 / 9); overflow: hidden; }
+/* page transitions (motion.js): the old page is laid over the new one while it leaves */
+.pt-page { position: relative; }
+.pt-page.out { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.pt-page.in, .pt-page.out { animation-duration: var(--pt-dur, 0.5s); animation-fill-mode: both; animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); }
+.present-stage[data-tr='fade'] .pt-page.out { animation-name: pt-fade-out; }
+.present-stage[data-tr='slide'] .pt-page.out { animation-name: pt-fade-out; animation-duration: calc(var(--pt-dur) * 0.6); }
+.present-stage[data-tr='slide'] .pt-page.in { animation-name: pt-slide-in; animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1); }
+.present-stage[data-tr='push'] .pt-page.in { animation-name: pt-push-in; }
+.present-stage[data-tr='push'] .pt-page.out { animation-name: pt-push-out; }
+.present-stage[data-tr='zoom'] .pt-page.in { animation-name: pt-zoom-in; animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1); }
+.present-stage[data-tr='zoom'] .pt-page.out { animation-name: pt-zoom-out; }
+.present-stage[data-tr='reveal'] .pt-page.out { animation-name: pt-reveal-out; }
+@keyframes pt-fade-out { to { opacity: 0; } }
+@keyframes pt-slide-in { from { opacity: 0; transform: translateX(calc(var(--pt-dir, 1) * 6%)); } }
+@keyframes pt-push-in { from { transform: translateX(calc(var(--pt-dir, 1) * 100%)); } }
+@keyframes pt-push-out { to { transform: translateX(calc(var(--pt-dir, 1) * -100%)); } }
+@keyframes pt-zoom-in { from { opacity: 0; transform: scale(1.12); } }
+@keyframes pt-zoom-out { to { opacity: 0; transform: scale(0.94); } }
+@keyframes pt-reveal-out { to { clip-path: inset(0 0 0 100%); } }
+.present-stage[data-tr='reveal'][style*='--pt-dir: -1'] .pt-page.out { animation-name: pt-reveal-out-back; }
+@keyframes pt-reveal-out-back { to { clip-path: inset(0 100% 0 0); } }
+@media (prefers-reduced-motion: reduce) { .pt-page.in, .pt-page.out { animation: none !important; } .pt-page.out { display: none; } }
 .present-stage .slide { box-shadow: none; }
 .present-bar { position: fixed; left: 50%; bottom: 20px; display: flex; align-items: center; gap: 6px; padding: 6px; border-radius: 999px; background: rgba(20, 20, 24, 0.75); color: #fff; font-size: 13px; transform: translateX(-50%); opacity: 0; transition: opacity 0.3s; cursor: default; }
 .present:hover .present-bar { opacity: 1; }
@@ -1455,3 +1477,45 @@
 .combo:hover { border-color: var(--brand-strong); box-shadow: 0 4px 14px rgba(16, 24, 40, 0.08); }
 .combo-h { max-width: 100%; font-size: 18px; line-height: 1.15; overflow-wrap: normal; }
 .combo-s { font-size: 11px; line-height: 1.3; color: #4b5563; }
+
+/* «Harakat» panel (MotionPanel.jsx) */
+.mo-panel { width: 300px; }
+.mo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 6px 0 8px; }
+.mo-grid button, .mo-tr button { padding: 8px 4px; border: 1px solid #eef0f3; border-radius: 10px; background: #fff; font: inherit; font-size: 11.5px; font-weight: 600; cursor: pointer; }
+.mo-grid button { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.mo-grid button:hover, .mo-tr button:hover { border-color: #c4b5fd; }
+.mo-grid button.on, .mo-tr button.on { border-color: #7c3aed; background: #f5f3ff; color: #6d28d9; }
+.mo-tr { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 6px 0 8px; }
+.mo-demo { display: flex; flex-direction: column; gap: 3px; width: 34px; }
+.mo-demo i { display: block; height: 4px; border-radius: 3px; background: #c4b5fd; }
+.mo-demo i:first-child { width: 70%; background: #7c3aed; }
+.mo-grid button:hover .mo-demo i { animation: 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) infinite both; }
+.mo-grid button:hover .mo-demo i:nth-child(2) { animation-delay: 0.12s; }
+.mo-grid button:hover .mo-demo i:nth-child(3) { animation-delay: 0.24s; }
+.mo-grid button:hover .m-minimal i { animation-name: an-fade; }
+.mo-grid button:hover .m-professional i { animation-name: tb-rise; }
+.mo-grid button:hover .m-cinematic i { animation-name: an-fade; animation-duration: 1.4s; }
+.mo-grid button:hover .m-dynamic i { animation-name: an-pop; }
+.mo-note { margin: 4px 0 8px; font-size: 11.5px; line-height: 1.45; color: #6b7280; }
+.mo-note.warn { color: #b45309; }
+@media (prefers-reduced-motion: reduce) { .mo-grid button:hover .mo-demo i { animation: none; } }
+
+/* «Sifat» panel (QualityPanel.jsx) */
+.q-chip { margin-left: 6px; padding: 1px 7px; border-radius: 999px; font-size: 11px; font-variant-numeric: tabular-nums; background: #eef0f3; color: #374151; }
+.q-chip.good, .q-score.good { background: #dcfce7; color: #15803d; }
+.q-chip.ok, .q-score.ok { background: #fef3c7; color: #b45309; }
+.q-chip.bad, .q-score.bad { background: #fee2e2; color: #b91c1c; }
+.q-panel { width: 320px; }
+.q-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.q-head b { display: block; font-size: 13.5px; }
+.q-head small { color: #6b7280; font-size: 12px; }
+.q-score { display: grid; place-items: center; flex-shrink: 0; width: 46px; height: 46px; border-radius: 50%; background: #eef0f3; font-size: 16px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.q-list { display: flex; flex-direction: column; gap: 4px; max-height: 260px; margin: 0 0 8px; padding: 0; overflow: auto; list-style: none; }
+.q-list button { display: flex; align-items: flex-start; gap: 8px; width: 100%; padding: 7px 8px; border: 0; border-radius: 8px; background: #f8f9fb; font: inherit; font-size: 12.5px; line-height: 1.4; text-align: left; cursor: pointer; }
+.q-list button:hover { background: #f1f0fb; }
+.q-page { flex-shrink: 0; min-width: 22px; padding: 1px 6px; border-radius: 6px; background: #fff; box-shadow: inset 0 0 0 1px #e5e7eb; font-size: 11px; font-weight: 700; text-align: center; }
+.q-fix { width: 100%; justify-content: center; margin-bottom: 6px; }
+.q-note { margin: 4px 0 8px; font-size: 11.5px; line-height: 1.45; color: #6b7280; }
+.q-note.good { color: #15803d; }
+.spin { animation: q-spin 0.9s linear infinite; }
+@keyframes q-spin { to { transform: rotate(360deg); } }

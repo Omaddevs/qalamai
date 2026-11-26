@@ -1,0 +1,21 @@
+{
+  "q.button": "Kalite",
+  "q.title": "Sunum kalitesi",
+  "q.checking": "Kontrol ediliyor…",
+  "q.found": "{n} not",
+  "q.none": "Her şey yolunda — düzeltilecek bir şey yok",
+  "q.fix": "Otomatik düzelt",
+  "q.fixed": "Metin artık {n} sayfaya sığıyor",
+  "q.hint": "Otomatik düzeltme yalnızca yazıyı küçültür: kelimeler ve sayılar değişmez.",
+  "q.overflow": "Metin sayfadan taşıyor",
+  "q.dense": "Çok fazla metin — iki sayfaya bölmek daha iyi",
+  "q.repeat": "Art arda iki sayfa aynı düzende",
+  "q.typeShare": "Tek bir düzen sunumun büyük kısmında ({n})",
+  "q.empty": "Başlık boş",
+  "q.image": "Görsel alanı boş — bir görsel ekleyin",
+  "q.chart": "Grafik değerleri sayı değil",
+  "q.chartSum": "Pasta grafiğin toplamı %{n} (%100 olmalı)",
+  "q.small": "Metin çok küçültüldü — kısaltmak daha iyi",
+  "q.offPage": "Öğe sayfanın dışına taşıyor ({n})",
+  "q.contrast": "Vurgu rengi arka plana çok yakın — kontrast düşük"
+}

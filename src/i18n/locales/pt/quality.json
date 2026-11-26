@@ -1,0 +1,21 @@
+{
+  "q.button": "Qualidade",
+  "q.title": "Qualidade da apresentação",
+  "q.checking": "Verificando…",
+  "q.found": "{n} observações",
+  "q.none": "Tudo certo — nada para corrigir",
+  "q.fix": "Correção automática",
+  "q.fixed": "O texto agora cabe em {n} páginas",
+  "q.hint": "A correção automática só diminui a fonte: palavras e números não mudam.",
+  "q.overflow": "O texto passa da página",
+  "q.dense": "Texto demais — melhor dividir em duas páginas",
+  "q.repeat": "Duas páginas seguidas com a mesma composição",
+  "q.typeShare": "Um único layout ocupa grande parte da apresentação ({n})",
+  "q.empty": "O título está vazio",
+  "q.image": "O espaço da imagem está vazio — adicione uma imagem",
+  "q.chart": "Os valores do gráfico não são números",
+  "q.chartSum": "As fatias do gráfico de pizza somam {n}% (deveriam somar 100%)",
+  "q.small": "O texto foi bastante reduzido — melhor encurtá-lo",
+  "q.offPage": "Um elemento sai da página ({n})",
+  "q.contrast": "A cor de destaque está muito parecida com o fundo — pouco contraste"
+}

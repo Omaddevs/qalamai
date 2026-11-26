@@ -1,0 +1,21 @@
+{
+  "q.button": "Qualität",
+  "q.title": "Qualität der Präsentation",
+  "q.checking": "Wird geprüft …",
+  "q.found": "{n} Hinweise",
+  "q.none": "Alles gut – nichts zu korrigieren",
+  "q.fix": "Automatisch korrigieren",
+  "q.fixed": "Der Text passt jetzt auf {n} Seiten",
+  "q.hint": "Die automatische Korrektur verkleinert nur die Schrift: Wörter und Zahlen bleiben unverändert.",
+  "q.overflow": "Der Text läuft über die Seite",
+  "q.dense": "Zu viel Text – besser auf zwei Seiten verteilen",
+  "q.repeat": "Zwei Seiten hintereinander mit gleicher Komposition",
+  "q.typeShare": "Ein Layout prägt einen Großteil der Präsentation ({n})",
+  "q.empty": "Der Titel ist leer",
+  "q.image": "Der Bildrahmen ist leer – füge ein Bild hinzu",
+  "q.chart": "Die Diagrammwerte sind keine Zahlen",
+  "q.chartSum": "Die Anteile des Kreisdiagramms ergeben {n} % (es sollten 100 % sein)",
+  "q.small": "Der Text ist stark verkleinert – besser kürzen",
+  "q.offPage": "Ein Element ragt über die Seite hinaus ({n})",
+  "q.contrast": "Die Akzentfarbe ist dem Hintergrund zu ähnlich – geringer Kontrast"
+}

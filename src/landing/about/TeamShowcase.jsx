@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Sparkle, DeviceMobile, Globe, Robot, PenNib, Database, Brain, Megaphone, Code, MagicWand, CaretDown, SkipBack, Play, Pause,
-  Repeat, TelegramLogo, ArrowUpRight, SpeakerHigh, LockSimple, NavigationArrow, Plus,
+  Repeat, TelegramLogo, ArrowUpRight, SpeakerHigh, NavigationArrow, Plus,
 } from '@phosphor-icons/react'
 import { t } from '../../i18n/index.js'
 import { teamProfile } from '../../../shared/siteContent.js'
@@ -213,7 +213,6 @@ export default function TeamShowcase({ m, flip }) {
                       <I size={16} />
                       <b>{tr.name}</b>
                       <SpeakerHigh size={14} />
-                      <LockSimple size={14} />
                     </span>
                     <span className="crew-clips">
                       {(tr.skills.length ? tr.skills : [firstName]).slice(0, 4).map((s) => <span key={s} className="crew-clip">{s}</span>)}

@@ -95,8 +95,8 @@ function checkUsage(files, dict, label) {
 
 // Uzbek words that only appear in UI copy (new alphabet letters, or common function words).
 const UZ = /[ÖöĞğŞşÇç]|\b(?:va|uçun|bilan|yoki|emas|kerak|qiliş|yöq|bölmadi|tanlang|kiriting|yuklab|saqlaş|öçiriş|yangi|hammasi|topilmadi|tayyor|nomsiz|sahifa|bet|slayd|şablon|fayl|matn|rasm|rang)\b/i
-// The admin panel (src/admin, server/src/modules/admin, payments/admin.js) is owner-only and Uzbek-only on purpose.
-const SKIP_FILES = /(?:src[\\/]admin[\\/]|modules[\\/]admin[\\/]|modules[\\/]payments[\\/]admin\.js|src[\\/]track\.js|src[\\/]lib[\\/]alifbo|shared[\\/]alifbo|src[\\/]i18n[\\/]|scripts[\\/]|server[\\/]test[\\/]|migrations)/
+// The admin panel (src/admin, server/src/modules/admin, payments/admin.js, site/admin.js) is owner-only and Uzbek-only on purpose.
+const SKIP_FILES = /(?:src[\\/]admin[\\/]|modules[\\/]admin[\\/]|modules[\\/]payments[\\/]admin\.js|modules[\\/]site[\\/]admin\.js|src[\\/]track\.js|src[\\/]lib[\\/]alifbo|shared[\\/]alifbo|src[\\/]i18n[\\/]|scripts[\\/]|server[\\/]test[\\/]|migrations)/
 
 function leftovers(files) {
   for (const file of files) {

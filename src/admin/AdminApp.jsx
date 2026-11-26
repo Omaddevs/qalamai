@@ -1,7 +1,7 @@
 // QalamAI admin panel — /admin. Its own small app: a password gate, then Statistika,
 // Foydalanuvçilar and Sozlamalar. Pages are picked by the hash (#users, #settings).
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
-import { ArrowUpRight, BarChart3, Bell, CreditCard, LogOut, Menu, MessageSquare, Moon, Settings, Sun, Users, X } from 'lucide-react'
+import { ArrowUpRight, BarChart3, Bell, CreditCard, LogOut, Menu, MessageSquare, Moon, Newspaper, Settings, Sun, Users, X } from 'lucide-react'
 import { Wordmark } from '../components/ui.jsx'
 import { admin, onSignedOut } from './api.js'
 import Login from './Login.jsx'
@@ -13,6 +13,7 @@ const SettingsPage = lazy(() => import('./Settings.jsx'))
 const ChatPage = lazy(() => import('./Chat.jsx'))
 const NotificationsPage = lazy(() => import('./Notifications.jsx'))
 const PaymentsPage = lazy(() => import('./Payments.jsx'))
+const SitePage = lazy(() => import('./Site.jsx'))
 // same event name as Chat.jsx (kept here so the sidebar does not load that chunk)
 const CHAT_CHANGED = 'qalam-admin-chat'
 const PAYMENTS_CHANGED = 'qalam-admin-payments' // same as Payments.jsx
@@ -23,6 +24,7 @@ const NAV = [
   { id: 'payments', label: 'Tölovlar', icon: CreditCard },
   { id: 'chat', label: 'ChatBot', icon: MessageSquare },
   { id: 'notifications', label: 'Bildirişnomalar', icon: Bell },
+  { id: 'site', label: 'Sayt', icon: Newspaper },
   { id: 'settings', label: 'Sozlamalar', icon: Settings },
 ]
 const pageFromHash = () => {
@@ -135,6 +137,7 @@ function Shell({ theme, toggleTheme, onOut }) {
           {page === 'chat' && <ChatPage />}
           {page === 'notifications' && <NotificationsPage />}
           {page === 'payments' && <PaymentsPage />}
+          {page === 'site' && <SitePage />}
           {page === 'settings' && <SettingsPage onOut={onOut} />}
         </Suspense>
       </main>

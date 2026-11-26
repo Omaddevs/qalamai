@@ -65,8 +65,24 @@ export const PRODUCT_PAGES = [
   { product: 'kurs', slug: 'kurs-ishi-yaratish', coins: 'kurs-ishi' },
 ].map((p) => ({ ...p, id: `prod:${p.product}`, path: `/${p.slug}`, productPage: true, langs: REGIONAL_LANGS }))
 
-/** Every public address (sections, product pages, auth forms, tool pages). */
-export const ALL_PAGES = [...PUBLIC_PAGES, ...PRODUCT_PAGES, ...TOOL_PAGES]
+/**
+ * The "Haqimizda" menu: about, team, news, partners. Texts: ab.page.<id>.* (src/i18n/msg/about.js, regional
+ * languages; world-language visitors read English). Team, news and partners are edited in the admin panel and
+ * loaded from /api/v1/site. `parent`: the page above it in breadcrumbs.
+ */
+export const ABOUT_PAGES = [
+  { id: 'about', path: '/haqimizda' },
+  { id: 'team', path: '/jamoa', parent: 'about' },
+  { id: 'news', path: '/yangiliklar', parent: 'about' },
+  { id: 'partners', path: '/hamkorlar', parent: 'about' },
+].map((p) => ({ ...p, title: `ab.page.${p.id}.title`, desc: `ab.page.${p.id}.desc`, h1: `ab.page.${p.id}.h1`, aboutPage: true, langs: REGIONAL_LANGS }))
+
+/** Every public address (sections, product pages, about pages, auth forms, tool pages). */
+export const ALL_PAGES = [...PUBLIC_PAGES, ...PRODUCT_PAGES, ...ABOUT_PAGES, ...TOOL_PAGES]
+
+/** One news post: /yangiliklar/<slug> (rendered for crawlers by the API, see server/src/modules/site/page.js). */
+export const NEWS_POST_RE = /^\/yangiliklar\/([a-z0-9]+(?:-[a-z0-9]+)*)\/?$/
+export const newsPostPage = (slug) => ({ id: `news:${slug}`, path: `/yangiliklar/${slug}`, slug, newsPost: true, parent: 'news', langs: REGIONAL_LANGS })
 /** Addresses that belong in the sitemap. */
 export const INDEXABLE_PAGES = ALL_PAGES.filter((p) => !p.noindex)
 
@@ -74,7 +90,25 @@ const BY_PATH = Object.fromEntries(ALL_PAGES.map((p) => [p.path, p]))
 const BY_ID = Object.fromEntries(ALL_PAGES.map((p) => [p.id, p]))
 
 /** "/narxlar/" → the pricing page; "/" or anything unknown → null (the home landing). */
-export const pageByPath = (pathname) => BY_PATH[pathname.replace(/\/+$/, '')] ?? null
+export const pageByPath = (pathname) => {
+  const page = BY_PATH[pathname.replace(/\/+$/, '')]
+  if (page) return page
+  const post = NEWS_POST_RE.exec(pathname)
+  return post ? newsPostPage(post[1]) : null
+}
+/** The pages above `page` in breadcrumbs, top first (tool pages sit under /vositalar). */
+export function parentsOf(page) {
+  const out = []
+  let up = page?.toolPage ? 'tools' : page?.parent
+  while (up && BY_ID[up]) {
+    out.unshift(BY_ID[up])
+    up = BY_ID[up].parent
+  }
+  return out
+}
+
+/** A page by id, news posts ("news:<slug>") included. */
+export const pageById = (id) => (id?.startsWith('news:') ? newsPostPage(id.slice(5)) : BY_ID[id] ?? null)
 export const pathOf = (id) => BY_ID[id]?.path ?? '/'
 export const toolPageOf = (toolId) => BY_ID[`tool:${toolId}`] ?? null
 /** Other tools of the same category, for "related tools" links. */

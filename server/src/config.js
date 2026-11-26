@@ -59,6 +59,9 @@ const schema = z.object({
 
   /** Public address of the web app (where the browser opens QalamAI). OAuth redirects come back here. */
   APP_URL: z.string().url().default('http://localhost:5173'),
+  // The web container as the API reaches it (docker compose: http://web). News pages (/yangiliklar/<slug>)
+  // are the prerendered /yangiliklar shell with each post's own title, meta and text put in.
+  WEB_INTERNAL_URL: z.string().url().default('http://web'),
   /** "Google bilan kiriş" — OAuth client from Google Cloud Console (Web application). */
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
@@ -138,6 +141,7 @@ function load() {
     },
     gotenbergUrl: env.GOTENBERG_URL ?? null,
     appUrl: env.APP_URL.replace(/\/$/, ''),
+    webInternalUrl: env.WEB_INTERNAL_URL.replace(/\/$/, ''),
     google:
       env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
         ? { clientId: env.GOOGLE_CLIENT_ID, clientSecret: env.GOOGLE_CLIENT_SECRET }

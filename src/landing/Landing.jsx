@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import {
   Sparkle, ArrowRight, Play, Plus, List, X, PresentationChart, FileText, GraduationCap, Files, TextAa, Briefcase, TelegramLogo, InstagramLogo, YoutubeLogo, BookOpen, Books, ListNumbers, ChartLineUp, CurrencyCircleDollar, Heart, EnvelopeSimple, ChartBar, Quotes, Confetti,
 } from '@phosphor-icons/react'
@@ -8,11 +8,13 @@ import { COLORS } from '../data.js'
 import { getLang, t } from '../i18n/index.js'
 import { openQalamChat } from '../components/qalamChatBus.js'
 import { go, linkClick } from '../nav.js'
-import { ALL_PAGES, pathOf } from './pages.js'
+import { pageById, parentsOf, pathOf } from './pages.js'
 import { pageJsonLd, pageTexts } from './seo-meta.js'
 import { applySeo, INDEX, SITE_URL } from '../seo.js'
 import { ToolsHub, ToolLanding } from './ToolPages.jsx'
 import { ProductLanding } from './ProductPages.jsx'
+import { AboutMenu, AboutMobileGroup } from './about/AboutMenu.jsx'
+import { AboutSection } from './about/AboutPages.jsx'
 import '../editor/editor.css'
 import ProductMock from './ProductMock.jsx'
 import HeroCursors from './HeroCursors.jsx'
@@ -242,6 +244,7 @@ function Header({ onStart, onLogin }) {
                 {n.label}
               </a>
             ))}
+            <AboutMenu />
           </nav>
           <div className="lp-nav-right">
             <LangSwitch />
@@ -258,6 +261,7 @@ function Header({ onStart, onLogin }) {
             {NAV.map((n) => (
               <a key={n.id} href={n.path} onClick={linkClick(() => follow(n))}>{n.label}</a>
             ))}
+            <AboutMobileGroup onNav={() => setOpen(false)} />
             <div className="lp-mobile-cta">
               <a className="lp-btn lp-btn-soft" href={pathOf('login')} onClick={linkClick(onLogin)}>{t('lp.login')}</a>
               <a className="lp-btn lp-btn-primary" href={pathOf('signup')} onClick={linkClick(onStart)}>{t('lp.startFree')} <ArrowRight size={15} weight="bold" /></a>
@@ -467,6 +471,8 @@ function Footer({ onStart, onLogin }) {
           <div>
             <b>{t('lp.ft.pages')}</b>
             {NAV.slice(0, 4).map((n) => <NavLink key={n.id} n={n} />)}
+            <a href={pathOf('about')} onClick={linkClick(() => go(pathOf('about')))}>{t('ab.nav.about')}</a>
+            <a href={pathOf('news')} onClick={linkClick(() => go(pathOf('news')))}>{t('ab.nav.news')}</a>
           </div>
           <div>
             <b>{t('lp.ft.help')}</b>
@@ -505,18 +511,22 @@ const PAGE_SECTIONS = {
 const sectionsOf = (page, meta) =>
   meta?.toolPage ? ({ onStart }) => <ToolLanding page={meta} onStart={onStart} />
   : meta?.productPage ? ({ onStart }) => <ProductLanding page={meta} onStart={onStart} />
+  : meta?.aboutPage || meta?.newsPost ? () => <AboutSection page={meta} />
   : PAGE_SECTIONS[page]
 const WITH_FAQ = new Set(['home', 'pricing', 'faq'])
 
 export default function Landing({ page = 'home', onStart, onLogin }) {
   const root = useRef(null)
   useReveal(root)
-  const meta = page === 'home' ? null : ALL_PAGES.find((p) => p.id === page)
-  // title, description, canonical, hreflang and the page's JSON-LD (same as its prerendered HTML)
+  // stable objects: a news post's page is made from its id, and its section keeps its state across renders
+  const meta = useMemo(() => (page === 'home' ? null : pageById(page)), [page])
+  // title, description, canonical, hreflang and the page's JSON-LD (same as its prerendered HTML);
+  // a news post sets its own once the post has loaded
   useEffect(() => {
+    if (meta?.newsPost) return
     const lang = getLang()
     const { title, desc } = pageTexts(meta, t, lang)
-    const parents = meta?.toolPage ? [ALL_PAGES.find((p) => p.id === 'tools')] : []
+    const parents = parentsOf(meta)
     applySeo({ title, description: desc, path: meta?.path ?? '/', robots: INDEX, langs: meta?.langs, jsonLd: pageJsonLd({ site: SITE_URL, page: meta, lang, tr: t, parents }) })
   }, [meta])
   // arrived from a nav link aimed at a section further down this page
@@ -526,8 +536,8 @@ export default function Landing({ page = 'home', onStart, onLogin }) {
     pendingScroll = null
     requestAnimationFrame(() => scrollToId(id))
   }, [])
-  const Sections = sectionsOf(page, meta)
-  const ownH1 = meta?.toolPage || meta?.productPage || page === 'tools' // these pages show their heading themselves
+  const Sections = useMemo(() => sectionsOf(page, meta), [page, meta])
+  const ownH1 = meta?.toolPage || meta?.productPage || meta?.aboutPage || meta?.newsPost || page === 'tools' // these pages show their heading themselves
   return (
     <div className={`lp${meta ? ' lp-subpage' : ''}`} ref={root}>
       <Header onStart={onStart} onLogin={onLogin} />

@@ -357,3 +357,58 @@ export const notificationReads = pgTable(
   },
   (t) => [primaryKey({ columns: [t.notificationId, t.userId] }), index('notification_reads_user_idx').on(t.userId)],
 )
+
+/* ───────── Site content: news, partners, team (edited in the admin panel) ─────────
+ * Texts live in `i18n` per language: { uz: {...}, ru: {...}, en: {...} }. Uzbek is required; Cyrillic
+ * Uzbek is derived from it, other languages fall back (shared/siteContent.js). Pictures are stored
+ * as WebP in storage under site/… and served by GET /api/v1/site/media/:file. */
+
+/** News posts (/yangiliklar/<slug>). i18n.<lang> = { title, excerpt, body } — body is light markdown. */
+export const siteNews = pgTable(
+  'site_news',
+  {
+    id: text('id').primaryKey(),
+    slug: text('slug').notNull(),
+    i18n: jsonb('i18n').notNull().default({}),
+    coverKey: text('cover_key'),
+    published: boolean('published').notNull().default(false),
+    publishedAt: ts('published_at'),
+    createdAt: createdAt(),
+    updatedAt: ts('updated_at').notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex('site_news_slug_idx').on(t.slug), index('site_news_pub_idx').on(t.published, t.publishedAt)],
+)
+
+/** Partners (/hamkorlar). i18n.<lang> = { about }. */
+export const sitePartners = pgTable(
+  'site_partners',
+  {
+    id: text('id').primaryKey(),
+    name: text('name').notNull(),
+    i18n: jsonb('i18n').notNull().default({}),
+    logoKey: text('logo_key'),
+    url: text('url'),
+    sort: integer('sort').notNull().default(0),
+    visible: boolean('visible').notNull().default(true),
+    createdAt: createdAt(),
+    updatedAt: ts('updated_at').notNull().defaultNow(),
+  },
+  (t) => [index('site_partners_sort_idx').on(t.sort)],
+)
+
+/** Team members (/jamoa). i18n.<lang> = { role, bio }; links = { telegram, linkedin, instagram, github, site }. */
+export const siteTeam = pgTable(
+  'site_team',
+  {
+    id: text('id').primaryKey(),
+    name: text('name').notNull(),
+    i18n: jsonb('i18n').notNull().default({}),
+    photoKey: text('photo_key'),
+    links: jsonb('links').notNull().default({}),
+    sort: integer('sort').notNull().default(0),
+    visible: boolean('visible').notNull().default(true),
+    createdAt: createdAt(),
+    updatedAt: ts('updated_at').notNull().defaultNow(),
+  },
+  (t) => [index('site_team_sort_idx').on(t.sort)],
+)

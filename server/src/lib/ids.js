@@ -22,4 +22,8 @@ export const ID_PREFIX = {
   support: 'msg',
   notification: 'ntf',
   payment: 'pay',
+  news: 'nws',
+  partner: 'prt',
+  member: 'tm',
+  media: 'img',
 }

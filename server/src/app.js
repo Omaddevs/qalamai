@@ -32,6 +32,8 @@ import supportRoutes from './modules/support/routes.js'
 import notificationRoutes from './modules/notifications/routes.js'
 import photoRoutes from './modules/photos/routes.js'
 import aiRoutes from './modules/ai/routes.js'
+import { siteRoutes } from './modules/site/routes.js'
+import { sitePageRoutes } from './modules/site/page.js'
 import paymentRoutes from './modules/payments/routes.js'
 import { createNotifier } from './modules/notifications/service.js'
 import { createCoinService } from './modules/coins/service.js'
@@ -153,10 +155,12 @@ export async function buildApp(config) {
       await api.register(notificationRoutes, { prefix: '/notifications' })
       await api.register(photoRoutes, { prefix: '/photos' })
       await api.register(aiRoutes, { prefix: '/ai' })
+      await api.register(siteRoutes, { prefix: '/site' })
     },
     { prefix: '/api/v1' },
   )
   await app.register(bioPublicRoutes, { prefix: '/b' })
+  await app.register(sitePageRoutes, { prefix: '/yangiliklar' }) // news pages for crawlers and link previews
   await app.register(verificationRoutes) // /google….html for Search Console
 
   app.addHook('onClose', async () => {

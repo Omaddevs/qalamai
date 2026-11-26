@@ -86,7 +86,7 @@ export function pageTexts(page, tr, lang) {
     const { name, description } = toolText(tr, page)
     return { title: tr('seo.tool.title', { tool: name }), desc: tr('seo.tool.desc', { desc: description }), h1: name, lead: description, name }
   }
-  const h1 = page.auth ? tr(page.title).split(' — ')[0] : tr(`${page.id === 'tools' ? 'seo' : 'lp'}.page.${page.id}.h1`)
+  const h1 = page.h1 ? tr(page.h1) : page.auth ? tr(page.title).split(' — ')[0] : tr(`${page.id === 'tools' ? 'seo' : 'lp'}.page.${page.id}.h1`)
   return { title: tr(page.title), desc: tr(page.desc), h1 }
 }
 
@@ -112,7 +112,7 @@ export function pageJsonLd({ site, page, lang, tr, parents = [] }) {
       itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: c.url })),
     },
     {
-      '@type': page.id === 'faq' ? 'FAQPage' : page.id === 'tools' ? 'CollectionPage' : 'WebPage',
+      '@type': page.id === 'faq' ? 'FAQPage' : page.id === 'tools' || page.id === 'news' ? 'CollectionPage' : page.id === 'about' ? 'AboutPage' : 'WebPage',
       '@id': `${url}#webpage`,
       url,
       name: title,

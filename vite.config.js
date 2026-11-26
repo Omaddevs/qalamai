@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import { DEFAULT_LANG, LANGS, dirOf, htmlLangOf, isLang, translate } from './shared/i18n.js'
 import i18nSplit from './scripts/vite-i18n-split.mjs'
 import { loadDict } from './scripts/i18n-dict.mjs'
-import { ALL_PAGES, INDEXABLE_PAGES, PRODUCT_PAGES, PUBLIC_PAGES, TOOL_PAGES, relatedTools } from './src/landing/pages.js'
+import { ABOUT_PAGES, ALL_PAGES, INDEXABLE_PAGES, PRODUCT_PAGES, PUBLIC_PAGES, TOOL_PAGES, parentsOf, relatedTools } from './src/landing/pages.js'
 import { alternatesOf, faqOf, langsOf, ogLocaleOf, pageJsonLd, pageTexts, pageUrl, productContent } from './src/landing/seo-meta.js'
 
 const MSG_DIR = new URL('./src/i18n/msg', import.meta.url).pathname
@@ -12,7 +12,6 @@ const LOCALES_DIR = new URL('./src/i18n/locales', import.meta.url).pathname
 const { dict: MSG } = await loadDict(MSG_DIR, LOCALES_DIR)
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 const ROBOTS_INDEX = 'index, follow, max-image-preview:large'
-const TOOLS_HUB = ALL_PAGES.find((p) => p.id === 'tools')
 
 /**
  * SEO files that depend on the public domain (VITE_SITE_URL, default https://qalamai.uz):
@@ -36,6 +35,7 @@ function seo(siteUrl) {
       '',
       `Sitemap: ${siteUrl}/sitemap.xml`,
       `Sitemap: ${siteUrl}/b/sitemap.xml`,
+      `Sitemap: ${siteUrl}/yangiliklar/sitemap.xml`,
       '',
     ].join('\n'),
     // Indexable public pages in every language, each with its alternates. The app itself (after
@@ -86,7 +86,7 @@ function seo(siteUrl) {
       out.push(`<h2>${esc(tr('seo.tool.related'))}</h2>`, toolList(relatedTools(page)))
     }
     // product pages exist only in the regional languages: linked from those versions only
-    const navPages = [...PUBLIC_PAGES, ...PRODUCT_PAGES].filter((p) => langsOf(p).includes(lang))
+    const navPages = [...PUBLIC_PAGES, ...PRODUCT_PAGES, ...ABOUT_PAGES].filter((p) => langsOf(p).includes(lang))
     const nav = [['/', 'QalamAI'], ...navPages.map((p) => [p.path, pageTexts(p, tr, lang).h1])]
     out.push(`<nav>${nav.map(([p, l]) => a(p, l)).join(' · ')}</nav>`)
     return out.join('\n      ')
@@ -107,7 +107,7 @@ function seo(siteUrl) {
     const robots = notFound ? 'noindex' : indexable ? ROBOTS_INDEX : 'noindex, follow'
     const title = esc(texts.title)
     const desc = esc(texts.desc)
-    const ld = indexable ? pageJsonLd({ site: siteUrl, page: p, lang, tr, parents: p?.toolPage ? [TOOLS_HUB] : [] }) : null
+    const ld = indexable ? pageJsonLd({ site: siteUrl, page: p, lang, tr, parents: parentsOf(p) }) : null
     const subs = [
       [/<html lang="[^"]*">/, `<html lang="${htmlLangOf(lang)}"${dirOf(lang) === 'rtl' ? ' dir="rtl"' : ''}>`],
       [/<title>[^<]*<\/title>/, `<title>${title}</title>`],
@@ -212,6 +212,8 @@ export default defineConfig(({ mode }) => {
         '/b/': api,
         // Google Search Console verification file (set in the admin panel)
         '^/google[0-9a-f]+\\.html$': api,
+        // news sitemap, made by the API from the database
+        '^/yangiliklar/sitemap\\.xml$': api,
       },
     },
     preview: {
@@ -219,6 +221,8 @@ export default defineConfig(({ mode }) => {
         '/api': api,
         '/b/': api,
         '^/google[0-9a-f]+\\.html$': api,
+        // news sitemap, made by the API from the database
+        '^/yangiliklar/sitemap\\.xml$': api,
       },
     },
   }

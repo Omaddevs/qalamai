@@ -42,11 +42,12 @@ const addressLang = () => {
 }
 
 /**
- * @param {{ title: string, description?: string, path?: string|null, robots?: string, jsonLd?: object|null }} o
+ * @param {{ title: string, description?: string, path?: string|null, robots?: string, jsonLd?: object|null, langs?: string[] }} o
+ *   langs — the languages the page exists in (default: all); another ?lang= points canonical at the bare address.
  *   path — the page's public address ("/narxlar"); null for pages without one (404, private screens):
  *   no canonical, no alternates, no og:url.
  */
-export function applySeo({ title, description, path = null, robots = INDEX, jsonLd = null }) {
+export function applySeo({ title, description, path = null, robots = INDEX, jsonLd = null, langs }) {
   if (typeof document === 'undefined') return
   document.title = title
   meta('name', 'robots', robots)
@@ -60,13 +61,14 @@ export function applySeo({ title, description, path = null, robots = INDEX, json
   meta('property', 'og:locale', ogLocaleOf(getLang()))
 
   const indexable = path != null && !robots.startsWith('noindex')
-  const url = path != null ? pageUrl(SITE_URL, path, addressLang()) : null
+  const lang = addressLang()
+  const url = path != null ? pageUrl(SITE_URL, path, !langs || langs.includes(lang) ? lang : DEFAULT_LANG) : null
   link('canonical', indexable ? url : null)
   meta('property', 'og:url', url)
 
   head().querySelectorAll('link[rel="alternate"][hreflang]').forEach((el) => el.remove())
   if (indexable) {
-    for (const a of alternatesOf(SITE_URL, path)) {
+    for (const a of alternatesOf(SITE_URL, path, langs)) {
       const el = document.createElement('link')
       el.rel = 'alternate'
       el.hreflang = a.hreflang

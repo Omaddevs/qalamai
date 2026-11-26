@@ -67,3 +67,14 @@
   .tp { padding-top: 88px; }
   .tp-grid { grid-template-columns: 1fr; }
 }
+
+/* product search pages (/prezentatsiya-yaratish …) */
+.tp-price { margin: 14px 0 0; font-size: 14px; color: var(--lp-muted); }
+.tp-incl { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px 24px; list-style: none; margin: 0; padding: 0; }
+.tp-incl li { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; color: var(--lp-text); }
+.tp-incl svg { flex: none; margin-top: 1px; color: var(--lp-ink); }
+.tp-faq { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.tp-faq .tp-fact h3 { margin-top: 0 !important; }
+@media (max-width: 820px) {
+  .tp-incl, .tp-faq { grid-template-columns: 1fr; }
+}

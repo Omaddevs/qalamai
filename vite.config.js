@@ -3,8 +3,8 @@ import react from '@vitejs/plugin-react'
 import { DEFAULT_LANG, LANGS, dirOf, htmlLangOf, isLang, translate } from './shared/i18n.js'
 import i18nSplit from './scripts/vite-i18n-split.mjs'
 import { loadDict } from './scripts/i18n-dict.mjs'
-import { ALL_PAGES, INDEXABLE_PAGES, PUBLIC_PAGES, TOOL_PAGES, relatedTools } from './src/landing/pages.js'
-import { alternatesOf, faqOf, ogLocaleOf, pageJsonLd, pageTexts, pageUrl } from './src/landing/seo-meta.js'
+import { ALL_PAGES, INDEXABLE_PAGES, PRODUCT_PAGES, PUBLIC_PAGES, TOOL_PAGES, relatedTools } from './src/landing/pages.js'
+import { alternatesOf, faqOf, langsOf, ogLocaleOf, pageJsonLd, pageTexts, pageUrl, productContent } from './src/landing/seo-meta.js'
 
 const MSG_DIR = new URL('./src/i18n/msg', import.meta.url).pathname
 const LOCALES_DIR = new URL('./src/i18n/locales', import.meta.url).pathname
@@ -43,9 +43,11 @@ function seo(siteUrl) {
     'sitemap.xml': [
       '<?xml version="1.0" encoding="UTF-8"?>',
       '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">',
-      ...['/', ...INDEXABLE_PAGES.map((p) => p.path)].flatMap((path) => {
-        const alts = alternatesOf(siteUrl, path).map((a) => `    <xhtml:link rel="alternate" hreflang="${a.hreflang}" href="${esc(a.href)}"/>`)
-        return LANGS.map((l) => ['  <url>', `    <loc>${esc(pageUrl(siteUrl, path, l.id))}</loc>`, ...alts, '  </url>'].join('\n'))
+      ...[null, ...INDEXABLE_PAGES].flatMap((page) => {
+        const path = page?.path ?? '/'
+        const langs = langsOf(page)
+        const alts = alternatesOf(siteUrl, path, langs).map((a) => `    <xhtml:link rel="alternate" hreflang="${a.hreflang}" href="${esc(a.href)}"/>`)
+        return langs.map((id) => ['  <url>', `    <loc>${esc(pageUrl(siteUrl, path, id))}</loc>`, ...alts, '  </url>'].join('\n'))
       }),
       '</urlset>',
       '',
@@ -66,9 +68,16 @@ function seo(siteUrl) {
   function staticBody(page, lang, tr, texts) {
     const href = (path) => esc(lang === DEFAULT_LANG ? path : `${path}?lang=${lang}`)
     const a = (path, label) => `<a href="${href(path)}">${esc(label)}</a>`
-    const out = [`<h1>${esc(texts.h1)}</h1>`, `<p>${esc(page?.toolPage ? texts.lead : texts.desc)}</p>`]
+    const out = [`<h1>${esc(texts.h1)}</h1>`, `<p>${esc(page?.toolPage || page?.productPage ? texts.lead : texts.desc)}</p>`]
+    if (page?.productPage) {
+      const c = productContent(page, tr, lang)
+      out.push(`<p>${esc(c.price)}</p>`)
+      out.push(`<h2>${esc(c.label('how'))}</h2><ol>${c.steps.map((x) => `<li>${esc(x)}</li>`).join('')}</ol>`)
+      out.push(`<h2>${esc(c.label('incl'))}</h2><ul>${c.incl.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>`)
+      out.push(`<h2>${esc(c.label('faq'))}</h2>`, ...c.faq.map(([q, ans]) => `<h3>${esc(q)}</h3><p>${esc(ans)}</p>`))
+    }
     if (page?.id === 'faq') out.push(...faqOf(tr).map(([q, ans]) => `<h2>${esc(q)}</h2><p>${esc(ans)}</p>`))
-    const toolList = (list) => `<ul>${list.map((p) => { const x = pageTexts(p, tr); return `<li>${a(p.path, x.name)} — ${esc(x.lead)}</li>` }).join('')}</ul>`
+    const toolList = (list) => `<ul>${list.map((p) => { const x = pageTexts(p, tr, lang); return `<li>${a(p.path, x.name)} — ${esc(x.lead)}</li>` }).join('')}</ul>`
     if (page?.id === 'tools') {
       for (const cat of ['pdf', 'edit', 'image', 'document']) out.push(`<h2>${esc(tr(`fs.cat.${cat}`))}</h2>`, toolList(TOOL_PAGES.filter((p) => p.category === cat)))
     }
@@ -76,7 +85,9 @@ function seo(siteUrl) {
       out.push(`<h2>${esc(tr('seo.tool.how'))}</h2><ol>${[1, 2, 3].map((n) => `<li>${esc(tr(`seo.tool.step${n}`))}</li>`).join('')}</ol>`)
       out.push(`<h2>${esc(tr('seo.tool.related'))}</h2>`, toolList(relatedTools(page)))
     }
-    const nav = [['/', 'QalamAI'], ...PUBLIC_PAGES.map((p) => [p.path, pageTexts(p, tr).h1])]
+    // product pages exist only in the regional languages: linked from those versions only
+    const navPages = [...PUBLIC_PAGES, ...PRODUCT_PAGES].filter((p) => langsOf(p).includes(lang))
+    const nav = [['/', 'QalamAI'], ...navPages.map((p) => [p.path, pageTexts(p, tr, lang).h1])]
     out.push(`<nav>${nav.map(([p, l]) => a(p, l)).join(' · ')}</nav>`)
     return out.join('\n      ')
   }
@@ -89,7 +100,7 @@ function seo(siteUrl) {
     const tr = (key, vars) => translate(MSG, key, vars, lang)
     const notFound = page === '404'
     const p = notFound ? null : page
-    const texts = notFound ? { title: `404 — ${tr('nf.title')} · QalamAI`, desc: tr('nf.text'), h1: tr('nf.title') } : pageTexts(p, tr)
+    const texts = notFound ? { title: `404 — ${tr('nf.title')} · QalamAI`, desc: tr('nf.text'), h1: tr('nf.title') } : pageTexts(p, tr, lang)
     const path = p?.path ?? '/'
     const url = pageUrl(siteUrl, path, lang)
     const indexable = !notFound && !p?.noindex
@@ -103,7 +114,7 @@ function seo(siteUrl) {
       [/(<meta name="description" content=")[^"]*/, `$1${desc}`],
       [/(<meta name="robots" content=")[^"]*/, `$1${robots}`],
       [/\s*<link rel="canonical" href="[^"]*" \/>/, indexable ? `\n    <link rel="canonical" href="${esc(url)}" />` : ''],
-      [/\s*<!-- %HREFLANG% -->/, indexable ? alternatesOf(siteUrl, path).map((x) => `\n    <link rel="alternate" hreflang="${x.hreflang}" href="${esc(x.href)}" />`).join('') : ''],
+      [/\s*<!-- %HREFLANG% -->/, indexable ? alternatesOf(siteUrl, path, langsOf(p)).map((x) => `\n    <link rel="alternate" hreflang="${x.hreflang}" href="${esc(x.href)}" />`).join('') : ''],
       [/(<meta property="og:locale" content=")[^"]*/, `$1${ogLocaleOf(lang)}`],
       [/\s*<meta property="og:url" content="[^"]*" \/>/, notFound ? '' : `\n    <meta property="og:url" content="${esc(url)}" />`],
       [/(<meta property="og:title" content=")[^"]*/, `$1${title}`],
@@ -137,7 +148,7 @@ function seo(siteUrl) {
         // /admin and shared presentations (/v/<id>) are app screens, served the plain index.html
         const page = known === undefined && !/^\/(admin|v\/)/.test(u.pathname) ? '404' : known ?? null
         const l = u.searchParams.get('lang')
-        return render(html, page, l && isLang(l) && !known?.noindex ? l : DEFAULT_LANG)
+        return render(html, page, l && isLang(l) && !known?.noindex && langsOf(known).includes(l) ? l : DEFAULT_LANG)
       },
     },
   }
@@ -159,6 +170,7 @@ function seo(siteUrl) {
         for (const lang of LANGS.map((l) => l.id)) {
           for (const page of [null, ...ALL_PAGES]) {
             if (page?.noindex && lang !== DEFAULT_LANG) continue // forms: one Uzbek file, the app switches language itself
+            if (!langsOf(page).includes(lang)) continue // product pages: regional languages only (nginx serves the Uzbek file)
             const source = render(html, page, lang)
             const fileName = fileOf(page, lang)
             if (fileName === 'index.html') index.source = source

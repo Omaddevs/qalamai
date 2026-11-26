@@ -12,6 +12,7 @@ import { ALL_PAGES, pathOf } from './pages.js'
 import { pageJsonLd, pageTexts } from './seo-meta.js'
 import { applySeo, INDEX, SITE_URL } from '../seo.js'
 import { ToolsHub, ToolLanding } from './ToolPages.jsx'
+import { ProductLanding } from './ProductPages.jsx'
 import '../editor/editor.css'
 import ProductMock from './ProductMock.jsx'
 import HeroCursors from './HeroCursors.jsx'
@@ -458,8 +459,9 @@ function Footer({ onStart, onLogin }) {
         <nav className="lp-footer-cols" aria-label="Footer">
           <div>
             <b>{t('lp.ft.product')}</b>
-            <button onClick={onStart}>{t('lp.ft.aiPres')}</button>
-            <button onClick={onStart}>{t('lp.ft.essays')}</button>
+            {/* labels translated in all 25 languages; the pages themselves are in the regional ones */}
+            <a href={pathOf('prod:pres')} onClick={linkClick(() => go(pathOf('prod:pres')))}>{t('lp.ft.aiPres')}</a>
+            <a href={pathOf('prod:ref')} onClick={linkClick(() => go(pathOf('prod:ref')))}>{t('lp.ft.essays')}</a>
             <a href={pathOf('tools')} onClick={linkClick(() => go(pathOf('tools')))}>{t('lp.ft.files')}</a>
           </div>
           <div>
@@ -500,7 +502,10 @@ const PAGE_SECTIONS = {
   faq: () => null,
   tools: () => <ToolsHub />,
 }
-const sectionsOf = (page, meta) => (meta?.toolPage ? ({ onStart }) => <ToolLanding page={meta} onStart={onStart} /> : PAGE_SECTIONS[page])
+const sectionsOf = (page, meta) =>
+  meta?.toolPage ? ({ onStart }) => <ToolLanding page={meta} onStart={onStart} />
+  : meta?.productPage ? ({ onStart }) => <ProductLanding page={meta} onStart={onStart} />
+  : PAGE_SECTIONS[page]
 const WITH_FAQ = new Set(['home', 'pricing', 'faq'])
 
 export default function Landing({ page = 'home', onStart, onLogin }) {
@@ -509,9 +514,10 @@ export default function Landing({ page = 'home', onStart, onLogin }) {
   const meta = page === 'home' ? null : ALL_PAGES.find((p) => p.id === page)
   // title, description, canonical, hreflang and the page's JSON-LD (same as its prerendered HTML)
   useEffect(() => {
-    const { title, desc } = pageTexts(meta, t)
+    const lang = getLang()
+    const { title, desc } = pageTexts(meta, t, lang)
     const parents = meta?.toolPage ? [ALL_PAGES.find((p) => p.id === 'tools')] : []
-    applySeo({ title, description: desc, path: meta?.path ?? '/', robots: INDEX, jsonLd: pageJsonLd({ site: SITE_URL, page: meta, lang: getLang(), tr: t, parents }) })
+    applySeo({ title, description: desc, path: meta?.path ?? '/', robots: INDEX, langs: meta?.langs, jsonLd: pageJsonLd({ site: SITE_URL, page: meta, lang, tr: t, parents }) })
   }, [meta])
   // arrived from a nav link aimed at a section further down this page
   useEffect(() => {
@@ -521,7 +527,7 @@ export default function Landing({ page = 'home', onStart, onLogin }) {
     requestAnimationFrame(() => scrollToId(id))
   }, [])
   const Sections = sectionsOf(page, meta)
-  const ownH1 = meta?.toolPage || page === 'tools' // these pages show their heading themselves
+  const ownH1 = meta?.toolPage || meta?.productPage || page === 'tools' // these pages show their heading themselves
   return (
     <div className={`lp${meta ? ' lp-subpage' : ''}`} ref={root}>
       <Header onStart={onStart} onLogin={onLogin} />

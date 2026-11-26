@@ -7,6 +7,13 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { WORLD_LANGS } from '../shared/i18n.js'
 
+/**
+ * Areas written only in the 7 regional languages (uz, uz-cyrl, ru, en, kk, ky, tg): search landing
+ * pages for Uzbekistan and its neighbours. They have no locales/<lang>/<area>.json; a world-language
+ * interface shows them in Uzbek/English fallback, and they are not prerendered in world languages.
+ */
+export const REGIONAL_AREAS = ['products']
+
 export const areasOf = (msgDir) => readdirSync(msgDir).filter((f) => f.endsWith('.js')).sort().map((f) => f.slice(0, -3))
 export const localeFile = (localesDir, lang, area) => join(localesDir, lang, `${area}.json`)
 

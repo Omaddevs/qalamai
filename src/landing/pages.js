@@ -5,6 +5,8 @@
 //
 // noindex: a public address that must stay out of search results (sign-in / sign-up forms).
 
+import { LANGS } from '../../shared/i18n.js'
+
 export const PUBLIC_PAGES = [
   { id: 'features', path: '/imkoniyatlar', title: 'lp.page.features.title', desc: 'lp.page.features.desc' },
   { id: 'templates', path: '/shablonlar', title: 'lp.page.templates.title', desc: 'lp.page.templates.desc' },
@@ -48,8 +50,23 @@ export const TOOL_PAGES = [
   { tool: 'pptx-to-pdf', slug: 'powerpoint-dan-pdf', category: 'document' },
 ].map((p) => ({ ...p, id: `tool:${p.tool}`, path: `/vositalar/${p.slug}`, toolPage: true }))
 
-/** Every public address (sections, auth forms, tool pages). */
-export const ALL_PAGES = [...PUBLIC_PAGES, ...TOOL_PAGES]
+/** The 7 regional languages (no world languages): what the product search pages are written in. */
+export const REGIONAL_LANGS = LANGS.filter((l) => !l.world).map((l) => l.id)
+
+/**
+ * Search landing pages of the main products, at the addresses people search for. Texts: pp.<product>.*
+ * in src/i18n/msg/products.js; only in the regional languages (`langs`). The Uzbek Latin page uses the
+ * spelling people type into Google ("kurs ishi yaratish"), see searchSpelling() in seo-meta.js.
+ * `coins` names the price in shared/coins.js COIN_COSTS.
+ */
+export const PRODUCT_PAGES = [
+  { product: 'pres', slug: 'prezentatsiya-yaratish', coins: 'prezentatsiya' },
+  { product: 'ref', slug: 'referat-yaratish', coins: 'referat' },
+  { product: 'kurs', slug: 'kurs-ishi-yaratish', coins: 'kurs-ishi' },
+].map((p) => ({ ...p, id: `prod:${p.product}`, path: `/${p.slug}`, productPage: true, langs: REGIONAL_LANGS }))
+
+/** Every public address (sections, product pages, auth forms, tool pages). */
+export const ALL_PAGES = [...PUBLIC_PAGES, ...PRODUCT_PAGES, ...TOOL_PAGES]
 /** Addresses that belong in the sitemap. */
 export const INDEXABLE_PAGES = ALL_PAGES.filter((p) => !p.noindex)
 

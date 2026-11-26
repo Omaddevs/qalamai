@@ -2,8 +2,9 @@
 // alternates and its own JSON-LD. Pure functions — vite.config.js uses them to prerender one HTML
 // file per page and language, and src/seo.js uses the same ones to update <head> when the app
 // moves between pages without a reload, so both always agree.
-import { LANGS, DEFAULT_LANG } from '../../shared/i18n.js'
-import { COIN_COSTS, SIGNUP_BONUS } from '../../shared/coins.js'
+import { LANGS, DEFAULT_LANG, formatNumber } from '../../shared/i18n.js'
+import { convert } from '../../shared/alifbo.js'
+import { COIN_COSTS, SIGNUP_BONUS, priceFor } from '../../shared/coins.js'
 import { PLAN_LIMITS } from '../../server/src/modules/plans/plans.js'
 
 export const SITE_NAME = 'QalamAI'
@@ -24,11 +25,47 @@ export const ogLocaleOf = (lang) => OG_LOCALE[lang] ?? OG_LOCALE[DEFAULT_LANG]
  */
 export const pageUrl = (site, path, lang = DEFAULT_LANG) => `${site}${path}${lang && lang !== DEFAULT_LANG ? `?lang=${lang}` : ''}`
 
-/** [{ hreflang, href }] for every language plus x-default. */
-export const alternatesOf = (site, path) => [
-  ...LANGS.map((l) => ({ hreflang: hreflangOf(l.id), href: pageUrl(site, path, l.id) })),
+/** The languages a page exists in (product pages: the regional ones; everything else: all). */
+export const langsOf = (page) => page?.langs ?? LANGS.map((l) => l.id)
+
+/** [{ hreflang, href }] for every language of the page plus x-default. */
+export const alternatesOf = (site, path, langs = LANGS.map((l) => l.id)) => [
+  ...langs.map((id) => ({ hreflang: hreflangOf(id), href: pageUrl(site, path, id) })),
   { hreflang: 'x-default', href: pageUrl(site, path) },
 ]
+
+/**
+ * The Uzbek Latin text of a search landing page in the spelling people type into Google:
+ * the site writes the new alphabet ("kurs işi yaratiş"), searches use the current one
+ * ("kurs ishi yaratish"), and a search engine doesn't treat ş as sh. Other languages unchanged.
+ */
+export const searchSpelling = (text, lang) =>
+  lang === DEFAULT_LANG && typeof text === 'string'
+    ? text
+        // only words that have a new letter: the converter would also lower-case "QalamAI", "PDF" …
+        .replace(/[\p{L}ʼ]+/gu, (w) => (/[öğşçÖĞŞÇ]/.test(w) ? convert(w, 'new', 'old') : w))
+        .replace(/[ʻʼ‘’]/g, "'")
+    : text
+
+/** Placeholders of a product page: its price in coins and in söm, the sign-up bonus, the file-deck price. */
+export const productVars = (page, lang) => {
+  const cost = COIN_COSTS[page.coins].cost
+  const fileCost = COIN_COSTS['prezentatsiya-fayl'].cost
+  return { cost, som: formatNumber(priceFor(Math.max(cost, 10)) ?? cost * 100, lang), bonus: SIGNUP_BONUS, fileCost }
+}
+
+/** Everything a product page says, in one language: steps, what is included, its own FAQ. */
+export function productContent(page, tr, lang) {
+  const v = productVars(page, lang)
+  const say = (key, vars) => searchSpelling(tr(`pp.${page.product}.${key}`, vars), lang)
+  return {
+    steps: say('steps').split('|'),
+    incl: say('incl').split('|'),
+    faq: [1, 2, 3, 4].map((n) => [say(`q${n}`), say(`a${n}`, v)]),
+    price: searchSpelling(tr('pp.price', v), lang),
+    label: (key) => searchSpelling(tr(`pp.${key}`), lang),
+  }
+}
 
 const toolText = (tr, page) => {
   const [name = '', description = ''] = tr(`fs.tool.${page.tool}`).split('|')
@@ -39,8 +76,12 @@ const toolText = (tr, page) => {
  * Texts of a page in one language. `tr(key, vars)` is the translator (t() in the app,
  * translate(dict, key, vars, lang) at build time); page null = home.
  */
-export function pageTexts(page, tr) {
+export function pageTexts(page, tr, lang) {
   if (!page) return { title: tr('lp.title'), desc: tr('lp.sub'), h1: tr('lp.title') }
+  if (page.productPage) {
+    const say = (key) => searchSpelling(tr(`pp.${page.product}.${key}`), lang)
+    return { title: say('title'), desc: say('desc'), h1: say('h1'), lead: say('lead') }
+  }
   if (page.toolPage) {
     const { name, description } = toolText(tr, page)
     return { title: tr('seo.tool.title', { tool: name }), desc: tr('seo.tool.desc', { desc: description }), h1: name, lead: description, name }
@@ -57,13 +98,13 @@ export const FREE_LIMITS = { runs: PLAN_LIMITS.free.dailyToolRuns, mb: PLAN_LIMI
 
 /**
  * JSON-LD for one page (the site-wide Organization / WebSite / WebApplication graph is in index.html).
- * FAQPage only on /savollar, the page whose main content is the FAQ.
+ * FAQPage on /savollar and on each product page (the questions it shows).
  */
 export function pageJsonLd({ site, page, lang, tr, parents = [] }) {
   if (!page || page.noindex) return null
   const url = pageUrl(site, page.path, lang)
-  const { title, desc, h1, name } = pageTexts(page, tr)
-  const crumbs = [{ name: SITE_NAME, url: pageUrl(site, '/', lang) }, ...parents.map((p) => ({ name: pageTexts(p, tr).h1, url: pageUrl(site, p.path, lang) })), { name: h1, url }]
+  const { title, desc, h1, name } = pageTexts(page, tr, lang)
+  const crumbs = [{ name: SITE_NAME, url: pageUrl(site, '/', lang) }, ...parents.map((p) => ({ name: pageTexts(p, tr, lang).h1, url: pageUrl(site, p.path, lang) })), { name: h1, url }]
   const graph = [
     {
       '@type': 'BreadcrumbList',
@@ -83,8 +124,18 @@ export function pageJsonLd({ site, page, lang, tr, parents = [] }) {
         ? { mainEntity: faqOf(tr).map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) }
         : {}),
       ...(page.toolPage ? { mainEntity: { '@id': `${url}#app` } } : {}),
+      ...(page.productPage ? { hasPart: { '@id': `${url}#faq` } } : {}),
     },
   ]
+  if (page.productPage) {
+    // the questions shown on the page itself
+    graph.push({
+      '@type': 'FAQPage',
+      '@id': `${url}#faq`,
+      inLanguage: lang === 'uz' ? 'uz-Latn' : hreflangOf(lang),
+      mainEntity: productContent(page, tr, lang).faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })),
+    })
+  }
   if (page.toolPage) {
     graph.push({
       '@type': 'WebApplication',

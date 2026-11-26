@@ -11,7 +11,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { ALL_SOURCE_LANGS, SOURCE_LANGS, WORLD_LANGS, localeOf, placeholdersOf } from '../shared/i18n.js'
-import { loadDict, localeFile } from './i18n-dict.mjs'
+import { REGIONAL_AREAS, loadDict, localeFile } from './i18n-dict.mjs'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
 const problems = []
@@ -32,12 +32,15 @@ async function loadDir(dir) {
   return dict
 }
 
+let regionalKeys = new Set() // keys of REGIONAL_AREAS: no world languages
+
 function checkDict(name, dict) {
   for (const [key, entry] of Object.entries(dict)) {
     const uz = entry.uz
     // `_vars` lists placeholders some languages use although Uzbek doesn't (e.g. digits vs number words)
     const allowed = new Set([...placeholdersOf(uz ?? ''), ...(entry._vars ?? [])])
     for (const lang of name === 'web' ? LANGS_TO_CHECK : SOURCE_LANGS) {
+      if (regionalKeys.has(key) && WORLD_LANGS.includes(lang)) continue
       const v = entry[lang]
       if (v == null) { warn(`${name}: ${key} has no ${lang}`); continue }
       const empty = typeof v === 'string' ? v === '' : !Object.keys(v).length
@@ -116,10 +119,12 @@ function leftovers(files) {
 const MSG_DIR = join(root, 'src/i18n/msg')
 const LOCALES_DIR = join(root, 'src/i18n/locales')
 const { dict: web, areas } = await loadDict(MSG_DIR, LOCALES_DIR, { onDuplicate: (k, a) => warn(`duplicate key ${k} (${a}.js)`) })
+regionalKeys = new Set(REGIONAL_AREAS.flatMap((a) => areas[a] ?? []))
 checkDict('web', web)
 // a world-language file may only carry keys its area has
 for (const lang of LANGS_TO_CHECK.filter((l) => WORLD_LANGS.includes(l))) {
   for (const [area, keys] of Object.entries(areas)) {
+    if (REGIONAL_AREAS.includes(area)) continue
     const f = localeFile(LOCALES_DIR, lang, area)
     if (!existsSync(f)) { warn(`web: missing ${relative(root, f)}`); continue }
     const known = new Set(keys)

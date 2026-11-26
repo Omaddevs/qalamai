@@ -396,7 +396,8 @@ export const sitePartners = pgTable(
   (t) => [index('site_partners_sort_idx').on(t.sort)],
 )
 
-/** Team members (/jamoa). i18n.<lang> = { role, bio }; links = { telegram, linkedin, instagram, github, site }. */
+/** Team members (/jamoa). i18n.<lang> = { role, badge, bio, tracks, stats } (see shared/siteContent.js teamProfile);
+ * links = { telegram, linkedin, instagram, github, site }. */
 export const siteTeam = pgTable(
   'site_team',
   {

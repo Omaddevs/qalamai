@@ -104,3 +104,29 @@ export const plainText = (md) =>
 
 /** Reading time in minutes (about 180 words a minute), at least 1. */
 export const readingMinutes = (md) => Math.max(1, Math.round(plainText(md).split(' ').filter(Boolean).length / 180))
+
+/**
+ * A team member's showcase from their texts:
+ *   tracks: "Mobil ilovalar: Flutter, React Native, iOS" per line → [{ name, skills: [...] }] (up to 6)
+ *   stats:  "20+ | Tayyor loyiha" per line                     → [{ value, label }] (up to 3)
+ */
+export function teamProfile(text) {
+  const lines = (s) => String(s ?? '').split('\n').map((l) => l.trim()).filter(Boolean)
+  const tracks = lines(text?.tracks)
+    .map((l) => {
+      const i = l.indexOf(':')
+      const name = (i === -1 ? l : l.slice(0, i)).trim()
+      const skills = i === -1 ? [] : l.slice(i + 1).split(/[,;·]/).map((x) => x.trim()).filter(Boolean).slice(0, 8)
+      return { name, skills }
+    })
+    .filter((t) => t.name)
+    .slice(0, 6)
+  const stats = lines(text?.stats)
+    .map((l) => {
+      const [value, ...rest] = l.split('|')
+      return { value: value.trim(), label: rest.join('|').trim() }
+    })
+    .filter((s) => s.value)
+    .slice(0, 3)
+  return { tracks, stats }
+}

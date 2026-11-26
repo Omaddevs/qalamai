@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import {
   ArrowRight, ArrowUpRight, ArrowLeft, Sparkle, PaintBrush, Files, Translate, Target, ShieldCheck, Coins, Lightning,
-  TelegramLogo, LinkedinLogo, InstagramLogo, GithubLogo, Globe, Clock, LinkSimple, Check, Quotes, Handshake, UsersThree, Newspaper,
+  TelegramLogo, Clock, LinkSimple, Check, Quotes, Handshake, UsersThree, Newspaper,
 } from '@phosphor-icons/react'
 import { formatDate, getLang, t } from '../../i18n/index.js'
 import { go, linkClick } from '../../nav.js'
@@ -19,7 +19,8 @@ import { siteGet, textOf, useSite } from './site.js'
 import NotFound from '../../components/NotFound.jsx'
 import './about.css'
 
-export const CONTACT_TG = 'https://t.me/omadbek_egamberdiyev'
+import { CONTACT_TG } from './contact.js'
+import TeamShowcase from './TeamShowcase.jsx'
 
 /* ───────────────────────── shared pieces ───────────────────────── */
 
@@ -105,32 +106,6 @@ function NewsCard({ item, big }) {
         <span className="ab-news-go">{t('ab.news.read')} <ArrowRight size={14} weight="bold" /></span>
       </span>
     </Link>
-  )
-}
-
-const SOCIAL = { telegram: TelegramLogo, linkedin: LinkedinLogo, instagram: InstagramLogo, github: GithubLogo, site: Globe }
-
-function MemberCard({ m }) {
-  const x = textOf(m)
-  return (
-    <article className="ab-member">
-      <div className="ab-member-ph">
-        {m.photo ? <img src={m.photo} alt={m.name} loading="lazy" decoding="async" /> : <span className="ab-member-init" aria-hidden="true">{initials(m.name)}</span>}
-        {Object.keys(m.links ?? {}).length > 0 && (
-          <div className="ab-member-links">
-            {Object.entries(m.links).map(([k, href]) => {
-              const I = SOCIAL[k] ?? Globe
-              return <a key={k} href={href} target="_blank" rel="noopener noreferrer" aria-label={`${m.name} — ${k}`}><I size={17} weight="fill" /></a>
-            })}
-          </div>
-        )}
-      </div>
-      <div className="ab-member-txt">
-        <h3>{m.name}</h3>
-        {x.role && <p className="ab-member-role">{x.role}</p>}
-        {x.bio && <p className="ab-member-bio">{x.bio}</p>}
-      </div>
-    </article>
   )
 }
 
@@ -306,7 +281,7 @@ export function TeamPage({ page }) {
       <section className="ab-sec">
         {!data && error && <Failed onRetry={reload} />}
         {!data && !error && <Loading rows={4} kind="team" />}
-        {data && (data.items.length ? <div className="ab-team-grid">{data.items.map((m) => <MemberCard key={m.id} m={m} />)}</div> : <Empty Icon={UsersThree} />)}
+        {data && (data.items.length ? <div className="crew-list">{data.items.map((m, i) => <TeamShowcase key={m.id} m={m} flip={i % 2 === 1} />)}</div> : <Empty Icon={UsersThree} />)}
       </section>
       <ContactCta title={t('ab.team.joinT')} text={t('ab.team.join')} Icon={UsersThree} />
     </div>

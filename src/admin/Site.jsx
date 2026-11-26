@@ -279,8 +279,27 @@ const KINDS = {
     pictureLabel: 'Surat',
     pictureHint: 'Kvadrat surat yaxşi: yuz markazda qirqiladi.',
     fields: [
-      { id: 'role', label: 'Lavozimi', required: true, max: 120, placeholder: 'Masalan: Asoşçi, mahsulot rahbari' },
-      { id: 'bio', label: 'Qisqaça', max: 600, rows: 3, placeholder: '1–2 gap: nima bilan şuğullanadi' },
+      { id: 'role', label: 'Lavozimi', required: true, max: 120, placeholder: 'Masalan: Dasturçi va loyiha asoşçisi' },
+      { id: 'badge', label: 'Belgi (ismning tepasida)', max: 80, placeholder: 'Masalan: Loyiha asoşçisi' },
+      { id: 'bio', label: 'Qisqaça', max: 600, rows: 3, placeholder: 'Masalan: Mobil ilovalar, veb-saytlar va Telegram botlarni yarataman — ğoyadan tortib tayyor mahsulotgaça.' },
+      {
+        id: 'tracks',
+        label: 'Yönalişlar va texnologiyalar',
+        max: 1500,
+        rows: 4,
+        mono: true,
+        placeholder: 'Mobil ilovalar: Flutter, React Native, iOS, Android\nVeb-saytlar: React, Vite, Node.js, UI/UX\nTelegram botlar: Python, Aiogram, Node.js, API',
+        hint: 'Har qatorda bitta yönaliş: «Nomi: texnologiya, texnologiya». Saytda tugma va vaqt şkalasi bölib çiqadi.',
+      },
+      {
+        id: 'stats',
+        label: 'Raqamlar (3 tagaça)',
+        max: 400,
+        rows: 3,
+        mono: true,
+        placeholder: '3 in 1 | Mobil · Web · Bot\n20+ | Tayyor loyiha\n24/7 | Qöllab-quvvatlaş',
+        hint: 'Har qatorda: «raqam | izoh».',
+      },
     ],
     links: [
       { id: 'telegram', label: 'Telegram', placeholder: '@username yoki havola' },
@@ -441,10 +460,11 @@ function ItemEditor({ k, kind, item, onClose, onSaved }) {
           <label key={fl.id} className="ad-field">
             <span>{fl.label}{fl.required && lang === 'uz' && ' *'}</span>
             {fl.rows ? (
-              <textarea className="ad-input ad-textarea" rows={fl.rows} value={tx[fl.id] ?? ''} onChange={(e) => setText(fl.id, e.target.value)} maxLength={fl.max} placeholder={fl.placeholder} />
+              <textarea className={`ad-input ad-textarea${fl.mono ? ' ad-site-body' : ''}`} rows={fl.rows} value={tx[fl.id] ?? ''} onChange={(e) => setText(fl.id, e.target.value)} maxLength={fl.max} placeholder={fl.placeholder} />
             ) : (
               <input className="ad-input" value={tx[fl.id] ?? ''} onChange={(e) => setText(fl.id, e.target.value)} maxLength={fl.max} placeholder={fl.placeholder} />
             )}
+            {fl.hint && <small className="ad-hint">{fl.hint}</small>}
           </label>
         ))}
         {k.url && (

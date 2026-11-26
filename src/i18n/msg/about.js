@@ -88,6 +88,16 @@ export default {
   'ab.team.joinT': { uz: 'Jamoamizga qöşilmoqçimisiz?', ru: 'Хотите в нашу команду?', en: 'Want to join us?', kk: 'Командамызға қосылғыңыз келе ме?', ky: 'Командабызга кошулгуңуз келеби?', tg: 'Мехоҳед ба дастаи мо ҳамроҳ шавед?' },
   'ab.team.join': { uz: 'Özingiz va işlaringiz haqida Telegram orqali yozing.', ru: 'Напишите о себе и своих работах в Telegram.', en: 'Tell us about yourself and your work on Telegram.', kk: 'Өзіңіз және жұмыстарыңыз туралы Telegram арқылы жазыңыз.', ky: 'Өзүңүз жана иштериңиз жөнүндө Telegram аркылуу жазыңыз.', tg: 'Дар бораи худ ва корҳоятон тавассути Telegram нависед.' },
 
+  'ab.team.contact': { uz: 'Boğlaniş', ru: 'Связаться', en: 'Get in touch', kk: 'Байланысу', ky: 'Байланышуу', tg: 'Тамос гирифтан' },
+  'ab.team.more': { uz: 'Batafsil', ru: 'Подробнее', en: 'More', kk: 'Толығырақ', ky: 'Кененирээк', tg: 'Муфассал' },
+  'ab.team.hi': { uz: 'Salom!', ru: 'Привет!', en: 'Hi there!', kk: 'Сәлем!', ky: 'Салам!', tg: 'Салом!' },
+  'ab.team.tracks': { uz: 'Yönalişlar', ru: 'Направления', en: 'Areas', kk: 'Бағыттар', ky: 'Багыттар', tg: 'Самтҳо' },
+  'ab.team.plan': { uz: 'Dizayn', ru: 'Дизайн', en: 'Design', kk: 'Дизайн', ky: 'Дизайн', tg: 'Дизайн' },
+  'ab.team.ship': { uz: 'Işga tuşiriş', ru: 'Запуск', en: 'Launch', kk: 'Іске қосу', ky: 'Ишке киргизүү', tg: 'Ба кор андохтан' },
+  'ab.team.play': { uz: 'Ijro etiş', ru: 'Воспроизвести', en: 'Play', kk: 'Ойнату', ky: 'Ойнотуу', tg: 'Пахш кардан' },
+  'ab.team.pause': { uz: 'Pauza', ru: 'Пауза', en: 'Pause', kk: 'Кідірту', ky: 'Тыныгуу', tg: 'Таваққуф' },
+  'ab.team.restart': { uz: 'Boşidan', ru: 'С начала', en: 'From the start', kk: 'Басынан', ky: 'Башынан', tg: 'Аз аввал' },
+
   /* ───────── /yangiliklar ───────── */
   'ab.news.lead': { uz: 'Yangi vositalar, şablonlar va yangilanişlar — QalamAI da nima özgarganini birinçi bilib oling.', ru: 'Новые инструменты, шаблоны и обновления — узнавайте первыми, что изменилось в QalamAI.', en: 'New tools, templates and updates — be the first to know what changed in QalamAI.', kk: 'Жаңа құралдар, үлгілер мен жаңартулар — QalamAI-да не өзгергенін бірінші біліңіз.', ky: 'Жаңы куралдар, шаблондор жана жаңыртуулар — QalamAIда эмне өзгөргөнүн биринчи билиңиз.', tg: 'Абзорҳо, қолабҳо ва навсозиҳои нав — аввалин шуда бифаҳмед, ки дар QalamAI чӣ тағйир ёфт.' },
   'ab.news.read': { uz: 'Öqiş', ru: 'Читать', en: 'Read', kk: 'Оқу', ky: 'Окуу', tg: 'Хондан' },

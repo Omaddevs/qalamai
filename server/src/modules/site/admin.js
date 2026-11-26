@@ -31,7 +31,8 @@ const i18nSchema = (fields) => ({
 const mediaKey = { anyOf: [{ type: 'string', pattern: '^site/img_[A-Za-z0-9]{16}\\.webp$' }, { type: 'null' }] }
 
 const NEWS_FIELDS = { title: 160, excerpt: 400, body: 40000 }
-const TEAM_FIELDS = { role: 120, bio: 600 }
+// tracks: one direction per line "Mobil ilovalar: Flutter, React Native"; stats: "20+ | Tayyor loyiha" per line
+const TEAM_FIELDS = { role: 120, badge: 80, bio: 600, tracks: 1500, stats: 400 }
 const PARTNER_FIELDS = { about: 400 }
 const LINK_KEYS = ['telegram', 'linkedin', 'instagram', 'github', 'site']
 

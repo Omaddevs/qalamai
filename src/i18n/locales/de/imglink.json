@@ -1,0 +1,13 @@
+{
+  "il.placeholder": "Bildlink einfügen (Google, Website …)",
+  "il.add": "Hinzufügen",
+  "il.replace": "Per Link",
+  "il.loading": "Bild wird geladen …",
+  "il.done": "Bild hinzugefügt",
+  "il.replaced": "Bild ersetzt",
+  "il.hint": "Kopiere im Browser eine Bildadresse oder einen Seitenlink und füge ihn hier ein. Auf der Arbeitsfläche geht auch Strg/⌘+V.",
+  "err.code.IMAGE_URL_BAD": "Ungültiger Link – füge eine Bildadresse ein (http oder https)",
+  "err.code.IMAGE_NOT_FOUND": "Unter diesem Link wurde kein Bild gefunden",
+  "err.code.IMAGE_TOO_BIG": "Das Bild ist zu groß (bis 15 MB)",
+  "err.code.IMAGE_FETCH_FAILED": "Das Bild konnte nicht geladen werden – versuch einen anderen Link"
+}

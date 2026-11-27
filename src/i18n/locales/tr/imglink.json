@@ -1,0 +1,13 @@
+{
+  "il.placeholder": "Bir görsel bağlantısı yapıştırın (Google, site…)",
+  "il.add": "Ekle",
+  "il.replace": "Bağlantıdan",
+  "il.loading": "Görsel yükleniyor…",
+  "il.done": "Görsel eklendi",
+  "il.replaced": "Görsel değiştirildi",
+  "il.hint": "Tarayıcıda bir görsel adresini veya sayfa bağlantısını kopyalayıp buraya yapıştırın. Tuvalde Ctrl/⌘+V de çalışır.",
+  "err.code.IMAGE_URL_BAD": "Bağlantı geçersiz — bir görsel adresi yapıştırın (http veya https)",
+  "err.code.IMAGE_NOT_FOUND": "Bu bağlantıda görsel bulunamadı",
+  "err.code.IMAGE_TOO_BIG": "Görsel çok büyük (en fazla 15 MB)",
+  "err.code.IMAGE_FETCH_FAILED": "Görsel yüklenemedi — başka bir bağlantı deneyin"
+}

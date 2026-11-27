@@ -1,0 +1,13 @@
+{
+  "il.placeholder": "Incolla il link di un’immagine (Google, un sito…)",
+  "il.add": "Aggiungi",
+  "il.replace": "Da link",
+  "il.loading": "Caricamento dell’immagine…",
+  "il.done": "Immagine aggiunta",
+  "il.replaced": "Immagine sostituita",
+  "il.hint": "Copia nel browser l’indirizzo di un’immagine o il link di una pagina e incollalo qui. Sulla tela funziona anche Ctrl/⌘+V.",
+  "err.code.IMAGE_URL_BAD": "Link non valido — incolla l’indirizzo di un’immagine (http o https)",
+  "err.code.IMAGE_NOT_FOUND": "Nessuna immagine trovata a questo link",
+  "err.code.IMAGE_TOO_BIG": "L’immagine è troppo grande (fino a 15 MB)",
+  "err.code.IMAGE_FETCH_FAILED": "Impossibile caricare l’immagine — prova un altro link"
+}

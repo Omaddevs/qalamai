@@ -22,6 +22,7 @@ import { motionOf, transitionOf } from './motion.js'
 import MotionPanel from './MotionPanel.jsx'
 import QualityPanel from './QualityPanel.jsx'
 import { fitDeck } from './quality.js'
+import { fileFromLink, isImageLink, readClipboardPicture } from './linkImage.js'
 import ShareDialog from './ShareDialog.jsx'
 import ProBadge from '../components/ProBadge.jsx'
 import LayoutPicker from './LayoutPicker.jsx'
@@ -336,6 +337,58 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
     const src = await downscale(file)
     updateSlide({ elements: slide.elements.map((e) => (e.id === el.id ? { ...e, src, credit: undefined } : e)), ...(el.path ? patchAt(slide, el.path, src) : {}) })
   }
+  // a picture from a link (or a pasted file): replaces the selected picture, otherwise lands on the page
+  const placePicture = async (source) => {
+    const target = selectedEls.length === 1 && selectedEl?.kind === 'image' ? selectedEl : null
+    try {
+      const file = typeof source === 'string' ? (notify(t('il.loading')), await fileFromLink(source)) : source
+      if (target) {
+        await setImage(target, file)
+        notify(t('il.replaced'))
+      } else {
+        const src = await downscale(file)
+        setUploads((u) => [{ id: newId('u'), name: file.name, src }, ...u])
+        addEl({ kind: 'image', src, w: 30, h: 40, x: 35, y: 30 })
+        notify(t('il.done'))
+      }
+      return true
+    } catch (err) {
+      notify(err?.message || t('err.network'))
+      return false
+    }
+  }
+  // Ctrl/⌘+V of a picture or a picture link on the canvas (not while typing in a field)
+  useEffect(() => {
+    const onPaste = (e) => {
+      const tg = e.target
+      if (tg?.closest?.('input, textarea, [contenteditable="true"]')) return
+      const file = [...(e.clipboardData?.files ?? [])].find((f) => f.type.startsWith('image/'))
+      const text = e.clipboardData?.getData('text/plain') ?? ''
+      if (file || isImageLink(text)) {
+        e.preventDefault()
+        return placePicture(file ?? text.trim())
+      }
+      // elements copied inside the editor
+      if (clip.current?.length) {
+        e.preventDefault()
+        pasteEls(clip.current, 3)
+      }
+    }
+    // copying elements puts a marker on the system clipboard, so an older picture link there is not pasted instead
+    const onCopy = (e) => {
+      if (e.target?.closest?.('input, textarea, [contenteditable="true"]') || !sel.length || window.getSelection()?.toString()) return
+      e.clipboardData?.setData('text/plain', 'qalam:elements')
+      e.preventDefault()
+    }
+    window.addEventListener('paste', onPaste)
+    window.addEventListener('copy', onCopy)
+    window.addEventListener('cut', onCopy)
+    return () => {
+      window.removeEventListener('paste', onPaste)
+      window.removeEventListener('copy', onCopy)
+      window.removeEventListener('cut', onCopy)
+    }
+  })
   const play = () => {
     setAutoAnim(false)
     setPlayKey((k) => k + 1)
@@ -372,6 +425,7 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
     alignSel: (w) => alignTo(unionBox(), w),
     distribute,
     replaceImage: (file) => selectedEl && setImage(selectedEl, file),
+    replaceImageLink: (link) => placePicture(link),
     select: setSel,
     animateAll,
     play,
@@ -383,7 +437,12 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
   const selLocked = selectedEls.length > 0 && selectedEls.every((e) => e.locked)
   const menuAct = {
     copy: () => (clip.current = structuredClone(selectedEls)),
-    paste: () => clip.current?.length && pasteEls(clip.current, 3),
+    // from the menu: a picture or picture link on the system clipboard first, then copied elements
+    paste: async () => {
+      const ext = await readClipboardPicture()
+      if (ext) return placePicture(ext)
+      if (clip.current?.length) pasteEls(clip.current, 3)
+    },
     duplicate: duplicateSel,
     remove: removeSel,
     layer,
@@ -401,6 +460,16 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
     setMenu({ x: e.clientX, y: e.clientY, onElement: Boolean(hit) })
   }
   useEffect(() => setMenu(null), [slideIdx])
+  // whether the system clipboard holds a picture or picture link (asked when the menu opens)
+  const [clipHasPicture, setClipHasPicture] = useState(false)
+  useEffect(() => {
+    if (!menu) return
+    let alive = true
+    readClipboardPicture({ peek: true }).then((x) => alive && setClipHasPicture(Boolean(x)))
+    return () => {
+      alive = false
+    }
+  }, [menu])
 
   /* ───── a template page becomes free elements once it is on the canvas (Canva model) ─────
    * Its content (texts, cards, pictures) and its background artwork (cards, rings, blobs,
@@ -639,7 +708,7 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
       if (mod && k === 'd' && sel.length) return e.preventDefault(), duplicateSel()
       if (mod && k === 'c' && sel.length) return (clip.current = structuredClone(selectedEls))
       if (mod && k === 'x' && sel.length) return (clip.current = structuredClone(selectedEls)), removeSel()
-      if (mod && k === 'v' && clip.current?.length) return e.preventDefault(), pasteEls(clip.current, 3)
+      // ⌘V is handled by the paste event below: a picture or picture link from outside wins over copied elements
       if (mod && k === 'a') return e.preventDefault(), setSel(slide.elements.filter((x) => !x.bg).map((x) => x.id))
       if (mod && (e.key === ']' || e.key === '[') && sel.length) return e.preventDefault(), layer(e.key === ']' ? (e.shiftKey ? 'front' : 'up') : e.shiftKey ? 'back' : 'down')
       if (mod && selectedEl?.kind === 'text' && ['b', 'i', 'u'].includes(k)) {
@@ -697,6 +766,7 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
           setUploads((u) => [{ id: newId('u'), name: f.name, src }, ...u])
         }}
         onAdd={(u) => addEl({ kind: 'image', src: u.src, w: 30, h: 40, x: 35, y: 30 })}
+        onLink={placePicture}
       />
     ),
     alifbo: <AlifboPanel onConvert={convertDeck} />,
@@ -915,7 +985,7 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
                 at={menu}
                 onElement={menu.onElement && selectedEls.length > 0}
                 locked={selLocked}
-                canPaste={Boolean(clip.current?.length)}
+                canPaste={Boolean(clip.current?.length) || clipHasPicture}
                 act={menuAct}
                 onClose={closeMenu}
               />

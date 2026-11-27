@@ -1,0 +1,13 @@
+{
+  "il.placeholder": "이미지 링크 붙여넣기 (Google, 웹사이트…)",
+  "il.add": "추가",
+  "il.replace": "링크로",
+  "il.loading": "이미지를 불러오는 중…",
+  "il.done": "이미지를 추가했어요",
+  "il.replaced": "이미지를 바꿨어요",
+  "il.hint": "브라우저에서 이미지 주소나 페이지 링크를 복사해 여기에 붙여넣으세요. 캔버스에서 Ctrl/⌘+V도 돼요.",
+  "err.code.IMAGE_URL_BAD": "링크가 올바르지 않아요 — 이미지 주소(http 또는 https)를 붙여넣으세요",
+  "err.code.IMAGE_NOT_FOUND": "이 링크에서 이미지를 찾지 못했어요",
+  "err.code.IMAGE_TOO_BIG": "이미지가 너무 커요 (최대 15MB)",
+  "err.code.IMAGE_FETCH_FAILED": "이미지를 불러오지 못했어요 — 다른 링크를 시도해 보세요"
+}

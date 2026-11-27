@@ -1,0 +1,13 @@
+{
+  "il.placeholder": "Wklej link do obrazu (Google, strona…)",
+  "il.add": "Dodaj",
+  "il.replace": "Z linku",
+  "il.loading": "Wczytywanie obrazu…",
+  "il.done": "Dodano obraz",
+  "il.replaced": "Zamieniono obraz",
+  "il.hint": "Skopiuj w przeglądarce adres obrazu lub link do strony i wklej tutaj. Na płótnie działa też Ctrl/⌘+V.",
+  "err.code.IMAGE_URL_BAD": "Nieprawidłowy link — wklej adres obrazu (http lub https)",
+  "err.code.IMAGE_NOT_FOUND": "Pod tym linkiem nie znaleziono obrazu",
+  "err.code.IMAGE_TOO_BIG": "Obraz jest za duży (do 15 MB)",
+  "err.code.IMAGE_FETCH_FAILED": "Nie udało się wczytać obrazu — spróbuj innego linku"
+}

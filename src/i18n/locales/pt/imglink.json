@@ -1,0 +1,13 @@
+{
+  "il.placeholder": "Cole o link de uma imagem (Google, um site…)",
+  "il.add": "Adicionar",
+  "il.replace": "Por link",
+  "il.loading": "Carregando a imagem…",
+  "il.done": "Imagem adicionada",
+  "il.replaced": "Imagem substituída",
+  "il.hint": "Copie no navegador o endereço de uma imagem ou o link de uma página e cole aqui. No canvas, Ctrl/⌘+V também funciona.",
+  "err.code.IMAGE_URL_BAD": "Link inválido — cole o endereço de uma imagem (http ou https)",
+  "err.code.IMAGE_NOT_FOUND": "Nenhuma imagem encontrada neste link",
+  "err.code.IMAGE_TOO_BIG": "A imagem é grande demais (até 15 MB)",
+  "err.code.IMAGE_FETCH_FAILED": "Não foi possível carregar a imagem — tente outro link"
+}

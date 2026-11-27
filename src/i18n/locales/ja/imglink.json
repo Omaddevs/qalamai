@@ -1,0 +1,13 @@
+{
+  "il.placeholder": "画像のリンクを貼り付け（Google、サイトなど）",
+  "il.add": "追加",
+  "il.replace": "リンクから",
+  "il.loading": "画像を読み込み中…",
+  "il.done": "画像を追加しました",
+  "il.replaced": "画像を差し替えました",
+  "il.hint": "ブラウザで画像のアドレスやページのリンクをコピーして、ここに貼り付けてください。キャンバス上で Ctrl/⌘+V も使えます。",
+  "err.code.IMAGE_URL_BAD": "リンクが正しくありません。画像のアドレス（http / https）を貼り付けてください",
+  "err.code.IMAGE_NOT_FOUND": "このリンクに画像が見つかりませんでした",
+  "err.code.IMAGE_TOO_BIG": "画像が大きすぎます（15 MB まで）",
+  "err.code.IMAGE_FETCH_FAILED": "画像を読み込めませんでした。別のリンクをお試しください"
+}

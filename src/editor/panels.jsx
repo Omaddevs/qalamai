@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import AssetImg from '../components/AssetImg.jsx'
 import ProBadge from '../components/ProBadge.jsx'
-import { Search, SlidersHorizontal, Play, CloudUpload, Wand2, X, Check } from 'lucide-react'
+import { Search, SlidersHorizontal, Play, CloudUpload, Wand2, X, Check, Link2, Loader2 } from 'lucide-react'
+import { isImageLink } from './linkImage.js'
 import { CoinPrice } from '../components/Coins.jsx'
 import { COIN_COSTS } from '../coins.js'
 import { APPS } from '../data.js'
@@ -316,12 +317,40 @@ export function BrandPanel({ accent, defaultAccent, onAccent }) {
 }
 
 /* ───────── Yuklash ───────── */
-export function UploadsPanel({ uploads, onUpload, onAdd }) {
+export function UploadsPanel({ uploads, onUpload, onAdd, onLink }) {
   const input = useRef(null)
   const [drag, setDrag] = useState(false)
+  const [link, setLink] = useState('')
+  const [busy, setBusy] = useState(false)
   const take = (files) => [...files].filter((f) => f.type.startsWith('image/')).forEach(onUpload)
+  const submit = async (e) => {
+    e.preventDefault()
+    if (!isImageLink(link) || busy) return
+    setBusy(true)
+    try {
+      if (await onLink(link.trim())) setLink('')
+    } finally {
+      setBusy(false)
+    }
+  }
   return (
     <div className="pn-scroll">
+      {/* a picture from the internet: an image address, a Google image result or a page link */}
+      <form className="upl-link" onSubmit={submit}>
+        <span className="upl-link-ico"><Link2 size={16} /></span>
+        <input
+          value={link}
+          onChange={(e) => setLink(e.target.value)}
+          placeholder={t('il.placeholder')}
+          aria-label={t('il.placeholder')}
+          inputMode="url"
+          spellCheck={false}
+        />
+        <button type="submit" disabled={!isImageLink(link) || busy}>
+          {busy ? <Loader2 size={15} className="spin" /> : t('il.add')}
+        </button>
+      </form>
+      <p className="upl-link-hint">{t('il.hint')}</p>
       <button
         className={`dropzone ${drag ? 'drag' : ''}`}
         onClick={() => input.current.click()}

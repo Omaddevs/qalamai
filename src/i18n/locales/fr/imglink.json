@@ -1,0 +1,13 @@
+{
+  "il.placeholder": "Collez le lien d’une image (Google, un site…)",
+  "il.add": "Ajouter",
+  "il.replace": "Depuis un lien",
+  "il.loading": "Chargement de l’image…",
+  "il.done": "Image ajoutée",
+  "il.replaced": "Image remplacée",
+  "il.hint": "Copiez dans le navigateur l’adresse d’une image ou le lien d’une page et collez-le ici. Ctrl/⌘+V fonctionne aussi sur le canevas.",
+  "err.code.IMAGE_URL_BAD": "Lien invalide — collez l’adresse d’une image (http ou https)",
+  "err.code.IMAGE_NOT_FOUND": "Aucune image trouvée à ce lien",
+  "err.code.IMAGE_TOO_BIG": "L’image est trop lourde (15 Mo maximum)",
+  "err.code.IMAGE_FETCH_FAILED": "Impossible de charger l’image — essayez un autre lien"
+}

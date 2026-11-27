@@ -4,11 +4,12 @@ import {
   Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, AlignJustify, CaseUpper, Minus, Plus, Copy, Trash2, Lock, LockOpen,
   Blend, Sparkles, Layers, BringToFront, SendToBack, ArrowUp, ArrowDown, AlignStartVertical, AlignCenterVertical, AlignEndVertical,
   AlignStartHorizontal, AlignCenterHorizontal, AlignEndHorizontal, AlignHorizontalDistributeCenter, AlignVerticalDistributeCenter,
-  ImagePlus, Type, Square, Image as ImageIcon, Play, LetterText,
+  ImagePlus, Type, Square, Image as ImageIcon, Play, LetterText, Link2, Loader2,
 } from 'lucide-react'
 import FontPicker from './FontPicker.jsx'
 import ElementTools, { kindLabel } from './elements/tools.jsx'
 import { t } from '../i18n/index.js'
+import { isImageLink } from './linkImage.js'
 
 /* ───── helpers ───── */
 
@@ -31,6 +32,33 @@ function useOutside(ref, open, close) {
     document.addEventListener('pointerdown', h)
     return () => document.removeEventListener('pointerdown', h)
   }, [open, close, ref])
+}
+
+/** A picture link field (Google image, page or image address) for the image toolbar. */
+function LinkForm({ onSubmit }) {
+  const [link, setLink] = useState('')
+  const [busy, setBusy] = useState(false)
+  return (
+    <form
+      className="tb-link"
+      onSubmit={async (e) => {
+        e.preventDefault()
+        if (!isImageLink(link) || busy) return
+        setBusy(true)
+        try {
+          await onSubmit(link.trim())
+        } finally {
+          setBusy(false)
+        }
+      }}
+    >
+      <input autoFocus value={link} onChange={(e) => setLink(e.target.value)} placeholder={t('il.placeholder')} inputMode="url" spellCheck={false} />
+      <button type="submit" className="tb-btn wide" disabled={!isImageLink(link) || busy}>
+        {busy ? <Loader2 size={14} className="spin" /> : t('il.add')}
+      </button>
+      <small>{t('il.hint')}</small>
+    </form>
+  )
 }
 
 export function Pop({ button, title, children, wide, align = 'left' }) {
@@ -233,6 +261,9 @@ export default function Toolbar({ sel, all, theme, act }) {
           <button type="button" className="tb-btn wide" onClick={() => file.current?.click()}>
             <ImagePlus size={16} /> {first.src ? 'Almaştiriş' : 'Rasm qöşiş'}
           </button>
+          <Pop title={t('il.replace')} button={<span className="tb-wide"><Link2 size={15} /> {t('il.replace')}</span>}>
+            {(close) => <LinkForm onSubmit={async (link) => (await act.replaceImageLink(link)) && close()} />}
+          </Pop>
           {first.src && (
             <button type="button" className="tb-btn wide" onClick={() => set({ src: null })}>
               Rasmni olib taşlaş

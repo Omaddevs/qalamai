@@ -1,0 +1,13 @@
+{
+  "il.placeholder": "Tempel tautan gambar (Google, situs…)",
+  "il.add": "Tambah",
+  "il.replace": "Dari tautan",
+  "il.loading": "Memuat gambar…",
+  "il.done": "Gambar ditambahkan",
+  "il.replaced": "Gambar diganti",
+  "il.hint": "Salin alamat gambar atau tautan halaman di browser, lalu tempel di sini. Ctrl/⌘+V juga bisa di kanvas.",
+  "err.code.IMAGE_URL_BAD": "Tautan tidak valid — tempel alamat gambar (http atau https)",
+  "err.code.IMAGE_NOT_FOUND": "Tidak ada gambar di tautan ini",
+  "err.code.IMAGE_TOO_BIG": "Gambar terlalu besar (maks. 15 MB)",
+  "err.code.IMAGE_FETCH_FAILED": "Gambar tidak dapat dimuat — coba tautan lain"
+}

@@ -1,0 +1,13 @@
+{
+  "il.placeholder": "Pega el enlace de una imagen (Google, un sitio…)",
+  "il.add": "Añadir",
+  "il.replace": "Desde enlace",
+  "il.loading": "Cargando la imagen…",
+  "il.done": "Imagen añadida",
+  "il.replaced": "Imagen reemplazada",
+  "il.hint": "Copia en el navegador la dirección de una imagen o el enlace de una página y pégalo aquí. En el lienzo también funciona Ctrl/⌘+V.",
+  "err.code.IMAGE_URL_BAD": "El enlace no es válido — pega la dirección de una imagen (http o https)",
+  "err.code.IMAGE_NOT_FOUND": "No se encontró ninguna imagen en este enlace",
+  "err.code.IMAGE_TOO_BIG": "La imagen es demasiado grande (hasta 15 MB)",
+  "err.code.IMAGE_FETCH_FAILED": "No se pudo cargar la imagen — prueba con otro enlace"
+}

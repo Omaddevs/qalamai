@@ -5,6 +5,7 @@
 // credits the photographer, and tells Unsplash when a photo is put into a design (/download).
 // Without UNSPLASH_ACCESS_KEY the endpoints answer PHOTOS_OFF and the editor uses Openverse.
 import { AppError } from '../../lib/errors.js'
+import { fetchImage } from './fetchImage.js'
 
 const PER_PAGE = 20
 const TTL_MS = 60 * 60 * 1000
@@ -105,6 +106,25 @@ export default async function photoRoutes(app) {
     async (req) => {
       if (!unsplash) throw off()
       return unsplash.search(req.query.q.trim().toLowerCase(), req.query.page)
+    },
+  )
+
+  // a picture from a pasted link (the browser cannot read other sites' pictures); nothing is kept
+  app.post(
+    '/fetch',
+    {
+      config: { rateLimit: { max: 30, timeWindow: '1 minute' } },
+      schema: {
+        tags: ['photos'],
+        summary: 'Havoladagi rasmni olib beriş (Google, sayt yoki rasm manzili)',
+        body: { type: 'object', required: ['url'], additionalProperties: false, properties: { url: { type: 'string', minLength: 8, maxLength: 4096 } } },
+      },
+    },
+    async (req, reply) => {
+      const fetchOne = app.ctx.fetchImage ?? fetchImage
+      const { type, body } = await fetchOne(req.body.url)
+      reply.header('cache-control', 'no-store').header('x-content-type-options', 'nosniff').type(type)
+      return body
     },
   )
 

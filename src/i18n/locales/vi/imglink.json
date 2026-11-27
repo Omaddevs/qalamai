@@ -1,0 +1,13 @@
+{
+  "il.placeholder": "Dán liên kết ảnh (Google, trang web…)",
+  "il.add": "Thêm",
+  "il.replace": "Từ liên kết",
+  "il.loading": "Đang tải ảnh…",
+  "il.done": "Đã thêm ảnh",
+  "il.replaced": "Đã thay ảnh",
+  "il.hint": "Sao chép địa chỉ ảnh hoặc liên kết trang trong trình duyệt rồi dán vào đây. Trên canvas cũng dùng được Ctrl/⌘+V.",
+  "err.code.IMAGE_URL_BAD": "Liên kết không hợp lệ — hãy dán địa chỉ ảnh (http hoặc https)",
+  "err.code.IMAGE_NOT_FOUND": "Không tìm thấy ảnh ở liên kết này",
+  "err.code.IMAGE_TOO_BIG": "Ảnh quá lớn (tối đa 15 MB)",
+  "err.code.IMAGE_FETCH_FAILED": "Không tải được ảnh — hãy thử liên kết khác"
+}

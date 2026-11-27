@@ -496,3 +496,23 @@ export async function peekUser() {
 
 export const supportMessages = () => api.get('/support').then((r) => r.messages)
 export const sendSupport = (topic, message, contact) => api.post('/support', { topic, message, contact }).then((r) => r.message)
+
+/* ───────── pictures from links ───────── */
+
+/** The picture a pasted link points to, fetched by the server (other sites' pictures are closed to the browser). */
+export async function fetchImageLink(url) {
+  if (!access) await startSession()
+  let res
+  try {
+    res = await fetch(`${BASE}/photos/fetch`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: H({ 'content-type': 'application/json', authorization: `Bearer ${access}` }),
+      body: JSON.stringify({ url }),
+    })
+  } catch {
+    throw offline()
+  }
+  if (!res.ok) await parse(res)
+  return res.blob()
+}

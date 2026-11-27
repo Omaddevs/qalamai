@@ -1,0 +1,13 @@
+{
+  "il.placeholder": "粘贴图片链接（Google、网站…）",
+  "il.add": "添加",
+  "il.replace": "通过链接",
+  "il.loading": "正在加载图片…",
+  "il.done": "已添加图片",
+  "il.replaced": "已替换图片",
+  "il.hint": "在浏览器中复制图片地址或网页链接，然后粘贴到这里。在画布上也可以使用 Ctrl/⌘+V。",
+  "err.code.IMAGE_URL_BAD": "链接无效 — 请粘贴图片地址（http 或 https）",
+  "err.code.IMAGE_NOT_FOUND": "此链接中没有找到图片",
+  "err.code.IMAGE_TOO_BIG": "图片太大（最大 15 MB）",
+  "err.code.IMAGE_FETCH_FAILED": "无法加载图片 — 请换一个链接"
+}

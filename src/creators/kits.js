@@ -6,6 +6,7 @@ import { LOGO_DEFAULT } from './logo.js'
 import { CV_TEMPLATES, newCv, rid } from './cv.js'
 import { getLang, has, t } from '../i18n/index.js'
 import { KIT_TYPES } from './kitTypes.js'
+import { INVITE_TEMPLATES, inviteTitle } from '../../shared/invite.js'
 
 export { KIT_TYPES, isKit } from './kitTypes.js'
 
@@ -24,6 +25,9 @@ export const KIT_TEMPLATES = [
 
   /* ───── resumes ───── */
   ...Object.keys(CV_TEMPLATES).map((id) => ({ id: `cv-${id}`, type: 'cv', get name() { return CV_TEMPLATES[id].name }, cvTemplate: id })),
+
+  /* ───── invitations (shared/invite.js: the same templates the server renders) ───── */
+  ...INVITE_TEMPLATES.map((x) => ({ id: x.id, type: 'invite', name: x.name, event: x.event, data: x.data })),
 ]
 
 // Sample texts (taglines, bios, link titles, word-names) follow the interface language;
@@ -42,7 +46,7 @@ function localizeKit(id, type, base) {
 }
 for (const tpl of KIT_TEMPLATES) {
   if (has(`kit.tpl.${tpl.id}`)) Object.defineProperty(tpl, 'name', { get: () => t(`kit.tpl.${tpl.id}`), enumerable: true })
-  if (tpl.type === 'cv') continue
+  if (tpl.type === 'cv' || tpl.type === 'invite') continue
   const base = tpl.data
   const byLang = new Map()
   Object.defineProperty(tpl, 'data', {
@@ -68,6 +72,7 @@ export function templateData(tpl) {
 export function kitName(type, data) {
   if (type === 'logo') return data.name || 'Logo'
   if (type === 'bio') return data.name ? t('kit.nameBio', { name: data.name }) : 'Link in Bio'
+  if (type === 'invite') return inviteTitle(data) ? t('kit.nameInvite', { name: inviteTitle(data) }) : t('kit.invite.label')
   return data.name ? t('kit.nameCv', { name: data.name }) : t('kind.resume')
 }
 

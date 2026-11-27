@@ -483,10 +483,12 @@ export async function trackRoutes(app) {
 }
 
 /** GET /google….html — Search Console "HTML file" verification. */
-export async function verificationRoutes(app) {
+export async function verificationRoutes(app, opts = {}) {
   app.get('/:file', { schema: { hide: true } }, async (req, reply) => {
-    const site = await siteSettings(app.ctx.db)
     const file = req.params.file
+    // not a verification file name: another root page (an invitation) may own the address
+    if (!GSC_FILE.test(file) && opts.fallback) return opts.fallback(req, reply)
+    const site = await siteSettings(app.ctx.db)
     if (!GSC_FILE.test(file) || site.gscFile !== file) return reply.status(404).send({ error: { code: 'NOT_FOUND', message: 'Bunday manzil yöq' } })
     return reply.type('text/html; charset=utf-8').send(`google-site-verification: ${file}`)
   })

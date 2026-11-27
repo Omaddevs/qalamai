@@ -1,15 +1,16 @@
 // Full-screen studio for kit designs (logo, link in bio, resume). Autosaves into the
 // same design store as slide decks, so the work also shows up in Loyihalar.
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ArrowLeft, CheckCircle, CircleNotch, PenNib, LinkSimple, IdentificationCard } from '@phosphor-icons/react'
+import { ArrowLeft, CheckCircle, CircleNotch, PenNib, LinkSimple, IdentificationCard, Confetti } from '@phosphor-icons/react'
 import { KIT_TYPES, kitName } from './kits.js'
 import useLogoStudio, { LogoExport } from './LogoStudio.jsx'
 import useBioStudio from './BioStudio.jsx'
 import useCvStudio, { CvExport } from './CvStudio.jsx'
+import useInviteStudio from './InviteStudio.jsx'
 import './creators.css'
 
-const ICON = { logo: PenNib, bio: LinkSimple, cv: IdentificationCard }
-const HOOK = { logo: useLogoStudio, bio: useBioStudio, cv: useCvStudio }
+const ICON = { logo: PenNib, bio: LinkSimple, cv: IdentificationCard, invite: Confetti }
+const HOOK = { logo: useLogoStudio, bio: useBioStudio, cv: useCvStudio, invite: useInviteStudio }
 
 export default function CreatorStudio({ design, onBack, onSave, notify }) {
   const [d, setD] = useState(design)

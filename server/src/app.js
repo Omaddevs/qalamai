@@ -33,6 +33,7 @@ import notificationRoutes from './modules/notifications/routes.js'
 import photoRoutes from './modules/photos/routes.js'
 import aiRoutes from './modules/ai/routes.js'
 import { siteRoutes } from './modules/site/routes.js'
+import { createInvitePage, inviteApiRoutes, invitePublicApiRoutes } from './modules/invite/routes.js'
 import { sitePageRoutes } from './modules/site/page.js'
 import paymentRoutes from './modules/payments/routes.js'
 import { createNotifier } from './modules/notifications/service.js'
@@ -156,12 +157,15 @@ export async function buildApp(config) {
       await api.register(photoRoutes, { prefix: '/photos' })
       await api.register(aiRoutes, { prefix: '/ai' })
       await api.register(siteRoutes, { prefix: '/site' })
+      await api.register(inviteApiRoutes, { prefix: '/invites' })
+      await api.register(invitePublicApiRoutes, { prefix: '/i' })
     },
     { prefix: '/api/v1' },
   )
   await app.register(bioPublicRoutes, { prefix: '/b' })
   await app.register(sitePageRoutes, { prefix: '/yangiliklar' }) // news pages for crawlers and link previews
-  await app.register(verificationRoutes) // /google….html for Search Console
+  // /google….html for Search Console; any other single-segment address is an invitation (qalamai.uz/<slug>)
+  await app.register(verificationRoutes, { fallback: createInvitePage(app) })
 
   app.addHook('onClose', async () => {
     app.ctx.bot?.stopPolling()

@@ -1,0 +1,462 @@
+/* ═════════════ Taklifnoma studio (src/creators/InviteStudio.jsx) ═════════════ */
+.cs-kind.k-invite {
+  background: #fde8ee;
+  color: #c0264f;
+}
+
+/* ───── stage: a phone with the live page ───── */
+.iv-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+.iv-tools {
+  display: flex;
+  gap: 6px;
+}
+.iv-phone {
+  position: relative;
+  width: 390px;
+  height: min(800px, calc(100vh - 190px));
+  min-height: 560px;
+  padding: 40px 12px 14px;
+  border-radius: 46px;
+  background: #16181d;
+  box-shadow: 0 30px 70px rgba(22, 24, 29, 0.28), inset 0 0 0 2px #2b2e35;
+}
+.iv-notch {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  z-index: 2;
+  width: 84px;
+  height: 14px;
+  border-radius: 99px;
+  background: #2b2e35;
+  transform: translateX(-50%);
+}
+.iv-frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 6px 6px 32px 32px;
+}
+.iv-stage .cs-stage-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+/* ───── thumbnails: the page at phone width, scaled into the card ───── */
+.kt-invite {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.iv-still {
+  display: block;
+  width: 390px;
+  height: 844px;
+  border: 0;
+  pointer-events: none;
+}
+
+/* ───── left panel ───── */
+.iv-names {
+  display: grid;
+  grid-template-columns: 1fr 56px 1fr;
+  gap: 8px;
+}
+.iv-when {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 64px;
+  gap: 8px;
+}
+.iv-names .cs-input,
+.iv-when .cs-input {
+  min-width: 0;
+}
+.iv-secs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.iv-sec {
+  border: 1px solid #e6e2d9;
+  border-radius: 12px;
+  background: #fff;
+}
+.iv-sec.open {
+  border-color: #d8d2c4;
+  box-shadow: 0 6px 18px rgba(22, 24, 29, 0.06);
+}
+.iv-sec.off .iv-sec-title b {
+  color: #a3a8af;
+  text-decoration: line-through;
+}
+.iv-sec-head {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 6px 6px 4px;
+}
+.iv-sec-title {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+.iv-sec-title:hover {
+  background: #f6f4ef;
+}
+.iv-sec-title b {
+  font-size: 13.5px;
+  white-space: nowrap;
+}
+.iv-sec-title em {
+  overflow: hidden;
+  color: #8b919a;
+  font-size: 12px;
+  font-style: normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.iv-sec-title svg {
+  flex: none;
+  margin-inline-start: auto;
+  color: #8b919a;
+  transition: transform 0.15s;
+}
+.iv-sec.open .iv-sec-title svg {
+  transform: rotate(180deg);
+}
+.iv-sec-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 12px 14px;
+  border-top: 1px solid #f0ece4;
+}
+.iv-add-menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px;
+  border: 1px dashed #d8d2c4;
+  border-radius: 12px;
+}
+
+.iv-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.iv-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.iv-row .cs-input {
+  min-width: 0;
+}
+
+.iv-photo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.iv-photo-img {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  overflow: hidden;
+  border: 1px dashed #cfc8ba;
+  border-radius: 12px;
+  background: #faf9f6;
+  color: #8b919a;
+  cursor: pointer;
+}
+.iv-photo-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.iv-photo-act {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.iv-photo-act > span {
+  color: #5c626b;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.iv-gal {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.iv-gal-i,
+.iv-gal-add {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 10px;
+}
+.iv-gal-i img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.iv-gal-i button {
+  position: absolute;
+  top: 4px;
+  inset-inline-end: 4px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  cursor: pointer;
+}
+.iv-gal-add {
+  display: grid;
+  place-items: center;
+  border: 1px dashed #cfc8ba;
+  background: #faf9f6;
+  color: #5c626b;
+  cursor: pointer;
+}
+
+/* design */
+.iv-styles {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.iv-style {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+.iv-style-sw {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+  transition: transform 0.15s;
+}
+.iv-style:hover .iv-style-sw {
+  transform: translateY(-2px);
+}
+.iv-style-sw i:first-child {
+  position: absolute;
+  inset: 55% 0 0;
+}
+.iv-style-sw i:last-child {
+  position: absolute;
+  top: 22%;
+  left: 50%;
+  width: 22%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+.iv-style small {
+  overflow: hidden;
+  max-width: 100%;
+  color: #5c626b;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.iv-colors {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+.iv-color {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px 5px 5px;
+  border: 1px solid #e6e2d9;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.iv-color input {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  cursor: pointer;
+}
+.iv-fonts {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+.iv-font {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px;
+  border: 1px solid #e6e2d9;
+  border-radius: 12px;
+  background: #fff;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+.iv-font b {
+  overflow: hidden;
+  font-size: 19px;
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.iv-font small {
+  color: #8b919a;
+  font-size: 11px;
+}
+.iv-font.on {
+  border-color: #16181d;
+  box-shadow: inset 0 0 0 1px #16181d;
+}
+
+/* music */
+.iv-music {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.iv-music-now {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+}
+.iv-music audio {
+  width: 100%;
+  height: 36px;
+}
+
+/* guests' answers */
+.iv-answers {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 360px;
+  overflow-y: auto;
+}
+.iv-ans {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #fff;
+}
+.iv-ans > div {
+  flex: 1;
+  min-width: 0;
+}
+.iv-ans b {
+  display: block;
+  font-size: 13px;
+}
+.iv-ans small {
+  color: #6b717a;
+  font-size: 11.5px;
+}
+.iv-ans p {
+  margin: 4px 0 0;
+  color: #3b4048;
+  font-size: 12.5px;
+}
+.iv-ans-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: #10b981;
+}
+.iv-ans.no .iv-ans-dot {
+  background: #ef4444;
+}
+
+@media (max-width: 900px) {
+  .iv-phone {
+    width: min(390px, 100%);
+  }
+}
+
+/* gallery and project cards: the top of the page in a phone */
+.kt-invite {
+  background: linear-gradient(160deg, #fde8ee, #efe7ff);
+}
+.kt-invite .kt-scaled {
+  inset: 8% 27% -55% 27%;
+}
+.kt-invite .kt-scaled-inner {
+  top: 0;
+  overflow: hidden;
+  border: 9px solid #0b0b0d;
+  border-radius: 44px;
+  box-shadow: 0 40px 70px -30px rgba(0, 0, 0, 0.5);
+  transform-origin: top center;
+}
+.tv-cat.kit-invite .tv-cat-thumb {
+  width: 64px;
+  height: 128px;
+  overflow: hidden;
+  border: 4px solid #0b0b0d;
+  border-radius: 14px;
+  background: #fff;
+}
+.tv-cat.kit-invite .tv-cat-thumb.k0 {
+  inset-inline-end: 74px;
+  bottom: -46px;
+}
+.tv-cat.kit-invite .tv-cat-thumb.k1 {
+  inset-inline-end: 10px;
+  bottom: -22px;
+}
+.tv-cat.kit-invite .kt-scaled-inner {
+  top: 0;
+  transform-origin: top center;
+}

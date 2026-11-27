@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import ProBadge, { ProCrown } from '../components/ProBadge.jsx'
 import {
   MagnifyingGlass, X, Play, ArrowRight, ArrowLeft, CaretLeft, CaretRight, Eye, CheckCircle,
-  HouseSimple, Layout, FolderSimple, Sparkle, ClockCounterClockwise, PenNib, LinkSimple, IdentificationCard,
+  HouseSimple, Layout, FolderSimple, Sparkle, ClockCounterClockwise, PenNib, LinkSimple, IdentificationCard, Confetti,
 } from '@phosphor-icons/react'
 import { QalamNib } from '../components/ui.jsx'
 import Slide from '../editor/Slide.jsx'
@@ -12,6 +12,7 @@ import { CREATE, CatTile } from './create.jsx'
 import KitThumb, { Scaled } from '../creators/KitThumb.jsx'
 import { BioPage } from '../creators/BioPhone.jsx'
 import CvPage from '../creators/CvPage.jsx'
+import { InviteStill } from '../creators/InviteFrame.jsx'
 import { KIT_TEMPLATES, KIT_TYPES, templateData } from '../creators/kits.js'
 // shared page header, chips and empty state (pj-*) — see AlifboView
 import './projects.css'
@@ -252,18 +253,26 @@ function Preview({ tpl, onClose, onUse, onNav }) {
 }
 
 /* ───────────── Kits: logo · link in bio · resume ───────────── */
-const KIT_ICON = { logo: PenNib, bio: LinkSimple, cv: IdentificationCard }
-const KIT_CAT = { logo: 'logo', bio: 'bio', cv: 'cv' }
+const KIT_ICON = { logo: PenNib, bio: LinkSimple, cv: IdentificationCard, invite: Confetti }
+const KIT_CAT = { logo: 'logo', bio: 'bio', cv: 'cv', invite: 'invite' }
 
 const KIT_TILES = {
   logo: { color: 'amber', picks: [1, 2] },
   bio: { color: 'green', picks: [1, 2] },
   cv: { color: 'blue', picks: [0, 3] },
+  // shown in place of the "Taklifnoma" type card (CREATE), not as an extra tile
+  invite: { color: 'pink', picks: [0, 1], inline: true },
 }
 
 /** Preview of one kit template, shaped like what it makes: card, phone or A4 page. */
 function KitArt({ tpl }) {
   if (tpl.type === 'logo') return <KitThumb type="logo" data={templateData(tpl)} />
+  if (tpl.type === 'invite')
+    return (
+      <Scaled width={390} height={844} top>
+        <InviteStill data={templateData(tpl)} />
+      </Scaled>
+    )
   if (tpl.type === 'bio')
     return (
       <Scaled width={300} height={600}>
@@ -455,10 +464,10 @@ export default function TemplatesView({ onTab, onCreate, onCreateKit }) {
             <span className="tv-hint">{t('tv.whatHint')}</span>
           </div>
           <div className="tv-cats">
-            {CREATE.map((c, i) => (
-              <CategoryCard key={c.id} c={c} i={i} onCreate={onCreate} />
-            ))}
-            {Object.keys(KIT_TILES).map((type, i) => (
+            {CREATE.map((c, i) =>
+              c.id === 'Taklifnoma' ? <KitCategoryCard key={c.id} type="invite" i={i} onOpen={pickCat} /> : <CategoryCard key={c.id} c={c} i={i} onCreate={onCreate} />,
+            )}
+            {Object.keys(KIT_TILES).filter((type) => !KIT_TILES[type].inline).map((type, i) => (
               <KitCategoryCard key={type} type={type} i={CREATE.length + i} onOpen={pickCat} />
             ))}
           </div>

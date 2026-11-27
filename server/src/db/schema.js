@@ -413,3 +413,34 @@ export const siteTeam = pgTable(
   },
   (t) => [index('site_team_sort_idx').on(t.sort)],
 )
+
+/** Published invitation websites (Taklifnoma) at qalamai.uz/<slug>. `data` is shared/invite.js normalizeInvite(). */
+export const invitePages = pgTable(
+  'invite_pages',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    slug: text('slug').notNull(),
+    designId: text('design_id').notNull(),
+    data: jsonb('data').notNull(),
+    views: integer('views').notNull().default(0),
+    createdAt: createdAt(),
+    updatedAt: ts('updated_at').notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex('invite_slug_uq').on(t.slug), uniqueIndex('invite_user_design_uq').on(t.userId, t.designId)],
+)
+
+/** Guests' answers sent from an invitation page. */
+export const inviteRsvps = pgTable(
+  'invite_rsvps',
+  {
+    id: text('id').primaryKey(),
+    pageId: text('page_id').notNull().references(() => invitePages.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    answer: text('answer', { enum: ['yes', 'no'] }).notNull(),
+    guests: integer('guests').notNull().default(1),
+    note: text('note').notNull().default(''),
+    createdAt: createdAt(),
+  },
+  (t) => [index('invite_rsvps_page_idx').on(t.pageId, t.createdAt)],
+)

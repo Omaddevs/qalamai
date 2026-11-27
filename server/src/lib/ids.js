@@ -26,4 +26,6 @@ export const ID_PREFIX = {
   partner: 'prt',
   member: 'tm',
   media: 'img',
+  invite: 'inv',
+  rsvp: 'rsv',
 }

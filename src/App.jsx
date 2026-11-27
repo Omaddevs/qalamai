@@ -139,6 +139,8 @@ function Pages() {
 
   // blank: opened from a type card (not a template) — an empty page, no template picked yet.
   const create = ({ topic, templateId, kind, count, ai, slides, blank }) => {
+    // a new invitation (not an AI-written one) opens the invitation website studio
+    if (kind === 'Taklifnoma' && !ai && !slides) return createKit('invite')
     const deck = newDeck({ topic, templateId, kind, count, slides, blank: blank && !ai })
     saveDesign(deck)
     setNextPanel(ai ? 'ai' : 'templates')

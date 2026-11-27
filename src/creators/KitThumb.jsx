@@ -4,6 +4,8 @@ import LogoArt from './LogoArt.jsx'
 import { BioPage } from './BioPhone.jsx'
 import CvPage from './CvPage.jsx'
 import { paletteOf } from './logo.js'
+import { InviteStill } from './InviteFrame.jsx'
+import './invite.css'
 import './creators.css'
 
 /** Renders children at a fixed design size and scales them to fit the box. */
@@ -34,6 +36,15 @@ export default function KitThumb({ type, data }) {
     return (
       <div className="kt kt-logo" style={{ background: paletteOf(data).bg }}>
         <LogoArt model={data} background={false} />
+      </div>
+    )
+  }
+  if (type === 'invite') {
+    return (
+      <div className="kt kt-invite">
+        <Scaled width={390} height={844} top>
+          <InviteStill data={data} />
+        </Scaled>
       </div>
     )
   }

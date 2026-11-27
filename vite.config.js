@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 import { DEFAULT_LANG, LANGS, dirOf, htmlLangOf, isLang, translate } from './shared/i18n.js'
 import i18nSplit from './scripts/vite-i18n-split.mjs'
 import { loadDict } from './scripts/i18n-dict.mjs'
+import { INVITE_RESERVED } from './shared/invite.js'
 import { ABOUT_PAGES, ALL_PAGES, INDEXABLE_PAGES, PRODUCT_PAGES, PUBLIC_PAGES, TOOL_PAGES, parentsOf, relatedTools } from './src/landing/pages.js'
 import { alternatesOf, faqOf, langsOf, ogLocaleOf, pageJsonLd, pageTexts, pageUrl, productContent } from './src/landing/seo-meta.js'
 
@@ -190,6 +191,8 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_')
   const siteUrl = (env.VITE_SITE_URL || 'https://qalamai.uz').replace(/\/+$/, '')
   const api = { target: process.env.API_TARGET ?? 'http://localhost:4000', changeOrigin: false }
+  // invitations at the root (/<slug>), as nginx does it: the site's own addresses stay with Vite
+  const invite = { ...api, bypass: (req) => (INVITE_RESERVED.has(req.url.slice(1)) ? req.url : undefined) }
   return {
     plugins: [react(), seo(siteUrl), i18nSplit(MSG_DIR, LOCALES_DIR)],
     // the public address, for canonical / hreflang links written by the app (src/seo.js)
@@ -215,6 +218,7 @@ export default defineConfig(({ mode }) => {
         '^/google[0-9a-f]+\\.html$': api,
         // news sitemap, made by the API from the database
         '^/yangiliklar/sitemap\\.xml$': api,
+        '^/[a-z0-9][a-z0-9-]{2,39}$': invite,
       },
     },
     preview: {

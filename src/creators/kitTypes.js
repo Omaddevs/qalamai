@@ -7,6 +7,7 @@ export const KIT_TYPES = Object.fromEntries(
     ['logo', 'Logo'],
     ['bio', 'Link in Bio'],
     ['cv', 'Rezyume'],
+    ['invite', 'Taklifnoma'],
   ].map(([type, kind]) => [
     type,
     {

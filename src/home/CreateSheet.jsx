@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   X, Sparkle, FileDashed, ArrowUpRight, KeyReturn, ArrowRight,
-  PenNib, LinkSimple, IdentificationCard, TextAa, FilePdf, Translate, FileMagnifyingGlass,
+  PenNib, LinkSimple, IdentificationCard, Confetti, TextAa, FilePdf, Translate, FileMagnifyingGlass,
 } from '@phosphor-icons/react'
 import { COLORS } from '../data.js'
 import { KIT_TYPES } from '../creators/kitTypes.js'
@@ -22,6 +22,8 @@ const KITS = [
   { type: 'bio', icon: LinkSimple, color: 'green' },
   { type: 'cv', icon: IdentificationCard, color: 'blue' },
 ]
+// the invitation website studio stands where the "Taklifnoma" type used to
+const INVITE_KIT = { type: 'invite', icon: Confetti, color: 'pink' }
 
 const TOOLS = [
   { app: 'alifbo', icon: TextAa, color: 'teal' },
@@ -58,7 +60,7 @@ function buildGroups({ onAi, onBlank, onKit, onTool }) {
   return [
     { id: 'study', items: ['Referat', 'Mustaqil iş', 'Kurs işi', 'Dars işlanma'].map(type) }, // i18n-ignore (type ids)
     { id: 'work', items: ['Prezentatsiya', 'Biznes reja', 'Hisobot'].map(type) },
-    { id: 'create', items: [...['Taklifnoma', 'Portfolio'].map(type), ...KITS.map(kit)] },
+    { id: 'create', items: [kit(INVITE_KIT), type('Portfolio'), ...KITS.map(kit)] },
     { id: 'tools', items: TOOLS.map(tool) },
   ]
 }

@@ -474,6 +474,21 @@ export async function exportBioHtml(data) {
   return res.blob()
 }
 
+/* ───────── taklifnoma (invitation websites at /<slug>) ───────── */
+
+export const checkInviteSlug = (slug) => api.get(`/invites/check/${encodeURIComponent(slug)}`)
+export const getInvitePage = (designId) => api.get(`/invites/design/${encodeURIComponent(designId)}`).then((r) => r.page)
+export const publishInvite = (slug, designId, data) => request('PUT', `/invites/${encodeURIComponent(slug)}`, { json: { designId, data } })
+export const unpublishInvite = (slug) => api.del(`/invites/${encodeURIComponent(slug)}`)
+export const inviteRsvps = (slug) => api.get(`/invites/${encodeURIComponent(slug)}/rsvps`).then((r) => r.rsvps)
+export const deleteInviteRsvp = (slug, id) => api.del(`/invites/${encodeURIComponent(slug)}/rsvps/${encodeURIComponent(id)}`)
+/** A picture (stored as WebP) or a song for an invitation → { url }. */
+export function uploadInviteMedia(file) {
+  const form = new FormData()
+  form.append('file', file, file.name || 'file')
+  return request('POST', '/invites/media', { form })
+}
+
 /* ───────── QalamChat ───────── */
 
 /**

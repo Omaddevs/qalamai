@@ -3,6 +3,8 @@ import { Check, Copy, FileText, Globe, Laptop, LayoutTemplate, Link2, Mail, MapP
 import { admin } from './api.js'
 import { DEVICE, METHOD, REASON, SOURCE, ago, countryName, dateTime, fmt, pageLabel, timeOnly } from './format.js'
 import { Avatar, Flag, MethodDot, useLoad } from './parts.jsx'
+import { KINDS } from './kinds.jsx'
+import { creationKind } from '../../shared/creations.js'
 
 const DEVICE_IC = { mobile: Smartphone, tablet: Tablet, desktop: Monitor }
 const PROFILE = {
@@ -109,6 +111,8 @@ function Detail({ d, reload }) {
         </div>
       </div>
 
+      {d.created && <Created c={d.created} />}
+
       <Section title="Bağlanış">
         <Row icon={Mail} k="Email" v={u.email} copy />
         <Row icon={Phone} k="Telefon" v={u.phone && `${u.phone}${u.phoneVerifiedAt ? ' ✓' : ''}`} copy={u.phone} />
@@ -168,7 +172,7 @@ function Detail({ d, reload }) {
       {(d.designs.length > 0 || d.documents.length > 0) && (
         <Section title="Oxirgi işlari">
           <ul className="ad-works">
-            {[...d.designs.map((x) => ({ ...x, ic: LayoutTemplate, sub: x.kind })), ...d.documents.map((x) => ({ ...x, ic: FileText, sub: 'Hujjat' }))]
+            {[...d.designs.map((x) => ({ ...x, ic: LayoutTemplate, sub: x.kind })), ...d.documents.map((x) => ({ ...x, ic: FileText, sub: x.kind ? (KINDS[creationKind(x.kind, 'document')]?.label ?? x.kind) : 'Hujjat' }))]
               .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
               .slice(0, 12)
               .map((w) => (
@@ -231,6 +235,35 @@ function Detail({ d, reload }) {
         </Section>
       )}
     </div>
+  )
+}
+
+/** Everything this user made, all time: by kind (AI share) and the file tools they ran. */
+function Created({ c }) {
+  return (
+    <Section title="Yaratganlari" sub={c.total ? `Jami ${fmt(c.total)} ta · AI yozgani ${fmt(c.ai)} ta (öçirilganlari ham)` : 'Hali heç narsa yaratmagan'}>
+      {c.kinds.length > 0 && (
+        <div className="ad-ucreated">
+          {c.kinds.map((x) => {
+            const meta = KINDS[x.kind] ?? KINDS.boshqa
+            const Icon = meta.icon
+            return (
+              <div key={x.kind} className="ad-ucreated-i" style={{ '--kc': meta.color }}>
+                <span className="ad-kind-ic">
+                  <Icon size={15} />
+                </span>
+                <span>{meta.label}</span>
+                <b>{fmt(x.total)}</b>
+                <small>{x.ai ? `AI ${fmt(x.ai)}` : ''}</small>
+              </div>
+            )
+          })}
+        </div>
+      )}
+      {c.toolsTotal > 0 && (
+        <Row k="Fayl vositalari" v={`${fmt(c.toolsTotal)} marta: ${c.tools.slice(0, 5).map((x) => `${x.label} ${x.n}`).join(', ')}${c.tools.length > 5 ? ' …' : ''}`} />
+      )}
+    </Section>
   )
 }
 

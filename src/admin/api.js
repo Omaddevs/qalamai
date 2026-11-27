@@ -41,6 +41,7 @@ export const admin = {
   changePassword: (current, next) => request('POST', '/password', { current, next }),
   stats: (days) => request('GET', `/stats?days=${days}`),
   userStats: (days) => request('GET', `/users/stats?days=${days}`),
+  content: (days, kind = '') => request('GET', `/content?days=${days}&kind=${encodeURIComponent(kind)}&limit=200`),
   users: (params) => request('GET', `/users?${new URLSearchParams(Object.entries(params).filter(([, v]) => v !== '' && v != null))}`),
   user: (id) => request('GET', `/users/${encodeURIComponent(id)}`),
   grantCoins: (id, amount, note) => request('POST', `/users/${encodeURIComponent(id)}/coins`, { amount, note }),

@@ -761,7 +761,7 @@ function HeroGenerate({ gen, langs, onCreate, onCreateDoc, onClose, notify }) {
         gen.fromFile ? t('fs.contentNote') : lang && fallbackOf(lang) ? t('gn.langFallback', { lang: langs.find((l) => l.id === lang)?.name }) : null
       }
       onDone={() => {
-        if (isDoc) onCreateDoc({ name: out.name, html: docHtml(out.pages), kind: type.label })
+        if (isDoc) onCreateDoc({ name: out.name, html: docHtml(out.pages), kind: type.label, type: type.id })
         else onCreate({ topic, templateId, kind: type.kind, slides: out.slides, ai: true, lang })
         onClose()
       }}

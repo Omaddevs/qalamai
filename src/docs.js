@@ -25,10 +25,12 @@ export function saveDocs(docs, { silent = false } = {}) {
   }
 }
 
-export const blankDoc = (name = t('fe.untitled'), html = `<h1>${t('fe.heading')}</h1><p><br></p>`) => ({
+// kind: the type it was made as (Referat, Kurs işi … — the stable type id), so the admin counts it right
+export const blankDoc = (name = t('fe.untitled'), html = `<h1>${t('fe.heading')}</h1><p><br></p>`, kind = null) => ({
   id: newDocId(),
   name,
   html,
+  ...(kind ? { kind } : {}),
   updatedAt: Date.now(),
 })
 

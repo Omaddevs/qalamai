@@ -127,7 +127,7 @@ export function useAiFill(notify) {
         }
         templateName={isDoc ? 'A4' : tpl.name}
         onDone={() => {
-          if (isDoc) onCreateDoc({ name: o.out.name, html: docHtml(cleanPages(gen.pages)), kind: o.label, ai: true })
+          if (isDoc) onCreateDoc({ name: o.out.name, html: docHtml(cleanPages(gen.pages)), kind: o.label, type: o.kind, ai: true })
           else onCreate({ topic: o.topic, templateId: o.templateId, kind: o.deckKind, slides: gen.slides, ai: true, lang: o.lang })
           setGen(null)
           onClose?.()

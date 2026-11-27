@@ -166,7 +166,10 @@ export function createJobService({ db, pool, files, storage, log }) {
       await consumeRun(user)
       // how many runs stayed on the device (admin analytics); never blocks the run
       db.insert(usage)
-        .values({ userId: user.id, day: tashkentDay(), metric: LOCAL_RUNS, count: 1 })
+        .values([
+          { userId: user.id, day: tashkentDay(), metric: LOCAL_RUNS, count: 1 },
+          { userId: user.id, day: tashkentDay(), metric: `tool:${tool.id}`, count: 1 }, // per tool (admin «Yaratilganlar»)
+        ])
         .onConflictDoUpdate({ target: [usage.userId, usage.day, usage.metric], set: { count: sql`${usage.count} + 1` } })
         .catch(() => {})
       return { ok: true }

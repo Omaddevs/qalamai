@@ -2428,3 +2428,179 @@
 .ad-pay-remove-notify { display: flex; align-items: center; gap: 8px; color: var(--ad-ink-2); font-size: 13px; }
 .ad-pay-foot > .ad-pay-actions { margin-left: auto; }
 .ad-pay-actions .ad-btn-danger { margin-top: 0; }
+
+/* ───────── Yaratilganlar (src/admin/Content.jsx) ───────── */
+.ad-kinds {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(178px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.ad-kind {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: 'ic label' 'n n' 'sub sub';
+  align-items: center;
+  gap: 6px 10px;
+  padding: 14px 14px 16px;
+  overflow: hidden;
+  border: 1px solid var(--ad-line);
+  border-radius: 14px;
+  background: var(--ad-surface);
+  box-shadow: var(--ad-shadow);
+  color: var(--ad-ink);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+.ad-kind:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--ad-shadow-lg);
+}
+.ad-kind.on {
+  border-color: var(--kc);
+  box-shadow: 0 0 0 1px var(--kc), var(--ad-shadow-lg);
+}
+.ad-kind.zero {
+  opacity: 0.55;
+}
+.ad-kind-ic {
+  grid-area: ic;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--kc) 14%, transparent);
+  color: var(--kc);
+}
+.ad-kind-label {
+  grid-area: label;
+  overflow: hidden;
+  color: var(--ad-ink-2);
+  font-size: 13px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ad-kind-n {
+  grid-area: n;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.ad-kind-sub {
+  grid-area: sub;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--ad-muted);
+  font-size: 12px;
+}
+.ad-kind-bar {
+  position: absolute;
+  inset-inline-start: 0;
+  bottom: 0;
+  height: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--kc);
+}
+.ad-kind-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-inline-start: 8px;
+  padding: 2px 8px;
+  border: 0;
+  border-radius: 99px;
+  background: var(--ad-accent-soft);
+  color: var(--ad-accent-ink);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  vertical-align: middle;
+  cursor: pointer;
+}
+.ad-kchips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 520px;
+}
+.ad-kchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--kc) 11%, transparent);
+  color: var(--ad-ink-2);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.ad-kchip svg {
+  color: var(--kc);
+}
+.ad-kchip b {
+  color: var(--ad-ink);
+}
+.ad-kchip em {
+  color: var(--kc);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 600;
+}
+.ad-tool-split {
+  font-size: 12px;
+}
+.ad-pub {
+  display: grid;
+  gap: 8px;
+  font-size: 13.5px;
+}
+.ad-pub > div {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  color: var(--ad-ink-2);
+}
+.ad-pub svg {
+  color: var(--ad-muted);
+}
+.ad-pub small {
+  color: var(--ad-muted);
+}
+.ad-ucreated {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.ad-ucreated-i {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--ad-line);
+  border-radius: 10px;
+  font-size: 13px;
+}
+.ad-ucreated-i .ad-kind-ic {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+}
+.ad-ucreated-i b {
+  margin-inline-start: auto;
+}
+.ad-ucreated-i small {
+  min-width: 34px;
+  color: var(--kc);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: end;
+}

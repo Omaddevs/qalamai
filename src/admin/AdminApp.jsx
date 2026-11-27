@@ -1,7 +1,7 @@
 // QalamAI admin panel — /admin. Its own small app: a password gate, then Statistika,
 // Foydalanuvçilar and Sozlamalar. Pages are picked by the hash (#users, #settings).
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
-import { ArrowUpRight, BarChart3, Bell, CreditCard, LogOut, Menu, MessageSquare, Moon, Newspaper, Settings, Sun, Users, X } from 'lucide-react'
+import { ArrowUpRight, BarChart3, Bell, CreditCard, Layers, LogOut, Menu, MessageSquare, Moon, Newspaper, Settings, Sun, Users, X } from 'lucide-react'
 import { Wordmark } from '../components/ui.jsx'
 import { admin, onSignedOut } from './api.js'
 import Login from './Login.jsx'
@@ -9,6 +9,7 @@ import './admin.css'
 
 const Dashboard = lazy(() => import('./Dashboard.jsx'))
 const UsersPage = lazy(() => import('./Users.jsx'))
+const ContentPage = lazy(() => import('./Content.jsx'))
 const SettingsPage = lazy(() => import('./Settings.jsx'))
 const ChatPage = lazy(() => import('./Chat.jsx'))
 const NotificationsPage = lazy(() => import('./Notifications.jsx'))
@@ -20,6 +21,7 @@ const PAYMENTS_CHANGED = 'qalam-admin-payments' // same as Payments.jsx
 
 const NAV = [
   { id: 'stats', label: 'Statistika', icon: BarChart3 },
+  { id: 'content', label: 'Yaratilganlar', icon: Layers },
   { id: 'users', label: 'Foydalanuvçilar', icon: Users },
   { id: 'payments', label: 'Tölovlar', icon: CreditCard },
   { id: 'chat', label: 'ChatBot', icon: MessageSquare },
@@ -133,6 +135,7 @@ function Shell({ theme, toggleTheme, onOut }) {
         </div>
         <Suspense fallback={<PageSkeleton />}>
           {page === 'stats' && <Dashboard />}
+          {page === 'content' && <ContentPage />}
           {page === 'users' && <UsersPage />}
           {page === 'chat' && <ChatPage />}
           {page === 'notifications' && <NotificationsPage />}

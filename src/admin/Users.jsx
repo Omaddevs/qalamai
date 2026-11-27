@@ -17,6 +17,7 @@ const SORTS = [
   { value: 'registered', label: 'Röyxatdan ötgan vaqti' },
   { value: 'seen', label: 'Oxirgi faollik' },
   { value: 'coins', label: 'Coin balansi' },
+  { value: 'created', label: 'Eñ köp yaratganlar' },
   { value: 'name', label: 'Ism' },
 ]
 const LIMIT = 25
@@ -120,6 +121,7 @@ function UserTable() {
         ['Coin', (u) => u.coins],
         ['Dizaynlar', (u) => u.counts.designs],
         ['Hujjatlar', (u) => u.counts.documents],
+        ['Jami yaratgan', (u) => u.counts.created],
       ]
       const esc = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`
       const csv = [cols.map(([h]) => esc(h)).join(','), ...all.items.map((u) => cols.map(([, f]) => esc(f(u))).join(','))].join('\n')
@@ -181,7 +183,7 @@ function UserTable() {
                 <th>Qurilma</th>
                 <th>Oxirgi faollik</th>
                 <th className="num">Coin</th>
-                <th className="num">Işlar</th>
+                <th className="num" title="Jami yaratgan taqdimot, referat, logo … (öçirilganlari ham)">Yaratgan</th>
               </tr>
             </thead>
             <tbody>
@@ -227,8 +229,8 @@ function UserTable() {
                     <b>{fmt(u.coins)}</b>
                     {u.premium && <BadgeCheck size={14} className="ad-prem" />}
                   </td>
-                  <td className="num ad-muted">
-                    {u.counts.designs + u.counts.documents + u.counts.files}
+                  <td className={`num ${u.counts.created ? '' : 'ad-muted'}`}>
+                    {u.counts.created ? <b>{fmt(u.counts.created)}</b> : 0}
                   </td>
                 </tr>
               ))}
@@ -271,7 +273,7 @@ function UserTable() {
   )
 }
 
-function UserCell({ u }) {
+export function UserCell({ u }) {
   return (
     <div className="ad-user">
       <Avatar u={u} />

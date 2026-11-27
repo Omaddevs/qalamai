@@ -225,8 +225,8 @@ export default function HomePage({
   }
 
   // Document types (referat, kurs ishi…) open as an A4 file in the file editor.
-  const createDoc = ({ name, html, kind, ai = false }) => {
-    if (!saveDocs([blankDoc(name, html), ...loadDocs()])) {
+  const createDoc = ({ name, html, kind, type, ai = false }) => {
+    if (!saveDocs([blankDoc(name, html, type), ...loadDocs()])) {
       notify(t('hm.saveFailed'))
       return
     }
@@ -386,7 +386,7 @@ export default function HomePage({
               setQ(topic)
             }}
             onBlank={(c) => {
-              if (blueprintOf(c.id).format === 'doc') createDoc({ name: c.label, kind: c.label })
+              if (blueprintOf(c.id).format === 'doc') createDoc({ name: c.label, kind: c.label, type: c.id })
               else onCreate({ templateId: c.templateId, kind: c.kind, blank: true })
             }}
             onKit={(type) => onCreateKit(type)}

@@ -15,6 +15,8 @@ import { createAnalytics, VISITOR_COOKIE } from './analytics.js'
 import { parseUa } from './detect.js'
 import { paymentAdminRoutes } from '../payments/admin.js'
 import { siteAdminRoutes } from '../site/admin.js'
+import { createContentStats } from './content.js'
+import { CREATION_KINDS } from '../../../../shared/creations.js'
 
 const { users, sessions, adminSettings, designs, documents, files, jobs, coinLedger, bioPages, supportMessages, notifications, notificationReads } = schema
 
@@ -30,6 +32,7 @@ const GA4_ID = /^G-[A-Z0-9]{4,16}$/
 export async function adminRoutes(app) {
   const { db, config, coins, notifier } = app.ctx
   const analytics = app.ctx.analytics
+  const content = createContentStats(db)
   const key = createHash('sha256').update(`qalam-admin:${config.auth.jwtSecret}`).digest()
 
   /* ───────── settings ───────── */
@@ -152,6 +155,25 @@ export async function adminRoutes(app) {
     admin.get('/stats', { schema: { hide: true, querystring: daysQuery } }, async (req) => analytics.stats(req.query.days))
     admin.get('/users/stats', { schema: { hide: true, querystring: daysQuery } }, async (req) => analytics.userStats(req.query.days))
 
+    // what users created: by kind, by AI, file tools, and who made the most (days = 0: all time)
+    admin.get(
+      '/content',
+      {
+        schema: {
+          hide: true,
+          querystring: {
+            type: 'object',
+            properties: {
+              days: { type: 'integer', minimum: 0, maximum: 3650, default: 30 },
+              kind: { type: 'string', enum: ['', ...CREATION_KINDS], default: '' },
+              limit: { type: 'integer', minimum: 1, maximum: 500, default: 100 },
+            },
+          },
+        },
+      },
+      async (req) => content.stats(req.query.days, { kind: req.query.kind || null, limit: req.query.limit }),
+    )
+
     /* ───────── users ───────── */
 
     const SORTS = {
@@ -159,6 +181,7 @@ export async function adminRoutes(app) {
       seen: sql`u.last_seen_at`,
       coins: sql`u.coins`,
       name: sql`lower(u.name)`,
+      created: sql`(SELECT count(*) FROM creations c WHERE c.user_id = u.id)`,
     }
 
     admin.get(
@@ -199,7 +222,8 @@ export async function adminRoutes(app) {
             SELECT u.*, count(*) OVER() AS total,
               (SELECT count(*) FROM designs d WHERE d.user_id = u.id) AS designs,
               (SELECT count(*) FROM documents d WHERE d.user_id = u.id) AS documents,
-              (SELECT count(*) FROM files f WHERE f.user_id = u.id) AS files
+              (SELECT count(*) FROM files f WHERE f.user_id = u.id) AS files,
+              (SELECT count(*) FROM creations c WHERE c.user_id = u.id) AS created
             FROM users u WHERE ${w}
             ORDER BY ${SORTS[sort]} ${dir} NULLS LAST, u.id
             LIMIT ${limit} OFFSET ${(page - 1) * limit}`)
@@ -212,15 +236,18 @@ export async function adminRoutes(app) {
       const [u] = await db.select().from(users).where(eq(users.id, req.params.id)).limit(1)
       if (!u) throw notFound('Foydalanuvçi topilmadi')
       const id = u.id
-      const [sess, ledger, dsg, docs, nFiles, nJobs, bio, journey] = await Promise.all([
+      const [sess, ledger, dsg, docs, nFiles, nJobs, bio, journey, created, nDesigns, nDocs] = await Promise.all([
         db.select().from(sessions).where(eq(sessions.userId, id)).orderBy(desc(sessions.createdAt)).limit(15),
         db.select().from(coinLedger).where(eq(coinLedger.userId, id)).orderBy(desc(coinLedger.createdAt)).limit(30),
         db.select({ id: designs.id, name: designs.name, kind: designs.kind, updatedAt: designs.updatedAt }).from(designs).where(eq(designs.userId, id)).orderBy(desc(designs.updatedAt)).limit(12),
-        db.select({ id: documents.id, name: documents.name, updatedAt: documents.updatedAt }).from(documents).where(eq(documents.userId, id)).orderBy(desc(documents.updatedAt)).limit(12),
+        db.select({ id: documents.id, name: documents.name, kind: documents.kind, updatedAt: documents.updatedAt }).from(documents).where(eq(documents.userId, id)).orderBy(desc(documents.updatedAt)).limit(12),
         db.select({ n: count() }).from(files).where(eq(files.userId, id)),
         db.select({ n: count() }).from(jobs).where(eq(jobs.userId, id)),
         db.select({ slug: bioPages.slug, views: bioPages.views }).from(bioPages).where(eq(bioPages.userId, id)),
         analytics.journey(u.visitorId),
+        content.forUser(id),
+        db.select({ n: count() }).from(designs).where(eq(designs.userId, id)),
+        db.select({ n: count() }).from(documents).where(eq(documents.userId, id)),
       ])
       return {
         user: detail(u),
@@ -228,7 +255,8 @@ export async function adminRoutes(app) {
         ledger: ledger.map((l) => ({ delta: l.delta, balance: l.balance, reason: l.reason, item: l.item, createdAt: l.createdAt, note: l.meta?.note ?? null })),
         designs: dsg,
         documents: docs,
-        counts: { files: nFiles[0]?.n ?? 0, jobs: nJobs[0]?.n ?? 0, designs: dsg.length, documents: docs.length },
+        counts: { files: nFiles[0]?.n ?? 0, jobs: nJobs[0]?.n ?? 0, designs: nDesigns[0]?.n ?? 0, documents: nDocs[0]?.n ?? 0 },
+        created,
         bio,
         journey,
       }
@@ -524,7 +552,7 @@ function listItem(r) {
     registeredAt: r.registered_at,
     createdAt: r.created_at,
     lastSeenAt: r.last_seen_at,
-    counts: { designs: Number(r.designs ?? 0), documents: Number(r.documents ?? 0), files: Number(r.files ?? 0) },
+    counts: { designs: Number(r.designs ?? 0), documents: Number(r.documents ?? 0), files: Number(r.files ?? 0), created: Number(r.created ?? 0) },
   }
 }
 

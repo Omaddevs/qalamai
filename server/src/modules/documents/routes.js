@@ -6,15 +6,18 @@ import { schema } from '../../db/index.js'
 import { AppError, notFound } from '../../lib/errors.js'
 import { ID_PREFIX, newId } from '../../lib/ids.js'
 import { randomToken } from '../../lib/crypto.js'
+import { recordCreation } from '../admin/content.js'
 
 const MAX_HTML = 5 * 1048576
 // Server ids (doc_…, dsn_…) and the ids the browser made offline (f_…, d-…-…) are both accepted.
 const idParam = () => ({ type: 'object', required: ['id'], properties: { id: { type: 'string', pattern: '^[A-Za-z0-9_-]{3,80}$' } } })
 
 /** Shared CRUD for a user-owned table. */
-function crud(app, { table, prefix, tag, label, bodyProps, required, toRow, toPublic }) {
+function crud(app, { table, prefix, tag, label, bodyProps, required, toRow, toPublic, source }) {
   const { db } = app.ctx
   const owned = (req) => and(eq(table.id, req.params.id), eq(table.userId, req.user.id))
+  // every new item goes into the creations log (admin counts); a repeat for the same id is ignored
+  const created = (row) => row && recordCreation(db, { userId: row.userId, itemId: row.id, kind: row.kind, source })
 
   // Keyset pages ordered by id, so the browser can walk the WHOLE list: sync treats an id missing
   // from the list as deleted, so a silently truncated list would delete real work.
@@ -53,6 +56,7 @@ function crud(app, { table, prefix, tag, label, bodyProps, required, toRow, toPu
 
   app.post('/', { bodyLimit: MAX_HTML * 2, schema: { tags: [tag], summary: `${label} yaratish`, body: { type: 'object', required, additionalProperties: false, properties: bodyProps } } }, async (req, reply) => {
     const [row] = await db.insert(table).values({ id: newId(prefix), userId: req.user.id, ...toRow(req.body) }).returning()
+    await created(row)
     reply.status(201)
     return toPublic(row)
   })
@@ -92,7 +96,10 @@ function crud(app, { table, prefix, tag, label, bodyProps, required, toRow, toPu
         .values({ id: req.params.id, userId: req.user.id, ...values })
         .onConflictDoUpdate({ target: table.id, set: values, where: and(eq(table.userId, req.user.id), lte(table.updatedAt, at)) })
         .returning()
-      if (row) return toPublic(row, { brief: true })
+      if (row) {
+        await created(row)
+        return toPublic(row, { brief: true })
+      }
       const [cur] = await db.select().from(table).where(eq(table.id, req.params.id)).limit(1)
       // the id belongs to another account (e.g. a guest's copy) — the browser picks a new id
       if (!cur || cur.userId !== req.user.id) throw new AppError(409, 'ID_TAKEN', 'Bu ID band — yangisi bilan yuboring')
@@ -117,12 +124,13 @@ export async function documentRoutes(app) {
     tag: 'documents',
     label: 'Hujjat',
     required: ['name'],
-    bodyProps: { name: { type: 'string', minLength: 1, maxLength: 200 }, html: { type: 'string', maxLength: MAX_HTML } },
-    toRow: (b) => pick(b, ['name', 'html']),
+    source: 'document',
+    bodyProps: { name: { type: 'string', minLength: 1, maxLength: 200 }, kind: { type: 'string', maxLength: 60 }, html: { type: 'string', maxLength: MAX_HTML } },
+    toRow: (b) => pick(b, ['name', 'kind', 'html']),
     toPublic: (r, { summary, brief } = {}) =>
       brief
         ? { id: r.id, updatedAt: r.updatedAt }
-        : { id: r.id, name: r.name, ...(summary ? { size: r.html.length } : { html: r.html }), createdAt: r.createdAt, updatedAt: r.updatedAt },
+        : { id: r.id, name: r.name, kind: r.kind ?? null, ...(summary ? { size: r.html.length } : { html: r.html }), createdAt: r.createdAt, updatedAt: r.updatedAt },
   })
 }
 
@@ -133,6 +141,7 @@ export async function designRoutes(app) {
     prefix: ID_PREFIX.design,
     tag: 'designs',
     label: 'Dizayn',
+    source: 'design',
     required: ['name', 'data'],
     bodyProps: {
       name: { type: 'string', minLength: 1, maxLength: 200 },

@@ -33,6 +33,7 @@ import notificationRoutes from './modules/notifications/routes.js'
 import photoRoutes from './modules/photos/routes.js'
 import aiRoutes from './modules/ai/routes.js'
 import { siteRoutes } from './modules/site/routes.js'
+import { backfillCreations } from './modules/admin/content.js'
 import { createInvitePage, inviteApiRoutes, invitePublicApiRoutes } from './modules/invite/routes.js'
 import { sitePageRoutes } from './modules/site/page.js'
 import paymentRoutes from './modules/payments/routes.js'
@@ -81,6 +82,8 @@ export async function buildApp(config) {
   const bot = config.telegram ? createBotApi(config.telegram.token, { apiUrl: config.telegram.apiUrl, apiIp: config.telegram.apiIp, log: app.log }) : null
   const telegram = bot ? createTelegramLogin({ db, bot, auth, secret: config.auth.jwtSecret, storage, log: app.log }) : null
   const analytics = createAnalytics({ db, config })
+  // designs and documents made before the creations log existed are counted too (admin panel)
+  backfillCreations(db, app.log).catch((err) => app.log.warn({ err }, 'creations backfill failed'))
   app.decorate('ctx', { config, db, storage, tokens, pool, files, jobs, auth, coins, notifier, google, bot, telegram, driver, analytics })
 
   /* ── auth decorators ── */

@@ -71,8 +71,8 @@ const COLLECTIONS = {
     read: () => loadDocs(),
     write: (list) => saveDocs(list, { silent: true }),
     skip: () => false,
-    body: (d) => ({ name: clip(d.name, 200) ?? t('doc.untitled'), html: d.html ?? '' }),
-    fromServer: (r) => ({ id: r.id, name: r.name, html: r.html, updatedAt: ms(r.updatedAt) }),
+    body: (d) => ({ name: clip(d.name, 200) ?? t('doc.untitled'), ...(clip(d.kind, 60) ? { kind: clip(d.kind, 60) } : {}), html: d.html ?? '' }),
+    fromServer: (r) => ({ id: r.id, name: r.name, ...(r.kind ? { kind: r.kind } : {}), html: r.html, updatedAt: ms(r.updatedAt) }),
   },
 }
 

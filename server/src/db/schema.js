@@ -159,6 +159,8 @@ export const documents = pgTable(
     id: text('id').primaryKey(),
     userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
+    /** What it was created as: the type id from the app (Referat, Kurs işi …); null for a plain file. */
+    kind: text('kind'),
     html: text('html').notNull().default(''),
     createdAt: createdAt(),
     updatedAt: ts('updated_at').notNull().defaultNow(),
@@ -443,4 +445,20 @@ export const inviteRsvps = pgTable(
     createdAt: createdAt(),
   },
   (t) => [index('invite_rsvps_page_idx').on(t.pageId, t.createdAt)],
+)
+
+/**
+ * Everything users have created (designs and documents), one row per item, kept after the item is
+ * deleted — the admin panel counts creations from here. `kind` is shared/creations.js creationKind().
+ */
+export const creations = pgTable(
+  'creations',
+  {
+    userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    itemId: text('item_id').notNull(),
+    kind: text('kind').notNull(),
+    source: text('source', { enum: ['design', 'document'] }).notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.itemId] }), index('creations_created_idx').on(t.createdAt), index('creations_kind_idx').on(t.kind, t.createdAt)],
 )

@@ -69,5 +69,17 @@
   "av.chars": { "one": "{n} carattere", "many": "{n} di caratteri", "other": "{n} caratteri" },
   "av.output": "Risultato",
   "av.copied": "Copiato",
-  "av.copy": "Copia"
+  "av.copy": "Copia",
+  "av.doc.title": "Converti un file Word",
+  "av.doc.sub": "Carica un DOCX: il testo passa all’alfabeto scelto, mentre caratteri, tabelle e immagini restano al loro posto.",
+  "av.doc.drop": "Trascina qui un file Word o fai clic per sceglierlo",
+  "av.doc.hint": "Solo .docx · fino a 50 MB · il file non viene inviato a nessun server",
+  "av.doc.working": "Conversione…",
+  "av.doc.done": "Parole convertite: {n}",
+  "av.doc.same": "Niente da convertire: il testo è già in {name}",
+  "av.doc.download": "Scarica",
+  "av.doc.other": "Altro file",
+  "av.doc.err.type": "Solo file .docx. Salva il vecchio file .doc come .docx in Word con «Salva con nome».",
+  "av.doc.err.size": "Il file è troppo grande: massimo 50 MB.",
+  "av.doc.err.read": "Impossibile leggere il file: potrebbe essere danneggiato o protetto da password."
 }

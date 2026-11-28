@@ -98,6 +98,135 @@
   margin-top: 14px;
 }
 
+/* Word file conversion */
+.avd {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.avd-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #16181d;
+}
+
+.avd-sub {
+  margin: 4px 0 0;
+  max-width: 620px;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.avd-arrow {
+  color: var(--muted);
+  margin-inline: 4px;
+}
+
+.avd-drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 150px;
+  padding: 24px 16px;
+  border: 1.5px dashed #d9d6ce;
+  border-radius: 14px;
+  background: #fcfbf8;
+  color: #16181d;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.avd-drop:hover,
+.avd-drop.on {
+  border-color: var(--brand-line);
+  background: var(--brand-soft);
+}
+
+.avd-drop svg {
+  color: var(--brand-fg);
+}
+
+.avd-drop b {
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.avd-drop span {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.avd-file {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 12px 12px 14px;
+  border: 1px solid var(--brand-line);
+  border-radius: 14px;
+  background: var(--brand-soft);
+}
+
+.avd-ic {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--brand-fg);
+}
+
+.avd-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.avd-meta b {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.avd-meta span {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.avd-dl {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+}
+
+.avd-err {
+  margin: 0;
+  color: #c0392b;
+  font-size: 13px;
+}
+
+.avd-spin {
+  animation: avd-spin 0.9s linear infinite;
+}
+
+@keyframes avd-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 900px) {
   .av-letters {
     display: none;
@@ -114,5 +243,13 @@
   }
   .av-card {
     padding: 12px;
+  }
+  .avd-file {
+    flex-wrap: wrap;
+  }
+  .avd-dl {
+    order: 3;
+    width: 100%;
+    justify-content: center;
   }
 }

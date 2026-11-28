@@ -101,5 +101,17 @@
   },
   "av.output": "Résultat",
   "av.copied": "Copié",
-  "av.copy": "Copier"
+  "av.copy": "Copier",
+  "av.doc.title": "Convertir un fichier Word",
+  "av.doc.sub": "Importez un DOCX : le texte passe à l’alphabet choisi, tandis que polices, tableaux et images restent en place.",
+  "av.doc.drop": "Déposez un fichier Word ici ou cliquez pour le choisir",
+  "av.doc.hint": "Uniquement .docx · jusqu’à 50 Mo · le fichier n’est envoyé à aucun serveur",
+  "av.doc.working": "Conversion…",
+  "av.doc.done": "Mots convertis : {n}",
+  "av.doc.same": "Rien à convertir — le texte est déjà en {name}",
+  "av.doc.download": "Télécharger",
+  "av.doc.other": "Autre fichier",
+  "av.doc.err.type": "Uniquement les fichiers .docx. Enregistrez l’ancien .doc en .docx dans Word via « Enregistrer sous ».",
+  "av.doc.err.size": "Le fichier est trop volumineux — 50 Mo maximum.",
+  "av.doc.err.read": "Impossible de lire le fichier : il est peut-être endommagé ou protégé par un mot de passe."
 }

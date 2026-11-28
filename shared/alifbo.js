@@ -2,7 +2,7 @@
 // Every conversion goes through the "new" Latin form internally.
 
 const APOS = 'ʻ‘\'`’ʼ'
-const WORD = new RegExp(`[\\p{L}]+(?:[${APOS}][\\p{L}]*)*`, 'gu')
+export const WORD = new RegExp(`[\\p{L}]+(?:[${APOS}][\\p{L}]*)*`, 'gu')
 const CYR_VOWELS = 'аеёиоуўэюя'
 const LAT_VOWELS = 'aeiouö'
 

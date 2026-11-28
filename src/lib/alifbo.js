@@ -9,3 +9,4 @@ export const SCRIPTS = BASE.map((s) => ({
     return t(`av.script.${s.id}`)
   },
 }))
+export { WORD } from '../../shared/alifbo.js'

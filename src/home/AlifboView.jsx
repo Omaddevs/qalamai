@@ -1,6 +1,7 @@
 import { HouseSimple, Layout, FolderSimple, TextAa } from '@phosphor-icons/react'
 import { CoinChip } from '../components/Coins.jsx'
 import AlifboConverter from '../components/AlifboConverter.jsx'
+import AlifboDocx from '../components/AlifboDocx.jsx'
 import { APPS } from '../data.js'
 // the page header (pj-*, tv-bg) is shared with Loyihalar / Şablonlar: their styles come along, so this page
 // looks right even when it is the first one opened
@@ -68,6 +69,11 @@ export default function AlifboView({ onTab, onOpenPricing }) {
       {/* ───── Converter ───── */}
       <section className="av-card">
         <AlifboConverter />
+      </section>
+
+      {/* ───── Word file ───── */}
+      <section className="av-card">
+        <AlifboDocx />
       </section>
 
       <div className="modal-foot av-foot">

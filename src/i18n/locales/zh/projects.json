@@ -69,5 +69,17 @@
   "av.chars": { "other": "{n} 个字符" },
   "av.output": "结果",
   "av.copied": "已复制",
-  "av.copy": "复制"
+  "av.copy": "复制",
+  "av.doc.title": "转换 Word 文件",
+  "av.doc.sub": "上传 DOCX 文件——文本会转换为所选字母，字体、表格和图片保持不变。",
+  "av.doc.drop": "将 Word 文件拖到这里或点击选择",
+  "av.doc.hint": "仅限 .docx · 最大 50 MB · 文件不会上传到服务器",
+  "av.doc.working": "正在转换…",
+  "av.doc.done": "已转换单词：{n}",
+  "av.doc.same": "无需转换——文本已是{name}",
+  "av.doc.download": "下载",
+  "av.doc.other": "其他文件",
+  "av.doc.err.type": "仅支持 .docx 文件。请在 Word 中用“另存为”将旧的 .doc 文件保存为 .docx。",
+  "av.doc.err.size": "文件太大——最大 50 MB。",
+  "av.doc.err.read": "无法读取文件：文件可能已损坏或受密码保护。"
 }

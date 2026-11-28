@@ -69,5 +69,17 @@
   "av.chars": { "other": "{n}자" },
   "av.output": "결과",
   "av.copied": "복사했어요",
-  "av.copy": "복사"
+  "av.copy": "복사",
+  "av.doc.title": "Word 파일 변환",
+  "av.doc.sub": "DOCX를 업로드하면 텍스트가 선택한 문자로 바뀌고, 글꼴·표·그림은 그대로 유지됩니다.",
+  "av.doc.drop": "Word 파일을 여기에 놓거나 클릭해 선택하세요",
+  "av.doc.hint": ".docx만 · 최대 50 MB · 파일은 서버로 전송되지 않습니다",
+  "av.doc.working": "변환 중…",
+  "av.doc.done": "변환된 단어: {n}",
+  "av.doc.same": "변환할 내용이 없습니다 — 텍스트가 이미 {name}입니다",
+  "av.doc.download": "다운로드",
+  "av.doc.other": "다른 파일",
+  "av.doc.err.type": ".docx 파일만 지원합니다. 오래된 .doc 파일은 Word에서 ‘다른 이름으로 저장’으로 .docx로 저장하세요.",
+  "av.doc.err.size": "파일이 너무 큽니다 — 최대 50 MB.",
+  "av.doc.err.read": "파일을 읽을 수 없습니다. 손상되었거나 암호로 보호되어 있을 수 있습니다."
 }

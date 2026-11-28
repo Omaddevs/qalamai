@@ -69,5 +69,17 @@
   "av.chars": { "other": "{n} karakter" },
   "av.output": "Hasil",
   "av.copied": "Disalin",
-  "av.copy": "Salin"
+  "av.copy": "Salin",
+  "av.doc.title": "Ubah file Word",
+  "av.doc.sub": "Unggah DOCX — teks berpindah ke alfabet pilihan, sementara font, tabel, dan gambar tetap di tempatnya.",
+  "av.doc.drop": "Letakkan file Word di sini atau klik untuk memilih",
+  "av.doc.hint": "Hanya .docx · hingga 50 MB · file tidak dikirim ke server",
+  "av.doc.working": "Mengonversi…",
+  "av.doc.done": "Kata yang diubah: {n}",
+  "av.doc.same": "Tidak ada yang perlu diubah — teks sudah dalam {name}",
+  "av.doc.download": "Unduh",
+  "av.doc.other": "File lain",
+  "av.doc.err.type": "Hanya file .docx. Simpan file .doc lama sebagai .docx di Word lewat “Save As”.",
+  "av.doc.err.size": "File terlalu besar — maksimal 50 MB.",
+  "av.doc.err.read": "File tidak dapat dibaca: mungkin rusak atau dilindungi kata sandi."
 }

@@ -69,5 +69,17 @@
   "av.chars": { "other": "{n} 文字" },
   "av.output": "結果",
   "av.copied": "コピーしました",
-  "av.copy": "コピー"
+  "av.copy": "コピー",
+  "av.doc.title": "Wordファイルを変換",
+  "av.doc.sub": "DOCXをアップロードすると、テキストが選んだ文字体系に変わり、フォント・表・画像はそのまま残ります。",
+  "av.doc.drop": "Wordファイルをここにドロップするか、クリックして選択",
+  "av.doc.hint": ".docxのみ · 50 MBまで · ファイルはサーバーに送信されません",
+  "av.doc.working": "変換中…",
+  "av.doc.done": "変換した単語：{n}",
+  "av.doc.same": "変換するものはありません。テキストはすでに{name}です",
+  "av.doc.download": "ダウンロード",
+  "av.doc.other": "別のファイル",
+  "av.doc.err.type": ".docxファイルのみ対応しています。古い.docファイルはWordの「名前を付けて保存」で.docxにしてください。",
+  "av.doc.err.size": "ファイルが大きすぎます（最大50 MB）。",
+  "av.doc.err.read": "ファイルを読み込めませんでした。破損しているか、パスワードで保護されている可能性があります。"
 }

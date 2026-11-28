@@ -85,5 +85,17 @@
   },
   "av.output": "Kết quả",
   "av.copied": "Đã sao chép",
-  "av.copy": "Sao chép"
+  "av.copy": "Sao chép",
+  "av.doc.title": "Chuyển đổi tệp Word",
+  "av.doc.sub": "Tải lên tệp DOCX — văn bản chuyển sang bảng chữ cái đã chọn, còn phông chữ, bảng và hình ảnh vẫn giữ nguyên.",
+  "av.doc.drop": "Thả tệp Word vào đây hoặc bấm để chọn",
+  "av.doc.hint": "Chỉ .docx · tối đa 50 MB · tệp không được gửi lên máy chủ",
+  "av.doc.working": "Đang chuyển đổi…",
+  "av.doc.done": "Số từ đã chuyển: {n}",
+  "av.doc.same": "Không có gì để chuyển — văn bản đã ở dạng {name}",
+  "av.doc.download": "Tải xuống",
+  "av.doc.other": "Tệp khác",
+  "av.doc.err.type": "Chỉ hỗ trợ tệp .docx. Hãy lưu tệp .doc cũ thành .docx trong Word bằng “Save As”.",
+  "av.doc.err.size": "Tệp quá lớn — tối đa 50 MB.",
+  "av.doc.err.read": "Không đọc được tệp: tệp có thể bị hỏng hoặc được bảo vệ bằng mật khẩu."
 }

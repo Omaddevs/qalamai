@@ -69,5 +69,17 @@
   "av.chars": { "one": "{n} Zeichen", "other": "{n} Zeichen" },
   "av.output": "Ergebnis",
   "av.copied": "Kopiert",
-  "av.copy": "Kopieren"
+  "av.copy": "Kopieren",
+  "av.doc.title": "Word-Datei umwandeln",
+  "av.doc.sub": "Laden Sie eine DOCX-Datei hoch – der Text wechselt ins gewählte Alphabet, Schriften, Tabellen und Bilder bleiben erhalten.",
+  "av.doc.drop": "Word-Datei hier ablegen oder zum Auswählen klicken",
+  "av.doc.hint": "Nur .docx · bis 50 MB · die Datei wird an keinen Server gesendet",
+  "av.doc.working": "Wird umgewandelt…",
+  "av.doc.done": "Umgewandelte Wörter: {n}",
+  "av.doc.same": "Nichts umzuwandeln – der Text ist bereits in {name}",
+  "av.doc.download": "Herunterladen",
+  "av.doc.other": "Andere Datei",
+  "av.doc.err.type": "Nur .docx-Dateien. Speichern Sie eine alte .doc-Datei in Word über „Speichern unter“ als .docx.",
+  "av.doc.err.size": "Die Datei ist zu groß – maximal 50 MB.",
+  "av.doc.err.read": "Die Datei konnte nicht gelesen werden: Sie ist möglicherweise beschädigt oder passwortgeschützt."
 }

@@ -101,5 +101,17 @@
   },
   "av.output": "Resultado",
   "av.copied": "Copiado",
-  "av.copy": "Copiar"
+  "av.copy": "Copiar",
+  "av.doc.title": "Convertir un archivo de Word",
+  "av.doc.sub": "Sube un DOCX: el texto pasa al alfabeto elegido y las fuentes, tablas e imágenes se mantienen.",
+  "av.doc.drop": "Suelta aquí un archivo de Word o haz clic para elegirlo",
+  "av.doc.hint": "Solo .docx · hasta 50 MB · el archivo no se envía a ningún servidor",
+  "av.doc.working": "Convirtiendo…",
+  "av.doc.done": "Palabras convertidas: {n}",
+  "av.doc.same": "No hay nada que convertir: el texto ya está en {name}",
+  "av.doc.download": "Descargar",
+  "av.doc.other": "Otro archivo",
+  "av.doc.err.type": "Solo archivos .docx. Guarda el antiguo .doc como .docx en Word con «Guardar como».",
+  "av.doc.err.size": "El archivo es demasiado grande: máximo 50 MB.",
+  "av.doc.err.read": "No se pudo leer el archivo: puede estar dañado o protegido con contraseña."
 }

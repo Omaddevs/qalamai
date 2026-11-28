@@ -187,6 +187,31 @@ export async function streamLines(path, json, { onEvent, signal, retry = true } 
   take(buf)
 }
 
+/** POST that answers with bytes (the presenter's voice): resolves to a Blob, errors like request(). */
+export async function postForBlob(path, json, { signal, retry = true } = {}) {
+  if (!access) await startSession()
+  let res
+  try {
+    res = await fetch(`${BASE}${path}`, {
+      method: 'POST',
+      headers: H({ authorization: `Bearer ${access}`, 'content-type': 'application/json' }),
+      credentials: 'include',
+      signal,
+      body: JSON.stringify(json),
+    })
+  } catch (err) {
+    if (err.name === 'AbortError') throw err
+    throw offline()
+  }
+  if (res.status === 401 && retry) {
+    access = null
+    await startSession()
+    return postForBlob(path, json, { signal, retry: false })
+  }
+  if (!res.ok) return parse(res)
+  return res.blob()
+}
+
 /** A shared design for its public view page — no account, no session. */
 export async function getSharedDesign(shareId) {
   let res

@@ -13,12 +13,12 @@ export { ACTION_BY_APP, ACTION_BY_TYPE, COIN_COSTS, COIN_PACKS, CUSTOM_COINS, RE
 const ACTION_KIND = {
   prezentatsiya: 'presentation', 'prezentatsiya-fayl': 'presentationFile', referat: 'essay', 'kurs-ishi': 'coursework', diplom: 'thesis', 'mustaqil-ish': 'independent', 'dars-ishlanma': 'lessonPlan',
   'biznes-reja': 'businessPlan', hisobot: 'report', taklifnoma: 'invitation', portfolio: 'portfolio',
-  'qayta-yozish': 'rewrite', plagiat: 'plagiarism', tarjima: 'translation', 'pro-shablon': 'proTemplate',
+  'qayta-yozish': 'rewrite', plagiat: 'plagiarism', tarjima: 'translation', 'pro-shablon': 'proTemplate', taqdimotchi: 'presenter',
 }
 const getter = (obj, key, get) => Object.defineProperty(obj, key, { get, enumerable: true, configurable: true })
 for (const [id, c] of Object.entries(COIN_COSTS)) {
   getter(c, 'label', () => t(`kind.${ACTION_KIND[id]}`))
-  if (c.per) getter(c, 'per', () => t(id === 'tarjima' ? 'coin.per.words' : 'coin.per.page'))
+  if (c.per) getter(c, 'per', () => t(id === 'tarjima' ? 'coin.per.words' : id === 'taqdimotchi' ? 'coin.per.slides' : 'coin.per.page'))
   else getter(c, 'note', () => t(`coin.note.${id}`))
 }
 for (const p of COIN_PACKS) getter(p, 'label', () => t(`coin.pack.${p.id}`))
@@ -101,8 +101,16 @@ export function aiFill(body, opts = {}) {
   return aiStream('/ai/fill', { ...body, topic: body.topic.slice(0, 300) }, ACTION_BY_TYPE[body.kind], opts)
 }
 
+/**
+ * «AI taqdimotçi»: the spoken script of a deck, paid per 10 slides. Events: start · narration
+ * ({ slide, say }) · done · error. Same answers as aiDeck.
+ */
+export function aiNarrate(body, opts = {}) {
+  return aiStream('/ai/narrate', body, 'taqdimotchi', { ...opts, qty: Math.ceil(body.slides.length / 10) })
+}
+
 /** Streams an AI endpoint; true when it ran, null when it couldn't be paid (the coin shop opens). */
-async function aiStream(path, body, action, { onEvent, signal } = {}) {
+async function aiStream(path, body, action, { onEvent, signal, qty = 1 } = {}) {
   try {
     await streamLines(path, { ...body, ref: newRef() }, {
       signal,
@@ -115,7 +123,7 @@ async function aiStream(path, body, action, { onEvent, signal } = {}) {
   } catch (err) {
     if (err instanceof ApiError && ['NOT_ENOUGH_COINS', 'REGISTER_REQUIRED'].includes(err.code)) {
       if (err.details?.balance != null) updateUser({ coins: err.details.balance })
-      openCoinShop({ code: err.code, need: err.details?.need ?? costOf(action), action })
+      openCoinShop({ code: err.code, need: err.details?.need ?? costOf(action, qty), action })
       return null
     }
     throw err

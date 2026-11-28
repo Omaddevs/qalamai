@@ -3,7 +3,7 @@ import { preloadDeck } from '../assets.js'
 import {
   LayoutTemplate, Shapes, Type, Briefcase, CloudUpload, CaseSensitive, Folder, LayoutGrid,
   Undo2, Redo2, Download, Share2, Plus, Minus, Trash2, Copy, ChevronLeft, Crown, BringToFront,
-  MousePointerClick, Play, Presentation, Loader2, Layers, PaintBucket, ChevronDown,
+  MousePointerClick, Play, Presentation, Loader2, Layers, PaintBucket, ChevronDown, Mic,
 } from 'lucide-react'
 import { Dropdown, QalamNib, Wordmark } from '../components/ui.jsx'
 import { AppModal } from '../components/Modals.jsx'
@@ -24,6 +24,9 @@ import QualityPanel from './QualityPanel.jsx'
 import { fitDeck } from './quality.js'
 import { fileFromLink, isImageLink, readClipboardPicture } from './linkImage.js'
 import ShareDialog from './ShareDialog.jsx'
+import NarrateDialog from './presenter/NarrateDialog.jsx'
+import AutoPresent from './presenter/AutoPresent.jsx'
+import { narrationOf } from './presenter/narration.jsx'
 import ProBadge from '../components/ProBadge.jsx'
 import LayoutPicker from './LayoutPicker.jsx'
 import { ElementBar, ElementContextMenu } from './ElementMenu.jsx'
@@ -147,6 +150,8 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
   const [playKey, setPlayKey] = useState(0) // >0: the canvas page plays its animations
   const [presenting, setPresenting] = useState(false)
   const [sharing, setSharing] = useState(false)
+  const [narrating, setNarrating] = useState(false) // «AI taqdimotçi» dialog
+  const [autoShow, setAutoShow] = useState(false) // the self-running presentation
   const [autoAnim, setAutoAnim] = useState(false) // «Körish» on a page without animations plays a sample entrance
   const [printing, setPrinting] = useState(false)
   const [proAsk, setProAsk] = useState(null) // 'open' | 'download' — the Pro template notice
@@ -583,6 +588,10 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
   }
   const donePrinting = useCallback(() => setPrinting(false), [])
   const closePresent = useCallback(() => setPresenting(false), [])
+  const closeAutoShow = useCallback(() => setAutoShow(false), [])
+  // the presenter's script lives in the design; editing it is not an undo step
+  const narration = useMemo(() => narrationOf(deck, getLang()), [deck])
+  const setNarration = useCallback((next) => set((d) => ({ ...d, narration: next }), true), [set])
 
   // a new page of the chosen layout, with sample text to overwrite, right after the current one
   const addSlide = (type = 'content') => {
@@ -816,6 +825,9 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
               <ProBadge size="sm" /> <span>yuklab olişda {PRO_COST} coin</span>
             </button>
           )}
+          <button className="btn ed-share ed-narrate" onClick={() => setNarrating(true)} title={t('pr.buttonHint')}>
+            <Mic size={15} /> <span>{t('pr.button')}</span>
+          </button>
           <button className="btn ed-share" onClick={() => setPresenting(true)} title="Taqdimot qiliş (to‘liq ekran)">
             <Presentation size={15} /> <span>Taqdimot</span>
           </button>
@@ -1041,6 +1053,33 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
         </main>
       </div>
 
+      {narrating && (
+        <NarrateDialog
+          deck={deck}
+          theme={theme}
+          narration={narration}
+          onChange={setNarration}
+          onClose={() => setNarrating(false)}
+          onStart={() => {
+            flushSave()
+            setNarrating(false)
+            setAutoShow(true)
+          }}
+          notify={notify}
+        />
+      )}
+      {autoShow && (
+        <AutoPresent
+          slides={deck.slides}
+          theme={theme}
+          narration={narration}
+          title={deck.name}
+          start={0}
+          transition={transitionOf(deck)}
+          motion={motionOf(deck)}
+          onClose={closeAutoShow}
+        />
+      )}
       {presenting && <Present slides={deck.slides} theme={theme} start={slideIdx} transition={transitionOf(deck)} motion={motionOf(deck)} onClose={closePresent} />}
       {sharing && <ShareDialog deckId={deck.id} flush={flushSave} onClose={() => setSharing(false)} notify={notify} />}
       {printing && <PrintDeck slides={deck.slides} theme={theme} watermark={!premium} onDone={donePrinting} />}

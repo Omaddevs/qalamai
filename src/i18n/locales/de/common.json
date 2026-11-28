@@ -9,6 +9,7 @@
   "lang.current": "Sprache: {name}",
   "lang.label": "Sprache",
   "kind.proTemplate": "Pro-Vorlage",
+  "kind.presenter": "KI-Moderator",
   "kind.presentation": "Präsentation",
   "kind.slideshow": "Präsentation",
   "kind.essay": "Referat",

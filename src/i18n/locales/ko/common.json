@@ -9,6 +9,7 @@
   "lang.current": "언어: {name}",
   "lang.label": "언어",
   "kind.proTemplate": "Pro 템플릿",
+  "kind.presenter": "AI 발표자",
   "kind.presentation": "프레젠테이션",
   "kind.slideshow": "프레젠테이션",
   "kind.essay": "리포트",

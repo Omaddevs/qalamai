@@ -13,6 +13,7 @@ export default {
 
   // document kinds (also coin action names)
   'kind.proTemplate': { uz: 'Pro şablon', ru: 'Pro-шаблон', en: 'Pro template', kk: 'Pro үлгі', ky: 'Pro шаблон', tg: 'Қолаби Pro' },
+  'kind.presenter': { uz: 'AI taqdimotçi', ru: 'AI-ведущий', en: 'AI presenter', kk: 'AI жүргізуші', ky: 'AI алып баруучу', tg: 'Пешбари AI' },
   'kind.presentation': { uz: 'Prezentatsiya', ru: 'Презентация', en: 'Presentation', kk: 'Презентация', ky: 'Презентация', tg: 'Презентатсия' },
   'kind.slideshow': { uz: 'Taqdimot', ru: 'Презентация', en: 'Presentation', kk: 'Презентация', ky: 'Презентация', tg: 'Презентатсия' },
   'kind.essay': { uz: 'Referat', ru: 'Реферат', en: 'Essay', kk: 'Реферат', ky: 'Реферат', tg: 'Реферат' },

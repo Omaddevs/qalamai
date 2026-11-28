@@ -15,6 +15,7 @@ export default {
   'coin.note.portfolio': { uz: 'slaydlar', ru: 'слайды', en: 'slides', kk: 'слайдтар', ky: 'слайддар', tg: 'слайдҳо' },
   'coin.per.page': { uz: 'har 1 bet', ru: 'за 1 страницу', en: 'per page', kk: 'әр 1 бет', ky: 'ар 1 бет', tg: 'барои ҳар 1 саҳифа' },
   'coin.per.words': { uz: 'har 1 000 söz', ru: 'за 1 000 слов', en: 'per 1,000 words', kk: 'әр 1 000 сөз', ky: 'ар 1 000 сөз', tg: 'барои ҳар 1 000 калима' },
+  'coin.per.slides': { uz: 'har 10 slayd', ru: 'за 10 слайдов', en: 'per 10 slides', kk: 'әр 10 слайд', ky: 'ар 10 слайд', tg: 'барои ҳар 10 слайд' },
 
   // packs
   'coin.pack.c100': { uz: 'Boşlanğiç', ru: 'Стартовый', en: 'Starter', kk: 'Бастапқы', ky: 'Баштапкы', tg: 'Ибтидоӣ' },

@@ -81,5 +81,6 @@
   "av.doc.other": "Başka dosya",
   "av.doc.err.type": "Yalnızca .docx dosyaları. Eski .doc dosyasını Word’de “Farklı Kaydet” ile .docx olarak kaydedin.",
   "av.doc.err.size": "Dosya çok büyük — en fazla 50 MB.",
-  "av.doc.err.read": "Dosya okunamadı: bozuk ya da parolayla korunuyor olabilir."
+  "av.doc.err.read": "Dosya okunamadı: bozuk ya da parolayla korunuyor olabilir.",
+  "av.doc.edit": "Düzenle"
 }

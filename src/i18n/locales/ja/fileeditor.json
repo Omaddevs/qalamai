@@ -58,5 +58,10 @@
   "fe.pages": { "other": "約 {n} ページ" },
   "fe.standard": "A4 · Times New Roman 14 · 行間 1.5",
   "fe.dropTitle": "ここにファイルをドロップ",
-  "fe.dropText": "DOCX、TXT、MD、HTML を編集用に開きます"
+  "fe.dropText": "DOCX、TXT、MD、HTML を編集用に開きます",
+  "fe.typing": "入力",
+  "fe.typingOn": "入力：{name}",
+  "fe.typingHead": "ラテン文字で入力しながら変換",
+  "fe.typingOff": "オフ",
+  "fe.typingHint": "ラテン文字キーボードで入力：sh → ş/ш、ch → ç/ч、oʻ → ö/ў、gʻ → ğ/ғ。Backspaceで直前の置き換えを戻せます。"
 }

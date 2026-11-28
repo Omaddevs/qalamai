@@ -113,5 +113,6 @@
   "av.doc.other": "Autre fichier",
   "av.doc.err.type": "Uniquement les fichiers .docx. Enregistrez l’ancien .doc en .docx dans Word via « Enregistrer sous ».",
   "av.doc.err.size": "Le fichier est trop volumineux — 50 Mo maximum.",
-  "av.doc.err.read": "Impossible de lire le fichier : il est peut-être endommagé ou protégé par un mot de passe."
+  "av.doc.err.read": "Impossible de lire le fichier : il est peut-être endommagé ou protégé par un mot de passe.",
+  "av.doc.edit": "Modifier"
 }

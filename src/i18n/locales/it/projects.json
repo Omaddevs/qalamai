@@ -81,5 +81,6 @@
   "av.doc.other": "Altro file",
   "av.doc.err.type": "Solo file .docx. Salva il vecchio file .doc come .docx in Word con «Salva con nome».",
   "av.doc.err.size": "Il file è troppo grande: massimo 50 MB.",
-  "av.doc.err.read": "Impossibile leggere il file: potrebbe essere danneggiato o protetto da password."
+  "av.doc.err.read": "Impossibile leggere il file: potrebbe essere danneggiato o protetto da password.",
+  "av.doc.edit": "Modifica"
 }

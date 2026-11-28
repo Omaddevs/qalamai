@@ -81,5 +81,6 @@
   "av.doc.other": "File lain",
   "av.doc.err.type": "Hanya file .docx. Simpan file .doc lama sebagai .docx di Word lewat “Save As”.",
   "av.doc.err.size": "File terlalu besar — maksimal 50 MB.",
-  "av.doc.err.read": "File tidak dapat dibaca: mungkin rusak atau dilindungi kata sandi."
+  "av.doc.err.read": "File tidak dapat dibaca: mungkin rusak atau dilindungi kata sandi.",
+  "av.doc.edit": "Edit"
 }

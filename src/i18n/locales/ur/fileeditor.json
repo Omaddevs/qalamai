@@ -58,5 +58,10 @@
   "fe.pages": { "one": "~{n} صفحہ", "other": "~{n} صفحات" },
   "fe.standard": "A4 · Times New Roman 14 · 1.5 سطری فاصلہ",
   "fe.dropTitle": "فائل یہاں چھوڑیں",
-  "fe.dropText": "DOCX، TXT، MD یا HTML — ترمیم کے لیے کھل جائے گی"
+  "fe.dropText": "DOCX، TXT، MD یا HTML — ترمیم کے لیے کھل جائے گی",
+  "fe.typing": "ٹائپنگ",
+  "fe.typingOn": "ٹائپنگ: {name}",
+  "fe.typingHead": "لاطینی میں ٹائپ کرتے وقت تبدیل کریں",
+  "fe.typingOff": "بند",
+  "fe.typingHint": "لاطینی کی بورڈ پر ٹائپ کریں: sh → ş/ш، ch → ç/ч، oʻ → ö/ў، gʻ → ğ/ғ۔ Backspace آخری تبدیلی واپس کرتا ہے۔"
 }

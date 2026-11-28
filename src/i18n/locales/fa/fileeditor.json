@@ -58,5 +58,10 @@
   "fe.pages": { "one": "~{n} صفحه", "other": "~{n} صفحه" },
   "fe.standard": "A4 · Times New Roman 14 · فاصله خطوط 1.5",
   "fe.dropTitle": "فایل را اینجا رها کنید",
-  "fe.dropText": "DOCX، TXT، MD یا HTML — برای ویرایش باز می‌شود"
+  "fe.dropText": "DOCX، TXT، MD یا HTML — برای ویرایش باز می‌شود",
+  "fe.typing": "تایپ",
+  "fe.typingOn": "تایپ: {name}",
+  "fe.typingHead": "تبدیل هنگام تایپ با حروف لاتین",
+  "fe.typingOff": "خاموش",
+  "fe.typingHint": "با صفحه‌کلید لاتین تایپ کنید: sh → ş/ш، ch → ç/ч، oʻ → ö/ў، gʻ → ğ/ғ. کلید Backspace آخرین جایگزینی را برمی‌گرداند."
 }

@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
-import { ArrowLeftRight, Download, FileText, Upload, X, Loader2 } from 'lucide-react'
+import { ArrowLeftRight, Download, FileText, Upload, X, Loader2, PenLine } from 'lucide-react'
 import { SCRIPTS } from '../lib/alifbo.js'
 import { readDocx, convertDocx } from '../lib/alifboDocx.js'
+import { TYPE_KEY } from '../../shared/alifboTyping.js'
+import { importFile } from '../docs.js'
 import { t } from '../i18n/index.js'
 
 // Word file → chosen alphabet → download. Everything happens in the browser; the file never leaves the device.
-export default function AlifboDocx() {
+export default function AlifboDocx({ onOpenDoc }) {
   const inputRef = useRef(null)
   const [doc, setDoc] = useState(null) // result of readDocx()
   const [from, setFrom] = useState('auto')
@@ -57,6 +59,23 @@ export default function AlifboDocx() {
     a.click()
     a.remove()
     setTimeout(() => URL.revokeObjectURL(url), 2000)
+  }
+
+  // Open the converted file in the Word-like editor (Fayllar). Typing there follows the target script.
+  const edit = async () => {
+    setBusy(true)
+    try {
+      const { name, html } = await importFile(new File([result.blob], result.fileName))
+      try {
+        localStorage.setItem(TYPE_KEY, to === 'old' ? 'off' : to)
+      } catch {
+        /* private mode */
+      }
+      onOpenDoc({ name, html })
+    } catch {
+      setError(t('av.doc.err.read'))
+      setBusy(false)
+    }
   }
 
   const reset = () => {
@@ -141,6 +160,12 @@ export default function AlifboDocx() {
                 : result && (source === to || !result.words ? t('av.doc.same', { name: label(to) }) : t('av.doc.done', { n: result.words }))}
             </span>
           </div>
+          {onOpenDoc && (
+            <button className="btn avd-dl avd-edit" onClick={edit} disabled={!result || busy}>
+              <PenLine size={15} />
+              {t('av.doc.edit')}
+            </button>
+          )}
           <button className="btn primary avd-dl" onClick={download} disabled={!result || busy}>
             {busy ? <Loader2 size={15} className="avd-spin" /> : <Download size={15} />}
             {t('av.doc.download')}

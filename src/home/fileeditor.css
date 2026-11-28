@@ -40,6 +40,22 @@
   box-shadow: 0 8px 18px -8px rgba(11, 11, 13, 0.6);
 }
 
+/* live typing mode is on */
+.fe-btn.brand {
+  border-color: var(--brand-line);
+  background: var(--brand-soft);
+}
+
+.fe-typing-hint {
+  max-width: 260px;
+  margin: 6px 10px 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 /* Documents column */
 .fe-side {
   position: sticky;

@@ -81,5 +81,6 @@
   "av.doc.other": "其他文件",
   "av.doc.err.type": "仅支持 .docx 文件。请在 Word 中用“另存为”将旧的 .doc 文件保存为 .docx。",
   "av.doc.err.size": "文件太大——最大 50 MB。",
-  "av.doc.err.read": "无法读取文件：文件可能已损坏或受密码保护。"
+  "av.doc.err.read": "无法读取文件：文件可能已损坏或受密码保护。",
+  "av.doc.edit": "编辑"
 }

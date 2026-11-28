@@ -81,5 +81,6 @@
   "av.doc.other": "Inny plik",
   "av.doc.err.type": "Tylko pliki .docx. Zapisz stary plik .doc jako .docx w Wordzie przez „Zapisz jako”.",
   "av.doc.err.size": "Plik jest za duży — maksymalnie 50 MB.",
-  "av.doc.err.read": "Nie udało się odczytać pliku: może być uszkodzony lub chroniony hasłem."
+  "av.doc.err.read": "Nie udało się odczytać pliku: może być uszkodzony lub chroniony hasłem.",
+  "av.doc.edit": "Edytuj"
 }

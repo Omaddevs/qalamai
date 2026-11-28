@@ -58,5 +58,10 @@
   "fe.pages": { "other": "~{n} halaman" },
   "fe.standard": "A4 · Times New Roman 14 · spasi 1,5",
   "fe.dropTitle": "Letakkan file di sini",
-  "fe.dropText": "DOCX, TXT, MD, atau HTML — dibuka untuk diedit"
+  "fe.dropText": "DOCX, TXT, MD, atau HTML — dibuka untuk diedit",
+  "fe.typing": "Pengetikan",
+  "fe.typingOn": "Pengetikan: {name}",
+  "fe.typingHead": "Ubah saat mengetik dalam Latin",
+  "fe.typingOff": "Mati",
+  "fe.typingHint": "Ketik dengan keyboard Latin: sh → ş/ш, ch → ç/ч, oʻ → ö/ў, gʻ → ğ/ғ. Backspace membatalkan penggantian terakhir."
 }

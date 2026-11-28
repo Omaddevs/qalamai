@@ -58,5 +58,10 @@
   "fe.pages": { "other": "约 {n} 页" },
   "fe.standard": "A4 · Times New Roman 14 · 1.5 倍行距",
   "fe.dropTitle": "将文件拖到这里",
-  "fe.dropText": "DOCX、TXT、MD 或 HTML，打开后即可编辑"
+  "fe.dropText": "DOCX、TXT、MD 或 HTML，打开后即可编辑",
+  "fe.typing": "输入",
+  "fe.typingOn": "输入：{name}",
+  "fe.typingHead": "用拉丁字母输入时自动转换",
+  "fe.typingOff": "关闭",
+  "fe.typingHint": "用拉丁键盘输入：sh → ş/ш，ch → ç/ч，oʻ → ö/ў，gʻ → ğ/ғ。退格键可撤销上一次替换。"
 }

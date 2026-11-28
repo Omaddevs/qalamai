@@ -58,5 +58,10 @@
   "fe.pages": { "other": "약 {n}페이지" },
   "fe.standard": "A4 · Times New Roman 14 · 줄 간격 1.5",
   "fe.dropTitle": "여기에 파일을 놓으세요",
-  "fe.dropText": "DOCX, TXT, MD 또는 HTML — 편집용으로 열려요"
+  "fe.dropText": "DOCX, TXT, MD 또는 HTML — 편집용으로 열려요",
+  "fe.typing": "입력",
+  "fe.typingOn": "입력: {name}",
+  "fe.typingHead": "라틴 문자로 입력할 때 변환",
+  "fe.typingOff": "끄기",
+  "fe.typingHint": "라틴 키보드로 입력하세요: sh → ş/ш, ch → ç/ч, oʻ → ö/ў, gʻ → ğ/ғ. 백스페이스로 마지막 바꿈을 되돌립니다."
 }

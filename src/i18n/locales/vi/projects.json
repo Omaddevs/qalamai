@@ -97,5 +97,6 @@
   "av.doc.other": "Tệp khác",
   "av.doc.err.type": "Chỉ hỗ trợ tệp .docx. Hãy lưu tệp .doc cũ thành .docx trong Word bằng “Save As”.",
   "av.doc.err.size": "Tệp quá lớn — tối đa 50 MB.",
-  "av.doc.err.read": "Không đọc được tệp: tệp có thể bị hỏng hoặc được bảo vệ bằng mật khẩu."
+  "av.doc.err.read": "Không đọc được tệp: tệp có thể bị hỏng hoặc được bảo vệ bằng mật khẩu.",
+  "av.doc.edit": "Chỉnh sửa"
 }

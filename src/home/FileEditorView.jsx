@@ -3,10 +3,11 @@ import {
   FilePlus, FolderOpen, FileText, Trash, MagnifyingGlass, DownloadSimple, CaretDown, CheckCircle,
   TextB, TextItalic, TextUnderline, TextStrikethrough, ListBullets, ListNumbers, TextAlignLeft,
   TextAlignCenter, TextAlignRight, TextAlignJustify, ArrowCounterClockwise, ArrowClockwise, Eraser,
-  Table, Quotes, TextAa, FilePdf, FileDoc, FileHtml, FileTxt, CloudArrowUp, Printer,
+  Table, Quotes, TextAa, FilePdf, FileDoc, FileHtml, FileTxt, CloudArrowUp, Printer, Keyboard, Check,
 } from '@phosphor-icons/react'
 import { Dropdown } from '../components/ui.jsx'
 import { SCRIPTS, convert, detectScript } from '../lib/alifbo.js'
+import { TYPE_KEY, TYPE_MODES, typeKey } from '../../shared/alifboTyping.js'
 import { onSynced } from '../changes.js'
 import { IMPORT_ACCEPT, blankDoc, exportDoc, importFile, loadDocs, sanitize, saveDocs } from '../docs.js'
 // the drop area (md-drop) is Media's — see AlifboView
@@ -26,6 +27,16 @@ const when = (ts) => {
 const A4_RATIO = 297 / 210
 const A4_PAGE_PX = 1123 // A4 height at 96 dpi; the sheet is 794 px wide
 const exec = (cmd, val = null) => document.execCommand(cmd, false, val)
+
+// Live typing mode (Latin keyboard → chosen script), remembered per browser. The Alifbo page sets it too.
+const loadTyping = () => {
+  try {
+    const v = localStorage.getItem(TYPE_KEY)
+    return TYPE_MODES.includes(v) ? v : 'off'
+  } catch {
+    return 'off'
+  }
+}
 
 function Tool({ icon: Icon, label, on, onClick }) {
   return (
@@ -54,6 +65,7 @@ export default function FileEditorView({ notify }) {
   const [fmt, setFmt] = useState({})
   const [stats, setStats] = useState({ words: 0, chars: 0, pages: 1 })
   const [drag, setDrag] = useState(false)
+  const [typing, setTypingState] = useState(loadTyping)
   const editor = useRef(null)
   const fileInput = useRef(null)
   const dragDepth = useRef(0)
@@ -243,6 +255,70 @@ export default function FileEditorView({ notify }) {
     notify(t('fe.converted', { script: SCRIPTS.find((s) => s.id === to).label }))
   }
 
+  const setTyping = (mode) => {
+    setTypingState(mode)
+    try {
+      localStorage.setItem(TYPE_KEY, mode)
+    } catch {
+      /* private mode */
+    }
+  }
+
+  // Live typing: replace the key (and sometimes the letter before it: s+h → ş/ш) through execCommand, so
+  // Ctrl+Z still works. Backspace right after such a merge brings back the letter that was there (ş → s).
+  useEffect(() => {
+    const el = editor.current
+    if (!el || typing === 'off') return
+    let last = null
+    const replaceBefore = (node, off, del, ins) => {
+      if (del) {
+        const range = document.createRange()
+        range.setStart(node, off - del)
+        range.setEnd(node, off)
+        const sel = document.getSelection()
+        sel.removeAllRanges()
+        sel.addRange(range)
+      }
+      exec('insertText', ins)
+    }
+    const onBefore = (e) => {
+      if (e.isComposing) return
+      const sel = document.getSelection()
+      if (!sel?.rangeCount || !sel.isCollapsed) {
+        last = null
+        return
+      }
+      const node = sel.anchorNode
+      const off = sel.anchorOffset
+      const text = node.nodeType === Node.TEXT_NODE ? node.data : ''
+      if (e.inputType === 'deleteContentBackward') {
+        if (last && last.node === node && last.off === off && text.slice(off - last.ins.length, off) === last.ins) {
+          e.preventDefault()
+          replaceBefore(node, off, last.ins.length, last.prev)
+        }
+        last = null
+        return
+      }
+      if (e.inputType !== 'insertText' || !e.data || [...e.data].length !== 1) {
+        last = null
+        return
+      }
+      const before = text.slice(0, off)
+      const r = typeKey(before, e.data, typing)
+      if (!r) {
+        last = null
+        return
+      }
+      e.preventDefault()
+      const prev = before.slice(before.length - r.del)
+      replaceBefore(node, off, r.del, r.ins)
+      const after = document.getSelection()
+      last = r.del ? { node: after.anchorNode, off: after.anchorOffset, ins: r.ins, prev } : null
+    }
+    el.addEventListener('beforeinput', onBefore)
+    return () => el.removeEventListener('beforeinput', onBefore)
+  }, [activeId, typing])
+
   // paste: keep structure, drop foreign styles and anything unsafe
   const onPaste = (e) => {
     const html = e.clipboardData.getData('text/html')
@@ -369,6 +445,29 @@ export default function FileEditorView({ notify }) {
                 <CheckCircle size={14} weight="fill" /> {saved ? t('fe.saved') : t('fe.saving')}
               </span>
               <div className="fe-top-right">
+                <Dropdown
+                  align="right"
+                  button={({ toggle }) => (
+                    <button className={`fe-btn ${typing !== 'off' ? 'brand' : ''}`} onClick={toggle} title={t('fe.typingHead')}>
+                      <Keyboard size={16} />
+                      {typing === 'off' ? t('fe.typing') : t('fe.typingOn', { name: SCRIPTS.find((s) => s.id === typing).label })}
+                      <CaretDown size={12} />
+                    </button>
+                  )}
+                >
+                  {(close) => (
+                    <>
+                      <div className="pop-label">{t('fe.typingHead')}</div>
+                      {TYPE_MODES.map((m) => (
+                        <button key={m} className="menu-item fe-menu" onClick={() => { close(); setTyping(m); editor.current?.focus() }}>
+                          <span>{m === 'off' ? t('fe.typingOff') : SCRIPTS.find((s) => s.id === m).label}</span>
+                          {typing === m && <Check size={14} weight="bold" />}
+                        </button>
+                      ))}
+                      <p className="fe-typing-hint">{t('fe.typingHint')}</p>
+                    </>
+                  )}
+                </Dropdown>
                 <Dropdown
                   align="right"
                   button={({ toggle }) => (

@@ -58,5 +58,10 @@
   "fe.pages": { "one": "~{n} pagina", "many": "~{n} di pagine", "other": "~{n} pagine" },
   "fe.standard": "A4 · Times New Roman 14 · interlinea 1,5",
   "fe.dropTitle": "Trascina qui il file",
-  "fe.dropText": "DOCX, TXT, MD o HTML: si apre per la modifica"
+  "fe.dropText": "DOCX, TXT, MD o HTML: si apre per la modifica",
+  "fe.typing": "Digitazione",
+  "fe.typingOn": "Digitazione: {name}",
+  "fe.typingHead": "Converti mentre scrivi in latino",
+  "fe.typingOff": "Disattivata",
+  "fe.typingHint": "Scrivi con una tastiera latina: sh → ş/ш, ch → ç/ч, oʻ → ö/ў, gʻ → ğ/ғ. Backspace annulla l’ultima sostituzione."
 }

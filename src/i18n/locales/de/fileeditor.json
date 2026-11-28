@@ -58,5 +58,10 @@
   "fe.pages": { "one": "~{n} Seite", "other": "~{n} Seiten" },
   "fe.standard": "A4 · Times New Roman 14 · Zeilenabstand 1,5",
   "fe.dropTitle": "Datei hier ablegen",
-  "fe.dropText": "DOCX, TXT, MD oder HTML – wird zum Bearbeiten geöffnet"
+  "fe.dropText": "DOCX, TXT, MD oder HTML – wird zum Bearbeiten geöffnet",
+  "fe.typing": "Eingabe",
+  "fe.typingOn": "Eingabe: {name}",
+  "fe.typingHead": "Beim Tippen in Latein umwandeln",
+  "fe.typingOff": "Aus",
+  "fe.typingHint": "Tippen Sie auf einer lateinischen Tastatur: sh → ş/ш, ch → ç/ч, oʻ → ö/ў, gʻ → ğ/ғ. Die Rücktaste macht die letzte Ersetzung rückgängig."
 }

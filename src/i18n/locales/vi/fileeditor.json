@@ -64,5 +64,10 @@
   },
   "fe.standard": "A4 · Times New Roman 14 · giãn dòng 1,5",
   "fe.dropTitle": "Thả tệp vào đây",
-  "fe.dropText": "DOCX, TXT, MD hoặc HTML — mở để chỉnh sửa"
+  "fe.dropText": "DOCX, TXT, MD hoặc HTML — mở để chỉnh sửa",
+  "fe.typing": "Gõ chữ",
+  "fe.typingOn": "Gõ chữ: {name}",
+  "fe.typingHead": "Chuyển đổi khi gõ bằng chữ Latin",
+  "fe.typingOff": "Tắt",
+  "fe.typingHint": "Gõ trên bàn phím Latin: sh → ş/ш, ch → ç/ч, oʻ → ö/ў, gʻ → ğ/ғ. Phím Backspace hoàn tác lần thay thế gần nhất."
 }

@@ -58,5 +58,10 @@
   "fe.pages": { "one": "~{n} sayfa", "other": "~{n} sayfa" },
   "fe.standard": "A4 · Times New Roman 14 · 1,5 satır aralığı",
   "fe.dropTitle": "Dosyayı buraya bırakın",
-  "fe.dropText": "DOCX, TXT, MD veya HTML — düzenlemek için açılır"
+  "fe.dropText": "DOCX, TXT, MD veya HTML — düzenlemek için açılır",
+  "fe.typing": "Yazım",
+  "fe.typingOn": "Yazım: {name}",
+  "fe.typingHead": "Latin harfleriyle yazarken dönüştür",
+  "fe.typingOff": "Kapalı",
+  "fe.typingHint": "Latin klavyeyle yazın: sh → ş/ш, ch → ç/ч, oʻ → ö/ў, gʻ → ğ/ғ. Geri tuşu son değişikliği geri alır."
 }

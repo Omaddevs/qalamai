@@ -73,5 +73,10 @@
   },
   "fe.standard": "A4 · Times New Roman 14 · інтервал 1,5",
   "fe.dropTitle": "Перетягніть файл сюди",
-  "fe.dropText": "DOCX, TXT, MD або HTML — відкриється для редагування"
+  "fe.dropText": "DOCX, TXT, MD або HTML — відкриється для редагування",
+  "fe.typing": "Введення",
+  "fe.typingOn": "Введення: {name}",
+  "fe.typingHead": "Перетворення під час набору латиницею",
+  "fe.typingOff": "Вимкнено",
+  "fe.typingHint": "Друкуйте на латинській клавіатурі: sh → ş/ш, ch → ç/ч, oʻ → ö/ў, gʻ → ğ/ғ. Backspace скасовує останню заміну."
 }

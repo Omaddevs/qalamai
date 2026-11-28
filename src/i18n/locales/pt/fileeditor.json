@@ -58,5 +58,10 @@
   "fe.pages": { "one": "~{n} página", "many": "~{n} de páginas", "other": "~{n} páginas" },
   "fe.standard": "A4 · Times New Roman 14 · espaçamento 1,5",
   "fe.dropTitle": "Solte o arquivo aqui",
-  "fe.dropText": "DOCX, TXT, MD ou HTML — abre para edição"
+  "fe.dropText": "DOCX, TXT, MD ou HTML — abre para edição",
+  "fe.typing": "Digitação",
+  "fe.typingOn": "Digitação: {name}",
+  "fe.typingHead": "Converter ao digitar em latim",
+  "fe.typingOff": "Desligado",
+  "fe.typingHint": "Digite em um teclado latino: sh → ş/ш, ch → ç/ч, oʻ → ö/ў, gʻ → ğ/ғ. Backspace desfaz a última troca."
 }

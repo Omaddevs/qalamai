@@ -25,7 +25,7 @@ const PAIRS = [
   ['Ç', 'Ч'],
 ]
 
-export default function AlifboView({ onTab, onOpenPricing }) {
+export default function AlifboView({ onTab, onOpenPricing, onOpenDoc }) {
   const app = APPS.find((a) => a.id === 'alifbo')
 
   return (
@@ -73,7 +73,7 @@ export default function AlifboView({ onTab, onOpenPricing }) {
 
       {/* ───── Word file ───── */}
       <section className="av-card">
-        <AlifboDocx />
+        <AlifboDocx onOpenDoc={onOpenDoc} />
       </section>
 
       <div className="modal-foot av-foot">

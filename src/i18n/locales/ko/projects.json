@@ -81,5 +81,6 @@
   "av.doc.other": "다른 파일",
   "av.doc.err.type": ".docx 파일만 지원합니다. 오래된 .doc 파일은 Word에서 ‘다른 이름으로 저장’으로 .docx로 저장하세요.",
   "av.doc.err.size": "파일이 너무 큽니다 — 최대 50 MB.",
-  "av.doc.err.read": "파일을 읽을 수 없습니다. 손상되었거나 암호로 보호되어 있을 수 있습니다."
+  "av.doc.err.read": "파일을 읽을 수 없습니다. 손상되었거나 암호로 보호되어 있을 수 있습니다.",
+  "av.doc.edit": "편집"
 }

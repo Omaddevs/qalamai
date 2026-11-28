@@ -58,5 +58,10 @@
   "fe.pages": { "zero": "~{n} صفحة", "one": "~صفحة واحدة", "two": "~صفحتان", "few": "~{n} صفحات", "many": "~{n} صفحة", "other": "~{n} صفحة" },
   "fe.standard": "A4 · Times New Roman 14 · تباعد 1.5",
   "fe.dropTitle": "أفلت الملف هنا",
-  "fe.dropText": "DOCX أو TXT أو MD أو HTML — يُفتح للتحرير"
+  "fe.dropText": "DOCX أو TXT أو MD أو HTML — يُفتح للتحرير",
+  "fe.typing": "الكتابة",
+  "fe.typingOn": "الكتابة: {name}",
+  "fe.typingHead": "التحويل أثناء الكتابة بالحروف اللاتينية",
+  "fe.typingOff": "متوقف",
+  "fe.typingHint": "اكتب بلوحة مفاتيح لاتينية: sh → ş/ш، ch → ç/ч، oʻ → ö/ў، gʻ → ğ/ғ. زر Backspace يلغي آخر استبدال."
 }

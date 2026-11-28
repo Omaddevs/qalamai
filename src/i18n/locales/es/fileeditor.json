@@ -70,5 +70,10 @@
   },
   "fe.standard": "A4 · Times New Roman 14 · interlineado 1,5",
   "fe.dropTitle": "Suelta el archivo aquí",
-  "fe.dropText": "DOCX, TXT, MD o HTML: se abre para editarlo"
+  "fe.dropText": "DOCX, TXT, MD o HTML: se abre para editarlo",
+  "fe.typing": "Escritura",
+  "fe.typingOn": "Escritura: {name}",
+  "fe.typingHead": "Convertir al escribir en latín",
+  "fe.typingOff": "Desactivado",
+  "fe.typingHint": "Escribe con un teclado latino: sh → ş/ш, ch → ç/ч, oʻ → ö/ў, gʻ → ğ/ғ. Retroceso deshace el último cambio."
 }

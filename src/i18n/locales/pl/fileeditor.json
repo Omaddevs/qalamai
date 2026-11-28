@@ -58,5 +58,10 @@
   "fe.pages": { "one": "~{n} strona", "few": "~{n} strony", "many": "~{n} stron", "other": "~{n} strony" },
   "fe.standard": "A4 · Times New Roman 14 · interlinia 1,5",
   "fe.dropTitle": "Upuść plik tutaj",
-  "fe.dropText": "DOCX, TXT, MD lub HTML — otworzy się do edycji"
+  "fe.dropText": "DOCX, TXT, MD lub HTML — otworzy się do edycji",
+  "fe.typing": "Pisanie",
+  "fe.typingOn": "Pisanie: {name}",
+  "fe.typingHead": "Zamieniaj podczas pisania alfabetem łacińskim",
+  "fe.typingOff": "Wyłączone",
+  "fe.typingHint": "Pisz na łacińskiej klawiaturze: sh → ş/ш, ch → ç/ч, oʻ → ö/ў, gʻ → ğ/ғ. Backspace cofa ostatnią zamianę."
 }

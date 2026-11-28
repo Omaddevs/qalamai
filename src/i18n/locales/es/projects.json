@@ -113,5 +113,6 @@
   "av.doc.other": "Otro archivo",
   "av.doc.err.type": "Solo archivos .docx. Guarda el antiguo .doc como .docx en Word con «Guardar como».",
   "av.doc.err.size": "El archivo es demasiado grande: máximo 50 MB.",
-  "av.doc.err.read": "No se pudo leer el archivo: puede estar dañado o protegido con contraseña."
+  "av.doc.err.read": "No se pudo leer el archivo: puede estar dañado o protegido con contraseña.",
+  "av.doc.edit": "Editar"
 }

@@ -70,5 +70,10 @@
   },
   "fe.standard": "A4 · Times New Roman 14 · interligne 1,5",
   "fe.dropTitle": "Déposez le fichier ici",
-  "fe.dropText": "DOCX, TXT, MD ou HTML : s’ouvre pour être modifié"
+  "fe.dropText": "DOCX, TXT, MD ou HTML : s’ouvre pour être modifié",
+  "fe.typing": "Saisie",
+  "fe.typingOn": "Saisie : {name}",
+  "fe.typingHead": "Convertir pendant la saisie en latin",
+  "fe.typingOff": "Désactivée",
+  "fe.typingHint": "Tapez sur un clavier latin : sh → ş/ш, ch → ç/ч, oʻ → ö/ў, gʻ → ğ/ғ. Retour arrière annule le dernier remplacement."
 }

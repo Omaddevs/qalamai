@@ -58,5 +58,10 @@
   "fe.pages": { "one": "~{n} पेज", "other": "~{n} पेज" },
   "fe.standard": "A4 · Times New Roman 14 · 1.5 लाइन स्पेसिंग",
   "fe.dropTitle": "फ़ाइल यहाँ छोड़ें",
-  "fe.dropText": "DOCX, TXT, MD या HTML — एडिटिंग के लिए खुलती है"
+  "fe.dropText": "DOCX, TXT, MD या HTML — एडिटिंग के लिए खुलती है",
+  "fe.typing": "टाइपिंग",
+  "fe.typingOn": "टाइपिंग: {name}",
+  "fe.typingHead": "लैटिन में टाइप करते समय बदलें",
+  "fe.typingOff": "बंद",
+  "fe.typingHint": "लैटिन कीबोर्ड पर टाइप करें: sh → ş/ш, ch → ç/ч, oʻ → ö/ў, gʻ → ğ/ғ। Backspace पिछला बदलाव वापस करता है।"
 }

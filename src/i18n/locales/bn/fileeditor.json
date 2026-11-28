@@ -58,5 +58,10 @@
   "fe.pages": { "one": "~{n} পৃষ্ঠা", "other": "~{n} পৃষ্ঠা" },
   "fe.standard": "A4 · Times New Roman 14 · 1.5 লাইন স্পেসিং",
   "fe.dropTitle": "ফাইলটি এখানে ছেড়ে দিন",
-  "fe.dropText": "DOCX, TXT, MD বা HTML — সম্পাদনার জন্য খুলবে"
+  "fe.dropText": "DOCX, TXT, MD বা HTML — সম্পাদনার জন্য খুলবে",
+  "fe.typing": "টাইপিং",
+  "fe.typingOn": "টাইপিং: {name}",
+  "fe.typingHead": "ল্যাটিনে টাইপ করার সময় রূপান্তর",
+  "fe.typingOff": "বন্ধ",
+  "fe.typingHint": "ল্যাটিন কীবোর্ডে টাইপ করুন: sh → ş/ш, ch → ç/ч, oʻ → ö/ў, gʻ → ğ/ғ। Backspace শেষ পরিবর্তনটি ফিরিয়ে দেয়।"
 }

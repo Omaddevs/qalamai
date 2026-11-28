@@ -81,5 +81,6 @@
   "av.doc.other": "Andere Datei",
   "av.doc.err.type": "Nur .docx-Dateien. Speichern Sie eine alte .doc-Datei in Word über „Speichern unter“ als .docx.",
   "av.doc.err.size": "Die Datei ist zu groß – maximal 50 MB.",
-  "av.doc.err.read": "Die Datei konnte nicht gelesen werden: Sie ist möglicherweise beschädigt oder passwortgeschützt."
+  "av.doc.err.read": "Die Datei konnte nicht gelesen werden: Sie ist möglicherweise beschädigt oder passwortgeschützt.",
+  "av.doc.edit": "Bearbeiten"
 }

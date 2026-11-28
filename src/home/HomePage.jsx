@@ -240,6 +240,19 @@ export default function HomePage({
     setTimeout(() => input.current?.focus({ preventScroll: true }), 380)
   }
 
+  // Alifbo page: a converted Word file opens in the file editor for manual edits.
+  const openDocInEditor = ({ name, html }) => {
+    if (!saveDocs([blankDoc(name, html), ...loadDocs()])) {
+      notify(t('hm.saveFailed'))
+      return
+    }
+    setQ('')
+    setFilesTab('docs')
+    setTab('files')
+    window.scrollTo({ top: 0 })
+    notify(t('fe.opened', { name }))
+  }
+
   // Document types (referat, kurs ishi…) open as an A4 file in the file editor.
   const createDoc = ({ name, html, kind, type, ai = false }) => {
     if (!saveDocs([blankDoc(name, html, type), ...loadDocs()])) {
@@ -448,7 +461,7 @@ export default function HomePage({
           </Suspense>
         ) : tab === 'alifbo' ? (
           <Suspense fallback={<TabLoading />}>
-          <AlifboView onTab={(next) => { setTab(next); setQ('') }} onOpenPricing={onOpenPricing} />
+          <AlifboView onTab={(next) => { setTab(next); setQ('') }} onOpenPricing={onOpenPricing} onOpenDoc={openDocInEditor} />
           </Suspense>
         ) : tab === 'templates' ? (
           <Suspense fallback={<TabLoading />}>

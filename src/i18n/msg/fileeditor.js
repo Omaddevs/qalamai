@@ -102,4 +102,11 @@ export default {
     ky: 'DOCX, TXT, MD же HTML — түзөтүү үчүн ачылат',
     tg: 'DOCX, TXT, MD ё HTML — барои таҳрир кушода мешавад',
   },
+
+  // live typing: Latin keyboard → chosen script
+  'fe.typing': { uz: 'Yozuv', ru: 'Ввод', en: 'Typing', kk: 'Теру', ky: 'Терүү', tg: 'Навиштан' },
+  'fe.typingOn': { uz: 'Yozuv: {name}', ru: 'Ввод: {name}', en: 'Typing: {name}', kk: 'Теру: {name}', ky: 'Терүү: {name}', tg: 'Навиштан: {name}' },
+  'fe.typingHead': { uz: 'Lotincha yozganda ötkaziş', ru: 'Перевод при наборе латиницей', en: 'Convert while typing in Latin', kk: 'Латынша тергенде ауыстыру', ky: 'Латынча тергенде которуу', tg: 'Табдил ҳангоми навиштан бо лотинӣ' },
+  'fe.typingOff': { uz: 'Öçiq', ru: 'Выключен', en: 'Off', kk: 'Өшірулі', ky: 'Өчүк', tg: 'Хомӯш' },
+  'fe.typingHint': { uz: 'Lotin klaviaturada yozing: sh → ş/ш, ch → ç/ч, oʻ → ö/ў, gʻ → ğ/ғ. Backspace oxirgi almaştirişni qaytaradi.', 'uz-cyrl': 'Лотин клавиатурада ёзинг: sh → ş/ш, ch → ç/ч, oʻ → ö/ў, gʻ → ğ/ғ. Backspace охирги алмаштиришни қайтаради.', ru: 'Печатайте на латинской клавиатуре: sh → ş/ш, ch → ç/ч, oʻ → ö/ў, gʻ → ğ/ғ. Backspace отменяет последнюю замену.', en: 'Type on a Latin keyboard: sh → ş/ш, ch → ç/ч, oʻ → ö/ў, gʻ → ğ/ғ. Backspace undoes the last swap.', kk: 'Латын пернетақтасында теріңіз: sh → ş/ш, ch → ç/ч, oʻ → ö/ў, gʻ → ğ/ғ. Backspace соңғы ауыстыруды қайтарады.', ky: 'Латын клавиатурасында териңиз: sh → ş/ш, ch → ç/ч, oʻ → ö/ў, gʻ → ğ/ғ. Backspace акыркы алмаштырууну кайтарат.', tg: 'Бо клавиатураи лотинӣ нависед: sh → ş/ш, ch → ç/ч, oʻ → ö/ў, gʻ → ğ/ғ. Backspace ивазкунии охиринро бекор мекунад.' },
 }

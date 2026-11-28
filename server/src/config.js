@@ -100,6 +100,8 @@ const schema = z.object({
   AISHA_MALE_VOICE_ID: z.coerce.number().int().positive().optional(),
   /** Gulnoza's mood: Neutral, Cheerful, Happy or Sad. */
   AISHA_MOOD: z.enum(['Neutral', 'Cheerful', 'Happy', 'Sad']).default('Neutral'),
+  /** QalamAI's own Uzbek voice (tts/server.py, tiny-voca on the CPU): free, a man's voice and a woman's. */
+  LOCAL_TTS_URL: z.string().url().optional(),
   /** Characters one account may turn into speech per day (repeats come from the cache and are free). */
   TTS_DAILY_CHARS: z.coerce.number().int().positive().default(60_000),
 })
@@ -164,6 +166,7 @@ function load() {
     support: { chatId: env.CONTACT_CHAT_ID || null },
     unsplash: env.UNSPLASH_ACCESS_KEY ? { key: env.UNSPLASH_ACCESS_KEY, apiUrl: env.UNSPLASH_API_URL.replace(/\/$/, '') } : null,
     ai: env.ANTHROPIC_API_KEY ? { key: env.ANTHROPIC_API_KEY, model: env.AI_MODEL, effort: env.AI_EFFORT, judgeModel: env.AI_JUDGE_MODEL } : null,
+    localTts: env.LOCAL_TTS_URL ? { url: env.LOCAL_TTS_URL.replace(/\/$/, ''), dailyChars: env.TTS_DAILY_CHARS } : null,
     aisha: env.AISHA_API_KEY ? { key: env.AISHA_API_KEY, url: env.AISHA_API_URL.replace(/\/$/, ''), maleVoiceId: env.AISHA_MALE_VOICE_ID ?? null, mood: env.AISHA_MOOD, dailyChars: env.TTS_DAILY_CHARS } : null,
     tts: env.AZURE_SPEECH_KEY ? { provider: 'azure', key: env.AZURE_SPEECH_KEY, endpoint: (env.AZURE_SPEECH_ENDPOINT ?? `https://${env.AZURE_SPEECH_REGION}.tts.speech.microsoft.com`).replace(/\/$/, ''), dailyChars: env.TTS_DAILY_CHARS } : null,
     admin: { password: env.ADMIN_PASSWORD ?? null },

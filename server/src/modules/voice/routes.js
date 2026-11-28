@@ -7,6 +7,8 @@
 //   • Aisha (aisha.group, AISHA_API_KEY) — natural Uzbek (built on the Navoiy model). One built-in
 //     voice, Gulnoza (a woman); a man's voice is a custom cloned voice (AISHA_MALE_VOICE_ID).
 //     Also Russian and English.
+//   • QalamAI's own voice (LOCAL_TTS_URL → tts/server.py) — tiny-voca on our CPU, free, Uzbek only;
+//     a man's voice, and the same voice pitched up for a woman.
 //   • Azure AI Speech (AZURE_SPEECH_KEY) — neural voices for 23 languages, a woman and a man each.
 // Every answer is kept on disk (storage/tts/<hash>.<ext>): the same sentence in the same voice is
 // synthesized once, so replaying a presentation costs nothing. New characters count towards a
@@ -80,27 +82,46 @@ export function aishaTts({ key, url, maleVoiceId = null, mood = 'Neutral' }) {
   }
 }
 
+/** QalamAI's own Uzbek voice (tts/server.py): JSON in, WAV out. */
+export function localTts({ url }) {
+  return async ({ text, gender, rate }) => {
+    const res = await fetch(`${url}/speak`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      // the model reads the current Latin spelling with the plain apostrophe (oʻ → o')
+      body: JSON.stringify({ text: text.replace(/[ʻʼ‘’`]/g, "'"), voice: gender, speed: rate }),
+      signal: AbortSignal.timeout(60_000),
+    })
+    if (!res.ok) throw Object.assign(failed(), { upstream: `local ${res.status}` })
+    return { audio: Buffer.from(await res.arrayBuffer()), ext: 'wav' }
+  }
+}
+
 /** @param {import('fastify').FastifyInstance} app */
 export default async function voiceRoutes(app) {
   const { config } = app.ctx
   const aisha = config.aisha ? { run: aishaTts(config.aisha), cfg: config.aisha } : null
   const azure = config.tts ? { run: azureTts(config.tts) } : null
-  const daily = config.aisha?.dailyChars ?? config.tts?.dailyChars ?? 60_000
+  const local = config.localTts ? { run: localTts(config.localTts) } : null
+  const daily = config.aisha?.dailyChars ?? config.localTts?.dailyChars ?? config.tts?.dailyChars ?? 60_000
   const dir = join(config.storageDir, 'tts')
   await mkdir(dir, { recursive: true })
 
   /**
-   * Who speaks `lang` in `gender`: { run, voice (a cache name), gender }. Uzbek goes to Aisha first;
-   * Azure takes the languages Aisha doesn't speak (and Russian/English, where it has two voices).
-   * A man's voice Aisha doesn't have yet is spoken by Azure if it can, else by Gulnoza.
+   * Who speaks `lang` in `gender`: { run, voice (a cache name), gender }. Uzbek goes to Aisha first,
+   * then to our own voice; Azure takes the languages they don't speak (and Russian/English, where it
+   * has two voices). A man's voice Aisha doesn't have yet is spoken by our own voice or Azure if they
+   * can, else by Gulnoza.
    */
   function pick(lang, gender) {
     const uz = AISHA_LANGS[lang] === 'uz'
     if (aisha && uz) {
       const male = gender === 'm' && aisha.cfg.maleVoiceId
+      if (gender === 'm' && !male && local) return { run: local.run, voice: 'local:tiny-voca:m', gender: 'm' }
       if (gender === 'm' && !male && azure) return { run: azure.run, voice: `azure:${VOICES[lang].m}`, gender: 'm' }
       return { run: aisha.run, voice: male ? `aisha:v${aisha.cfg.maleVoiceId}` : `aisha:Gulnoza:${aisha.cfg.mood}`, gender: male ? 'm' : 'f' }
     }
+    if (local && uz) return { run: local.run, voice: `local:tiny-voca:${gender}`, gender }
     if (azure && VOICES[lang]) return { run: azure.run, voice: `azure:${VOICES[lang][gender]}`, gender }
     if (aisha && AISHA_LANGS[lang]) return { run: aisha.run, voice: `aisha:${AISHA_LANGS[lang]}`, gender }
     return null

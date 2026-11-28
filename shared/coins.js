@@ -28,6 +28,8 @@ export const COIN_COSTS = {
   tarjima: { label: 'Tarjima', cost: 20, per: '1 000 söz' },
   // a design made from a Pro template: editing is free, the first download of that design costs this once
   'pro-shablon': { label: 'Pro şablon', cost: 30, note: '1 dizayn' },
+  // «AI taqdimotçi»: the spoken script with pen cues and the voice for it (TTS ≈ $16 / 1M characters)
+  taqdimotchi: { label: 'AI taqdimotçi', cost: 20, per: '10 slayd' },
 }
 
 /** Bosh sahifadagi yaratiş turlari (src/home/create.jsx CREATE.label) → amal. */

@@ -32,6 +32,7 @@ import supportRoutes from './modules/support/routes.js'
 import notificationRoutes from './modules/notifications/routes.js'
 import photoRoutes from './modules/photos/routes.js'
 import aiRoutes from './modules/ai/routes.js'
+import voiceRoutes from './modules/voice/routes.js'
 import { siteRoutes } from './modules/site/routes.js'
 import { backfillCreations } from './modules/admin/content.js'
 import { createInvitePage, inviteApiRoutes, invitePublicApiRoutes } from './modules/invite/routes.js'
@@ -163,6 +164,7 @@ export async function buildApp(config) {
       await api.register(notificationRoutes, { prefix: '/notifications' })
       await api.register(photoRoutes, { prefix: '/photos' })
       await api.register(aiRoutes, { prefix: '/ai' })
+      await api.register(voiceRoutes, { prefix: '/voice' })
       await api.register(siteRoutes, { prefix: '/site' })
       await api.register(inviteApiRoutes, { prefix: '/invites' })
       await api.register(invitePublicApiRoutes, { prefix: '/i' })

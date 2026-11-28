@@ -6,12 +6,14 @@
 //
 //   POST /ai/deck — a presentation (topic or a document's text)
 //   POST /ai/fill — the missing pieces of a document type (referat, kurs ishi …) or a small slide document
+//   POST /ai/narrate — «AI taqdimotchi»: the spoken script of a deck, with pen cues
 import { PassThrough } from 'node:stream'
 import { AppError } from '../../lib/errors.js'
 import { ACTION_BY_TYPE } from '../../../../shared/coins.js'
 import { createAi } from './service.js'
 import { DECK_LANGS, DECK_TYPES, PLAN_FIXED, PLAN_MAX, SOURCE_MAX } from './deck.js'
 import { KIND_NAMES } from './fill.js'
+import { ANCHORS_MAX, LENGTHS, NARRATE_MAX_SLIDES, TONES } from './narrate.js'
 
 const off = () => new AppError(503, 'AI_OFF', 'AI hozirça ulanmagan')
 const REF = { type: 'string', minLength: 6, maxLength: 80, pattern: '^[A-Za-z0-9:_-]+$' }
@@ -29,10 +31,10 @@ export default async function aiRoutes(app) {
    * Charges `action` once for `ref`, then streams what `work(send, signal)` emits. Refunds on failure
    * or when the browser goes away before the end.
    */
-  async function streamJob(req, reply, { action, ref, topic }, work) {
+  async function streamJob(req, reply, { action, ref, topic, qty = 1 }, work) {
     if (!ai) throw off()
     // one paid ref = one result: a ref that was seen before (used, or refunded) is not free again
-    const paid = await coins.spend(req.user, action, { ref, meta: { topic: String(topic ?? '').slice(0, 300), ai: true } })
+    const paid = await coins.spend(req.user, action, { qty, ref, meta: { topic: String(topic ?? '').slice(0, 300), ai: true } })
     if (paid.repeated) throw new AppError(409, 'REF_USED', 'Bu tölov allaqaçon işlatilgan')
 
     const out = new PassThrough()
@@ -182,6 +184,58 @@ export default async function aiRoutes(app) {
       }
       if (!req.body.slides?.length) throw new AppError(400, 'BAD_REQUEST', 'Slaydlar kelmadi')
       return streamJob(req, reply, { action, ref, topic }, (send, signal) => ai.cards({ kind, topic, lang, slides: req.body.slides, extra }, { emit: send, signal }))
+    },
+  )
+
+  app.post(
+    '/narrate',
+    {
+      config: { rateLimit: { max: 6, timeWindow: '1 minute' } },
+      schema: {
+        tags: ['ai'],
+        summary: 'AI taqdimotçi: slaydlar böyiça ma’ruza matni va qalam belgilari (JSON Lines)',
+        body: {
+          type: 'object',
+          required: ['lang', 'ref', 'slides'],
+          additionalProperties: false,
+          properties: {
+            lang: { type: 'string', enum: DECK_LANGS },
+            ref: REF,
+            title: { type: 'string', maxLength: 300 },
+            tone: { type: 'string', enum: TONES },
+            length: { type: 'string', enum: Object.keys(LENGTHS) },
+            slides: {
+              type: 'array',
+              minItems: 1,
+              maxItems: NARRATE_MAX_SLIDES,
+              items: {
+                type: 'object',
+                required: ['items'],
+                additionalProperties: false,
+                properties: {
+                  items: {
+                    type: 'array',
+                    maxItems: ANCHORS_MAX,
+                    items: {
+                      type: 'object',
+                      required: ['k'],
+                      additionalProperties: false,
+                      properties: { k: { type: 'string', enum: ['text', 'image', 'chart'] }, t: { type: 'string', maxLength: 240 } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    async (req, reply) => {
+      const { lang, ref, slides, tone = 'lesson', length = 'normal' } = req.body
+      const title = (req.body.title ?? '').trim()
+      // priced per 10 slides (shared/coins.js 'taqdimotchi')
+      const qty = Math.ceil(slides.length / 10)
+      return streamJob(req, reply, { action: 'taqdimotchi', ref, topic: title, qty }, (send, signal) => ai.narrate({ lang, title, tone, length, slides }, { emit: send, signal }))
     },
   )
 }

@@ -88,6 +88,20 @@ const schema = z.object({
   AI_EFFORT: z.enum(['low', 'medium', 'high', 'xhigh', 'max']).default('low'),
   /** Small model that looks at candidate pictures and keeps only one that really shows the slide's subject. */
   AI_JUDGE_MODEL: z.string().default('claude-haiku-5-5'),
+  /** «AI taqdimotçi» voice: Azure AI Speech (portal.azure.com → Speech service → Keys and Endpoint). Without it the browser's own voice speaks. */
+  AZURE_SPEECH_KEY: z.string().optional(),
+  AZURE_SPEECH_REGION: z.string().default('westeurope'),
+  /** Another address for the same API (a custom domain, a proxy). Default: https://<region>.tts.speech.microsoft.com */
+  AZURE_SPEECH_ENDPOINT: z.string().url().optional(),
+  /** «AI taqdimotçi» Uzbek voice: Aisha (voicelab.uz/app → API keys). Natural Uzbek, also Russian and English. */
+  AISHA_API_KEY: z.string().optional(),
+  AISHA_API_URL: z.string().url().default('https://back.aisha.group'),
+  /** A man's Uzbek voice: the id of a READY custom (cloned) voice in the same Aisha account. Without it Gulnoza (a woman) speaks. */
+  AISHA_MALE_VOICE_ID: z.coerce.number().int().positive().optional(),
+  /** Gulnoza's mood: Neutral, Cheerful, Happy or Sad. */
+  AISHA_MOOD: z.enum(['Neutral', 'Cheerful', 'Happy', 'Sad']).default('Neutral'),
+  /** Characters one account may turn into speech per day (repeats come from the cache and are free). */
+  TTS_DAILY_CHARS: z.coerce.number().int().positive().default(60_000),
 })
 
 function load() {
@@ -150,6 +164,8 @@ function load() {
     support: { chatId: env.CONTACT_CHAT_ID || null },
     unsplash: env.UNSPLASH_ACCESS_KEY ? { key: env.UNSPLASH_ACCESS_KEY, apiUrl: env.UNSPLASH_API_URL.replace(/\/$/, '') } : null,
     ai: env.ANTHROPIC_API_KEY ? { key: env.ANTHROPIC_API_KEY, model: env.AI_MODEL, effort: env.AI_EFFORT, judgeModel: env.AI_JUDGE_MODEL } : null,
+    aisha: env.AISHA_API_KEY ? { key: env.AISHA_API_KEY, url: env.AISHA_API_URL.replace(/\/$/, ''), maleVoiceId: env.AISHA_MALE_VOICE_ID ?? null, mood: env.AISHA_MOOD, dailyChars: env.TTS_DAILY_CHARS } : null,
+    tts: env.AZURE_SPEECH_KEY ? { provider: 'azure', key: env.AZURE_SPEECH_KEY, endpoint: (env.AZURE_SPEECH_ENDPOINT ?? `https://${env.AZURE_SPEECH_REGION}.tts.speech.microsoft.com`).replace(/\/$/, ''), dailyChars: env.TTS_DAILY_CHARS } : null,
     admin: { password: env.ADMIN_PASSWORD ?? null },
     coins: {
       demoPurchase: env.COIN_DEMO_PURCHASE ?? !isProd,

@@ -4,6 +4,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { SYSTEM, cleanSlide, deckPrompt, lineReader, localize, parseLine, planSplit, PLAN_FIXED } from './deck.js'
 import { pickImage } from './images.js'
 import { FILL_SYSTEM, cardsPrompt, cleanCard, cleanPiece, docPrompt } from './fill.js'
+import { cleanNarration, narratePrompt, narrateSystem } from './narrate.js'
 
 // models that can hand a declined request to another model inside the same call
 const FALLBACK_MODELS = /^claude-(opus-5-5|sonnet-5-5|fable-5-[12]|opus-5)$/
@@ -196,5 +197,26 @@ export function createAi(cfg, { log } = {}) {
     return { filled: done.size }
   }
 
-  return { deck, doc, cards, model: cfg.model }
+  /**
+   * The spoken script of a finished deck («AI taqdimotchi»). Emits { type: 'narration', slide, say }
+   * per slide. `o.slides` carry the anchors read from the rendered pages.
+   */
+  async function narrate(o, { emit, signal }) {
+    const local = localize(o.lang)
+    const done = new Set()
+    // ~2.5 tokens per word, a little JSON around it, room for thinking
+    const [, maxWords] = { short: [0, 45], normal: [0, 85], long: [0, 140] }[o.length] ?? [0, 85]
+    const maxTokens = Math.min(64_000, 4000 + o.slides.length * Math.round(maxWords * 4.2))
+    const final = await streamCall({ system: narrateSystem(o.length), user: narratePrompt(o), maxTokens }, (line) => {
+      const slide = cleanNarration(parseLine(line), o.slides)
+      if (!slide || done.has(slide.slide)) return
+      done.add(slide.slide)
+      emit({ type: 'narration', slide: slide.slide, say: slide.say.map((p) => ({ ...p, text: local(p.text) })) })
+    }, signal)
+    if (done.size < Math.max(1, Math.ceil(o.slides.length * 0.5))) throw new AiError('AI_EMPTY', 'AI javobi töliq kelmadi — qaytadan urinib köring.')
+    log?.info({ model: final.model, slides: done.size, of: o.slides.length, usage: final.usage }, 'ai narrate done')
+    return { slides: done.size }
+  }
+
+  return { deck, doc, cards, narrate, model: cfg.model }
 }

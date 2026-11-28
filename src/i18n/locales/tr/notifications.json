@@ -23,5 +23,14 @@
   "nt.support.done.title": "Mesajınız ele alındı",
   "nt.support.done.body": "“{topic}” konulu mesajınız ekibimiz tarafından ele alındı. Gerekirse sizinle iletişime geçeceğiz.",
   "nt.announce.badge": "QalamAI haberleri",
-  "nt.announce.open": "Daha fazla bilgi"
+  "nt.announce.open": "Daha fazla bilgi",
+  "nt.promo.friday.title": "Cuma hediyesi: +{coins} jeton",
+  "nt.promo.friday.body": "Jetonlar eklendi. Bakiye: {balance}. Gelecek cuma görüşürüz!",
+  "nt.promo.action": "Kampanyalar",
+  "nt.referral.reward.title": "Arkadaşın katıldı: +{coins} jeton",
+  "nt.referral.reward.body": "{name} bağlantınla kaydoldu. Bakiye: {balance}.",
+  "nt.referral.reward.bodyNoName": "Bir arkadaşın bağlantınla kaydoldu. Bakiye: {balance}.",
+  "nt.referral.action": "Daha fazla davet et",
+  "nt.referral.welcome.title": "Davet hediyesi: +{coins} jeton",
+  "nt.referral.welcome.body": "Arkadaş davetiyle katıldığın için ek jeton. Bakiye: {balance}."
 }

@@ -23,5 +23,14 @@
   "nt.support.done.title": "آپ کے پیغام پر کارروائی ہو گئی ہے",
   "nt.support.done.body": "ٹیم نے آپ کے “{topic}” والے پیغام پر کارروائی کر لی ہے۔ ضرورت ہوئی تو ہم آپ سے رابطہ کریں گے۔",
   "nt.announce.badge": "QalamAI کی خبریں",
-  "nt.announce.open": "مزید جانیں"
+  "nt.announce.open": "مزید جانیں",
+  "nt.promo.friday.title": "جمعہ کا تحفہ: +{coins} کوائن",
+  "nt.promo.friday.body": "کوائن شامل ہو گئے۔ بیلنس: {balance}۔ اگلے جمعہ ملتے ہیں!",
+  "nt.promo.action": "آفرز",
+  "nt.referral.reward.title": "دوست شامل ہو گیا: +{coins} کوائن",
+  "nt.referral.reward.body": "{name} نے آپ کے لنک سے سائن اپ کیا۔ بیلنس: {balance}۔",
+  "nt.referral.reward.bodyNoName": "ایک دوست نے آپ کے لنک سے سائن اپ کیا۔ بیلنس: {balance}۔",
+  "nt.referral.action": "مزید بلائیں",
+  "nt.referral.welcome.title": "دعوت کا تحفہ: +{coins} کوائن",
+  "nt.referral.welcome.body": "دوست کی دعوت سے شامل ہونے پر اضافی کوائن۔ بیلنس: {balance}۔"
 }

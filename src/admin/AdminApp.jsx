@@ -1,7 +1,7 @@
 // QalamAI admin panel — /admin. Its own small app: a password gate, then Statistika,
 // Foydalanuvçilar and Sozlamalar. Pages are picked by the hash (#users, #settings).
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
-import { ArrowUpRight, BarChart3, Bell, CreditCard, Layers, LogOut, Menu, MessageSquare, Moon, Newspaper, Settings, Sun, Users, X } from 'lucide-react'
+import { ArrowUpRight, BarChart3, Bell, CreditCard, Gift, Layers, LogOut, Menu, MessageSquare, Moon, Newspaper, Settings, Sun, Users, X } from 'lucide-react'
 import { Wordmark } from '../components/ui.jsx'
 import { admin, onSignedOut } from './api.js'
 import Login from './Login.jsx'
@@ -15,6 +15,7 @@ const ChatPage = lazy(() => import('./Chat.jsx'))
 const NotificationsPage = lazy(() => import('./Notifications.jsx'))
 const PaymentsPage = lazy(() => import('./Payments.jsx'))
 const SitePage = lazy(() => import('./Site.jsx'))
+const PromosPage = lazy(() => import('./Promos.jsx'))
 // same event name as Chat.jsx (kept here so the sidebar does not load that chunk)
 const CHAT_CHANGED = 'qalam-admin-chat'
 const PAYMENTS_CHANGED = 'qalam-admin-payments' // same as Payments.jsx
@@ -24,6 +25,7 @@ const NAV = [
   { id: 'content', label: 'Yaratilganlar', icon: Layers },
   { id: 'users', label: 'Foydalanuvçilar', icon: Users },
   { id: 'payments', label: 'Tölovlar', icon: CreditCard },
+  { id: 'promos', label: 'Aksiyalar', icon: Gift },
   { id: 'chat', label: 'ChatBot', icon: MessageSquare },
   { id: 'notifications', label: 'Bildirişnomalar', icon: Bell },
   { id: 'site', label: 'Sayt', icon: Newspaper },
@@ -140,6 +142,7 @@ function Shell({ theme, toggleTheme, onOut }) {
           {page === 'chat' && <ChatPage />}
           {page === 'notifications' && <NotificationsPage />}
           {page === 'payments' && <PaymentsPage />}
+          {page === 'promos' && <PromosPage />}
           {page === 'site' && <SitePage />}
           {page === 'settings' && <SettingsPage onOut={onOut} />}
         </Suspense>

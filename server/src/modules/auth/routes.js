@@ -4,6 +4,8 @@ import { randomToken } from '../../lib/crypto.js'
 import { ensureAvatar } from '../../lib/avatars.js'
 import { AppError } from '../../lib/errors.js'
 import { publicUser } from './service.js'
+import { VISITOR_COOKIE } from '../admin/analytics.js'
+import { REF_COOKIE } from '../../../../shared/promos.js'
 
 const COOKIE = 'qalam_rt'
 const COOKIE_PATH = '/api/v1/auth'
@@ -48,6 +50,14 @@ export default async function authRoutes(app) {
     // an account that just stopped being a guest: remember how and where from (admin panel)
     if (method && !s.user.isGuest && !s.user.registeredAt) {
       await app.ctx.analytics.recordSignup(s.user, req, method).catch((err) => req.log.warn({ err }, 'signup record failed'))
+      // came through a friend's invite link (Döst taklifi): pay the inviter once
+      const code = String(req.cookies?.[REF_COOKIE] ?? '').toUpperCase()
+      if (code) {
+        const vid = req.cookies?.[VISITOR_COOKIE]
+        const settled = await app.ctx.promos.onSignup(s.user, { code, visitorId: vid && /^[A-Za-z0-9_-]{8,64}$/.test(vid) ? vid : null })
+        if (settled?.balance != null) s.user = { ...s.user, coins: settled.balance }
+        reply.clearCookie(REF_COOKIE, { path: '/' })
+      }
     }
     // a registered account without a picture gets the next drawn avatar (best effort)
     if (!s.user.isGuest && !s.user.avatarKey) {

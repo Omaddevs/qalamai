@@ -3,7 +3,7 @@ import ProBadge from '../components/ProBadge.jsx'
 // Icons: Phosphor (rounded duotone set) — https://phosphoricons.com
 import {
   TextAa, FilePdf, Translate, FileMagnifyingGlass, SquaresFour,
-  HouseSimple, FolderSimple, Layout, Images, FileText, Bell, CaretLeft, CaretRight, SignOut, SignIn, Plus, MagicWand,
+  HouseSimple, FolderSimple, Layout, Images, FileText, Bell, CaretLeft, CaretRight, SignOut, SignIn, Plus, MagicWand, Gift,
 } from '@phosphor-icons/react'
 import { blueprintOf } from '../blueprints.js'
 import { CoinChip } from '../components/Coins.jsx'
@@ -28,6 +28,7 @@ import { kindLabel } from '../i18n/kinds.js'
 import LangSwitch from '../landing/LangSwitch.jsx'
 import { trackView } from '../track.js'
 import { onUnread, watchUnread } from '../notifications.js'
+import { fridaySeen, useFridayGift } from '../promos.js'
 
 // Tabs other than the start screen load their code when first opened.
 const ProjectsView = lazy(() => import('./ProjectsView.jsx'))
@@ -39,6 +40,8 @@ const AlifboView = lazy(() => import('./AlifboView.jsx'))
 const CreateSheet = lazy(() => import('./CreateSheet.jsx'))
 const NotificationsView = lazy(() => import('./NotificationsView.jsx'))
 const AiDeckView = lazy(() => import('./AiDeckView.jsx'))
+const PromosView = lazy(() => import('./PromosView.jsx'))
+const FridayGift = lazy(() => import('./FridayGift.jsx'))
 const TabLoading = () => <div className="page-loading" role="status" aria-busy="true" />
 
 const IS_MAC = /Mac|iPhone|iPad/.test(navigator.platform)
@@ -137,6 +140,19 @@ export default function HomePage({
     trackView(tab === 'home' ? '/app' : `/app/${tab}`)
   }, [tab])
   const [railOpen, setRailOpen] = useState(readRailOpen)
+  // other screens (a notice) can switch the tab
+  useEffect(() => {
+    const on = (e) => { setTab(e.detail); setQ('') }
+    window.addEventListener('qalam:home-tab', on)
+    return () => window.removeEventListener('qalam:home-tab', on)
+  }, [])
+  // Juma sovğasi: a dot on «Aksiyalar» while it waits, and a popup once per Friday
+  const gift = useFridayGift()
+  const [giftPop, setGiftPop] = useState(false)
+  useEffect(() => {
+    if (gift?.canClaim && tab !== 'promos' && !fridaySeen(gift.endsAt)) setGiftPop(true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gift?.canClaim, gift?.endsAt])
   const [me, setMe] = useState(currentUser)
   useEffect(() => onUser(setMe), [])
   const [unread, setUnread] = useState(0)
@@ -284,6 +300,7 @@ export default function HomePage({
     { id: 'media', label: t('hm.rail.media'), icon: Images, onClick: () => { setTab('media'); setQ('') } },
     { id: 'files', label: t('hm.rail.files'), icon: FileText, onClick: () => { setTab('files'); setQ('') } },
     { id: 'alifbo', label: t('hm.rail.alifbo'), icon: TextAa, onClick: () => { setTab('alifbo'); setQ('') } },
+    { id: 'promos', label: t('ak.rail'), icon: Gift, dot: gift?.canClaim, onClick: () => { setTab('promos'); setQ('') } },
   ]
 
   return (
@@ -311,7 +328,7 @@ export default function HomePage({
           <kbd className="hm-new-kbd">{IS_MAC ? '⌘K' : 'Ctrl K'}</kbd>
         </button>
 
-        {RAIL.map(({ id, label, icon: Icon, pro, onClick }) => {
+        {RAIL.map(({ id, label, icon: Icon, pro, dot, onClick }) => {
           const active = id === tab || (id === 'home' && tab === 'home')
           return (
             <button key={id} className={`ed-rail-item ${active ? 'on' : ''}`} onClick={onClick} title={railOpen ? undefined : label}>
@@ -320,6 +337,7 @@ export default function HomePage({
                 {pro && (
                   <ProBadge size="xs" label={false} className="ed-rail-pro" />
                 )}
+                {dot && <span className="hm-rail-dot" aria-hidden="true" />}
               </span>
               <span className="ed-rail-label">{label}</span>
             </button>
@@ -369,6 +387,12 @@ export default function HomePage({
           {railOpen ? <CaretLeft size={13} weight="bold" /> : <CaretRight size={13} weight="bold" />}
         </button>
       </div>
+
+      {giftPop && (
+        <Suspense fallback={null}>
+          <FridayGift gift={gift} notify={notify} onClose={() => setGiftPop(false)} onOpen={() => { setTab('promos'); setQ('') }} />
+        </Suspense>
+      )}
 
       {creating && (
         <Suspense fallback={null}>
@@ -441,6 +465,10 @@ export default function HomePage({
         ) : tab === 'notifications' ? (
           <Suspense fallback={<TabLoading />}>
           <NotificationsView onCreate={openCreate} onOpenPricing={onOpenPricing} />
+          </Suspense>
+        ) : tab === 'promos' ? (
+          <Suspense fallback={<TabLoading />}>
+          <PromosView notify={notify} />
           </Suspense>
         ) : tab === 'profile' ? (
           <Suspense fallback={<TabLoading />}>

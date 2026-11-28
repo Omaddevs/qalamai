@@ -23,5 +23,14 @@
   "nt.support.done.title": "문의가 처리되었어요",
   "nt.support.done.body": "팀이 “{topic}” 문의를 처리했어요. 필요하면 연락드릴게요.",
   "nt.announce.badge": "QalamAI 소식",
-  "nt.announce.open": "자세히 보기"
+  "nt.announce.open": "자세히 보기",
+  "nt.promo.friday.title": "금요일 선물: +{coins} 코인",
+  "nt.promo.friday.body": "코인이 추가됐어요. 잔액: {balance}. 다음 금요일에 만나요!",
+  "nt.promo.action": "이벤트",
+  "nt.referral.reward.title": "친구가 가입했어요: +{coins} 코인",
+  "nt.referral.reward.body": "{name}님이 내 링크로 가입했어요. 잔액: {balance}.",
+  "nt.referral.reward.bodyNoName": "친구가 내 링크로 가입했어요. 잔액: {balance}.",
+  "nt.referral.action": "더 초대하기",
+  "nt.referral.welcome.title": "초대 선물: +{coins} 코인",
+  "nt.referral.welcome.body": "친구 초대로 가입한 보너스 코인이에요. 잔액: {balance}."
 }

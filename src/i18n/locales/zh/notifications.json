@@ -23,5 +23,14 @@
   "nt.support.done.title": "你的消息已处理",
   "nt.support.done.body": "团队已处理你关于“{topic}”的消息。如有需要，我们会与你联系。",
   "nt.announce.badge": "QalamAI 动态",
-  "nt.announce.open": "了解详情"
+  "nt.announce.open": "了解详情",
+  "nt.promo.friday.title": "周五礼物：+{coins} 枚金币",
+  "nt.promo.friday.body": "金币已到账。余额：{balance}。下周五见！",
+  "nt.promo.action": "活动",
+  "nt.referral.reward.title": "好友已加入：+{coins} 枚金币",
+  "nt.referral.reward.body": "{name} 通过你的链接注册了。余额：{balance}。",
+  "nt.referral.reward.bodyNoName": "有好友通过你的链接注册了。余额：{balance}。",
+  "nt.referral.action": "继续邀请",
+  "nt.referral.welcome.title": "邀请礼物：+{coins} 枚金币",
+  "nt.referral.welcome.body": "通过好友邀请注册的额外金币。余额：{balance}。"
 }

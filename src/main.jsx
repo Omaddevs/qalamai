@@ -8,6 +8,7 @@ import './styles.css'
 import './components/pro-badge.css' // after page CSS, so badge placements win
 import { startSync } from './sync.js'
 import { startTracking } from './track.js'
+import { captureReferral } from './promos.js'
 
 // a tab opened before a deploy reloads itself when it asks for a chunk that is gone
 watchNewVersion()
@@ -16,6 +17,8 @@ watchNewVersion()
 const isAdmin = window.location.pathname.replace(/\/+$/, '') === '/admin'
 
 if (!isAdmin) {
+  // opened through a friend's invite link (?ref=CODE): remember it for sign-up
+  captureReferral()
   // localStorage ⇄ server, in the background (designs, documents, profile)
   startSync()
   startTracking()

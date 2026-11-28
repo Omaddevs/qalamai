@@ -23,5 +23,14 @@
   "nt.support.done.title": "Tin nhắn của bạn đã được xử lý",
   "nt.support.done.body": "Đội ngũ đã xử lý tin nhắn “{topic}” của bạn. Chúng tôi sẽ liên hệ nếu cần.",
   "nt.announce.badge": "Tin tức QalamAI",
-  "nt.announce.open": "Tìm hiểu thêm"
+  "nt.announce.open": "Tìm hiểu thêm",
+  "nt.promo.friday.title": "Quà thứ Sáu: +{coins} xu",
+  "nt.promo.friday.body": "Đã thêm xu. Số dư: {balance}. Hẹn thứ Sáu tới!",
+  "nt.promo.action": "Khuyến mãi",
+  "nt.referral.reward.title": "Bạn bè đã tham gia: +{coins} xu",
+  "nt.referral.reward.body": "{name} đã đăng ký qua liên kết của bạn. Số dư: {balance}.",
+  "nt.referral.reward.bodyNoName": "Một người bạn đã đăng ký qua liên kết của bạn. Số dư: {balance}.",
+  "nt.referral.action": "Mời thêm",
+  "nt.referral.welcome.title": "Quà mời: +{coins} xu",
+  "nt.referral.welcome.body": "Xu thêm vì tham gia qua lời mời của bạn bè. Số dư: {balance}."
 }

@@ -377,3 +377,22 @@
 .tg-status { display: flex; align-items: center; gap: 7px; margin: 0; font-size: 13px; font-weight: 600; color: var(--au-muted); }
 .tg-status.s-opened { color: #1b8bc0; }
 .tg-status.s-verified { color: var(--brand-fg); }
+
+/* invited by a friend (Döst taklifi) */
+.au-invite {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  margin-top: 16px;
+  padding: 11px 14px;
+  border: 1px solid var(--brand-line);
+  border-radius: 14px;
+  background: var(--brand-soft);
+  text-align: start;
+  animation: au-invite-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.au-invite-ic { display: grid; place-items: center; flex-shrink: 0; width: 34px; height: 34px; border-radius: 11px; background: var(--brand); color: var(--brand-ink); }
+.au-invite b { display: block; font-size: 13.5px; font-weight: 700; color: #0b0b0d; }
+.au-invite small { display: block; margin-top: 1px; font-size: 12.5px; color: var(--brand-fg); font-weight: 600; }
+@keyframes au-invite-in { from { opacity: 0; transform: translateY(6px); } }

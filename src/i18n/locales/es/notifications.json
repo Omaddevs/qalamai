@@ -23,5 +23,14 @@
   "nt.support.done.title": "Hemos atendido tu mensaje",
   "nt.support.done.body": "El equipo ha atendido tu mensaje «{topic}». Te contactaremos si hace falta.",
   "nt.announce.badge": "Novedades de QalamAI",
-  "nt.announce.open": "Más información"
+  "nt.announce.open": "Más información",
+  "nt.promo.friday.title": "Regalo del viernes: +{coins} monedas",
+  "nt.promo.friday.body": "Monedas añadidas. Saldo: {balance}. ¡Nos vemos el próximo viernes!",
+  "nt.promo.action": "Promociones",
+  "nt.referral.reward.title": "Se unió un amigo: +{coins} monedas",
+  "nt.referral.reward.body": "{name} se registró con tu enlace. Saldo: {balance}.",
+  "nt.referral.reward.bodyNoName": "Un amigo se registró con tu enlace. Saldo: {balance}.",
+  "nt.referral.action": "Invitar a más",
+  "nt.referral.welcome.title": "Regalo de invitación: +{coins} monedas",
+  "nt.referral.welcome.body": "Monedas extra por unirte con la invitación de un amigo. Saldo: {balance}."
 }

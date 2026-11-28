@@ -15,6 +15,7 @@ import { createAnalytics, VISITOR_COOKIE } from './analytics.js'
 import { parseUa } from './detect.js'
 import { paymentAdminRoutes } from '../payments/admin.js'
 import { siteAdminRoutes } from '../site/admin.js'
+import { promoAdminRoutes } from '../promos/routes.js'
 import { createContentStats } from './content.js'
 import { CREATION_KINDS } from '../../../../shared/creations.js'
 
@@ -148,6 +149,7 @@ export async function adminRoutes(app) {
     /* ───────── card payments (receipts to check, the cards buyers pay to) ───────── */
     await paymentAdminRoutes(admin)
     await siteAdminRoutes(admin)
+    await promoAdminRoutes(admin, app.ctx.promos)
 
     /* ───────── statistics ───────── */
 

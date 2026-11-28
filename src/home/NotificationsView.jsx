@@ -1,7 +1,7 @@
 // Bildirişnomalar: the user's notices as a day-by-day timeline. System notices come as kind +
 // data and are worded in the interface language; announcements carry the team's own text.
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Bell, Checks, Check, Gift, Coins, ChatCircleText, Megaphone, ArrowRight, ArrowsClockwise, XCircle } from '@phosphor-icons/react'
+import { Bell, Checks, Check, Gift, Coins, ChatCircleText, Megaphone, ArrowRight, ArrowsClockwise, XCircle, UsersThree } from '@phosphor-icons/react'
 import { listNotifications, markAllRead, markRead, onUnread } from '../notifications.js'
 import { formatDate, t } from '../i18n/index.js'
 import { timeAgo } from '../store.js'
@@ -15,6 +15,9 @@ const KIND = {
   'payment.rejected': { icon: XCircle, tone: 'red' },
   'payment.cancelled': { icon: XCircle, tone: 'red' },
   'support.done': { icon: ChatCircleText, tone: 'green' },
+  'promo.friday': { icon: Gift, tone: 'teal' },
+  'referral.reward': { icon: UsersThree, tone: 'violet' },
+  'referral.welcome': { icon: Gift, tone: 'teal' },
   announce: { icon: Megaphone, tone: 'blue' },
 }
 
@@ -42,6 +45,16 @@ function words(n, { onCreate, onOpenPricing }) {
         title: t('nt.payment.cancelled.title'),
         body: t(d.taken ? 'nt.payment.cancelled.body' : 'nt.payment.cancelled.bodyNone', { coins: d.coins, taken: d.taken ?? 0, reason: d.reason ?? '' }),
       }
+    case 'promo.friday':
+      return { title: t('nt.promo.friday.title', { coins: d.coins }), body: t('nt.promo.friday.body', { balance: d.balance }), action: { label: t('nt.promo.action'), run: openPromos } }
+    case 'referral.reward':
+      return {
+        title: t('nt.referral.reward.title', { coins: d.coins }),
+        body: t(d.name ? 'nt.referral.reward.body' : 'nt.referral.reward.bodyNoName', { name: d.name ?? '', balance: d.balance }),
+        action: { label: t('nt.referral.action'), run: openPromos },
+      }
+    case 'referral.welcome':
+      return { title: t('nt.referral.welcome.title', { coins: d.coins }), body: t('nt.referral.welcome.body', { balance: d.balance }), action: { label: t('nt.welcome.action'), run: onCreate } }
     case 'support.done':
       return { title: t('nt.support.done.title'), body: t('nt.support.done.body', { topic: d.topic ? t(`chat.topic.${d.topic}`) : '' }) }
     case 'announce':
@@ -54,6 +67,12 @@ function words(n, { onCreate, onOpenPricing }) {
     default:
       return null // a kind this version of the app does not know yet
   }
+}
+
+/** Opens the «Aksiyalar» tab of the home screen. */
+function openPromos() {
+  sessionStorage.setItem('qalamai.tab', 'promos')
+  window.dispatchEvent(new CustomEvent('qalam:home-tab', { detail: 'promos' }))
 }
 
 function openLink(link) {

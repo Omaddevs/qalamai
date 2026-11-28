@@ -23,5 +23,14 @@
   "nt.support.done.title": "تمت معالجة رسالتك",
   "nt.support.done.body": "عالج الفريق رسالتك حول «{topic}». سنتواصل معك عند الحاجة.",
   "nt.announce.badge": "أخبار QalamAI",
-  "nt.announce.open": "اعرف المزيد"
+  "nt.announce.open": "اعرف المزيد",
+  "nt.promo.friday.title": "هدية الجمعة: +{coins} عملة",
+  "nt.promo.friday.body": "أُضيفت العملات. الرصيد: {balance}. نراك الجمعة القادمة!",
+  "nt.promo.action": "العروض",
+  "nt.referral.reward.title": "انضم صديقك: +{coins} عملة",
+  "nt.referral.reward.body": "سجّل {name} عبر رابطك. الرصيد: {balance}.",
+  "nt.referral.reward.bodyNoName": "سجّل صديق عبر رابطك. الرصيد: {balance}.",
+  "nt.referral.action": "ادعُ المزيد",
+  "nt.referral.welcome.title": "هدية الدعوة: +{coins} عملة",
+  "nt.referral.welcome.body": "عملات إضافية للتسجيل عبر دعوة صديق. الرصيد: {balance}."
 }

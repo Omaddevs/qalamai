@@ -11,7 +11,7 @@ const { notifications: n, notificationReads: r } = schema
 /** Announcements older than this before the account was made are not shown to it. */
 const ANNOUNCE_BACKLOG_MS = 30 * 24 * 3600_000
 
-export const NOTIFICATION_KINDS = ['welcome', 'coins.purchase', 'coins.grant', 'payment.rejected', 'payment.cancelled', 'support.done', 'announce']
+export const NOTIFICATION_KINDS = ['welcome', 'coins.purchase', 'coins.grant', 'payment.rejected', 'payment.cancelled', 'support.done', 'promo.friday', 'referral.reward', 'referral.welcome', 'announce']
 
 const out = (row, readAt) => ({
   id: row.id,

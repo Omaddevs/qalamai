@@ -23,5 +23,14 @@
   "nt.support.done.title": "به پیام شما رسیدگی شد",
   "nt.support.done.body": "تیم به پیام شما با موضوع «{topic}» رسیدگی کرد. در صورت نیاز با شما تماس می‌گیریم.",
   "nt.announce.badge": "اخبار QalamAI",
-  "nt.announce.open": "بیشتر بدانید"
+  "nt.announce.open": "بیشتر بدانید",
+  "nt.promo.friday.title": "هدیه جمعه: +{coins} سکه",
+  "nt.promo.friday.body": "سکه‌ها اضافه شد. موجودی: {balance}. جمعه بعد می‌بینیمتان!",
+  "nt.promo.action": "جشنواره‌ها",
+  "nt.referral.reward.title": "دوستتان پیوست: +{coins} سکه",
+  "nt.referral.reward.body": "{name} با پیوند شما ثبت‌نام کرد. موجودی: {balance}.",
+  "nt.referral.reward.bodyNoName": "یک دوست با پیوند شما ثبت‌نام کرد. موجودی: {balance}.",
+  "nt.referral.action": "دعوت بیشتر",
+  "nt.referral.welcome.title": "هدیه دعوت: +{coins} سکه",
+  "nt.referral.welcome.body": "سکه اضافه برای پیوستن با دعوت دوست. موجودی: {balance}."
 }

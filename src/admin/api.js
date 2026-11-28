@@ -66,6 +66,8 @@ export const admin = {
   updateSiteItem: (kind, id, body) => request('PUT', `/site/${kind}/${encodeURIComponent(id)}`, body),
   deleteSiteItem: (kind, id) => request('DELETE', `/site/${kind}/${encodeURIComponent(id)}`),
   siteOrder: (kind, ids) => request('PUT', `/site/${kind}/order`, { ids }),
+  promos: () => request('GET', '/promos'),
+  savePromos: (settings) => request('PUT', '/promos', settings),
   settings: () => request('GET', '/settings'),
   saveSettings: (patch) => request('PATCH', '/settings', patch),
 }

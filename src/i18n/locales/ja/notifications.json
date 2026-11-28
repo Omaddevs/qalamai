@@ -23,5 +23,14 @@
   "nt.support.done.title": "お問い合わせに対応しました",
   "nt.support.done.body": "「{topic}」に関するメッセージにチームが対応しました。必要に応じてご連絡いたします。",
   "nt.announce.badge": "QalamAI のお知らせ",
-  "nt.announce.open": "詳しく見る"
+  "nt.announce.open": "詳しく見る",
+  "nt.promo.friday.title": "金曜日のプレゼント：+{coins} コイン",
+  "nt.promo.friday.body": "コインを追加しました。残高：{balance}。また来週の金曜日に！",
+  "nt.promo.action": "キャンペーン",
+  "nt.referral.reward.title": "友だちが参加しました：+{coins} コイン",
+  "nt.referral.reward.body": "{name} さんがあなたのリンクから登録しました。残高：{balance}。",
+  "nt.referral.reward.bodyNoName": "友だちがあなたのリンクから登録しました。残高：{balance}。",
+  "nt.referral.action": "さらに招待する",
+  "nt.referral.welcome.title": "招待プレゼント：+{coins} コイン",
+  "nt.referral.welcome.body": "友だちの招待で登録した特典コインです。残高：{balance}。"
 }

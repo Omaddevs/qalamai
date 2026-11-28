@@ -49,6 +49,8 @@ export const users = pgTable(
     signupLanding: text('signup_landing'),
     /** Anonymous visitor id (analytics) the account signed up from. */
     visitorId: text('visitor_id'),
+    /** Own invite code for the "Döst taklifi" link (/royxatdan-otish?ref=<code>), made when first asked for. */
+    referralCode: text('referral_code'),
     /** Titul varagʻi profile: university, faculty, group, supervisor … (see frontend profile.js). */
     profile: jsonb('profile').notNull().default({}),
     createdAt: createdAt(),
@@ -60,6 +62,7 @@ export const users = pgTable(
     uniqueIndex('users_phone_uq').on(t.phone),
     uniqueIndex('users_google_uq').on(t.googleId),
     uniqueIndex('users_telegram_uq').on(t.telegramId),
+    uniqueIndex('users_referral_code_uq').on(t.referralCode),
     index('users_guest_seen_idx').on(t.isGuest, t.lastSeenAt),
     index('users_registered_idx').on(t.registeredAt),
   ],
@@ -223,7 +226,7 @@ export const coinLedger = pgTable(
     userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
     delta: integer('delta').notNull(),
     balance: integer('balance').notNull(),
-    reason: text('reason', { enum: ['signup', 'purchase', 'spend', 'refund', 'grant', 'reversal'] }).notNull(),
+    reason: text('reason', { enum: ['signup', 'purchase', 'spend', 'refund', 'grant', 'reversal', 'promo', 'referral'] }).notNull(),
     /** spend: the action id (referat, kurs-ishi …); purchase: the pack id. */
     item: text('item'),
     ref: text('ref'),
@@ -231,6 +234,26 @@ export const coinLedger = pgTable(
     createdAt: createdAt(),
   },
   (t) => [index('coin_ledger_user_idx').on(t.userId, t.createdAt), uniqueIndex('coin_ledger_ref_uq').on(t.userId, t.ref)],
+)
+
+/**
+ * "Döst taklifi": one row per account that signed up through someone's link (friend_id is the
+ * key, so an account is counted once). status: rewarded — the inviter got `coins`; skipped — the
+ * promotion was off, the inviter hit the limit, or it looked like the same person (`reason`).
+ */
+export const referrals = pgTable(
+  'referrals',
+  {
+    friendId: text('friend_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+    referrerId: text('referrer_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    code: text('code').notNull(),
+    status: text('status', { enum: ['rewarded', 'skipped'] }).notNull(),
+    reason: text('reason'),
+    coins: integer('coins').notNull().default(0),
+    friendCoins: integer('friend_coins').notNull().default(0),
+    createdAt: createdAt(),
+  },
+  (t) => [index('referrals_referrer_idx').on(t.referrerId, t.createdAt), index('referrals_created_idx').on(t.createdAt)],
 )
 
 /** Site analytics: one row per page view, sent by the web app (src/track.js). No IPs are kept. */

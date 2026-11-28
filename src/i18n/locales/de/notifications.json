@@ -23,5 +23,14 @@
   "nt.support.done.title": "Deine Nachricht wurde bearbeitet",
   "nt.support.done.body": "Das Team hat deine Nachricht „{topic}“ bearbeitet. Wir melden uns bei Bedarf bei dir.",
   "nt.announce.badge": "QalamAI-News",
-  "nt.announce.open": "Mehr erfahren"
+  "nt.announce.open": "Mehr erfahren",
+  "nt.promo.friday.title": "Freitagsgeschenk: +{coins} Coins",
+  "nt.promo.friday.body": "Coins gutgeschrieben. Guthaben: {balance}. Bis nächsten Freitag!",
+  "nt.promo.action": "Aktionen",
+  "nt.referral.reward.title": "Ein Freund ist dabei: +{coins} Coins",
+  "nt.referral.reward.body": "{name} hat sich über deinen Link registriert. Guthaben: {balance}.",
+  "nt.referral.reward.bodyNoName": "Ein Freund hat sich über deinen Link registriert. Guthaben: {balance}.",
+  "nt.referral.action": "Weitere einladen",
+  "nt.referral.welcome.title": "Einladungsgeschenk: +{coins} Coins",
+  "nt.referral.welcome.body": "Extra-Coins für die Registrierung über die Einladung eines Freundes. Guthaben: {balance}."
 }

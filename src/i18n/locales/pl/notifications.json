@@ -23,5 +23,14 @@
   "nt.support.done.title": "Twoja wiadomość została rozpatrzona",
   "nt.support.done.body": "Zespół rozpatrzył Twoją wiadomość „{topic}”. W razie potrzeby skontaktujemy się z Tobą.",
   "nt.announce.badge": "Nowości QalamAI",
-  "nt.announce.open": "Dowiedz się więcej"
+  "nt.announce.open": "Dowiedz się więcej",
+  "nt.promo.friday.title": "Piątkowy prezent: +{coins} monet",
+  "nt.promo.friday.body": "Monety dodane. Saldo: {balance}. Do następnego piątku!",
+  "nt.promo.action": "Promocje",
+  "nt.referral.reward.title": "Znajomy dołączył: +{coins} monet",
+  "nt.referral.reward.body": "{name} zarejestrował(a) się przez Twój link. Saldo: {balance}.",
+  "nt.referral.reward.bodyNoName": "Znajomy zarejestrował się przez Twój link. Saldo: {balance}.",
+  "nt.referral.action": "Zaproś więcej",
+  "nt.referral.welcome.title": "Prezent za zaproszenie: +{coins} monet",
+  "nt.referral.welcome.body": "Dodatkowe monety za dołączenie z zaproszenia znajomego. Saldo: {balance}."
 }

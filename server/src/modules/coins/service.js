@@ -133,6 +133,12 @@ export function createCoinService({ db, notifier = null }) {
       })
     },
 
+    /**
+     * Free coins from a promotion (reason 'promo' — Juma sovğasi — or 'referral'). `ref` makes it
+     * one-time (friday:<date>, ref:<friend id> …); the caller sends its own notice.
+     */
+    award: (userId, amount, reason, { item, ref, meta = {} }) => moveOnce(userId, amount, reason, { item, ref, meta }),
+
     async grant(userId, amount, by, note) {
       const res = await moveOnce(userId, amount, 'grant', { meta: { by, note } })
       if (amount > 0) await notifier?.send(userId, 'coins.grant', { coins: amount, balance: res.balance })

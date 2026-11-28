@@ -23,5 +23,14 @@
   "nt.support.done.title": "Pesan Anda telah ditangani",
   "nt.support.done.body": "Tim telah menangani pesan Anda “{topic}”. Kami akan menghubungi Anda bila diperlukan.",
   "nt.announce.badge": "Kabar QalamAI",
-  "nt.announce.open": "Selengkapnya"
+  "nt.announce.open": "Selengkapnya",
+  "nt.promo.friday.title": "Hadiah Jumat: +{coins} koin",
+  "nt.promo.friday.body": "Koin ditambahkan. Saldo: {balance}. Sampai Jumat depan!",
+  "nt.promo.action": "Promo",
+  "nt.referral.reward.title": "Teman bergabung: +{coins} koin",
+  "nt.referral.reward.body": "{name} mendaftar lewat tautanmu. Saldo: {balance}.",
+  "nt.referral.reward.bodyNoName": "Seorang teman mendaftar lewat tautanmu. Saldo: {balance}.",
+  "nt.referral.action": "Ajak lagi",
+  "nt.referral.welcome.title": "Hadiah undangan: +{coins} koin",
+  "nt.referral.welcome.body": "Koin tambahan karena bergabung lewat undangan teman. Saldo: {balance}."
 }

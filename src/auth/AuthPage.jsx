@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   EnvelopeSimple, LockSimple, Eye, EyeSlash, User, ArrowLeft, ArrowRight, CircleNotch, WarningCircle, Info,
-  TelegramLogo, Check, Sparkle,
+  TelegramLogo, Check, Sparkle, Gift,
 } from '@phosphor-icons/react'
 import { Wordmark } from '../components/ui.jsx'
 import Slide from '../editor/Slide.jsx'
@@ -9,6 +9,8 @@ import { TEMPLATES, sampleDeck } from '../editor/templates.js'
 import { TOOL_UI } from '../files/toolMeta.js'
 import { login, peekSession, register, signInWithGoogle } from '../api.js'
 import TelegramFlow from './TelegramFlow.jsx'
+import { checkInvite, readRefCode } from '../promos.js'
+import { SIGNUP_BONUS } from '../../shared/coins.js'
 import '../editor/editor.css'
 import './auth.css'
 import { t } from '../i18n/index.js'
@@ -201,6 +203,12 @@ function Showcase() {
 
 export default function AuthPage({ mode, onMode, onDone, onBack }) {
   const isSignup = mode === 'register'
+  // came through a friend's link: say who invited and what the welcome gift is
+  const [invite, setInvite] = useState(null)
+  useEffect(() => {
+    const code = readRefCode()
+    if (code) checkInvite(code).then(setInvite)
+  }, [])
   const [name, setName] = useState('')
   const [id, setId] = useState('')
   const [pw, setPw] = useState('')
@@ -299,6 +307,15 @@ export default function AuthPage({ mode, onMode, onDone, onBack }) {
           <p className="au-lead">
             {isSignup ? t('au.leadSignup') : t('au.leadLogin')}
           </p>
+          {isSignup && invite && (
+            <div className="au-invite" role="status">
+              <span className="au-invite-ic"><Gift size={18} weight="fill" /></span>
+              <span>
+                <b>{invite.name ? t('ak.auth.by', { name: invite.name }) : t('ak.auth.anon')}</b>
+                <small>{t('ak.auth.gift', { coins: SIGNUP_BONUS + (invite.friendCoins || 0) })}</small>
+              </span>
+            </div>
+          )}
 
           {viaTelegram ? (
             <TelegramFlow

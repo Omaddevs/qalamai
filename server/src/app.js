@@ -39,6 +39,8 @@ import { sitePageRoutes } from './modules/site/page.js'
 import paymentRoutes from './modules/payments/routes.js'
 import { createNotifier } from './modules/notifications/service.js'
 import { createCoinService } from './modules/coins/service.js'
+import { createPromoService } from './modules/promos/service.js'
+import promoRoutes from './modules/promos/routes.js'
 import { adminRoutes, createAnalytics, trackRoutes, verificationRoutes } from './modules/admin/routes.js'
 import { COIN_COSTS, COIN_PACKS, SIGNUP_BONUS } from '../../shared/coins.js'
 
@@ -76,6 +78,7 @@ export async function buildApp(config) {
   const notifier = createNotifier({ db, log: app.log })
   const coins = createCoinService({ db, notifier })
   const auth = createAuthService({ db, tokens, config, coins })
+  const promos = createPromoService({ db, coins, notifier, log: app.log })
   // null until GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET are set; tests swap in a fake
   const google = config.google ? createGoogleClient(config.google) : null
   // Telegram bot that confirms phone numbers; polling is started by index.js (not in tests)
@@ -84,7 +87,7 @@ export async function buildApp(config) {
   const analytics = createAnalytics({ db, config })
   // designs and documents made before the creations log existed are counted too (admin panel)
   backfillCreations(db, app.log).catch((err) => app.log.warn({ err }, 'creations backfill failed'))
-  app.decorate('ctx', { config, db, storage, tokens, pool, files, jobs, auth, coins, notifier, google, bot, telegram, driver, analytics })
+  app.decorate('ctx', { config, db, storage, tokens, pool, files, jobs, auth, coins, promos, notifier, google, bot, telegram, driver, analytics })
 
   /* ── auth decorators ── */
   const loadUser = async (req) => {
@@ -144,6 +147,7 @@ export async function buildApp(config) {
       await api.register(userRoutes, { prefix: '/me' })
       await api.register(avatarRoutes, { prefix: '/avatars' })
       await api.register(coinRoutes, { prefix: '/coins' })
+      await api.register(promoRoutes, { prefix: '/promos' })
       await api.register(paymentRoutes, { prefix: '/payments' })
       await api.register(fileRoutes, { prefix: '/files' })
       await api.register(toolRoutes, { prefix: '/tools' })

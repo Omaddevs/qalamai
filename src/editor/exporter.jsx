@@ -33,7 +33,7 @@ export const supports = {
 const nextFrame = () => new Promise((r) => requestAnimationFrame(() => r()))
 
 /** Mount pages off screen; → { pages: HTMLElement[], dispose } */
-async function mount(slides, theme, indexes, watermark) {
+export async function mount(slides, theme, indexes, watermark) {
   const host = document.createElement('div')
   host.className = 'export-root'
   host.setAttribute('aria-hidden', 'true')
@@ -128,7 +128,7 @@ const dataUrl = (url) => {
 const familyOf = (css) => css.split(',')[0].trim().replace(/^["']|["']$/g, '').toLowerCase()
 
 /** @font-face CSS (fonts inlined) for what the pages use. */
-async function fontCss(pages) {
+export async function fontCss(pages) {
   const used = new Set() // "family|style"
   for (const page of pages) {
     for (const el of [page, ...page.querySelectorAll('*')]) {
@@ -156,7 +156,7 @@ async function fontCss(pages) {
   return out.join('\n')
 }
 
-async function capture(page, scale = 1, fonts = '') {
+export async function capture(page, scale = 1, fonts = '') {
   const { domToCanvas } = await screenshot()
   return domToCanvas(page, { width: W, height: H, scale, backgroundColor: '#ffffff', font: { cssText: fonts } })
 }
@@ -312,10 +312,10 @@ export async function exportDeck({ format, slides, theme, indexes, name, waterma
 
 /* ───────── MP4: each page for `seconds`, with a short cross-fade ───────── */
 
-const FPS = 30
+export const FPS = 30
 const FADE = 0.5 // seconds
 
-async function encoderConfig() {
+export async function encoderConfig() {
   for (const codec of ['avc1.640028', 'avc1.4d0028', 'avc1.42e028']) {
     const config = { codec, width: W, height: H, bitrate: 8_000_000, framerate: FPS, avc: { format: 'avc' } }
     try {
@@ -358,7 +358,7 @@ async function video(pages, seconds, tick, shoot) {
       vf.close()
       n++
       // don't run ahead of the encoder
-      while (encoder.encodeQueueSize > 8) await new Promise((r) => setTimeout(r, 4))
+      while (encoder.encodeQueueSize > 8 && !failure) await new Promise((r) => setTimeout(r, 4))
     }
     prev = cur
     tick(k + 1)

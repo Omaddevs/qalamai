@@ -1,8 +1,9 @@
 // The presenters: original flat-illustration characters drawn as one SVG rig, plus the user's own
 // photo. They blink, sway a little, move the mouth with the voice (level() 0…1, read every frame
 // without re-rendering React) and raise a hand towards the slide while the pen draws.
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useAsset } from '../../assets.js'
+import { blinkAt, createRig, rigAspect, waveAt } from './photoRig.js'
 
 /** gender picks the default voice; role is a t() key (pr.role.*). */
 export const PRESENTERS = [
@@ -14,6 +15,28 @@ export const PRESENTERS = [
   { id: 'bobur', gender: 'm', role: 'student', skin: '#C98E68', hair: 'curly', hairColor: '#1B1512', outfit: '#F97316', trim: '#FFF7ED', style: 'hoodie' },
   { id: 'kamila', gender: 'f', role: 'business', skin: '#F5D0B5', hair: 'bob', hairColor: '#3B2418', outfit: '#B91C1C', trim: '#FFFFFF', style: 'blazer' },
   { id: 'qalam', gender: 'f', role: 'robot', robot: true, outfit: '#111111', trim: '#C6F432' },
+  // a real-looking host: a cut-out photo brought to life by photoRig.js (points in photo pixels)
+  {
+    id: 'jahongir',
+    gender: 'm',
+    role: 'host',
+    real: {
+      src: '/presenters/jahongir.png',
+      size: [554, 554],
+      thumb: { x: 39, y: 13, zoom: 2.6 }, // the face, for round thumbnails (object-position %, scale)
+      rig: {
+        neck: [215, 190],
+        head: [216, 96, 58, 88],
+        jaw: [215, 160, 40, 22],
+        jawLine: 138,
+        jawMax: 4.5,
+        wrist: [462, 172],
+        hand: [398, 158, 0, 200],
+        base: [277, 554],
+        eyes: [[195, 98, 9, 4.5], [236, 98, 9, 4.5]],
+      },
+    },
+  },
 ]
 export const presenterById = (id) => PRESENTERS.find((p) => p.id === id) ?? PRESENTERS[0]
 
@@ -143,11 +166,13 @@ function Beard({ p }) {
 }
 
 /** The raised hand, pointing out of the frame towards the slide (left; `flip` → right). */
-function Hand({ p, flip }) {
+function Hand({ p, flip, still }) {
   const skin = p.skin ?? '#EDBE9A'
+  // a still picture (video frames) has no stylesheet: the raised / lowered hand is set inline
+  const pose = still == null ? undefined : still ? 'translate(0 0)' : 'translate(-30 70) rotate(-12 40 200)'
   return (
     <g transform={flip ? 'translate(200 0) scale(-1 1)' : undefined}>
-      <g className="pr-hand">
+      <g className="pr-hand" transform={pose}>
         <path d="M30 200 C30 186 34 176 40 168 L58 180 C52 188 50 194 50 200 Z" fill={shade(p.outfit, 0.86)} />
         <g transform="translate(52 170) rotate(-140)">
           <rect x="0" y="-9" width="24" height="18" rx="8" fill={skin} />
@@ -159,7 +184,13 @@ function Hand({ p, flip }) {
   )
 }
 
-function RobotFace({ mouth }) {
+/** The robot's mouth: a line when quiet, an open screen-glow shape while speaking. */
+const robotMouth = (lv) => {
+  const h = 2 + lv * 12
+  return lv > 0.06 ? { d: `M88 ${100 - h / 2} Q100 ${100 - h} 112 ${100 - h / 2} Q100 ${100 + h} 88 ${100 - h / 2} Z`, fill: '#C6F432' } : { d: 'M88 100 Q100 104 112 100', fill: 'none' }
+}
+
+function RobotFace({ mouth, open = 0, blink = false }) {
   return (
     <g>
       <path d="M28 200 C30 166 56 148 100 148 C144 148 170 166 172 200 Z" fill="#111" />
@@ -169,11 +200,11 @@ function RobotFace({ mouth }) {
       <circle cx="100" cy="27" r="6" fill="#C6F432" className="pr-antenna" />
       <rect x="58" y="44" width="84" height="88" rx="26" fill="#1C1C1E" />
       <rect x="66" y="54" width="68" height="62" rx="18" fill="#0B0B0C" />
-      <g className="pr-eyes" style={{ transformOrigin: '100px 78px' }}>
+      <g className="pr-eyes" style={{ transformOrigin: '100px 78px' }} transform={blink ? 'translate(0 72) scale(1 0.08)' : undefined}>
         <rect x="80" y="70" width="10" height="16" rx="5" fill="#C6F432" />
         <rect x="110" y="70" width="10" height="16" rx="5" fill="#C6F432" />
       </g>
-      <path ref={mouth} d="M88 100 Q100 104 112 100" fill="none" stroke="#C6F432" strokeWidth="4" strokeLinecap="round" />
+      <path ref={mouth} d={robotMouth(open).d} fill={robotMouth(open).fill} stroke="#C6F432" strokeWidth="4" strokeLinecap="round" />
       <rect x="50" y="76" width="8" height="24" rx="4" fill="#2A2A2A" />
       <rect x="142" y="76" width="8" height="24" rx="4" fill="#2A2A2A" />
     </g>
@@ -184,7 +215,9 @@ function RobotFace({ mouth }) {
  * One character. `level` is a function (read every frame); `pointing` raises the hand towards
  * the slide; `side` is where the character sits ('right' → it points to the left).
  */
-export function Character({ presenter, level, pointing = false, side = 'right', className = '' }) {
+export function Character({ presenter, level, pointing = false, side = 'right', className = '', still = null }) {
+  // still = { open: 0…1, blink, pointing } draws one fixed picture (the video export renders these)
+  const open = still?.open ?? 0
   const p = presenter
   const head = useRef(null)
   const mouth = useRef(null)
@@ -193,10 +226,11 @@ export function Character({ presenter, level, pointing = false, side = 'right', 
     const sway = Math.sin(t * 0.9) * 1.4 + Math.sin(t * 2.3) * lv * 1.6
     const nod = lv * 1.6
     head.current?.setAttribute('transform', `rotate(${sway.toFixed(2)} 100 130) translate(0 ${nod.toFixed(2)})`)
+    if (still) return
     if (p.robot) {
-      const h = 2 + lv * 12
-      mouth.current?.setAttribute('d', lv > 0.06 ? `M88 ${100 - h / 2} Q100 ${100 - h} 112 ${100 - h / 2} Q100 ${100 + h} 88 ${100 - h / 2} Z` : 'M88 100 Q100 104 112 100')
-      mouth.current?.setAttribute('fill', lv > 0.06 ? '#C6F432' : 'none')
+      const m = robotMouth(lv)
+      mouth.current?.setAttribute('d', m.d)
+      mouth.current?.setAttribute('fill', m.fill)
     } else mouth.current?.setAttribute('d', mouthPath(Math.min(1, lv)))
     brows.current?.setAttribute('transform', `translate(0 ${(-lv * 1.4).toFixed(2)})`)
   })
@@ -205,7 +239,7 @@ export function Character({ presenter, level, pointing = false, side = 'right', 
     <svg viewBox="0 0 200 200" className={`pr-char ${pointing ? 'pointing' : ''} ${className}`} aria-hidden="true">
       {p.robot ? (
         <g ref={head}>
-          <RobotFace mouth={mouth} />
+          <RobotFace mouth={mouth} open={open} blink={still?.blink} />
         </g>
       ) : (
         <>
@@ -226,7 +260,7 @@ export function Character({ presenter, level, pointing = false, side = 'right', 
               <path d="M78 84 Q86 79 93 83" fill="none" stroke={shade(p.hairColor === '#B9B4AD' ? '#7A746C' : p.hairColor, 1)} strokeWidth="3" strokeLinecap="round" />
               <path d="M107 83 Q114 79 122 84" fill="none" stroke={shade(p.hairColor === '#B9B4AD' ? '#7A746C' : p.hairColor, 1)} strokeWidth="3" strokeLinecap="round" />
             </g>
-            <g className="pr-eyes" style={{ transformOrigin: '100px 95px' }}>
+            <g className="pr-eyes" style={{ transformOrigin: '100px 95px' }} transform={still?.blink ? 'translate(0 87.4) scale(1 0.08)' : undefined}>
               <ellipse cx="86" cy="95" rx="3.6" ry="4.4" fill="#1B1B1F" />
               <ellipse cx="114" cy="95" rx="3.6" ry="4.4" fill="#1B1B1F" />
               <circle cx="87.3" cy="93.6" r="1.2" fill="#fff" />
@@ -242,11 +276,11 @@ export function Character({ presenter, level, pointing = false, side = 'right', 
             <path d="M100 99 Q97 109 101 111" fill="none" stroke={shade(p.skin, 0.78)} strokeWidth="2.2" strokeLinecap="round" />
             <circle cx="78" cy="112" r="6" fill="#E8776B" opacity="0.16" />
             <circle cx="122" cy="112" r="6" fill="#E8776B" opacity="0.16" />
-            <path ref={mouth} d={mouthPath(0)} fill="#7A2E2E" />
+            <path ref={mouth} d={mouthPath(open)} fill="#7A2E2E" />
           </g>
         </>
       )}
-      <Hand p={p.robot ? { ...p, skin: '#2A2A2A', outfit: '#111111' } : p} flip={flip} />
+      <Hand p={p.robot ? { ...p, skin: '#2A2A2A', outfit: '#111111' } : p} flip={flip} still={still ? Boolean(still.pointing) : null} />
     </svg>
   )
 }
@@ -265,9 +299,71 @@ export function PhotoPresenter({ src, level }) {
   )
 }
 
-/** Whoever presents: a character, or the user's photo. */
+/** A real-looking host's face, for round thumbnails (the dialog, the intro card). */
+export function HostThumb({ presenter }) {
+  const { src, thumb } = presenter.real
+  return (
+    <span className="pr-thumb" aria-hidden="true">
+      <img src={src} alt="" draggable={false} style={{ objectPosition: `${thumb.x}% ${thumb.y}%`, transform: `scale(${thumb.zoom})`, transformOrigin: `${thumb.x}% ${thumb.y}%` }} />
+    </span>
+  )
+}
+
+/**
+ * A real-looking host standing beside the slide: the photo, alive (photoRig.js). Waves when
+ * `pointing` turns on; falls back to the still photo where WebGL is missing.
+ */
+export function PhotoHost({ presenter, level, pointing = false, side = 'right' }) {
+  const box = useRef(null)
+  const rig = useRef(null)
+  const since = useRef(null)
+  const [still, setStill] = useState(false)
+  useEffect(() => {
+    let alive = true
+    const img = new Image()
+    img.src = presenter.real.src
+    img
+      .decode()
+      .then(() => {
+        if (!alive || !box.current) return
+        const r = createRig(img, presenter.real.rig, { width: Math.min(900, Math.round(box.current.clientWidth * (window.devicePixelRatio || 1)) || 480), flip: side !== 'left' })
+        if (!r) return setStill(true)
+        rig.current = r
+        r.canvas.className = 'pr-host-canvas'
+        box.current.append(r.canvas)
+      })
+      .catch(() => alive && setStill(true))
+    return () => {
+      alive = false
+      rig.current?.canvas.remove()
+      rig.current?.dispose()
+      rig.current = null
+    }
+  }, [presenter, side])
+  useEffect(() => {
+    if (pointing) since.current = performance.now() / 1000
+  }, [pointing])
+  useLevelFrame(level, (lv, t) => rig.current?.draw({ t, level: lv, wave: waveAt(t, since.current), blink: blinkAt(t) }))
+  return (
+    <div className={`pr-host ${side === 'left' ? 'left' : ''}`} ref={box} style={{ aspectRatio: rigAspect(...presenter.real.size, presenter.real.rig) }}>
+      {still && <img src={presenter.real.src} alt="" style={side !== 'left' ? { transform: 'scaleX(-1)' } : undefined} />}
+    </div>
+  )
+}
+
+/** Whoever presents: a character, a real-looking host, or the user's photo. */
 export function PresenterFace({ narration, level, pointing, side }) {
   const who = narration?.presenter ?? {}
   if (who.photo) return <PhotoPresenter src={who.photo} level={level} />
-  return <Character presenter={presenterById(who.id)} level={level} pointing={pointing} side={side} />
+  const p = presenterById(who.id)
+  if (p.real) return <PhotoHost presenter={p} level={level} pointing={pointing} side={side} />
+  return <Character presenter={p} level={level} pointing={pointing} side={side} />
+}
+
+/** A round picture of the presenter (dialog cards, the intro card). */
+export function PresenterThumb({ narration }) {
+  const who = narration?.presenter ?? {}
+  if (who.photo) return <PhotoPresenter src={who.photo} level={null} />
+  const p = presenterById(who.id)
+  return p.real ? <HostThumb presenter={p} /> : <Character presenter={p} level={null} />
 }

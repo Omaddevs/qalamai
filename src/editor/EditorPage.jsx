@@ -1059,6 +1059,8 @@ export default function EditorPage({ initialDeck, initialPanel, onHome, onSave, 
           theme={theme}
           narration={narration}
           onChange={setNarration}
+          premium={premium}
+          beforeDownload={beforeDownload}
           onClose={() => setNarrating(false)}
           onStart={() => {
             flushSave()

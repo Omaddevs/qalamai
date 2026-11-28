@@ -11,7 +11,7 @@ import { TRANSITION_DUR, reducedMotion } from '../motion.js'
 import { t } from '../../i18n/index.js'
 import { collectAnchors, findAnchor } from './anchors.js'
 import { lineBoxes, marks } from './ink.js'
-import { PresenterFace, presenterById } from './characters.jsx'
+import { PresenterFace, PresenterThumb, presenterById } from './characters.jsx'
 import { createVoice } from './voice.js'
 import './presenter.css'
 
@@ -150,6 +150,7 @@ export default function AutoPresent({ slides, theme, narration, transition = 'fa
   const who = narration.presenter ?? {}
   const persona = who.photo ? null : presenterById(who.id)
   const side = narration.side === 'left' ? 'left' : 'right'
+  const host = Boolean(persona?.real) // a real-looking host stands beside the slide instead of a round bubble
 
   const voice = useMemo(
     () =>
@@ -231,6 +232,11 @@ export default function AutoPresent({ slides, theme, narration, transition = 'fa
         const p = say[k]
         voice.prefetch(say[k + 1]?.text ?? scriptOf(i + 1)[0]?.text)
         if (p.do) cue(p, anchors, i * 100 + k + 1)
+        else if (i === 0 && k === 0) {
+          // the greeting: the presenter waves
+          setPointing(true)
+          setTimeout(() => setPointing(false), 1400)
+        }
         const h = voice.speak(p.text)
         handleRef.current = h
         if (paused.current) h.pause()
@@ -345,7 +351,7 @@ export default function AutoPresent({ slides, theme, narration, transition = 'fa
   const name = persona ? t(`pr.name.${persona.id}`) : t('pr.you')
 
   return createPortal(
-    <div className={`ap ${idle && phase === 'play' && playing ? 'idle' : ''}`} ref={box} data-side={side}>
+    <div className={`ap ${idle && phase === 'play' && playing ? 'idle' : ''}`} ref={box} data-side={side} data-host={host ? '' : undefined}>
       <div className="present-stage ap-stage" ref={stage} data-tr={tr} style={{ '--pt-dur': `${dur}s`, '--pt-dir': view.dir }}>
         {moving && (
           <div key={`out-${view.n}`} className="pt-page out">
@@ -374,7 +380,7 @@ export default function AutoPresent({ slides, theme, narration, transition = 'fa
         {laser && <span key={laser.n} className="ap-laser" style={{ transform: `translate(${laser.x}px, ${laser.y}px)` }} />}
 
         {showFace && phase !== 'intro' && (
-          <div className={`ap-face ${part ? 'talking' : ''}`}>
+          <div className={`ap-face ${host ? 'host' : ''} ${part ? 'talking' : ''}`}>
             <PresenterFace narration={narration} level={level} pointing={pointing} side={side} />
             <span className="ap-face-name">{name}</span>
           </div>
@@ -385,7 +391,7 @@ export default function AutoPresent({ slides, theme, narration, transition = 'fa
           <div className="ap-intro">
             <div className="ap-intro-card">
               <div className="ap-intro-face">
-                <PresenterFace narration={narration} level={null} side={side} />
+                <PresenterThumb narration={narration} />
               </div>
               <small>{t('pr.introKicker')}</small>
               <h2>{title || t('pr.untitled')}</h2>

@@ -2,7 +2,7 @@
 // the style, let the AI write what to say on every page, adjust any sentence or pen cue by hand,
 // then start the self-running presentation.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Camera, Check, Microphone, PencilSimpleLine, Play, Plus, Sparkle, SpeakerHigh, Trash, Warning } from '@phosphor-icons/react'
+import { Camera, Check, DownloadSimple, FilmStrip, Microphone, PencilSimpleLine, Play, Plus, Sparkle, SpeakerHigh, Trash, Warning } from '@phosphor-icons/react'
 import { Modal } from '../../components/ui.jsx'
 import { aiNarrate, costOf } from '../../coins.js'
 import { ApiError } from '../../api.js'
@@ -11,7 +11,7 @@ import { inLang, t } from '../../i18n/index.js'
 import { DeckLangPicker, deckLangs } from '../../home/DeckLang.jsx'
 import Slide from '../Slide.jsx'
 import { sigOf } from './anchors.js'
-import { Character, PRESENTERS, PhotoPresenter, presenterById } from './characters.jsx'
+import { Character, HostThumb, PRESENTERS, PhotoPresenter, presenterById } from './characters.jsx'
 import { AnchorProbe, DRAW_IDS, LENGTHS, NARRATE_MAX_SLIDES, TONES, scriptPart, staleSlides } from './narration.jsx'
 import { createVoice, pickBrowserVoice, speaksLang, voiceInfo } from './voice.js'
 import './presenter.css'
@@ -46,9 +46,11 @@ function Segmented({ value, options, onChange, label }) {
 
 /**
  * @param {{ deck: object, theme: object, narration: object, onChange: (n: object) => void,
- *           onStart: () => void, onClose: () => void, notify: (msg: string) => void }} props
+ *           onStart: () => void, onClose: () => void, notify: (msg: string) => void,
+ *           premium: boolean, beforeDownload: () => boolean | Promise<boolean> }} props
+ *   premium: no watermark on the video; beforeDownload: the Pro-template payment, as for any download
  */
-export default function NarrateDialog({ deck, theme, narration: n, onChange, onStart, onClose, notify }) {
+export default function NarrateDialog({ deck, theme, narration: n, onChange, onStart, onClose, notify, premium = false, beforeDownload = () => true }) {
   const [anchors, setAnchors] = useState(null) // Map<slideId, anchors>
   const [busy, setBusy] = useState(null) // { done, total } while the AI writes
   const [hearing, setHearing] = useState(false)
@@ -67,6 +69,45 @@ export default function NarrateDialog({ deck, theme, narration: n, onChange, onS
   const who = n.presenter
 
   useEffect(() => () => abort.current?.abort(), [])
+
+  /* ───── the narrated presentation as an MP4 ───── */
+  const [rec, setRec] = useState(null) // { phase, done, total } while the video is made
+  const recAbort = useRef(null)
+  useEffect(() => () => recAbort.current?.abort(), [])
+  const makeVideo = async () => {
+    if (rec || busy) return
+    const { canRecordVideo, narratedVideo } = await import('./narratedVideo.js')
+    if (!canRecordVideo()) return notify(t('pr.videoNoSupport'))
+    if (!(await beforeDownload())) return
+    const ctl = new AbortController()
+    recAbort.current = ctl
+    setRec({ phase: 'pages', done: 0, total: slides.length })
+    try {
+      const persona = who.photo ? null : presenterById(who.id)
+      const { blob, silent, voiceFailed } = await narratedVideo({
+        slides,
+        theme,
+        narration: n,
+        presenterName: persona ? t(`pr.name.${persona.id}`) : t('pr.you'),
+        watermark: !premium,
+        onProgress: (p) => setRec(p),
+        signal: ctl.signal,
+      })
+      const { fileBase, saveBlob } = await import('../exporter.jsx')
+      saveBlob(blob, `${fileBase(deck.name)}.mp4`)
+      notify(silent ? t('pr.videoSilent') : voiceFailed ? t('pr.videoSomeSilent', { n: voiceFailed }) : t('pr.videoDone'))
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        console.error('narrated video failed', err)
+        notify(t('pr.videoFailed'))
+      }
+    } finally {
+      recAbort.current = null
+      setRec(null)
+    }
+  }
+  // the three steps share one bar: pages 0–20 %, voice 20–45 %, frames 45–100 %
+  const recPct = rec ? Math.round(({ pages: 0, voice: 20, video: 45 }[rec.phase] ?? 0) + ({ pages: 20, voice: 25, video: 55 }[rec.phase] ?? 0) * (rec.total ? rec.done / rec.total : 0)) : 0
 
   // no server voice and no voice of this language on this device: tell where a clear one is
   const [weakVoice, setWeakVoice] = useState(false)
@@ -210,7 +251,7 @@ export default function NarrateDialog({ deck, theme, narration: n, onChange, onS
               const on = !who.photo && who.id === p.id
               return (
                 <button key={p.id} type="button" className={`nd-person ${on ? 'on' : ''}`} onClick={() => pickPresenter(p.id)} aria-pressed={on} title={`${t(`pr.name.${p.id}`)} · ${t(`pr.role.${p.role}`)}`}>
-                  <Character presenter={p} level={null} />
+                  {p.real ? <HostThumb presenter={p} /> : <Character presenter={p} level={null} />}
                   <span>{t(`pr.name.${p.id}`)}</span>
                   {on && <span className="nd-tick"><Check weight="bold" size={12} /></span>}
                 </button>
@@ -343,10 +384,32 @@ export default function NarrateDialog({ deck, theme, narration: n, onChange, onS
 
       <div className="modal-foot nd-foot">
         <span>{t('pr.footNote')}</span>
-        <button type="button" className="btn primary nd-start" onClick={onStart} disabled={!written || Boolean(busy)}>
-          <Play size={16} weight="fill" /> {t('pr.startShow')}
-        </button>
+        <div className="nd-foot-btns">
+          <button type="button" className="btn nd-video" onClick={makeVideo} disabled={!written || Boolean(busy) || Boolean(rec)} title={t('pr.videoHint')}>
+            <DownloadSimple size={16} weight="bold" /> {t('pr.video')}
+          </button>
+          <button type="button" className="btn primary nd-start" onClick={onStart} disabled={!written || Boolean(busy) || Boolean(rec)}>
+            <Play size={16} weight="fill" /> {t('pr.startShow')}
+          </button>
+        </div>
       </div>
+
+      {rec && (
+        <div className="nd-rec" role="status" aria-live="polite">
+          <div className="nd-rec-card">
+            <FilmStrip size={34} weight="duotone" />
+            <b>{t('pr.videoTitle')}</b>
+            <p>{t(`pr.videoStep.${rec.phase}`, { done: rec.phase === 'video' ? Math.round(rec.done / 30) : rec.done, total: rec.phase === 'video' ? Math.round(rec.total / 30) : rec.total })}</p>
+            <div className="nd-rec-bar" role="progressbar" aria-valuenow={recPct} aria-valuemin={0} aria-valuemax={100}>
+              <i style={{ width: `${recPct}%` }} />
+            </div>
+            <span>{recPct}%</span>
+            <button type="button" className="btn" onClick={() => recAbort.current?.abort()}>
+              {t('pr.cancel')}
+            </button>
+          </div>
+        </div>
+      )}
     </Modal>
   )
 }

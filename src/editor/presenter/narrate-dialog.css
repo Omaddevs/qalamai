@@ -19,6 +19,7 @@
 .nd-person.on { border-color: var(--brand-strong); box-shadow: 0 0 0 3px var(--brand-line); }
 .nd-person:focus-visible { outline: 2px solid var(--brand-strong); outline-offset: 2px; }
 .nd-person > svg, .nd-person > .pr-photo, .nd-cam { width: 64px; height: 64px; border-radius: 50%; background: radial-gradient(circle at 50% 35%, #fafaf7, #e6e9e0); }
+.nd-person > .pr-thumb { width: 64px; height: 64px; background: radial-gradient(circle at 50% 35%, #fafaf7, #e6e9e0); }
 .nd-cam { display: grid; place-items: center; color: var(--text-2); border: 1.5px dashed var(--line); background: var(--bg); }
 .nd-person > span { font-size: 12px; font-weight: 600; }
 .nd-tick { position: absolute; top: 6px; right: 6px; display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: var(--brand); color: var(--brand-ink); }
@@ -86,8 +87,22 @@
 @media (max-width: 480px) {
   .nd-people { grid-template-columns: repeat(3, 1fr); }
   .nd-foot { flex-direction: column; align-items: stretch; }
+  .nd-foot-btns > .btn { flex: 1; justify-content: center; }
 }
 @media (prefers-reduced-motion: reduce) { .nd-skel { animation: none; } }
+
+/* making the video */
+.nd-foot-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.nd-video { gap: 8px; padding: 11px 16px; font-weight: 600; }
+.modal.nd { position: relative; }
+.nd-rec { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; border-radius: inherit; background: rgba(255, 255, 255, 0.86); backdrop-filter: blur(4px); }
+.nd-rec-card { display: grid; justify-items: center; gap: 8px; width: min(380px, 86%); padding: 26px; border-radius: 18px; background: var(--surface); box-shadow: var(--shadow-pop); text-align: center; }
+.nd-rec-card svg { color: var(--brand-strong); }
+.nd-rec-card b { font-size: 16px; }
+.nd-rec-card p { margin: 0; color: var(--text-2); font-size: 13px; min-height: 1.4em; }
+.nd-rec-card > span { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.nd-rec-bar { width: 100%; height: 8px; border-radius: 999px; background: var(--hover); overflow: hidden; }
+.nd-rec-bar i { display: block; height: 100%; border-radius: inherit; background: var(--brand); transition: width 0.25s ease; }
 
 /* the editor's top-bar button */
 .btn.ed-narrate { border-color: var(--brand-strong); background: var(--brand-soft); color: var(--brand-ink); }

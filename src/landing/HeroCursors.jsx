@@ -156,9 +156,9 @@ export default function HeroCursors({ hero }) {
 
   return (
     <div className="lp-hero-cursors" aria-hidden="true">
-      <Cursor who="m" name="Diyora" c={m} />
+      <Cursor who="m" name="Ziyodbek" c={m} />
       <Cursor who="s" name="Omadbek" c={s} />
-      <Cursor who="g" name="08.08.2026" c={g} />
+      <Cursor who="g" name="Akobir" c={g} />
     </div>
   )
 }
